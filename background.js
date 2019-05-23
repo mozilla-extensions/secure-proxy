@@ -25,8 +25,18 @@ function init() {
   const PROXY_HOST = "127.0.0.1";
   const PROXY_PORT = 65535;
 
+  /**
+   * Decides if we should be proxying the request.
+   * Returns true if the request should be proxied
+   * Returns null if the request is internal and shouldn't count.
+   */
   function shouldProxyRequest(requestInfo) {
     console.log("should proxy", requestInfo);
+    // Internal requests, TODO verify is correct: https://github.com/jonathanKingston/secure-proxy/issues/3
+    if (requestInfo.originUrl === undefined
+        && requestInfo.frameInfo === 0) {
+      return null;
+    }
     if (requestInfo.incognito == true) {
       return true;
     }
@@ -46,20 +56,13 @@ console.log("storing tab ingo", decision, requestInfo, tabs);
       tabs[requestInfo.tabId].proxied = false;
     }
   }
-/* TODO these looks like requests we should never proxy, decide on the best way to detect.
-should proxy 
-Object { requestId: "45", url: "https://safebrowsing.googleapis.com/v4/threatListUpdates:fetch?$ct=application/x-protobuf&key=AIzaSyC7jsptDS3am4tPx4r3nxis7IMjBc5Dovo&$httpMethod=POST&$req=ChUKE25hdmNsaWVudC1hdXRvLWZmb3gaCggFEAIiAiACKAE=", method: "GET", type: "other", fromCache: false, incognito: false, originUrl: undefined, documentUrl: undefined, frameId: 0, parentFrameId: -1, … }
-background.js:37:13
-should proxy 
-Object { requestId: "46", url: "http://ocsp.pki.goog/GTSGIAG3", method: "POST", type: "other", fromCache: false, incognito: false, originUrl: undefined, documentUrl: undefined, frameId: 0, parentFrameId: -1, … }
-background.js:37:13
-should proxy 
-Object { requestId: "47", url: "http://detectportal.firefox.com/success.txt", method: "GET", type: "xmlhttprequest", fromCache: false, incognito: false, originUrl: undefined, documentUrl: undefined, frameId: 0, parentFrameId: -1, … }
-background.js:37:13
-*/
 
   browser.proxy.onRequest.addListener((requestInfo) => {
     const decision = shouldProxyRequest(requestInfo);
+    // Ignore internal requests
+    if (decision === null) {
+      return {type: "direct"};
+    }
     storeRequestState(decision, requestInfo);
     if (decision) {
       return {type: "http", host: PROXY_HOST, port: PROXY_PORT};
