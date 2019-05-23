@@ -1,0 +1,34 @@
+{
+  "manifest_version": 2,
+  "name": "Secure proxy",
+  "version": "1.0.0",
+  "author": "Mozilla Developers",
+
+  "description": "",
+  "browser_action": {
+    "browser_style": true,
+    "default_icon": "img/proxy.png",
+    "default_title": "Secure proxy",
+    "default_popup": "popup.html"
+  },
+
+  "incognito": "spanning",
+
+  "permissions": [
+      "<all_urls>",
+      "browsingData",
+      "contextualIdentities",
+      "cookies",
+      "management",
+      "storage",
+      "tabs",
+      "webRequestBlocking",
+      "webRequest",
+      "proxy",
+      "webNavigation"
+  ],
+
+  "background": {
+      "scripts": ["background.js"]
+  }
+}
