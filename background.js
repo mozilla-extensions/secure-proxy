@@ -1,22 +1,3 @@
-async function boop(options) {
-  if (/^about:/.test(options.originUrl)) {
-    return;
-  }
-  if (!/^firefox-container/.test(options.userContextId)) {
-    return;
-  }
-  // Check we are in an unknown tab
-  if (options.tabId !== -1) {
-    // Request doesn't belong to a tab
-  console.log("TR happened", options);
-    return;
-  }
-
-  console.log("SW happened", options);
-
-  return;
-}
-
 function init() {
   // In memory store of the state of current tabs
   const tabs = [];
@@ -37,7 +18,26 @@ function init() {
         && requestInfo.frameInfo === 0) {
       return null;
     }
+    // If the request is local, ignore
+    if (isLocal(requestInfo)) {
+      return null;
+    }
     if (requestInfo.incognito == true) {
+      return true;
+    }
+    return false;
+  }
+
+  function isLocal(requestInfo) {
+    const hostname = new URL(requestInfo.url).hostname;
+    if (hostname == "localhost" ||
+        hostname == "localhost.localdomain" ||
+        hostname == "localhost6" ||
+        hostname == "localhost6.localdomain6") {
+      return true;
+    }
+    const localports = /(^127\.)|(^192\.168\.)|(^10\.)|(^172\.1[6-9]\.)|(^172\.2[0-9]\.)|(^172\.3[0-1]\.)|(^::1$)|(^[fF][cCdD])/;
+    if (localports.test(hostname)) {
       return true;
     }
     return false;
@@ -82,37 +82,6 @@ console.log("got current selected", tab);
   }
 
   browser.runtime.onMessage.addListener(messageHandler);
-
-  // Add the request listener
-  browser.webRequest.onBeforeRequest.addListener(boop, {urls: ["<all_urls>"], types: [
-    "beacon",
-    "csp_report",
-    "font",
-    "image",
-    "imageset",
-    "main_frame",
-    "media",
-    "object",
-    "object_subrequest",
-    "ping",
-    "script",
-    "speculative",
-    "stylesheet",
-    "sub_frame",
-    "web_manifest",
-    "websocket",
-    "xbl",
-    "xml_dtd",
-    "xmlhttprequest",
-    "xslt",
-    "other",
-  ]}, ["blocking"]);
-
-  browser.webNavigation.onBeforeNavigate.addListener(
-    (options) => {
-      console.log("nav", options);
-    },
-  )
 }
 
 init();
