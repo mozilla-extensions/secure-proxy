@@ -7,7 +7,7 @@
   "description": "",
   "browser_action": {
     "browser_style": true,
-    "default_icon": "img/proxy.png",
+    "default_icon": "img/indeterminate.png",
     "default_title": "Secure proxy",
     "default_popup": "popup.html"
   },

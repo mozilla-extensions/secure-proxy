@@ -12,7 +12,6 @@ function init() {
    * Returns null if the request is internal and shouldn't count.
    */
   function shouldProxyRequest(requestInfo) {
-    console.log("should proxy", requestInfo);
     // Internal requests, TODO verify is correct: https://github.com/jonathanKingston/secure-proxy/issues/3
     if (requestInfo.originUrl === undefined
         && requestInfo.frameInfo === 0) {
@@ -44,18 +43,16 @@ function init() {
   }
 
   function storeRequestState(decision, requestInfo) {
-console.log("storing tab ingo", decision, requestInfo, tabStates);
     let tabState = tabStates.get(requestInfo.tabId) || {};
     // TODO store something smater here for partial tab proxying etc
     if (!("proxied" in tabState)) {
-      setBrowserAction(requestInfo.tabId);
       tabState.proxied = decision;
     // If we currently only have proxied resources and this isn't set false.
     } else if (tabState.proxied && !decision) {
-      setBrowserAction(requestInfo.tabId);
       tabState.proxied = false;
     }
     tabStates.set(requestInfo.tabId, tabState);
+    setBrowserAction(requestInfo.tabId);
   }
 
   browser.proxy.onRequest.addListener((requestInfo) => {
@@ -72,10 +69,8 @@ console.log("storing tab ingo", decision, requestInfo, tabStates);
   }, {urls: ["<all_urls>"]});
 
   async function messageHandler(message, sender, response) {
-console.log("a", message, sender, response);
     if (message.type == "tabInfo") {
       const tab = await browser.tabs.query({active: true, currentWindow: true});
-console.log("got current selected", tab);
       return tabStates.get(tab[0].id);
     }
     // dunno what this message is for
@@ -90,7 +85,7 @@ console.log("got current selected", tab);
     }
     const tabState = tabStates.get(tabId);
     let icon = "img/notproxied.png";
-    if (!tabState) {
+    if (tabState == undefined) {
       icon = "img/indeterminate.png";
     } else if (tabState.proxied == true) {
       icon = "img/proxied.png";
