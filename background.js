@@ -1,6 +1,6 @@
 function init() {
   // In memory store of the state of current tabs
-  const tabs = [];
+  const tabStates = new Map([]);
 
 
   const PROXY_HOST = "127.0.0.1";
@@ -44,17 +44,18 @@ function init() {
   }
 
   function storeRequestState(decision, requestInfo) {
-console.log("storing tab ingo", decision, requestInfo, tabs);
-    if (!tabs[requestInfo.tabId]) {
-      tabs[requestInfo.tabId] = {};
-    }
+console.log("storing tab ingo", decision, requestInfo, tabStates);
+    let tabState = tabStates.get(requestInfo.tabId) || {};
     // TODO store something smater here for partial tab proxying etc
-    if (!("proxied" in tabs[requestInfo.tabId])) {
-      tabs[requestInfo.tabId].proxied = decision;
+    if (!("proxied" in tabState)) {
+      setBrowserAction(requestInfo.tabId);
+      tabState.proxied = decision;
     // If we currently only have proxied resources and this isn't set false.
-    } else if (tabs[requestInfo.tabId].proxied && !decision) {
-      tabs[requestInfo.tabId].proxied = false;
+    } else if (tabState.proxied && !decision) {
+      setBrowserAction(requestInfo.tabId);
+      tabState.proxied = false;
     }
+    tabStates.set(requestInfo.tabId, tabState);
   }
 
   browser.proxy.onRequest.addListener((requestInfo) => {
@@ -75,13 +76,38 @@ console.log("a", message, sender, response);
     if (message.type == "tabInfo") {
       const tab = await browser.tabs.query({active: true, currentWindow: true});
 console.log("got current selected", tab);
-      return tabs[tab[0].id];
+      return tabStates.get(tab[0].id);
     }
     // dunno what this message is for
     return null;
   }
 
   browser.runtime.onMessage.addListener(messageHandler);
+
+  function setBrowserAction(tabId) {
+    if (tabId == browser.tabs.TAB_ID_NONE) {
+      return;
+    }
+    const tabState = tabStates.get(tabId);
+    let icon = "img/notproxied.png";
+    if (!tabState) {
+      icon = "img/indeterminate.png";
+    } else if (tabState.proxied == true) {
+      icon = "img/proxied.png";
+    }
+    browser.browserAction.setIcon({
+      path: icon,
+      tabId,
+    });
+  }
+
+  browser.tabs.onActivated.addListener((activeInfo) => {
+    setBrowserAction(activeInfo.tabId);
+  });
+
+  browser.tabs.onRemoved.addListener((tabInfo) => {
+    tabStates.delete(tabInfo.tabId);
+  });
 }
 
 init();
