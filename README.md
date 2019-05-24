@@ -2,6 +2,20 @@
 
 An extension to enable a proxy within Firefox.
 
+## How to install WebExtension
+
+1. Install web-ext `npm install -g web-ext`
+2. Build the addon `npm run build`
+
+## How to run WebExtension
+
+1. `web-ext run --verbose -f Nightly`
+
+## Dependencies
+
+- web-ext
+- Latest nightly
+
 ## Documentation
 
 - [PRD](https://docs.google.com/document/d/10JYO1KmRKaxV6_2zAevJmErKQg3IT6xeyOrdzJ8nDzE/edit#)
