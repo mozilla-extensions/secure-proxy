@@ -2,12 +2,11 @@ async function init() {
   // In memory store of the state of current tabs
   const tabStates = new Map([]);
 
-  let {enabledState} = await browser.storage.local.get(["enabledState"]);
+  let enabledState = getEnabledState();
   if (enabledState === undefined) {
     // default proxy enabled state to on
-    await browser.storage.local.set({enabledState: true});
+    await setEnabledState(true);
   }
-
 
   const PROXY_HOST = "127.0.0.1";
   const PROXY_PORT = 65535;
@@ -83,12 +82,26 @@ async function init() {
         const tab = await browser.tabs.query({active: true, currentWindow: true});
         return tabStates.get(tab[0].id);
         break;
-      case "enabledState":
-        enabledState = message.value;
+      case "setEnabledState":
+        setEnabledState(message.data.enabledState);
+        break;
+      case "getEnabledState":
+        return getEnabledState();
         break;
     }
     // dunno what this message is for
     return null;
+  }
+
+  async function getEnabledState() {
+    let {enabledState} = await browser.storage.local.get(["enabledState"]);
+    return enabledState;
+  }
+
+  async function setEnabledState(value) {
+    enabledState = value;
+    await browser.storage.local.set({enabledState: value});
+    return enabledState;
   }
 
   browser.runtime.onMessage.addListener(messageHandler);
