@@ -1,5 +1,6 @@
 async function init() {
-  const tabInfo = await sendMessage("tabInfo");
+  const {tabInfo, userInfo} = await sendMessage("initInfo");
+  setUserState(userInfo);
   if (tabInfo && "proxied" in tabInfo) {
     setProxiedState(tabInfo.proxied)
   } else {
@@ -47,6 +48,16 @@ function setProxiedState(state) {
   }
   const message = document.getElementById("state");
   message.textContent = `Proxy state: ${stateName}`;
+}
+
+// Draft function that needs to be fleshed out once we have final mockups
+function setUserState(userInfo) {
+  const userState = document.getElementById("user-state");
+  if (userInfo === null) {
+    userState.textContent = "Not logged in";
+  } else {
+    userState.textContent = `Hi ${userInfo.displayName}`;
+  }
 }
 
 init();
