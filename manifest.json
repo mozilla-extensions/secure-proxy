@@ -28,6 +28,17 @@
       "webNavigation"
   ],
 
+  "experiment_apis": {
+    "sync": {
+      "schema": "experiments/sync/schema.json",
+      "parent": {
+        "scopes": ["addon_parent"],
+        "script": "experiments/sync/api.js",
+        "paths": [["experiments", "sync"]]
+      }
+    }
+  },
+
   "background": {
       "scripts": ["background.js"]
   }
