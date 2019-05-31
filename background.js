@@ -1,7 +1,12 @@
-function init() {
+async function init() {
   // In memory store of the state of current tabs
   const tabStates = new Map([]);
 
+  let enabledState = getEnabledState();
+  if (enabledState === undefined) {
+    // default proxy enabled state to on
+    await setEnabledState(true);
+  }
 
   const PROXY_HOST = "127.0.0.1";
   const PROXY_PORT = 65535;
@@ -57,24 +62,46 @@ function init() {
 
   browser.proxy.onRequest.addListener((requestInfo) => {
     const decision = shouldProxyRequest(requestInfo);
+    if (!enabledState) {
+      return {type: "direct"};
+    }
     // Ignore internal requests
     if (decision === null) {
       return {type: "direct"};
     }
     storeRequestState(decision, requestInfo);
     if (decision) {
-      return {type: "http", host: PROXY_HOST, port: PROXY_PORT};
+      return {type: "http", host: PROXY_HOST, port: PROXY_PORT}; // TODO this will be an array to allow for failover look at proxy.onRequest docs
     }
     return {type: "direct"};
   }, {urls: ["<all_urls>"]});
 
   async function messageHandler(message, sender, response) {
-    if (message.type == "tabInfo") {
-      const tab = await browser.tabs.query({active: true, currentWindow: true});
-      return tabStates.get(tab[0].id);
+    switch (message.type) {
+      case "tabInfo":
+        const tab = await browser.tabs.query({active: true, currentWindow: true});
+        return tabStates.get(tab[0].id);
+        break;
+      case "setEnabledState":
+        setEnabledState(message.data.enabledState);
+        break;
+      case "getEnabledState":
+        return getEnabledState();
+        break;
     }
     // dunno what this message is for
     return null;
+  }
+
+  async function getEnabledState() {
+    let {enabledState} = await browser.storage.local.get(["enabledState"]);
+    return enabledState;
+  }
+
+  async function setEnabledState(value) {
+    enabledState = value;
+    await browser.storage.local.set({enabledState: value});
+    return enabledState;
   }
 
   browser.runtime.onMessage.addListener(messageHandler);
