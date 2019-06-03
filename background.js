@@ -78,9 +78,13 @@ async function init() {
 
   async function messageHandler(message, sender, response) {
     switch (message.type) {
-      case "tabInfo":
+      case "initInfo":
         const tab = await browser.tabs.query({active: true, currentWindow: true});
-        return tabStates.get(tab[0].id);
+        const userInfo = await browser.experiments.sync.getUserProfileInfo();
+        return {
+          userInfo,
+          tabInfo: tabStates.get(tab[0].id)
+        };
         break;
       case "setEnabledState":
         setEnabledState(message.data.enabledState);
