@@ -7,6 +7,8 @@ async function init() {
     setProxiedState(null)
   }
 
+  translateStrings();
+
   let enabledState = await sendMessage("getEnabledState");
 
   const toggleProxy = document.getElementById("toggle-proxy");
@@ -20,6 +22,20 @@ async function init() {
   });
 }
 
+function translateStrings() {
+  let els = [...document.querySelectorAll("[data-l10n]")];
+  for (let el of els) {
+    el.textContent = getTranslation(el.getAttribute("data-l10n"));
+  }
+}
+
+function getTranslation(stringName, ...args) {
+  if (args.length > 0) {
+    return browser.i18n.getMessage(stringName, ...args);
+  }
+  return browser.i18n.getMessage(stringName);
+}
+
 async function sendMessage(type, data = {}) {
   return browser.runtime.sendMessage({
     type,
@@ -31,7 +47,7 @@ async function sendMessage(type, data = {}) {
 function showProxyState(state) {
   // Change the current state text of the toggle button
   const toggleProxy = document.getElementById("toggle-proxy");
-  toggleProxy.textContent = state ? "Disable Proxy" : "Enable Proxy";
+  toggleProxy.textContent = state ? getTranslation("disableProxy") : getTranslation("enableProxy");
 }
 
 function addActiveListener(el, listener) {
@@ -40,23 +56,23 @@ function addActiveListener(el, listener) {
 }
 
 function setProxiedState(state) {
-  let stateName = "Not proxied";
+  let stateName = getTranslation("notProxied");
   if (state) {
-    stateName = "Proxied";
+    stateName = getTranslation("isProxied");
   } else if (state === null) {
-    stateName = "Indeterminate";
+    stateName = getTranslation("isIndeterminate");
   }
   const message = document.getElementById("state");
-  message.textContent = `Proxy state: ${stateName}`;
+  message.textContent = getTranslation("proxyState", stateName);
 }
 
 // Draft function that needs to be fleshed out once we have final mockups
 function setUserState(userInfo) {
   const userState = document.getElementById("user-state");
   if (userInfo === null) {
-    userState.textContent = "Not logged in";
+    userState.textContent = getTranslation("notLoggedIn");
   } else {
-    userState.textContent = `Hi ${userInfo.displayName}`;
+    userState.textContent = getTranslation("loggedIn", userInfo.displayName);
   }
 }
 

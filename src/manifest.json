@@ -1,6 +1,7 @@
 {
   "manifest_version": 2,
-  "name": "Secure proxy",
+  "name": "__MSG_extensionName__",
+  "default_locale": "en_US",
   "version": "1.0.0",
   "author": "Mozilla Developers",
 

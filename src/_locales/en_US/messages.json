@@ -1,0 +1,42 @@
+{
+  "extensionName": {
+    "message": "Secure Proxy"
+  },
+  "introHeading": {
+    "message": "Firefox Proxy"
+  },
+  "enableProxy": {
+    "message": "Enable Proxy"
+  },
+  "disableProxy": {
+    "message": "Disable Proxy"
+  },
+  "notLoggedIn": {
+    "message": "Not logged in"
+  },
+  "loggedIn": {
+    "message": "Hi $NAME$",
+    "placeholders": {
+      "name" : {
+        "content" : "$1"
+      }
+    }
+  },
+  "notProxied": {
+    "message": "Not proxied"
+  },
+  "isProxied": {
+    "message": "Proxied"
+  },
+  "isIndeterminate": {
+    "message": "Indeterminate"
+  },
+  "proxyState": {
+    "message": "Proxy State: $STATENAME$",
+    "placeholders": {
+      "statename" : {
+        "content" : "$1"
+      }
+    }
+  }
+}
