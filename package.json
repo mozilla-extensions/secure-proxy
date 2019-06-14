@@ -1,0 +1,26 @@
+{
+  "name": "secure-proxy",
+  "version": "1.0.0",
+  "description": "An extension to enable a proxy within Firefox.",
+  "main": ".",
+  "directories": {
+    "doc": "docs"
+  },
+  "scripts": {
+    "install": "cp node_modules/fxa-crypto-relier/dist/fxa-crypto-relier/fxa-crypto-relier.js src/vendor/",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mozilla/secure-proxy.git"
+  },
+  "author": "Mozilla Developers",
+  "license": "MPL-2.0",
+  "bugs": {
+    "url": "https://github.com/mozilla/secure-proxy/issues"
+  },
+  "homepage": "https://github.com/mozilla/secure-proxy#readme",
+  "dependencies": {
+    "fxa-crypto-relier": "^2.4.0"
+  }
+}

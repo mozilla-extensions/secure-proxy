@@ -1,3 +1,31 @@
+async function auth() {
+  const FXA_OAUTH_SERVER = "https://oauth-latest.dev.lcip.org/v1";
+  const FXA_CONTENT_SERVER = "https://latest.dev.lcip.org";
+  const fxaKeysUtil = new fxaCryptoRelier.OAuthUtils({
+    contentServer: FXA_CONTENT_SERVER,
+    oauthServer: FXA_OAUTH_SERVER
+  });
+  const FXA_CLIENT_ID = "1c7882c43994658e";
+  const FXA_SCOPES = ["profile", "https://identity.mozilla.com/apps/secure-proxy"];
+  const FXA_REDIRECT_URL = browser.identity.getRedirectURL(); //"https://secure-proxy.extensions.mozilla.com"; // browser.identity.getRedirectURL();
+console.log(FXA_REDIRECT_URL);
+  
+  const loginDetails = await fxaKeysUtil.launchWebExtensionKeyFlow(FXA_CLIENT_ID, {
+    redirectUri: FXA_REDIRECT_URL,
+    scopes: FXA_SCOPES,
+  });
+console.log(loginDetails);
+/*
+    const key = loginDetails.keys['https://identity.mozilla.com/apps/lockbox'];
+    const credentials = {
+      access_token: loginDetails.access_token,
+      refresh_token: loginDetails.refresh_token,
+      key
+    };
+*/
+  return loginDetails;
+}
+
 async function init() {
   // In memory store of the state of current tabs
   const tabStates = new Map([]);
