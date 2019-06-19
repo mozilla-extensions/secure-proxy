@@ -1,29 +1,85 @@
+const FXA_SCOPE = "https://identity.mozilla.com/apps/secure-proxy";
+const FXA_SCOPES = ["profile", FXA_SCOPE];
+const FXA_OAUTH_SERVER = "https://oauth-latest.dev.lcip.org/v1";
+const FXA_CONTENT_SERVER = "https://latest.dev.lcip.org";
+const FXA_PROFILE_SERVER = "https://latest.dev.lcip.org/profile/v1";
+const FXA_CLIENT_ID = "1c7882c43994658e";
+
 async function auth() {
-  const FXA_OAUTH_SERVER = "https://oauth-latest.dev.lcip.org/v1";
-  const FXA_CONTENT_SERVER = "https://latest.dev.lcip.org";
   const fxaKeysUtil = new fxaCryptoRelier.OAuthUtils({
     contentServer: FXA_CONTENT_SERVER,
     oauthServer: FXA_OAUTH_SERVER
   });
-  const FXA_CLIENT_ID = "1c7882c43994658e";
-  const FXA_SCOPES = ["profile", "https://identity.mozilla.com/apps/secure-proxy"];
-  const FXA_REDIRECT_URL = browser.identity.getRedirectURL(); //"https://secure-proxy.extensions.mozilla.com"; // browser.identity.getRedirectURL();
-console.log(FXA_REDIRECT_URL);
+  const FXA_REDIRECT_URL = browser.identity.getRedirectURL();
   
   const loginDetails = await fxaKeysUtil.launchWebExtensionKeyFlow(FXA_CLIENT_ID, {
     redirectUri: FXA_REDIRECT_URL,
     scopes: FXA_SCOPES,
   });
-console.log(loginDetails);
-/*
-    const key = loginDetails.keys['https://identity.mozilla.com/apps/lockbox'];
-    const credentials = {
-      access_token: loginDetails.access_token,
-      refresh_token: loginDetails.refresh_token,
-      key
-    };
-*/
+  browser.storage.local.set({loginDetails});
+
   return loginDetails;
+}
+
+async function fxaFetchProfile(FXA_PROFILE_SERVER, token) { // eslint-disable-line no-unused-vars
+  const headers = new Headers({
+    'Authorization': `Bearer ${token}`
+  });
+  const request = new Request(`${FXA_PROFILE_SERVER}/profile`, {
+    method: 'GET',
+    headers
+  });
+
+  const resp = await fetch(request);
+  if (resp.status === 200) {
+    return resp.json();
+  }
+  throw new Error('Failed to fetch profile');
+}
+
+async function getProfile() {
+/*
+Login details example:
+
+{
+  "access_token": "...",
+  "token_type": "bearer",
+  "scope": "profile https://identity.mozilla.com/apps/secure-proxy",
+  "expires_in": 1209600,
+  "auth_at": 1560898917,
+  "refresh_token": "...", // What does this do? Can I request for a new token and prevent sign out?
+  "keys": {
+    "https://identity.mozilla.com/apps/secure-proxy": {
+      "kty": "oct",
+      "scope": "https://identity.mozilla.com/apps/secure-proxy",
+      "k": "...",
+      "kid": "..."
+    }
+  }
+}
+
+TODO can I use the alert api to clear the data in storage.local and then prompt again?
+
+*/
+  const { loginDetails } = await browser.storage.local.get(["loginDetails"]);
+  if (!loginDetails) {
+    return null;
+  }
+  // TODO check loginDetails.auth_at + loginDetails.expired_at > Date.now()
+
+  const key = loginDetails.keys[FXA_SCOPE];
+  const credentials = {
+    access_token: loginDetails.access_token,
+    refresh_token: loginDetails.refresh_token,
+    key,
+    metadata: {
+      server: FXA_OAUTH_SERVER,
+      client_id: FXA_CLIENT_ID,
+      scope: FXA_SCOPES
+    }
+  };
+
+  return fxaFetchProfile(FXA_PROFILE_SERVER, credentials.access_token);
 }
 
 async function init() {
@@ -108,7 +164,9 @@ async function init() {
     switch (message.type) {
       case "initInfo":
         const tab = await browser.tabs.query({active: true, currentWindow: true});
-        const userInfo = await browser.experiments.sync.getUserProfileInfo();
+        //Sync profile
+        //const userInfo = await browser.experiments.sync.getUserProfileInfo();
+        const userInfo = await getProfile();
         return {
           userInfo,
           tabInfo: tabStates.get(tab[0].id)
@@ -119,6 +177,9 @@ async function init() {
         break;
       case "getEnabledState":
         return getEnabledState();
+        break;
+      case "authenticate":
+        auth();
         break;
     }
     // dunno what this message is for

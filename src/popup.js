@@ -66,13 +66,27 @@ function setProxiedState(state) {
   message.textContent = getTranslation("proxyState", stateName);
 }
 
+function createAuthButton() {
+  const authButton = document.createElement("button");
+  authButton.textContent = getTranslation("activateButton");
+  authButton.addEventListener("click", () => {
+    sendMessage("authenticate");
+  });
+  return authButton;
+}
+
 // Draft function that needs to be fleshed out once we have final mockups
 function setUserState(userInfo) {
+/* example state:
+{"email":"j@email.com","locale":"en-US,en;q=0.5","amrValues":["pwd","email"],"twoFactorAuthentication":false,"uid":"...","avatar":"https://latest.dev.lcip.org/profile/a/...","avatarDefault":true}
+*/
+
   const userState = document.getElementById("user-state");
   if (userInfo === null) {
     userState.textContent = getTranslation("notLoggedIn");
+    userState.appendChild(createAuthButton());
   } else {
-    userState.textContent = getTranslation("loggedIn", userInfo.displayName);
+    userState.textContent = getTranslation("loggedIn", userInfo.email);
   }
 }
 
