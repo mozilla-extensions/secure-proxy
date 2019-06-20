@@ -1,9 +1,16 @@
+// TODO whilst the proxy is enabled set media.peerconnection.enabled to false.
+
+// Read pref for captive portal and disable.
+
+// TODO Get the following from https://latest.dev.lcip.org/.well-known/openid-configuration
+//  or https://accounts.firefox.com/.well-known/openid-configuration for stable.
 const FXA_SCOPE = "https://identity.mozilla.com/apps/secure-proxy";
 const FXA_SCOPES = ["profile", FXA_SCOPE];
 const FXA_OAUTH_SERVER = "https://oauth-latest.dev.lcip.org/v1";
 const FXA_CONTENT_SERVER = "https://latest.dev.lcip.org";
 const FXA_PROFILE_SERVER = "https://latest.dev.lcip.org/profile/v1";
 const FXA_CLIENT_ID = "1c7882c43994658e";
+const JWT_HARDCODED_TOKEN = "eyJhbGciOiJSUzI1NiIsImtpZCI6IkNGVEVTVCJ9.eyJleHAiOjE1NjI4NTYxODAsImlzcyI6InN0YWdpbmcifQ.ROI-75EonHpPsprYXlTnswm2vSmNIN0NmFlsT7zhAGwSB_6r4yTlndpEDnr3s-VBm-Dd3OBIBSMbYqCT1q_jky6ow1faDoCGmXc8UbzB0rZToT5ppIPl0lpWRD5-H-wYzV_Ld3he4uZJLQgcqtHRZUl9XbqNOIi5bSzqtoWG_uiXd-iKaK35SdQ4v0q2ZAEfamgNvWcbEjMEdifDLx47rvirp2L0V3VQxACxjsO8zkNokYVMSfQaPaZG-6ezTTZtes6QiRvGx-AeHspEfWBT-Xl8r68P_yKTgxxG-vdorVkNpOlnMzDOHCPjpS1yODUx844MbhQU1MSgb5X5_lV66g";
 
 async function auth() {
   const fxaKeysUtil = new fxaCryptoRelier.OAuthUtils({
@@ -82,6 +89,8 @@ TODO can I use the alert api to clear the data in storage.local and then prompt 
   return fxaFetchProfile(FXA_PROFILE_SERVER, credentials.access_token);
 }
 
+// onRequestComplete check for error code.
+
 async function init() {
   // In memory store of the state of current tabs
   const tabStates = new Map([]);
@@ -92,8 +101,10 @@ async function init() {
     await setEnabledState(true);
   }
 
-  const PROXY_HOST = "127.0.0.1";
-  const PROXY_PORT = 65535;
+  const PROXY_HOST = "proxy-staging.cloudflareclient.com";
+  const PROXY_PORT = 443;//undefined;//443;//65535;
+  // I don't think the extension will ever control this, however it's worth exempting in case.
+  const CAPTIVE_PORTAL_URL = await browser.experiments.proxyutils.getCaptivePortalURL();
 
   /**
    * Decides if we should be proxying the request.
@@ -101,7 +112,11 @@ async function init() {
    * Returns null if the request is internal and shouldn't count.
    */
   function shouldProxyRequest(requestInfo) {
+    if (CAPTIVE_PORTAL_URL === requestInfo.url) {
+      return null;
+    }
     // Internal requests, TODO verify is correct: https://github.com/jonathanKingston/secure-proxy/issues/3
+    // Verify originUrl is never undefined in normal content
     if (requestInfo.originUrl === undefined
         && requestInfo.frameInfo === 0) {
       return null;
@@ -110,10 +125,8 @@ async function init() {
     if (isLocal(requestInfo)) {
       return null;
     }
-    if (requestInfo.incognito == true) {
-      return true;
-    }
-    return false;
+
+    return true;
   }
 
   function isLocal(requestInfo) {
@@ -143,6 +156,20 @@ async function init() {
     tabStates.set(requestInfo.tabId, tabState);
     setBrowserAction(requestInfo.tabId);
   }
+
+  // TODO rotate hardcoded token here based on the user.
+  browser.webRequest.onAuthRequired.addListener(
+    function () {
+    console.log("auth required: ", arguments);
+      return {
+        authCredentials: {
+          bearer: JWT_HARDCODED_TOKEN
+        }
+      };
+    },
+    {urls: ["<all_urls>"]},
+    ["blocking", "responseHeaders"]
+  );
 
   browser.proxy.onRequest.addListener((requestInfo) => {
     const decision = shouldProxyRequest(requestInfo);
@@ -187,7 +214,7 @@ async function init() {
   }
 
   async function getEnabledState() {
-    let {enabledState} = await browser.storage.local.get(["enabledState"]);
+    let { enabledState } = await browser.storage.local.get(["enabledState"]);
     return enabledState;
   }
 
