@@ -65,9 +65,6 @@ Login details example:
     }
   }
 }
-
-TODO can I use the alert api to clear the data in storage.local and then prompt again?
-
 */
   const { loginDetails } = await browser.storage.local.get(["loginDetails"]);
   if (!loginDetails) {
@@ -102,8 +99,8 @@ async function init() {
     await setEnabledState(true);
   }
 
-  const PROXY_HOST = "proxy-staging.cloudflareclient.com";
-  const PROXY_PORT = 443;//undefined;//443;//65535;
+  const PROXY_HOST = "35.199.173.51";
+  const PROXY_PORT = 8001;
   // I don't think the extension will ever control this, however it's worth exempting in case.
   const CAPTIVE_PORTAL_URL = await browser.experiments.proxyutils.getCaptivePortalURL();
 
@@ -171,19 +168,6 @@ async function init() {
   }
 
   // TODO rotate hardcoded token here based on the user.
-  browser.webRequest.onAuthRequired.addListener(
-    function () {
-    console.log("auth required: ", arguments);
-      return {
-        authCredentials: {
-          bearer: JWT_HARDCODED_TOKEN
-        }
-      };
-    },
-    {urls: ["<all_urls>"]},
-    ["blocking", "responseHeaders"]
-  );
-
   browser.proxy.onRequest.addListener((requestInfo) => {
     const decision = shouldProxyRequest(requestInfo);
     if (!enabledState) {
@@ -195,17 +179,21 @@ async function init() {
     }
     storeRequestState(decision, requestInfo);
     if (decision) {
-      return {type: "http", host: PROXY_HOST, port: PROXY_PORT}; // TODO this will be an array to allow for failover look at proxy.onRequest docs
+      return [{
+        type: "http",
+        host: PROXY_HOST,
+        port: PROXY_PORT,
+        proxyAuthorizationHeader: JWT_HARDCODED_TOKEN,
+        connectionIsolationKey: JWT_HARDCODED_TOKEN,
+      }];
     }
     return {type: "direct"};
-  }, {urls: ["<all_urls>"]});
+  }, {urls: ["<all_urls>"]}, ["requestHeaders"]);
 
   async function messageHandler(message, sender, response) {
     switch (message.type) {
       case "initInfo":
         const tab = await browser.tabs.query({active: true, currentWindow: true});
-        //Sync profile
-        //const userInfo = await browser.experiments.sync.getUserProfileInfo();
         const userInfo = await getProfile();
         return {
           userInfo,

@@ -8,6 +8,17 @@
     ],
     "functions": [
       {
+        "name": "showPrompt",
+        "type": "function",
+        "description": "show the prompt.",
+        "async": true,
+        "parameters": [{
+          "name": "message",
+          "type": "string",
+          "description": "test"
+        }]
+      },
+      {
         "name": "getCurrentState",
         "type": "function",
         "description": "Given a SyncType, returns a Promise that resolves to the SyncState for that type.",
