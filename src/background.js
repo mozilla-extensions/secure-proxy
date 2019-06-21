@@ -4,6 +4,7 @@
 
 // TODO Get the following from https://latest.dev.lcip.org/.well-known/openid-configuration
 //  or https://accounts.firefox.com/.well-known/openid-configuration for stable.
+const FXA_OPENID = "https://latest.dev.lcip.org/.well-known/openid-configuration";
 const FXA_SCOPE = "https://identity.mozilla.com/apps/secure-proxy";
 const FXA_SCOPES = ["profile", FXA_SCOPE];
 const FXA_OAUTH_SERVER = "https://oauth-latest.dev.lcip.org/v1";
@@ -125,8 +126,20 @@ async function init() {
     if (isLocal(requestInfo)) {
       return null;
     }
+    // If is part of oauth also ignore
+    if (isAuthUrl(requestInfo)) {
+      return null;
+    }
 
     return true;
+  }
+
+  function isAuthUrl(requestInfo) {
+    const authUrls = [FXA_OPENID, FXA_OAUTH_SERVER, FXA_CONTENT_SERVER, FXA_PROFILE_SERVER];
+    const origin = new URL(requestInfo.url).origin;
+    return authUrls.some((item) => {
+      return new URL(item).origin == origin;
+    });
   }
 
   function isLocal(requestInfo) {
