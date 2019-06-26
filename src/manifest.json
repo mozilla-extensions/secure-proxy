@@ -4,6 +4,12 @@
   "default_locale": "en_US",
   "version": "1.0.0",
   "author": "Mozilla Developers",
+  "applications": {
+    "gecko": {
+      "id": "secure-proxy@mozilla.com",
+      "strict_min_version": "69.0"
+    }
+  },
 
   "description": "",
   "browser_action": {
@@ -20,6 +26,7 @@
       "browsingData",
       "contextualIdentities",
       "cookies",
+      "identity",
       "management",
       "storage",
       "tabs",
@@ -37,10 +44,21 @@
         "script": "experiments/sync/api.js",
         "paths": [["experiments", "sync"]]
       }
+    },
+    "proxyutils": {
+      "schema": "experiments/proxyutils/schema.json",
+      "parent": {
+        "scopes": ["addon_parent"],
+        "script": "experiments/proxyutils/api.js",
+        "paths": [["experiments", "proxyutils"]]
+      }
     }
   },
 
   "background": {
-      "scripts": ["background.js"]
+      "scripts": [
+        "vendor/fxa-crypto-relier.js",
+        "background.js"
+      ]
   }
 }

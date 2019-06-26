@@ -25,6 +25,9 @@
   "notProxied": {
     "message": "Not proxied"
   },
+  "activateButton": {
+    "message": "Activate account"
+  },
   "isProxied": {
     "message": "Proxied"
   },

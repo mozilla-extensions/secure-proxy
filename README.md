@@ -5,7 +5,8 @@ An extension to enable a proxy within Firefox.
 ## How to install WebExtension
 
 1. Install web-ext `npm install -g web-ext`
-2. Build the addon `npm run build`
+2. Install dependencies `npm run install`
+3. Build the addon `npm run build`
 
 ## How to run WebExtension
 
