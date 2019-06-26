@@ -8,6 +8,7 @@
   },
   "scripts": {
     "build": "cp node_modules/fxa-crypto-relier/dist/fxa-crypto-relier/fxa-crypto-relier.js src/vendor/",
+    "lint": "eslint src",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -22,5 +23,8 @@
   "homepage": "https://github.com/mozilla/secure-proxy#readme",
   "dependencies": {
     "fxa-crypto-relier": "^2.4.0"
+  },
+  "devDependencies": {
+    "eslint": "^6.0.1"
   }
 }
