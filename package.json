@@ -8,8 +8,9 @@
   },
   "scripts": {
     "build": "cp node_modules/fxa-crypto-relier/dist/fxa-crypto-relier/fxa-crypto-relier.js src/vendor/",
-    "md:lint": "npx markdownlint-cli 'docs/*.md'",
-    "md:spell": "npx markdown-spellcheck 'docs/*.md' -a -n -x --en-us",
+    "md": "npm run md:lint && npm run md:spell",
+    "md:lint": "npx markdownlint-cli '*.md' 'docs/*.md'",
+    "md:spell": "npx markdown-spellcheck -a -n -x --en-us '*.md' 'docs/*.md'",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
