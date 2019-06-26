@@ -14,6 +14,7 @@ const FXA_CLIENT_ID = "1c7882c43994658e";
 const JWT_HARDCODED_TOKEN = "eyJhbGciOiJSUzI1NiIsImtpZCI6IkNGVEVTVCJ9.eyJleHAiOjE1NjI4NTYxODAsImlzcyI6InN0YWdpbmcifQ.ROI-75EonHpPsprYXlTnswm2vSmNIN0NmFlsT7zhAGwSB_6r4yTlndpEDnr3s-VBm-Dd3OBIBSMbYqCT1q_jky6ow1faDoCGmXc8UbzB0rZToT5ppIPl0lpWRD5-H-wYzV_Ld3he4uZJLQgcqtHRZUl9XbqNOIi5bSzqtoWG_uiXd-iKaK35SdQ4v0q2ZAEfamgNvWcbEjMEdifDLx47rvirp2L0V3VQxACxjsO8zkNokYVMSfQaPaZG-6ezTTZtes6QiRvGx-AeHspEfWBT-Xl8r68P_yKTgxxG-vdorVkNpOlnMzDOHCPjpS1yODUx844MbhQU1MSgb5X5_lV66g";
 
 // Proxy configuration
+const PROXY_TYPE = "https";
 const PROXY_HOST = "35.199.173.51";
 const PROXY_PORT = 8001;
 
@@ -85,16 +86,9 @@ class Background {
 
   proxyRequestCallback(requestInfo) {
     // TODO rotate hardcoded token here based on the user.
-    const decision = this.shouldProxyRequest(requestInfo);
-
-    // Ignore internal requests
-    if (decision === null) {
-      return {type: "direct"};
-    }
-
-    if (decision) {
+    if (this.shouldProxyRequest(requestInfo)) {
       return [{
-        type: "http",
+        type: PROXY_TYPE,
         host: PROXY_HOST,
         port: PROXY_PORT,
         proxyAuthorizationHeader: JWT_HARDCODED_TOKEN,
