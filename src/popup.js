@@ -7,7 +7,12 @@ async function init() {
   // Let's start showing something...
   View.setView(viewLoadingName);
 
-  const {tabInfo, userInfo, proxyState} = await View.sendMessage("initInfo");
+  let {userInfo, proxyState} = await View.sendMessage("initInfo");
+
+  // For debugging...
+  if (userInfo === null && false) {
+    userInfo = { email: 'foo@bar.com' }
+  }
 
   // No user account. Let's show the login page.
   if (userInfo === null) {
@@ -16,7 +21,7 @@ async function init() {
   }
 
   // The main view.
-  View.setView(viewMainName, {tabInfo, userInfo, proxyState});
+  View.setView(viewMainName, {userInfo, proxyState});
 
   // TODO: proxy setting change observer
   // TODO: network error observer

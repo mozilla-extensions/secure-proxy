@@ -18,6 +18,7 @@ class ViewMain extends View {
     console.log("ViewMain.show");
 
     const content = document.getElementById("content");
+    content.textContent = "";
 
     /* example state:
        {"email":"j@email.com",
@@ -33,12 +34,12 @@ class ViewMain extends View {
     content.appendChild(userInfo);
 
     let stateName;
-    if (!data.tabInfo || !("proxied" in data.tabInfo)) {
-      stateName = this.getTranslation("notProxied");
-    } else if (data.tabInfo.proxied) {
-      stateName = this.getTranslation("isProxied");
-    } else if (data.tabInfo.proxied === null) {
+    if (data.proxyState === undefined) {
       stateName = this.getTranslation("isIndeterminate");
+    } else if (data.proxyState === false) {
+      stateName = this.getTranslation("notProxied");
+    } else {
+      stateName = this.getTranslation("isProxied");
     }
 
     const state = document.createElement("p");

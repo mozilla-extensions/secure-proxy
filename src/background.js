@@ -90,14 +90,13 @@ Login details example:
 // onRequestComplete check for error code.
 
 async function init() {
-  // In memory store of the state of current tabs
-  const tabStates = new Map([]);
-
-  let enabledState = getEnabledState();
+  let enabledState = await getEnabledState();
   if (enabledState === undefined) {
     // default proxy enabled state to on
     await setEnabledState(true);
   }
+
+  setBrowserAction(enabledState);
 
   const PROXY_HOST = "35.199.173.51";
   const PROXY_PORT = 8001;
@@ -154,19 +153,6 @@ async function init() {
     return false;
   }
 
-  function storeRequestState(decision, requestInfo) {
-    let tabState = tabStates.get(requestInfo.tabId) || {};
-    // TODO store something smater here for partial tab proxying etc
-    if (!("proxied" in tabState)) {
-      tabState.proxied = decision;
-    // If we currently only have proxied resources and this isn't set false.
-    } else if (tabState.proxied && !decision) {
-      tabState.proxied = false;
-    }
-    tabStates.set(requestInfo.tabId, tabState);
-    setBrowserAction(requestInfo.tabId);
-  }
-
   // TODO rotate hardcoded token here based on the user.
   browser.proxy.onRequest.addListener((requestInfo) => {
     const decision = shouldProxyRequest(requestInfo);
@@ -177,7 +163,6 @@ async function init() {
     if (decision === null) {
       return {type: "direct"};
     }
-    storeRequestState(decision, requestInfo);
     if (decision) {
       return [{
         type: "http",
@@ -196,16 +181,12 @@ async function init() {
         const tab = await browser.tabs.query({active: true, currentWindow: true});
         return {
           userInfo: await getProfile(),
-          tabInfo: tabStates.get(tab[0].id),
           proxyState: await getEnabledState(),
         };
 
       case "setEnabledState":
-        setEnabledState(message.data.enabledState);
+        setBrowserAction(await setEnabledState(message.data.enabledState));
         break;
-
-      case "getEnabledState":
-        return getEnabledState();
 
       case "authenticate":
         auth();
@@ -228,30 +209,20 @@ async function init() {
 
   browser.runtime.onMessage.addListener(messageHandler);
 
-  function setBrowserAction(tabId) {
-    if (tabId == browser.tabs.TAB_ID_NONE) {
-      return;
-    }
-    const tabState = tabStates.get(tabId);
-    let icon = "img/notproxied.png";
-    if (tabState == undefined) {
+  function setBrowserAction(enabledState) {
+    let icon;
+    if (enabledState === undefined) {
       icon = "img/indeterminate.png";
-    } else if (tabState.proxied == true) {
+    } else if (enabledState === false) {
+      icon = "img/notproxied.png";
+    } else {
       icon = "img/proxied.png";
     }
+
     browser.browserAction.setIcon({
       path: icon,
-      tabId,
     });
   }
-
-  browser.tabs.onActivated.addListener((activeInfo) => {
-    setBrowserAction(activeInfo.tabId);
-  });
-
-  browser.tabs.onRemoved.addListener((tabInfo) => {
-    tabStates.delete(tabInfo.tabId);
-  });
 }
 
 init();
