@@ -194,18 +194,19 @@ async function init() {
     switch (message.type) {
       case "initInfo":
         const tab = await browser.tabs.query({active: true, currentWindow: true});
-        const userInfo = await getProfile();
         return {
-          userInfo,
-          tabInfo: tabStates.get(tab[0].id)
+          userInfo: await getProfile(),
+          tabInfo: tabStates.get(tab[0].id),
+          proxyState: await getEnabledState(),
         };
-        break;
+
       case "setEnabledState":
         setEnabledState(message.data.enabledState);
         break;
+
       case "getEnabledState":
         return getEnabledState();
-        break;
+
       case "authenticate":
         auth();
         break;

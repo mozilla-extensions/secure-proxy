@@ -1,93 +1,22 @@
+import {View} from './view.js';
+import viewLoadingName from './views/loading.js'
+import viewLoginName from './views/login.js'
+import viewMainName from './views/main.js'
+
 async function init() {
-  const {tabInfo, userInfo} = await sendMessage("initInfo");
-  setUserState(userInfo);
-  if (tabInfo && "proxied" in tabInfo) {
-    setProxiedState(tabInfo.proxied)
-  } else {
-    setProxiedState(null)
-  }
+  // Let's start showning something...
+  View.setView(viewLoadingName);
 
-  translateStrings();
+  const {tabInfo, userInfo, proxyState} = await View.sendMessage("initInfo");
 
-  let enabledState = await sendMessage("getEnabledState");
-
-  const toggleProxy = document.getElementById("toggle-proxy");
-  showProxyState(enabledState);
-  addActiveListener(toggleProxy, async (e) => {
-    enabledState = !enabledState;
-    // Send a message to the background script to notify the enabledState has chanded.
-    // This prevents the background script from having to block on reading from the storage per request.
-    await sendMessage("setEnabledState", {enabledState});
-    showProxyState(enabledState);
-  });
-}
-
-function translateStrings() {
-  let els = [...document.querySelectorAll("[data-l10n]")];
-  for (let el of els) {
-    el.textContent = getTranslation(el.getAttribute("data-l10n"));
-  }
-}
-
-function getTranslation(stringName, ...args) {
-  if (args.length > 0) {
-    return browser.i18n.getMessage(stringName, ...args);
-  }
-  return browser.i18n.getMessage(stringName);
-}
-
-async function sendMessage(type, data = {}) {
-  return browser.runtime.sendMessage({
-    type,
-    data,
-  });
-}
-
-// Show proxies current state, called whenever the user changes the proxy to be enabled/disabled
-function showProxyState(state) {
-  // Change the current state text of the toggle button
-  const toggleProxy = document.getElementById("toggle-proxy");
-  toggleProxy.textContent = state ? getTranslation("disableProxy") : getTranslation("enableProxy");
-}
-
-function addActiveListener(el, listener) {
-  el.addEventListener("click", listener);
-  el.addEventListener("submit", listener);
-}
-
-function setProxiedState(state) {
-  let stateName = getTranslation("notProxied");
-  if (state) {
-    stateName = getTranslation("isProxied");
-  } else if (state === null) {
-    stateName = getTranslation("isIndeterminate");
-  }
-  const message = document.getElementById("state");
-  message.textContent = getTranslation("proxyState", stateName);
-}
-
-function createAuthButton() {
-  const authButton = document.createElement("button");
-  authButton.textContent = getTranslation("activateButton");
-  authButton.addEventListener("click", () => {
-    sendMessage("authenticate");
-  });
-  return authButton;
-}
-
-// Draft function that needs to be fleshed out once we have final mockups
-function setUserState(userInfo) {
-/* example state:
-{"email":"j@email.com","locale":"en-US,en;q=0.5","amrValues":["pwd","email"],"twoFactorAuthentication":false,"uid":"...","avatar":"https://latest.dev.lcip.org/profile/a/...","avatarDefault":true}
-*/
-
-  const userState = document.getElementById("user-state");
+  // No user account. Let's show the login page.
   if (userInfo === null) {
-    userState.textContent = getTranslation("notLoggedIn");
-    userState.appendChild(createAuthButton());
-  } else {
-    userState.textContent = getTranslation("loggedIn", userInfo.email);
+    View.setView(viewLoginName);
+    return;
   }
+
+  // The main view.
+  View.setView(viewMainName, {tabInfo, userInfo, proxyState});
 }
 
 init();
