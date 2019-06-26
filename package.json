@@ -7,7 +7,7 @@
     "doc": "docs"
   },
   "scripts": {
-    "install": "cp node_modules/fxa-crypto-relier/dist/fxa-crypto-relier/fxa-crypto-relier.js src/vendor/",
+    "build": "cp node_modules/fxa-crypto-relier/dist/fxa-crypto-relier/fxa-crypto-relier.js src/vendor/",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
