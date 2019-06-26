@@ -187,7 +187,10 @@ class Background {
       return null;
     }
 
-    // TODO check loginDetails.auth_at + loginDetails.expired_at > Date.now()
+    // loginDetails expired.
+    if (loginDetails.auth_at + loginDetails.expires_in <= Date.now() / 1000) {
+      return null;
+    }
 
     const key = loginDetails.keys[FXA_SCOPE];
     const credentials = {
