@@ -4,7 +4,7 @@ import viewLoginName from './views/login.js'
 import viewMainName from './views/main.js'
 
 async function init() {
-  // Let's start showning something...
+  // Let's start showing something...
   View.setView(viewLoadingName);
 
   const {tabInfo, userInfo, proxyState} = await View.sendMessage("initInfo");
@@ -17,6 +17,9 @@ async function init() {
 
   // The main view.
   View.setView(viewMainName, {tabInfo, userInfo, proxyState});
+
+  // TODO: proxy setting change observer
+  // TODO: network error observer
 }
 
 init();

@@ -5,6 +5,9 @@
   "introHeading": {
     "message": "Firefox Proxy"
   },
+  "loading": {
+    "message": "Loading..."
+  },
   "enableProxy": {
     "message": "Enable Proxy"
   },

@@ -5,6 +5,7 @@ function addActiveListener(el, listener) {
   el.addEventListener("submit", listener);
 }
 
+// Main view.
 class ViewMain extends View {
   constructor() {
     super();

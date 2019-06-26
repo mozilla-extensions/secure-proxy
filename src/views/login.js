@@ -1,5 +1,6 @@
 import {View} from '../view.js'
 
+// Login view.
 class ViewLogin extends View {
   show() {
     console.log("ViewLogin.show");
