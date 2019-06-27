@@ -1,5 +1,8 @@
 import {View} from '../view.js'
 
+const PROXY_STATE_INACTIVE = "inactive";
+const PROXY_STATE_ACTIVE = "active";
+
 function addActiveListener(el, listener) {
   el.addEventListener("click", listener);
   el.addEventListener("submit", listener);
@@ -34,12 +37,12 @@ class ViewMain extends View {
     content.appendChild(userInfo);
 
     let stateName;
-    if (data.proxyState === undefined) {
-      stateName = this.getTranslation("isIndeterminate");
-    } else if (data.proxyState === false) {
+    if (data.proxyState == PROXY_STATE_INACTIVE) {
       stateName = this.getTranslation("notProxied");
-    } else {
+    } else if (data.proxyState == PROXY_STATE_ACTIVE) {
       stateName = this.getTranslation("isProxied");
+    } else {
+      stateName = this.getTranslation("isIndeterminate");
     }
 
     const state = document.createElement("p");
@@ -49,7 +52,7 @@ class ViewMain extends View {
     this.toggleButton = document.createElement("button");
     content.appendChild(this.toggleButton);
     
-    this.proxyEnabled = !!data.proxyState;
+    this.proxyEnabled = data.proxyState == PROXY_STATE_ACTIVE;
     this.showProxyState();
 
     addActiveListener(this.toggleButton, async (e) => {

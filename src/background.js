@@ -18,15 +18,21 @@ const PROXY_TYPE = "https";
 const PROXY_HOST = "35.199.173.51";
 const PROXY_PORT = 8001;
 
+const PROXY_STATE_UNKNOWN = "unknown";
+const PROXY_STATE_INACTIVE = "inactive";
+const PROXY_STATE_ACTIVE = "active";
+
 class Background {
   constructor() {
-    this.proxyState = undefined;
+    this.proxyState = PROXY_STATE_UNKNOWN;
   }
 
   async init() {
     // Basic configuration
-    let { enabledState } = await browser.storage.local.get(["enabledState"]);
-    this.proxyState = enabledState;
+    let { proxyState } = await browser.storage.local.get(["proxyState"]);
+    if (proxyState == PROXY_STATE_INACTIVE || proxyState == PROXY_STATE_ACTIVE) {
+      this.proxyState = proxyState;
+    }
 
     // I don't think the extension will ever control this, however it's worth exempting in case.
     this.CAPTIVE_PORTAL_URL = await browser.experiments.proxyutils.getCaptivePortalURL();
@@ -64,19 +70,19 @@ class Background {
   }
 
   async enableProxy(value) {
-    this.proxyState = value;
-    await browser.storage.local.set({enabledState: value});
-    this.updateIcon(value);
+    this.proxyState = value ? PROXY_STATE_ACTIVE : PROXY_STATE_INACTIVE;
+    await browser.storage.local.set({proxyState: this.proxyState});
+    this.updateIcon();
   }
 
   updateIcon() {
     let icon;
-    if (this.proxyState === undefined) {
-      icon = "img/indeterminate.png";
-    } else if (this.proxyState === false) {
+    if (this.proxyState === PROXY_STATE_INACTIVE) {
       icon = "img/notproxied.png";
-    } else {
+    } else if (this.proxyState === PROXY_STATE_ACTIVE) {
       icon = "img/proxied.png";
+    } else {
+      icon = "img/indeterminate.png";
     }
 
     browser.browserAction.setIcon({
@@ -128,7 +134,7 @@ class Background {
       return false;
     }
 
-    if (this.proxyState !== true) {
+    if (this.proxyState !== PROXY_STATE_ACTIVE) {
       return false;
     }
 
