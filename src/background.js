@@ -42,6 +42,7 @@ class Background {
     browser.experiments.proxyutils.onChanged.addListener(async _ => {
       let hasChanged = await this.computeProxyState();
       if (hasChanged) {
+        // TODO: show some UI dialog...?
         this.updateIcon();
       }
     });
