@@ -18,11 +18,6 @@ async function init() {
     return;
   }
 
-  // For debugging...
-  if (userInfo === null && false) {
-    userInfo = { email: 'foo@bar.com' }
-  }
-
   // No user account. Let's show the login page.
   if (userInfo === null) {
     View.setView(viewLoginName);
