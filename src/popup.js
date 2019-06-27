@@ -2,12 +2,19 @@ import {View} from './view.js';
 import viewLoadingName from './views/loading.js'
 import viewLoginName from './views/login.js'
 import viewMainName from './views/main.js'
+import viewOtherProxyName from './views/otherProxy.js'
 
 async function init() {
   // Let's start showing something...
   View.setView(viewLoadingName);
 
-  let {userInfo, proxyState} = await View.sendMessage("initInfo");
+  let {userInfo, proxyState, otherProxyInUse} = await View.sendMessage("initInfo");
+
+  // Other proxy setting in use...
+  if (otherProxyInUse) {
+    View.setView(viewOtherProxyName);
+    return;
+  }
 
   // For debugging...
   if (userInfo === null && false) {

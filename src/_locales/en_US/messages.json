@@ -44,5 +44,8 @@
         "content" : "$1"
       }
     }
+  },
+  "otherProxy": {
+    "message": "Other proxy in use!"
   }
 }

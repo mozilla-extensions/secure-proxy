@@ -55,6 +55,7 @@ class Background {
         return {
           userInfo: await this.getProfile(),
           proxyState: this.proxyState,
+          otherProxyInUse: await browser.experiments.proxyutils.hasProxyInUse(),
         };
 
       case "setEnabledState":
