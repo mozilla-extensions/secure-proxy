@@ -105,24 +105,28 @@ class Background {
    * Returns null if the request is internal and shouldn't count.
    */
   shouldProxyRequest(requestInfo) {
-    function isAuthUrl(requestInfo) {
+    function isProtocolSupported(url) {
+      return url.protocol == "http:" ||
+             url.protocol == "https:" ||
+             url.protocol == "ftp:";
+    }
+
+    function isAuthUrl(url) {
       const authUrls = [FXA_OPENID, FXA_OAUTH_SERVER, FXA_CONTENT_SERVER, FXA_PROFILE_SERVER];
-      const origin = new URL(requestInfo.url).origin;
       return authUrls.some((item) => {
-        return new URL(item).origin == origin;
+        return new URL(item).origin == url.origin;
       });
     }
 
-    function isLocal(requestInfo) {
-      const hostname = new URL(requestInfo.url).hostname;
-      if (hostname == "localhost" ||
-          hostname == "localhost.localdomain" ||
-          hostname == "localhost6" ||
-          hostname == "localhost6.localdomain6") {
+    function isLocal(url) {
+      if (url.hostname == "localhost" ||
+          url.hostname == "localhost.localdomain" ||
+          url.hostname == "localhost6" ||
+          url.hostname == "localhost6.localdomain6") {
         return true;
       }
       const localports = /(^127\.)|(^192\.168\.)|(^10\.)|(^172\.1[6-9]\.)|(^172\.2[0-9]\.)|(^172\.3[0-1]\.)|(^::1$)|(^[fF][cCdD])/;
-      if (localports.test(hostname)) {
+      if (localports.test(url.hostname)) {
         return true;
       }
       return false;
@@ -138,18 +142,26 @@ class Background {
 
     // Internal requests, TODO verify is correct: https://github.com/jonathanKingston/secure-proxy/issues/3
     // Verify originUrl is never undefined in normal content
-    if (requestInfo.originUrl === undefined
-        && requestInfo.frameInfo === 0) {
+    if (requestInfo.originUrl === undefined &&
+        requestInfo.frameInfo === 0) {
+      return false;
+    }
+
+    // Just to avoid recreating the URL several times, let's cache it.
+    const url = new URL(requestInfo.url);
+
+    // Only http/https/ftp requests
+    if (!isProtocolSupported(url)) {
       return false;
     }
 
     // If the request is local, ignore
-    if (isLocal(requestInfo)) {
+    if (isLocal(url)) {
       return false;
     }
 
     // If is part of oauth also ignore
-    if (isAuthUrl(requestInfo)) {
+    if (isAuthUrl(url)) {
       return false;
     }
 
