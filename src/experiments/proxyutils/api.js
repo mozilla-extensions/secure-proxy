@@ -18,6 +18,12 @@ this.proxyutils = class extends ExtensionAPI {
     return {
       experiments: {
         proxyutils: {
+          async hasProxyInUse() {
+            let proxyType = Services.prefs.getIntPref("network.proxy.type");
+            return proxyType == Ci.nsIProtocolProxyService.PROXYCONFIG_PAC ||
+                   proxyType == Ci.nsIProtocolProxyService.PROXYCONFIG_WPAD ||
+                   proxyType == Ci.nsIProtocolProxyService.PROXYCONFIG_MANUAL;
+          },
           async getCaptivePortalURL() {
             return Services.prefs.getStringPref("captivedetect.canonicalURL");
           },
