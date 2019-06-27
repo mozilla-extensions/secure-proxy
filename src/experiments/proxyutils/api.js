@@ -4,7 +4,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-/* globals ChromeUtils, ExtensionAPI, ExtensionCommon, Services */
+/* globals ChromeUtils, ExtensionAPI, ExtensionCommon, Services, Ci */
 
 "use strict";
 
