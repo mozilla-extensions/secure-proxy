@@ -34,9 +34,6 @@
   "isProxied": {
     "message": "Proxied"
   },
-  "isIndeterminate": {
-    "message": "Indeterminate"
-  },
   "proxyState": {
     "message": "Proxy State: $STATENAME$",
     "placeholders": {

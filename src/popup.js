@@ -4,14 +4,16 @@ import viewLoginName from './views/login.js'
 import viewMainName from './views/main.js'
 import viewOtherProxyName from './views/otherProxy.js'
 
+const PROXY_STATE_OTHERINUSE = "otherInUse";
+
 async function init() {
   // Let's start showing something...
   View.setView(viewLoadingName);
 
-  let {userInfo, proxyState, otherProxyInUse} = await View.sendMessage("initInfo");
+  let {userInfo, proxyState} = await View.sendMessage("initInfo");
 
   // Other proxy setting in use...
-  if (otherProxyInUse) {
+  if (proxyState == PROXY_STATE_OTHERINUSE) {
     View.setView(viewOtherProxyName);
     return;
   }
@@ -30,7 +32,6 @@ async function init() {
   // The main view.
   View.setView(viewMainName, {userInfo, proxyState});
 
-  // TODO: proxy setting change observer
   // TODO: network error observer
 }
 

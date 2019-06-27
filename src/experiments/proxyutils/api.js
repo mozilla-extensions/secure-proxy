@@ -18,6 +18,18 @@ this.proxyutils = class extends ExtensionAPI {
     return {
       experiments: {
         proxyutils: {
+          onChanged: new EventManager({
+            context,
+            name: "proxyutils.onChanged",
+            register: fire => {
+              let observer = _ => fire.async();
+              Services.prefs.addObserver("network.proxy.type", observer);
+              return () => {
+                Services.prefs.removeObserver("network.proxy.type", observer);
+              }
+            }
+          }).api(),
+
           async hasProxyInUse() {
             let proxyType = Services.prefs.getIntPref("network.proxy.type");
             return proxyType == Ci.nsIProtocolProxyService.PROXYCONFIG_PAC ||

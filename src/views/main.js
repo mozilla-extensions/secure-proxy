@@ -37,12 +37,15 @@ class ViewMain extends View {
     content.appendChild(userInfo);
 
     let stateName;
+    if (data.proxyState != PROXY_STATE_INACTIVE &&
+        data.proxyState != PROXY_STATE_ACTIVE) {
+      throw new Error("Invalid proxy state for ViewMain");
+    }
+
     if (data.proxyState == PROXY_STATE_INACTIVE) {
       stateName = this.getTranslation("notProxied");
     } else if (data.proxyState == PROXY_STATE_ACTIVE) {
       stateName = this.getTranslation("isProxied");
-    } else {
-      stateName = this.getTranslation("isIndeterminate");
     }
 
     const state = document.createElement("p");
