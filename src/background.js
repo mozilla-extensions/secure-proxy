@@ -129,8 +129,9 @@ class Background {
         type: PROXY_TYPE,
         host: PROXY_HOST,
         port: PROXY_PORT,
-        proxyAuthorizationHeader: JWT_HARDCODED_TOKEN,
-        connectionIsolationKey: JWT_HARDCODED_TOKEN,
+        // TODO: bearer should be replaced by the token_type from the user profile.
+        proxyAuthorizationHeader: 'bearer ' + JWT_HARDCODED_TOKEN,
+        connectionIsolationKey: 'bearer' + JWT_HARDCODED_TOKEN,
       }];
     }
 
