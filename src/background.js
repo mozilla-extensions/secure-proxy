@@ -15,7 +15,7 @@ const JWT_HARDCODED_TOKEN = "eyJhbGciOiJSUzI1NiIsImtpZCI6IkNGVEVTVCJ9.eyJleHAiOj
 
 // Proxy configuration
 const PROXY_TYPE = "https";
-const PROXY_HOST = "35.199.173.51";
+const PROXY_HOST = "proxy-staging.cloudflareclient.com";
 const PROXY_PORT = 8001;
 
 const PROXY_STATE_UNKNOWN = "unknown";
