@@ -3,6 +3,15 @@
     "namespace": "experiments.proxyutils",
     "description": "Firefox Proxy internal API for accessing Firefox stuff.",
     "types": [
+      {
+        "id": "PrefValue",
+        "type": "object",
+        "description": "Pref + value",
+        "properties": {
+          "pref": {"type": "string", "description": "The pref name."},
+          "value": {"type": "boolean", "description": "The value of the pref."}
+        }
+      }
     ],
     "events": [
       {
@@ -26,6 +35,50 @@
         "async": true,
         "description": "Return true if an existing proxy configuration has been detected",
         "parameters": []
+      },
+      {
+        "name": "getProxyStatePrefValues",
+        "type": "function",
+        "async": "callback",
+        "description": "Retrieve the current value of a set of prefs",
+        "parameters": [
+          {
+            "type": "function",
+            "name": "callback",
+            "parameters": [
+              {
+                "name": "values",
+                "type": "array",
+                "items": {"$ref": "PrefValue"},
+                "description": "All the current values of the prefs."
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "name": "setProxyStatePrefValues",
+        "type": "function",
+        "async": "callback",
+        "description": "Set a list of pref values based on the proxy state.",
+        "parameters": [
+          {
+            "name": "values",
+            "type": "array",
+            "items": {"$ref": "PrefValue"},
+            "description": "The pref+values"
+          },
+          {
+            "name": "proxyEnabled",
+            "type": "boolean",
+            "description": "Is the proxy enabled?"
+          },
+          {
+            "type": "function",
+            "name": "callback",
+            "parameters": []
+          }
+        ]
       }
     ]
   }

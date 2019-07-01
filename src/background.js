@@ -1,7 +1,3 @@
-// TODO whilst the proxy is enabled set media.peerconnection.enabled to false.
-
-// Read pref for captive portal and disable.
-
 // TODO Get the following from https://latest.dev.lcip.org/.well-known/openid-configuration
 //  or https://accounts.firefox.com/.well-known/openid-configuration for stable.
 const FXA_OPENID = "https://latest.dev.lcip.org/.well-known/openid-configuration";
@@ -25,6 +21,9 @@ const PROXY_STATE_OTHERINUSE = "otherInUse";
 
 class Background {
   async init() {
+    // Cache a list of pref values to be disabled when the proxy is active.
+    await this.cachePrefValues();
+
     // Basic configuration
     await this.computeProxyState();
 
@@ -104,7 +103,9 @@ class Background {
 
     this.proxyState = value ? PROXY_STATE_ACTIVE : PROXY_STATE_INACTIVE;
     await browser.storage.local.set({proxyState: this.proxyState});
+
     this.updateIcon();
+    this.updatePrefValues();
   }
 
   updateIcon() {
@@ -294,6 +295,32 @@ class Background {
 
     // Let's enable the proxy.
     return this.enableProxy(true);
+  }
+
+  async cachePrefValues() {
+    let data = await browser.storage.local.get(["prefValues"]);
+    if (!data || !Array.isArray(data.prefValues)) {
+      data.prefValues = [];
+    }
+
+    let newData = await browser.experiments.proxyutils.getProxyStatePrefValues();
+    newData.forEach(obj => {
+      if (!data.prefValues.find(d => d.pref == obj.pref)) {
+        data.prefValues.push(obj);
+      }
+    });
+    await browser.storage.local.set({prefValues: data.prefValues});
+  }
+
+  async updatePrefValues() {
+    let data = await browser.storage.local.get(["prefValues"]);
+    if (!data || !Array.isArray(data.prefValues)) {
+      // Why are we here?
+      return;
+    }
+
+    await browser.experiments.proxyutils.setProxyStatePrefValues(data.prefValues,
+                                                                 this.proxyState == PROXY_STATE_ACTIVE);
   }
 }
 

@@ -8,6 +8,10 @@
 
 "use strict";
 
+const PREFS = new Map([
+  ["media.peerconnection.enabled", false],
+]);
+
 ChromeUtils.defineModuleGetter(this, "Services",
                                "resource://gre/modules/Services.jsm");
 
@@ -36,8 +40,28 @@ this.proxyutils = class extends ExtensionAPI {
                    proxyType == Ci.nsIProtocolProxyService.PROXYCONFIG_WPAD ||
                    proxyType == Ci.nsIProtocolProxyService.PROXYCONFIG_MANUAL;
           },
+
           async getCaptivePortalURL() {
             return Services.prefs.getStringPref("captivedetect.canonicalURL");
+          },
+
+          getProxyStatePrefValues() {
+            let data = [];
+            PREFS.forEach((proxyEnabledValue, pref) => {
+              data.push({pref, value: Services.prefs.getBoolPref(pref) });
+            });
+
+            return Promise.resolve(data);
+          },
+
+          setProxyStatePrefValues(values, proxyEnabled) {
+            PREFS.forEach((proxyEnabledValue, pref) => {
+              let value = proxyEnabledValue;
+              if (!proxyEnabled) {
+                value = values.find(d => d.pref == pref).value;
+              }
+              Services.prefs.setBoolPref(pref, value);
+            });
           },
         },
       },
