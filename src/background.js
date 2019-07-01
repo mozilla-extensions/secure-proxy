@@ -18,15 +18,15 @@ const PROXY_TYPE = "https";
 const PROXY_HOST = "35.199.173.51";
 const PROXY_PORT = 8001;
 
-class Background {
-  constructor() {
-    this.proxyState = undefined;
-  }
+const PROXY_STATE_UNKNOWN = "unknown";
+const PROXY_STATE_INACTIVE = "inactive";
+const PROXY_STATE_ACTIVE = "active";
+const PROXY_STATE_OTHERINUSE = "otherInUse";
 
+class Background {
   async init() {
     // Basic configuration
-    let { enabledState } = await browser.storage.local.get(["enabledState"]);
-    this.proxyState = enabledState;
+    await this.computeProxyState();
 
     // I don't think the extension will ever control this, however it's worth exempting in case.
     this.CAPTIVE_PORTAL_URL = await browser.experiments.proxyutils.getCaptivePortalURL();
@@ -38,8 +38,38 @@ class Background {
     browser.proxy.onRequest.addListener((requestInfo) => this.proxyRequestCallback(requestInfo),
                                         {urls: ["<all_urls>"]}, ["requestHeaders"]);
 
+    // proxy setting change observer
+    browser.experiments.proxyutils.onChanged.addListener(async _ => {
+      let hasChanged = await this.computeProxyState();
+      if (hasChanged) {
+        // TODO: show some UI dialog...?
+        this.updateIcon();
+      }
+    });
+
     // UI
     this.updateIcon();
+  }
+
+  // Set this.proxyState based on the current settings.
+  async computeProxyState() {
+    let currentState = this.proxyState;
+    this.proxyState = PROXY_STATE_UNKNOWN;
+
+    // Something else is in use.
+    let otherProxyInUse = await browser.experiments.proxyutils.hasProxyInUse();
+    if (otherProxyInUse) {
+      this.proxyState = PROXY_STATE_OTHERINUSE;
+    }
+
+    if (this.proxyState == PROXY_STATE_UNKNOWN) {
+      let { proxyState } = await browser.storage.local.get(["proxyState"]);
+      if (proxyState == PROXY_STATE_INACTIVE || proxyState == PROXY_STATE_ACTIVE) {
+        this.proxyState = proxyState;
+      }
+    }
+
+    return currentState != this.proxyState;
   }
 
   // Our message handler
@@ -64,19 +94,27 @@ class Background {
   }
 
   async enableProxy(value) {
-    this.proxyState = value;
-    await browser.storage.local.set({enabledState: value});
-    this.updateIcon(value);
+    // We support the changing of proxy state only from some states.
+    if (this.proxyState != PROXY_STATE_UNKNOWN &&
+        this.proxyState != PROXY_STATE_ACTIVE &&
+        this.proxyState != PROXY_STATE_INACTIVE) {
+      return;
+    }
+
+    this.proxyState = value ? PROXY_STATE_ACTIVE : PROXY_STATE_INACTIVE;
+    await browser.storage.local.set({proxyState: this.proxyState});
+    this.updateIcon();
   }
 
   updateIcon() {
     let icon;
-    if (this.proxyState === undefined) {
-      icon = "img/indeterminate.png";
-    } else if (this.proxyState === false) {
+    if (this.proxyState === PROXY_STATE_INACTIVE) {
       icon = "img/notproxied.png";
-    } else {
+    } else if (this.proxyState === PROXY_STATE_ACTIVE) {
       icon = "img/proxied.png";
+    } else {
+      icon = "img/indeterminate.png";
+      // TODO: different icon for errors or otherProxyInUse?
     }
 
     browser.browserAction.setIcon({
@@ -91,8 +129,9 @@ class Background {
         type: PROXY_TYPE,
         host: PROXY_HOST,
         port: PROXY_PORT,
-        proxyAuthorizationHeader: JWT_HARDCODED_TOKEN,
-        connectionIsolationKey: JWT_HARDCODED_TOKEN,
+        // TODO: bearer should be replaced by the token_type from the user profile.
+        proxyAuthorizationHeader: 'bearer ' + JWT_HARDCODED_TOKEN,
+        connectionIsolationKey: 'bearer' + JWT_HARDCODED_TOKEN,
       }];
     }
 
@@ -132,7 +171,7 @@ class Background {
       return false;
     }
 
-    if (this.proxyState !== true) {
+    if (this.proxyState !== PROXY_STATE_ACTIVE) {
       return false;
     }
 

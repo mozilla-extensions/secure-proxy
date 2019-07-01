@@ -2,6 +2,9 @@ import {View} from './view.js';
 import viewLoadingName from './views/loading.js'
 import viewLoginName from './views/login.js'
 import viewMainName from './views/main.js'
+import viewOtherProxyName from './views/otherProxy.js'
+
+const PROXY_STATE_OTHERINUSE = "otherInUse";
 
 async function init() {
   // Let's start showing something...
@@ -9,9 +12,10 @@ async function init() {
 
   let {userInfo, proxyState} = await View.sendMessage("initInfo");
 
-  // For debugging...
-  if (userInfo === null && false) {
-    userInfo = { email: 'foo@bar.com' }
+  // Other proxy setting in use...
+  if (proxyState == PROXY_STATE_OTHERINUSE) {
+    View.setView(viewOtherProxyName);
+    return;
   }
 
   // No user account. Let's show the login page.
@@ -23,7 +27,6 @@ async function init() {
   // The main view.
   View.setView(viewMainName, {userInfo, proxyState});
 
-  // TODO: proxy setting change observer
   // TODO: network error observer
 }
 

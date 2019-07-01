@@ -34,9 +34,6 @@
   "isProxied": {
     "message": "Proxied"
   },
-  "isIndeterminate": {
-    "message": "Indeterminate"
-  },
   "proxyState": {
     "message": "Proxy State: $STATENAME$",
     "placeholders": {
@@ -44,5 +41,8 @@
         "content" : "$1"
       }
     }
+  },
+  "otherProxy": {
+    "message": "Other proxy in use!"
   }
 }
