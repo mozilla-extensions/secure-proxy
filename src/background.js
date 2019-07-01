@@ -62,7 +62,8 @@ class Background {
       this.proxyState = PROXY_STATE_OTHERINUSE;
     }
 
-    if (this.proxyState == PROXY_STATE_UNKNOWN) {
+    if (this.proxyState == PROXY_STATE_UNKNOWN &&
+        await this.hasValidProfile()) {
       let { proxyState } = await browser.storage.local.get(["proxyState"]);
       if (proxyState == PROXY_STATE_INACTIVE || proxyState == PROXY_STATE_ACTIVE) {
         this.proxyState = proxyState;
@@ -207,7 +208,11 @@ class Background {
     return true;
   }
 
-  async getProfile() {
+  async hasValidProfile() {
+    return !!(await this.getLocalProfile());
+  }
+
+  async getLocalProfile() {
     /*
     Login details example:
     {
@@ -234,6 +239,15 @@ class Background {
 
     // loginDetails expired.
     if (loginDetails.auth_at + loginDetails.expires_in <= Date.now() / 1000) {
+      return null;
+    }
+
+    return loginDetails;
+  }
+
+  async getProfile() {
+    let loginDetails = await this.getLocalProfile();
+    if (!loginDetails) {
       return null;
     }
 
