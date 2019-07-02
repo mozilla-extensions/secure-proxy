@@ -14,6 +14,17 @@
     ],
     "functions": [
       {
+        "name": "showPrompt",
+        "type": "function",
+        "description": "show the prompt.",
+        "async": true,
+        "parameters": [{
+          "name": "message",
+          "type": "string",
+          "description": "test"
+        }]
+      },
+      {
         "name": "getCaptivePortalURL",
         "type": "function",
         "async": true,

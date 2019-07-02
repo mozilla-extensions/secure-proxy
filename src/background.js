@@ -43,12 +43,33 @@ class Background {
       let hasChanged = await this.computeProxyState();
       if (hasChanged) {
         // TODO: show some UI dialog...?
+        this.showStatusPrompt();
         this.updateIcon();
       }
     });
 
     // UI
+    this.showStatusPrompt();
     this.updateIcon();
+  }
+
+  getTranslation(stringName, ...args) {
+    if (args.length > 0) {
+      return browser.i18n.getMessage(stringName, ...args);
+    }
+    return browser.i18n.getMessage(stringName);
+  }
+
+  showStatusPrompt() {
+    let promptNotice;
+    if (this.proxyState === PROXY_STATE_INACTIVE) {
+      promptNotice = "notProxied";
+    } else if (this.proxyState === PROXY_STATE_ACTIVE) {
+      promptNotice = "isProxied";
+    }
+    if (promptNotice) {
+      browser.experiments.proxyutils.showPrompt(browser.i18n.getMessage(promptNotice));
+    }
   }
 
   // Set this.proxyState based on the current settings.
