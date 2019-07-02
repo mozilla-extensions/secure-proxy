@@ -33,6 +33,28 @@ class Background {
     browser.proxy.onRequest.addListener((requestInfo) => this.proxyRequestCallback(requestInfo),
                                         {urls: ["<all_urls>"]}, ["requestHeaders"]);
 
+    browser.webRequest.onErrorOccurred.addListener(details => {
+      if (this.proxyState != PROXY_STATE_ACTIVE) {
+        return;
+      }
+
+      if (details.error == "NS_ERROR_PROXY_AUTHENTICATION_FAILED") {
+        // TODO: update the UI...
+        // TODO: rotate the token.. maybe?
+        this.proxyState = PROXY_STATE_PROXYAUTHFAILED;
+        return;
+      }
+
+      if (details.error == "NS_ERROR_PROXY_CONNECTION_REFUSED" ||
+          details.error == "NS_ERROR_PROXY_BAD_GATEWAY" ||
+          details.error == "NS_ERROR_PROXY_GATEWAY_TIMEOUT") {
+        // TODO: update the UI...
+        this.proxyState = PROXY_STATE_PROXYERROR;
+        return;
+      }
+    }, {urls: ["<all_urls>"]});
+
+
     // proxy setting change observer
     browser.experiments.proxyutils.onChanged.addListener(async _ => {
       let hasChanged = await this.computeProxyState();
@@ -71,6 +93,12 @@ class Background {
   async computeProxyState() {
     let currentState = this.proxyState;
     this.proxyState = PROXY_STATE_UNKNOWN;
+
+    // We want to keep this state.
+    if (currentState == PROXY_STATE_PROXYERROR ||
+        currentState == PROXY_STATE_PROXYAUTHFAILED) {
+      this.proxyState == currentState;
+    }
 
     // Something else is in use.
     let otherProxyInUse = await browser.experiments.proxyutils.hasProxyInUse();

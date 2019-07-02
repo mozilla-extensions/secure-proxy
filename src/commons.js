@@ -9,3 +9,9 @@ const PROXY_STATE_ACTIVE = "active";
 
 // There is another proxy in use.
 const PROXY_STATE_OTHERINUSE = "otherInUse";
+
+// Generic proxy error.
+const PROXY_STATE_PROXYERROR = "proxyError";
+
+// The proxy rejects the current user token.
+const PROXY_STATE_PROXYAUTHFAILED = "proxyAuthFailed";
