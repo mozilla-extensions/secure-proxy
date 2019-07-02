@@ -34,6 +34,13 @@ class Background {
     // Message handler
     browser.runtime.onMessage.addListener((m, s, r) => this.messageHandler(m, s, r));
 
+    // A map of content-script ports. The key is the tabId.
+    this.contentScriptPorts = new Map();
+
+    // Content-Script interaction
+    browser.runtime.onConnect.addListener(p => this.contentScriptConnected(p));
+    browser.tabs.onRemoved.addListener(id => this.contentScriptDisconnected(id));
+
     // Proxy configuration
     browser.proxy.onRequest.addListener((requestInfo) => this.proxyRequestCallback(requestInfo),
                                         {urls: ["<all_urls>"]}, ["requestHeaders"]);
@@ -104,7 +111,9 @@ class Background {
 
     this.proxyState = value ? PROXY_STATE_ACTIVE : PROXY_STATE_INACTIVE;
     await browser.storage.local.set({proxyState: this.proxyState});
+
     this.updateIcon();
+    this.informContentScripts();
   }
 
   updateIcon() {
@@ -120,6 +129,30 @@ class Background {
 
     browser.browserAction.setIcon({
       path: icon,
+    });
+  }
+
+  contentScriptConnected(p) {
+    this.contentScriptPorts.set(p.sender.tab.id, p);
+    // Let's inform the new port about the current state.
+    this.contentScriptNotify(p);
+
+    p.onMessage.addListener(m => {
+      // TODO: show some UI to inform the user the webrtc is in used.
+    });
+  }
+
+  contentScriptDisconnected(tabId) {
+    this.contentScriptPorts.delete(tabId);
+  }
+
+  contentScriptNotify(p) {
+    p.postMessage({type: "proxyState", enabled: this.proxyState == PROXY_STATE_ACTIVE});
+  }
+
+  informContentScripts() {
+    this.contentScriptPorts.forEach(p => {
+      this.contentScriptNotify(p);
     });
   }
 
