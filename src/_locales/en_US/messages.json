@@ -53,5 +53,8 @@
   },
   "internalError": {
     "message": "Internal error!"
+  },
+  "authFailure": {
+    "message": "Authentication Failure. Try again."
   }
 }

@@ -15,3 +15,6 @@ const PROXY_STATE_PROXYERROR = "proxyError";
 
 // The proxy rejects the current user token.
 const PROXY_STATE_PROXYAUTHFAILED = "proxyAuthFailed";
+
+// Authentication failed
+const PROXY_STATE_AUTHFAILURE = "authFailure";
