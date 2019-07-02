@@ -44,5 +44,8 @@
   },
   "otherProxy": {
     "message": "Other proxy in use!"
+  },
+  "internalError": {
+    "message": "Internal error!"
   }
 }

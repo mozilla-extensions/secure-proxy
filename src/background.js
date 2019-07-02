@@ -85,9 +85,12 @@ class Background {
 
     if (this.proxyState == PROXY_STATE_UNKNOWN &&
         await this.hasValidProfile()) {
+      // The proxy is active by default. If proxyState contains a invalid
+      // value, we still want the proxy to be active.
+      this.proxyState = PROXY_STATE_ACTIVE;
       let { proxyState } = await browser.storage.local.get(["proxyState"]);
-      if (proxyState == PROXY_STATE_INACTIVE || proxyState == PROXY_STATE_ACTIVE) {
-        this.proxyState = proxyState;
+      if (proxyState == PROXY_STATE_INACTIVE) {
+        this.proxyState = PROXY_STATE_INACTIVE;
       }
     }
 
@@ -104,7 +107,7 @@ class Background {
         };
 
       case "setEnabledState":
-        this.enableProxy(message.data.enabledState);
+        await this.enableProxy(message.data.enabledState);
         break;
 
       case "authenticate":
@@ -297,7 +300,7 @@ class Background {
       return resp.json();
     }
 
-    throw new Error('Failed to fetch profile');
+    return null;
   }
 
   async auth() {
@@ -314,7 +317,7 @@ class Background {
     browser.storage.local.set({loginDetails});
 
     // Let's enable the proxy.
-    return this.enableProxy(true);
+    await this.enableProxy(true);
   }
 }
 
