@@ -207,8 +207,7 @@ class Background {
 
   updateIcon() {
     let icon;
-    if (this.proxyState === PROXY_STATE_INACTIVE ||
-        this.proxyState === PROXY_STATE_UNKNOWN) {
+    if (this.proxyState === PROXY_STATE_INACTIVE) {
       icon = "img/badge_off.png";
     } else if (this.proxyState === PROXY_STATE_ACTIVE) {
       icon = "img/badge_on.png";
