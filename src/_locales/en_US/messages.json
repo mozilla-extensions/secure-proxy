@@ -45,6 +45,12 @@
   "otherProxy": {
     "message": "Other proxy in use!"
   },
+  "proxyError": {
+    "message": "Something when wrong using the proxy"
+  },
+  "proxyAuthFailed": {
+    "message": "Authentication failure when using the proxy"
+  },
   "internalError": {
     "message": "Internal error!"
   }
