@@ -18,9 +18,16 @@ const PROXY_TYPE = "https";
 const PROXY_HOST = "proxy-staging.cloudflareclient.com";
 const PROXY_PORT = 8001;
 
+// The user is unknown, the proxy is not configured.
 const PROXY_STATE_UNKNOWN = "unknown";
+
+// The user is registered, the proxy has been disabled.
 const PROXY_STATE_INACTIVE = "inactive";
+
+// The user is registered, the proxy is active.
 const PROXY_STATE_ACTIVE = "active";
+
+// The is another proxy in use.
 const PROXY_STATE_OTHERINUSE = "otherInUse";
 
 class Background {
