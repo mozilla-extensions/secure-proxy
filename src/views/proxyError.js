@@ -2,10 +2,21 @@ import {View} from '../view.js'
 import {escapedTemplate} from '../template.js'
 
 class ViewProxyError extends View {
-  show(proxyState) {
+  show(data) {
     return escapedTemplate`<p>
-      ${this.getTranslation(proxyState)}
-    </p>`;
+      ${this.getTranslation(data)}
+    </p>
+    <button id="toggleButton"></button>`;
+  }
+
+  postShow(data) {
+    const toggleButton = document.getElementById("toggleButton");
+    toggleButton.textContent = this.getTranslation("enableProxy");
+  }
+
+  async handleEvent() {
+    await View.sendMessage("setEnabledState", {enabledState: true});
+    close();
   }
 }
 

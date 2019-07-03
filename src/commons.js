@@ -8,7 +8,7 @@ const PROXY_STATE_INACTIVE = "inactive";
 const PROXY_STATE_ACTIVE = "active";
 
 // There is another proxy in use.
-const PROXY_STATE_OTHERINUSE = "otherInUse";
+const PROXY_STATE_OTHERINUSE = "otherProxyInUse";
 
 // Generic proxy error.
 const PROXY_STATE_PROXYERROR = "proxyError";

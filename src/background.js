@@ -66,12 +66,12 @@ class Background {
     browser.experiments.proxyutils.onChanged.addListener(async _ => {
       let hasChanged = await this.computeProxyState();
       if (hasChanged) {
-        this.updateUI();
+        this.updateUI(true /* showStatusPrompt */);
       }
     });
 
     // UI
-    this.updateUI();
+    this.updateUI(false /* showStatusPrompt */);
   }
 
   getTranslation(stringName, ...args) {
@@ -88,7 +88,7 @@ class Background {
 
     if (errorStatus == "NS_ERROR_PROXY_AUTHENTICATION_FAILED") {
       this.proxyState = PROXY_STATE_PROXYAUTHFAILED;
-      this.updateUI();
+      this.updateUI(true /* showStatusPrompt */);
       // TODO: rotate the token.. maybe?
       return;
     }
@@ -97,7 +97,7 @@ class Background {
         errorStatus == "NS_ERROR_PROXY_BAD_GATEWAY" ||
         errorStatus == "NS_ERROR_PROXY_GATEWAY_TIMEOUT") {
       this.proxyState = PROXY_STATE_PROXYERROR;
-      this.updateUI();
+      this.updateUI(true /* showStatusPrompt */);
       return;
     }
   }
@@ -106,23 +106,19 @@ class Background {
     let promptNotice;
     switch(this.proxyState) {
       case PROXY_STATE_INACTIVE:
-        promptNotice = "notProxied";
+        promptNotice = "toastNotProxied";
         break;
 
       case PROXY_STATE_ACTIVE:
-        promptNotice = "isProxied";
+        promptNotice = "toastIsProxied";
         break;
 
       case PROXY_STATE_OTHERINUSE:
-        promptNotice = "otherProxy";
-        break;
-
+        // fall though
       case PROXY_STATE_PROXYERROR:
-        promptNotice = "proxyError";
-        break;
-
+        // fall though
       case PROXY_STATE_PROXYAUTHFAILED:
-        promptNotice = "proxyAuthFailed";
+        promptNotice = "toastWarning";
         break;
 
       default:
@@ -200,8 +196,10 @@ class Background {
     this.updateIcon();
   }
 
-  updateUI() {
-    this.showStatusPrompt();
+  updateUI(showStatusPrompt) {
+    if (showStatusPrompt) {
+      this.showStatusPrompt();
+    }
     this.updateIcon();
   }
 
