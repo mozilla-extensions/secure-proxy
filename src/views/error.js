@@ -1,16 +1,12 @@
 import {View} from '../view.js'
+import {escapedTemplate} from '../template.js'
 
 // This is the first view to be shown.
 class ViewError extends View {
   show(data) {
-    console.log("ViewError.show");
-
-    const content = document.getElementById("content");
-    content.textContent = "";
-
-    const error = document.createElement("p");
-    error.textContent = this.getTranslation(data);
-    content.appendChild(error);
+    return escapedTemplate`<p>
+      ${this.getTranslation(data)}
+    </p>`;
   }
 }
 

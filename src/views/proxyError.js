@@ -2,10 +2,9 @@ import {View} from '../view.js'
 
 class ViewProxyError extends View {
   show(proxyState) {
-    console.log("ViewProxyError.show");
-
-    const content = document.getElementById("content");
-    content.textContent = this.getTranslation(proxyState);
+    return escapedTemplate`<p>
+      ${this.getTranslation(proxyState)}
+    </p>`;
   }
 }
 
