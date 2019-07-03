@@ -1,20 +1,21 @@
 import {View} from '../view.js'
+import {escapedTemplate} from '../template.js'
 
 // Login view.
 class ViewLogin extends View {
   show() {
-    console.log("ViewLogin.show");
+    return escapedTemplate`<p>
+      ${this.getTranslation("notLoggedIn")}
+    </p>
+    <button id="authButton">
+      ${this.getTranslation("activateButton")}
+    </button>`;
+  }
 
-    const content = document.getElementById("content");
-    content.textContent = this.getTranslation("notLoggedIn");
-
-    const authButton = document.createElement("button");
-    authButton.textContent = this.getTranslation("activateButton");
-    authButton.addEventListener("click", () => {
+  handleEvent(e) {
+    if (e.target.id == "authButton") {
       View.sendMessage("authenticate");
-    });
-
-    content.appendChild(authButton);
+    }
   }
 }
 

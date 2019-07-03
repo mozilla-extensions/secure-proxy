@@ -1,15 +1,12 @@
 import {View} from '../view.js'
+import {escapedTemplate} from '../template.js'
 
 // This is the first view to be shown.
 class ViewLoading extends View {
   show() {
-    console.log("ViewLoading.show");
-
-    const content = document.getElementById("content");
-
-    const loading = document.createElement("p");
-    loading.textContent = this.getTranslation("loading");
-    content.appendChild(loading);
+    return escapedTemplate`<p>
+      ${this.getTranslation("loading")}
+    </p>`;
   }
 }
 

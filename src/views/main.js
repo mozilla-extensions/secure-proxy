@@ -1,12 +1,8 @@
 import {View} from '../view.js'
+import {escapedTemplate} from '../template.js'
 
 const PROXY_STATE_INACTIVE = "inactive";
 const PROXY_STATE_ACTIVE = "active";
-
-function addActiveListener(el, listener) {
-  el.addEventListener("click", listener);
-  el.addEventListener("submit", listener);
-}
 
 // Main view.
 class ViewMain extends View {
@@ -18,11 +14,6 @@ class ViewMain extends View {
   }
 
   show(data) {
-    console.log("ViewMain.show");
-
-    const content = document.getElementById("content");
-    content.textContent = "";
-
     /* example state:
        {"email":"j@email.com",
         "locale":"en-US,en;q=0.5",
@@ -32,9 +23,8 @@ class ViewMain extends View {
         "avatar":"https://latest.dev.lcip.org/profile/a/...",
         "avatarDefault":true}
     */
-    const userInfo = document.createElement("p");
-    userInfo.textContent = this.getTranslation("loggedIn", data.userInfo.email);
-    content.appendChild(userInfo);
+
+    let loggedIn = this.getTranslation("loggedIn", data.userInfo.email);
 
     let stateName;
     if (data.proxyState != PROXY_STATE_INACTIVE &&
@@ -48,23 +38,30 @@ class ViewMain extends View {
       stateName = this.getTranslation("isProxied");
     }
 
-    const state = document.createElement("p");
-    state.textContent = this.getTranslation("proxyState", stateName);
-    content.appendChild(state);
+    let stateText = this.getTranslation("proxyState", stateName);
+    let userInfo = escapedTemplate`<p>
+      ${loggedIn}
+    </p>
+    <p>
+      ${stateText}
+    </p>
+    <button id="toggleButton"></button>`;
 
-    this.toggleButton = document.createElement("button");
-    content.appendChild(this.toggleButton);
-    
+    return userInfo;
+  }
+
+  postShow(data) {
+    this.toggleButton = document.getElementById("toggleButton");
     this.proxyEnabled = data.proxyState == PROXY_STATE_ACTIVE;
     this.showProxyState();
+  }
 
-    addActiveListener(this.toggleButton, async (e) => {
-      this.proxyEnabled = !this.proxyEnabled;
-      // Send a message to the background script to notify the proxyEnabled has chanded.
-      // This prevents the background script from having to block on reading from the storage per request.
-      await View.sendMessage("setEnabledState", {enabledState: this.proxyEnabled});
-      this.showProxyState();
-    });
+  async handleEvent() {
+    this.proxyEnabled = !this.proxyEnabled;
+    // Send a message to the background script to notify the proxyEnabled has chanded.
+    // This prevents the background script from having to block on reading from the storage per request.
+    await View.sendMessage("setEnabledState", {enabledState: this.proxyEnabled});
+    this.showProxyState();
   }
 
   showProxyState() {
