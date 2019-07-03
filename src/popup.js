@@ -5,12 +5,6 @@ import viewLoginName from './views/login.js'
 import viewMainName from './views/main.js'
 import viewOtherProxyName from './views/otherProxy.js'
 
-// See background.js to know more about the meaning of these values.
-const PROXY_STATE_UNKNOWN = "unknown";
-const PROXY_STATE_INACTIVE = "inactive";
-const PROXY_STATE_ACTIVE = "active";
-const PROXY_STATE_OTHERINUSE = "otherInUse";
-
 async function init() {
   // Let's start showing something...
   View.setView(viewLoadingName);
