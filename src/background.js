@@ -207,12 +207,13 @@ class Background {
 
   updateIcon() {
     let icon;
-    if (this.proxyState === PROXY_STATE_INACTIVE) {
-      icon = "img/notproxied.png";
+    if (this.proxyState === PROXY_STATE_INACTIVE ||
+        this.proxyState === PROXY_STATE_UNKNOWN) {
+      icon = "img/badge_off.png";
     } else if (this.proxyState === PROXY_STATE_ACTIVE) {
-      icon = "img/proxied.png";
+      icon = "img/badge_on.png";
     } else {
-      icon = "img/indeterminate.png";
+      icon = "img/badge_warning.png";
     }
 
     browser.browserAction.setIcon({
