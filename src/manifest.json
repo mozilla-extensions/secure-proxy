@@ -50,6 +50,7 @@
   "background": {
       "scripts": [
         "vendor/fxa-crypto-relier.js",
+        "commons.js",
         "background.js"
       ]
   }

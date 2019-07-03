@@ -18,11 +18,6 @@ const PROXY_TYPE = "https";
 const PROXY_HOST = "proxy-staging.cloudflareclient.com";
 const PROXY_PORT = 8001;
 
-const PROXY_STATE_UNKNOWN = "unknown";
-const PROXY_STATE_INACTIVE = "inactive";
-const PROXY_STATE_ACTIVE = "active";
-const PROXY_STATE_OTHERINUSE = "otherInUse";
-
 class Background {
   async init() {
     // Basic configuration
