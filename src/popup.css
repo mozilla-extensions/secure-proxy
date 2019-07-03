@@ -1,0 +1,131 @@
+:root {
+  --base-font-size: 10px;
+  --heading-font-size: 12px;
+
+  --in-content-selected-text: #fff;
+  --in-content-button-background: var(--grey-90-a10);
+  --in-content-button-background-hover: var(--grey-90-a20);
+  --in-content-button-background-active: var(--grey-90-a30);
+  --in-content-primary-button-background: var(--blue-60);
+  --in-content-primary-button-background-hover: var(--blue-70);
+  --in-content-primary-button-background-active: var(--blue-80);
+
+  --blue-40: #45a1ff;
+  --blue-40-a10: rgb(69, 161, 255, 0.1);
+  --blue-50: #0a84ff;
+  --blue-50-a30: rgba(10, 132, 255, 0.3);
+  --blue-60: #0060df;
+  --blue-70: #003eaa;
+  --blue-80: #002275;
+  --grey-20: #ededf0;
+  --grey-30: #d7d7db;
+  --grey-40: #b1b1b3;
+  --grey-50: #737373;
+  --grey-60: #4a4a4f;
+  --grey-90: #0c0c0d;
+  --grey-90-a10: rgba(12, 12, 13, 0.1);
+  --grey-90-a20: rgba(12, 12, 13, 0.2);
+  --grey-90-a30: rgba(12, 12, 13, 0.3);
+  --grey-90-a50: rgba(12, 12, 13, 0.5);
+  --grey-90-a60: rgba(12, 12, 13, 0.6);
+}
+
+button {
+  -moz-appearance: none;
+  min-height: 32px;
+  color: inherit !important;
+  border: 1px solid transparent;
+  border-radius: 2px;
+  background-color: var(--in-content-button-background);
+  font-weight: 400;
+  padding: 0 8px;
+  text-decoration: none;
+  margin: 4px 8px;
+  font-size: 1em;
+}
+
+button.primary {
+  color: var(--in-content-selected-text);
+}
+
+button[autofocus],
+button.primary {
+  background-color: var(--in-content-primary-button-background);
+  color: var(--in-content-selected-text) !important;
+}
+
+button[autofocus]:enabled:hover,
+button.primary:enabled:hover {
+  background-color: var(--in-content-primary-button-background-hover);
+}
+
+button[autofocus]:enabled:hover:active,
+button.primary:enabled:hover:active {
+  background-color: var(--in-content-primary-button-background-active);
+}
+
+#content {
+  inline-size: 320px;
+  margin: 20px;
+}
+
+#introHeading {
+  font-size: var(--heading-font-size);
+  font-weight: bold;
+  display: flex;
+  padding-inline-end: 2px;
+  padding-inline-start: 2px;
+  position: relative;
+}
+
+#introHeading button {
+  padding: 8px;
+}
+
+#introHeading h1 {
+  flex: auto;
+}
+
+#settingsButton {
+  block-size: 16px;
+  inline-size: 16px;
+  display: block;
+  border: none;
+  background: url('/img/i-settings32.png') -6px -6px / 28px; /* TODO get SVG or cropped PNG*/
+  margin: auto 0 auto auto;
+}
+[hidden]#settingsButton {
+  display: none;
+}
+
+#stateButton {
+  block-size: 80px;
+  inline-size: 80px;
+  border-radius: 100%;
+  font-size: 20px;
+  background-color: #fff;
+  display: inline;
+  margin: auto auto;
+  border: 1px solid limegreen; /* TODO get real color */
+  text-align: center;
+}
+
+[data-state="login"] #stateButton {
+  background: red; /* TODO get real image here*/
+}
+
+[data-state="disabled"] #stateButton {
+  background-color: #bbb8c2;
+}
+
+#state {
+  background-color: rgb(28, 17, 51);
+  block-size: 200px;
+  display: flex;
+}
+
+footer {
+  padding: 12px 20px;
+  border-block-start: 1px solid #e4e4e4;
+  background: #f9f9fb;
+}

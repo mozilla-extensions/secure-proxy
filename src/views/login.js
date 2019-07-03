@@ -3,13 +3,24 @@ import {escapedTemplate} from '../template.js'
 
 // Login view.
 class ViewLogin extends View {
+  state() {
+    return {
+      state: "login"
+    };
+  }
+
   show() {
-    return escapedTemplate`<p>
-      ${this.getTranslation("notLoggedIn")}
+    return escapedTemplate`
+    <p>
+      ${this.getTranslation("signInMessage")}
     </p>
-    <button id="authButton">
-      ${this.getTranslation("activateButton")}
+    <button id="authButton" class="primary">
+      ${this.getTranslation("signInButton")}
     </button>`;
+  }
+
+  stateButtonHandler() {
+    View.sendMessage("authenticate");
   }
 
   handleEvent(e) {

@@ -1,9 +1,20 @@
 <html>
   <head>
+    <link rel="stylesheet" href="popup.css">
   </head>
   <body>
-    <h1 data-l10n="introHeading"></h1>
+    <div id="introHeading">
+      <h1 id="introHeading" data-l10n="introHeading"></h1>
+      <button id="settingsButton" hidden></button>
+    </div>
+    <div id="state" hidden>
+      <button id="stateButton"></button>
+    </div>
     <main id="content"></main>
+    <footer>
+      <span data-l10n="poweredBy"></span>
+      <a href="https://support.mozilla.org/en-US/" data-l10n="learnMore" ></a> <!--TODO fix link -->
+    </footer>
     <script src="commons.js"></script>
     <script src="popup.js" type="module"></script>
   </body>
