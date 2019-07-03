@@ -33,25 +33,32 @@ class Background {
     browser.proxy.onRequest.addListener((requestInfo) => this.proxyRequestCallback(requestInfo),
                                         {urls: ["<all_urls>"]}, ["requestHeaders"]);
 
+    // This is kind of buggy. In theory we should receive errors in the
+    // onErrorOccurred callback, but sometimes we receive them here instead.
+    browser.webRequest.onCompleted.addListener(details => {
+      if (details.statusCode == 407) {
+        this.processNetworkError("NS_ERROR_PROXY_AUTHENTICATION_FAILED");
+        return;
+      }
+
+      if (details.statusCode == 501 || details.statusCode == 403) {
+        this.processNetworkError("NS_ERROR_PROXY_CONNECTION_REFUSED");
+        return;
+      }
+
+      if (details.statusCode == 502) {
+        this.processNetworkError("NS_ERROR_PROXY_BAD_GATEWAY");
+        return;
+      }
+
+      if (details.statusCode == 504) {
+        this.processNetworkError("NS_ERROR_PROXY_GATEWAY_TIMEOUT");
+        return;
+      }
+    }, {urls: ["<all_urls>"]});
+
     browser.webRequest.onErrorOccurred.addListener(details => {
-      if (this.proxyState != PROXY_STATE_ACTIVE) {
-        return;
-      }
-
-      if (details.error == "NS_ERROR_PROXY_AUTHENTICATION_FAILED") {
-        // TODO: update the UI...
-        // TODO: rotate the token.. maybe?
-        this.proxyState = PROXY_STATE_PROXYAUTHFAILED;
-        return;
-      }
-
-      if (details.error == "NS_ERROR_PROXY_CONNECTION_REFUSED" ||
-          details.error == "NS_ERROR_PROXY_BAD_GATEWAY" ||
-          details.error == "NS_ERROR_PROXY_GATEWAY_TIMEOUT") {
-        // TODO: update the UI...
-        this.proxyState = PROXY_STATE_PROXYERROR;
-        return;
-      }
+      this.processNetworkError(details.error);
     }, {urls: ["<all_urls>"]});
 
 
@@ -59,15 +66,12 @@ class Background {
     browser.experiments.proxyutils.onChanged.addListener(async _ => {
       let hasChanged = await this.computeProxyState();
       if (hasChanged) {
-        // TODO: show some UI dialog...?
-        this.showStatusPrompt();
-        this.updateIcon();
+        this.updateUI();
       }
     });
 
     // UI
-    this.showStatusPrompt();
-    this.updateIcon();
+    this.updateUI();
   }
 
   getTranslation(stringName, ...args) {
@@ -77,13 +81,55 @@ class Background {
     return browser.i18n.getMessage(stringName);
   }
 
+  processNetworkError(errorStatus) {
+    if (this.proxyState != PROXY_STATE_ACTIVE) {
+      return;
+    }
+
+    if (errorStatus == "NS_ERROR_PROXY_AUTHENTICATION_FAILED") {
+      this.proxyState = PROXY_STATE_PROXYAUTHFAILED;
+      this.updateUI();
+      // TODO: rotate the token.. maybe?
+      return;
+    }
+
+    if (errorStatus == "NS_ERROR_PROXY_CONNECTION_REFUSED" ||
+        errorStatus == "NS_ERROR_PROXY_BAD_GATEWAY" ||
+        errorStatus == "NS_ERROR_PROXY_GATEWAY_TIMEOUT") {
+      this.proxyState = PROXY_STATE_PROXYERROR;
+      this.updateUI();
+      return;
+    }
+  }
+
   showStatusPrompt() {
     let promptNotice;
-    if (this.proxyState === PROXY_STATE_INACTIVE) {
-      promptNotice = "notProxied";
-    } else if (this.proxyState === PROXY_STATE_ACTIVE) {
-      promptNotice = "isProxied";
+    switch(this.proxyState) {
+      case PROXY_STATE_INACTIVE:
+        promptNotice = "notProxied";
+        break;
+
+      case PROXY_STATE_ACTIVE:
+        promptNotice = "isProxied";
+        break;
+
+      case PROXY_STATE_OTHERINUSE:
+        promptNotice = "otherProxy";
+        break;
+
+      case PROXY_STATE_PROXYERROR:
+        promptNotice = "proxyError";
+        break;
+
+      case PROXY_STATE_PROXYAUTHFAILED:
+        promptNotice = "proxyAuthFailed";
+        break;
+
+      default:
+        // no message.
+        break;
     }
+
     if (promptNotice) {
       browser.experiments.proxyutils.showPrompt(browser.i18n.getMessage(promptNotice));
     }
@@ -94,7 +140,7 @@ class Background {
     let currentState = this.proxyState;
     this.proxyState = PROXY_STATE_UNKNOWN;
 
-    // We want to keep this state.
+    // We want to keep these states.
     if (currentState == PROXY_STATE_PROXYERROR ||
         currentState == PROXY_STATE_PROXYAUTHFAILED) {
       this.proxyState == currentState;
@@ -154,6 +200,11 @@ class Background {
     this.updateIcon();
   }
 
+  updateUI() {
+    this.showStatusPrompt();
+    this.updateIcon();
+  }
+
   updateIcon() {
     let icon;
     if (this.proxyState === PROXY_STATE_INACTIVE) {
@@ -162,7 +213,6 @@ class Background {
       icon = "img/proxied.png";
     } else {
       icon = "img/indeterminate.png";
-      // TODO: different icon for errors or otherProxyInUse?
     }
 
     browser.browserAction.setIcon({
