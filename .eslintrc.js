@@ -8,15 +8,27 @@ module.exports = {
     "eslint:recommended"
   ],
   globals: {
-    fxaCryptoRelier: false
-  },
+    fxaCryptoRelier: false,
+    PROXY_STATE_UNKNOWN: false,
+    PROXY_STATE_INACTIVE: false,
+    PROXY_STATE_ACTIVE: false,
+    PROXY_STATE_OTHERINUSE: false,
+    PROXY_STATE_PROXYERROR: false,
+    PROXY_STATE_PROXYAUTHFAILED: false,
+    PROXY_STATE_AUTHFAILURE: false
+},
   parserOptions: {
     ecmaVersion: 2018,
     sourceType: "module"
   },
   root: true,
   rules: {
-    "no-unused-vars": ["error", {vars: "all", args: "none", ignoreRestSiblings: true }],
-    "no-console": "off"
+    "eqeqeq": "off",
+    "no-console": "off",
+    "no-throw-literal": "error",
+    "no-unused-vars": ["error", {vars: "all", args: "none", ignoreRestSiblings: true}],
+    "no-var": "warn",
+    "no-warning-comments": "warn",
+    "prefer-const": "off"
   }
 };
