@@ -138,7 +138,9 @@ class Background {
   // Set this.proxyState based on the current settings.
   async computeProxyState() {
     let currentState = this.proxyState;
-    this.proxyState = PROXY_STATE_UNKNOWN;
+    if (currentState !== PROXY_STATE_AUTHFAILURE) {
+      this.proxyState = PROXY_STATE_UNKNOWN;
+    }
 
     // We want to keep these states.
     if (currentState == PROXY_STATE_PROXYERROR ||
@@ -383,11 +385,21 @@ class Background {
     });
     const FXA_REDIRECT_URL = browser.identity.getRedirectURL();
 
-    const loginDetails = await fxaKeysUtil.launchWebExtensionKeyFlow(FXA_CLIENT_ID, {
-      redirectUri: FXA_REDIRECT_URL,
-      scopes: FXA_SCOPES,
-    });
-    browser.storage.local.set({loginDetails});
+    try {
+      const loginDetails = await fxaKeysUtil.launchWebExtensionKeyFlow(FXA_CLIENT_ID, {
+        redirectUri: FXA_REDIRECT_URL,
+        scopes: FXA_SCOPES,
+      });
+
+      if (!loginDetails) {
+        throw new Error("auth failure");
+      }
+
+      browser.storage.local.set({loginDetails});
+    } catch (e) {
+      await browser.storage.local.set({proxyState: PROXY_STATE_AUTHFAILURE});
+      return;
+    }
 
     // Let's enable the proxy.
     await this.enableProxy(true);
