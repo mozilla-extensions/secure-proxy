@@ -34,6 +34,24 @@ export class View {
     }
   }
 
+  static setState(state, stateButtonText) {
+    let stateElement = document.getElementById("state");
+    stateElement.setAttribute("data-state", state);
+    stateElement.toggleAttribute("hidden", !state);
+    let stateButtonElement = document.getElementById("stateButton");
+    stateButtonElement.textContent = stateButtonText || "";
+  }
+
+  // To be overwritten to return an escaped template if the panel should have one
+  state() { return null; }
+
+  // Handler for state button presses on the view override if needed
+  stateButtonHandler() { return null; }
+
+  static onStateButton() {
+    currentView.stateButtonHandler();
+  }
+
   // This method stores a view in the view map.
   static registerView(view, name) {
     console.log("Register view: " + name);

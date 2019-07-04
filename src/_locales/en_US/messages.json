@@ -3,7 +3,7 @@
     "message": "Secure Proxy"
   },
   "introHeading": {
-    "message": "Firefox Proxy"
+    "message": "Firefox Private Network"
   },
   "loading": {
     "message": "Loading..."
@@ -14,9 +14,6 @@
   "disableProxy": {
     "message": "Disable Proxy"
   },
-  "notLoggedIn": {
-    "message": "Not logged in"
-  },
   "loggedIn": {
     "message": "Hi $NAME$",
     "placeholders": {
@@ -25,11 +22,26 @@
       }
     }
   },
+  "poweredBy": {
+    "message": "Powered by CloudFlare®."
+  },
+  "learnMore": {
+    "message": "Learn More"
+  },
   "notProxied": {
     "message": "Not proxied"
   },
-  "activateButton": {
-    "message": "Activate account"
+  "proxyOff": {
+    "message": "OFF"
+  },
+  "proxyOn": {
+    "message": "ON"
+  },
+  "signInMessage": {
+    "message": "Sign in to your Firefox account to start using Firefox Private Network"
+  },
+  "signInButton": {
+    "message": "Sign in"
   },
   "isProxied": {
     "message": "Proxied"
