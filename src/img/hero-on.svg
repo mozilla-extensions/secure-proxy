@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="320" height="201" viewBox="0 0 320 201">
+  <defs>
+    <circle id="hero-on-b" cx="162" cy="101" r="41"/>
+    <filter id="hero-on-a" width="832.9%" height="832.9%" x="-366.5%" y="-366.5%" filterUnits="objectBoundingBox">
+      <feMorphology in="SourceAlpha" operator="dilate" radius=".5" result="shadowSpreadOuter1"/>
+      <feOffset in="shadowSpreadOuter1" result="shadowOffsetOuter1"/>
+      <feGaussianBlur in="shadowOffsetOuter1" result="shadowBlurOuter1" stdDeviation="100"/>
+      <feComposite in="shadowBlurOuter1" in2="SourceAlpha" operator="out" result="shadowBlurOuter1"/>
+      <feColorMatrix in="shadowBlurOuter1" values="0 0 0 0 0.0939144269   0 0 0 0 0.760290086   0 0 0 0 0.630283415  0 0 0 0.5 0"/>
+    </filter>
+  </defs>
+  <g fill="none" fill-rule="evenodd">
+    <circle cx="162" cy="101" r="62" stroke="#29C1A1" stroke-opacity=".2"/>
+    <circle cx="162" cy="100" r="82" stroke="#29C1A1" stroke-opacity=".1"/>
+    <circle cx="162" cy="100" r="100" stroke="#29C1A1" stroke-opacity=".05"/>
+    <use fill="#000" filter="url(#hero-on-a)" xlink:href="#hero-on-b"/>
+    <use fill="#FFF" stroke="#29C1A1" xlink:href="#hero-on-b"/>
+    <path fill="#291D4F" fill-rule="nonzero" d="M153.056,110.24 C148.088,110.24 144.104,106.208 144.104,101.24 C144.104,96.272 148.088,92.24 153.056,92.24 C158.048,92.24 162.056,96.272 162.056,101.24 C162.056,106.208 158.072,110.24 153.056,110.24 Z M153.056,106.904 C156.248,106.904 158.648,104.336 158.648,101.24 C158.648,98.12 156.224,95.552 153.056,95.552 C149.912,95.552 147.512,98.12 147.512,101.24 C147.512,104.336 149.912,106.904 153.056,106.904 Z M164.672,110 L164.672,92.48 L168.296,92.48 L175.976,104.408 L175.976,92.48 L179.24,92.48 L179.24,110 L175.88,110 L167.96,97.688 L167.96,110 L164.672,110 Z"/>
+  </g>
+</svg>
