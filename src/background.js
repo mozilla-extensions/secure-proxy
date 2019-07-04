@@ -72,6 +72,10 @@ class Background {
 
     // UI
     this.updateUI(false /* showStatusPrompt */);
+
+    if (this.proxyState == PROXY_STATE_UNKNOWN) {
+      browser.experiments.proxyutils.showPrompt(browser.i18n.getMessage("toastSignIn"));
+    }
   }
 
   getTranslation(stringName, ...args) {
@@ -110,7 +114,7 @@ class Background {
         break;
 
       case PROXY_STATE_ACTIVE:
-        promptNotice = "toastIsProxied";
+        promptNotice = "toastProxyOn";
         break;
 
       case PROXY_STATE_OTHERINUSE:

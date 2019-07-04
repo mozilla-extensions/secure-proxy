@@ -1,4 +1,45 @@
 {
+  "viewLoginMessage": {
+    "message": "Sign in to your Firefox account to start using Private Network."
+  },
+  "viewLoginButton": {
+    "message": "Sign in"
+  },
+  "viewMainToggleButton": {
+    "message": "Firefox Private Network"
+  },
+  "viewMainProxyOff": {
+    "message": "Using public Wi-Fi without a secure connection can put you at risk of identity theft, snooping, and malware infection."
+  },
+  "viewMainProxyOn": {
+    "message": "Your connection is secure, and your location is hidden from websites and trackers, making it tougher for those annoying targeted ads to track you online."
+  },
+  "viewProxyErrorGeneric": {
+    "message": "Your connection was dropped. Try turning Firefox Private Network on again."
+  },
+  "viewProxyErrorOtherProxyInUse": {
+    "message": "You cannot use Firefox Private Network because you are using a custom proxy setting."
+  },
+  "viewProxyErrorAuthFailed": {
+    "message": "Your connection was dropped. Try turning Firefox Private Network on again."
+  },
+  "viewProxyErrorToggleButton": {
+    "message": "Firefox Private Network"
+  },
+  "toastSignIn": {
+    "message": "Sign in to use Firefox Private Network"
+  },
+  "toastNotProxied": {
+    "message": "Firefox Private Network is off."
+  },
+  "toastProxyOn": {
+    "message": "✓ Firefox Private Network is on"
+  },
+  "toastWarning": {
+    "message": "Firefox Private Network needs your attention!"
+  },
+
+
   "extensionName": {
     "message": "Secure Proxy - TBD"
   },
@@ -7,58 +48,6 @@
   },
   "loading": {
     "message": "Loading... - TBD"
-  },
-  "enableProxy": {
-    "message": "Enable Proxy - TBD"
-  },
-  "disableProxy": {
-    "message": "Disable Proxy - TBD"
-  },
-  "notLoggedIn": {
-    "message": "Not logged in - TBD"
-  },
-  "loggedIn": {
-    "message": "Hi $NAME$ - TBD",
-    "placeholders": {
-      "name" : {
-        "content" : "$1"
-      }
-    }
-  },
-  "notProxied": {
-    "message": "Not proxied - TBD"
-  },
-  "toastNotProxied": {
-    "message": "Firefox Private Network is off."
-  },
-  "isProxied": {
-    "message": "Proxied - TBD"
-  },
-  "toastIsProxied": {
-    "message": "Firefox Private Network is on."
-  },
-  "activateButton": {
-    "message": "Activate account - TBD"
-  },
-  "proxyState": {
-    "message": "Proxy State: $STATENAME$ - TBD",
-    "placeholders": {
-      "statename" : {
-        "content" : "$1"
-      }
-    }
-  },
-  "otherProxyInUse": {
-    "message": "You cannot use Firefox Private Network because you are using a custom proxy setting."
-  },
-  "toastWarning": {
-    "message": "Firefox Private Network needs your attention!"
-  },
-  "proxyError": {
-    "message": "Your connection was dropped. Try turning Firefox Private Network on again."
-  },
-  "proxyAuthFailed": {
-    "message": "Your connection was dropped. Try turning Firefox Private Network on again."
   },
   "internalError": {
     "message": "Internal error! - TBD"

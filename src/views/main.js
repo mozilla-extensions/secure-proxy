@@ -10,50 +10,24 @@ class ViewMain extends View {
     super();
 
     this.proxyEnabled = false;
-    this.toggleButton = null;
   }
 
   show(data) {
-    /* example state:
-       {"email":"j@email.com",
-        "locale":"en-US,en;q=0.5",
-        "amrValues":["pwd","email"],
-        "twoFactorAuthentication":false,
-        "uid":"...",
-        "avatar":"https://latest.dev.lcip.org/profile/a/...",
-        "avatarDefault":true}
-    */
-
-    let loggedIn = this.getTranslation("loggedIn", data.userInfo.email);
-
     let stateName;
     if (data.proxyState != PROXY_STATE_INACTIVE &&
         data.proxyState != PROXY_STATE_ACTIVE) {
       throw new Error("Invalid proxy state for ViewMain");
     }
 
-    if (data.proxyState == PROXY_STATE_INACTIVE) {
-      stateName = this.getTranslation("notProxied");
-    } else if (data.proxyState == PROXY_STATE_ACTIVE) {
-      stateName = this.getTranslation("isProxied");
-    }
-
-    let stateText = this.getTranslation("proxyState", stateName);
-    let userInfo = escapedTemplate`<p>
-      ${loggedIn}
-    </p>
-    <p>
-      ${stateText}
-    </p>
-    <button id="toggleButton"></button>`;
+    let userInfo = escapedTemplate`<p id="mainMessage"></p>
+    <button>${this.getTranslation("viewMainToggleButton")}</button>`;
 
     return userInfo;
   }
 
   postShow(data) {
-    this.toggleButton = document.getElementById("toggleButton");
     this.proxyEnabled = data.proxyState == PROXY_STATE_ACTIVE;
-    this.showProxyState();
+    this.showMainMessage();
   }
 
   async handleEvent() {
@@ -61,11 +35,19 @@ class ViewMain extends View {
     // Send a message to the background script to notify the proxyEnabled has chanded.
     // This prevents the background script from having to block on reading from the storage per request.
     await View.sendMessage("setEnabledState", {enabledState: this.proxyEnabled});
-    this.showProxyState();
+    this.showMainMessage();
   }
 
-  showProxyState() {
-    this.toggleButton.textContent = this.proxyEnabled ? this.getTranslation("disableProxy") : this.getTranslation("enableProxy");
+  showMainMessage() {
+    let stateText;
+    if (this.proxyEnabled) {
+      stateText = this.getTranslation("viewMainProxyOn");
+    } else {
+      // TODO: warning! ...
+      stateText = this.getTranslation("viewMainProxyOff");
+    }
+
+     document.getElementById("mainMessage").textContent = stateText;
   }
 }
 

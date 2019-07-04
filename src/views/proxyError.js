@@ -3,15 +3,29 @@ import {escapedTemplate} from '../template.js'
 
 class ViewProxyError extends View {
   show(data) {
-    return escapedTemplate`<p>
-      ${this.getTranslation(data)}
-    </p>
-    <button id="toggleButton"></button>`;
-  }
+    let locale;
+    switch (data) {
+      case PROXY_STATE_PROXYERROR:
+        locale = "viewProxyErrorGeneric";
+        break;
 
-  postShow(data) {
-    const toggleButton = document.getElementById("toggleButton");
-    toggleButton.textContent = this.getTranslation("enableProxy");
+      case PROXY_STATE_OTHERINUSE:
+        locale = "viewProxyErrorOtherProxyInUse";
+        break;
+
+      case PROXY_STATE_PROXYAUTHFAILED:
+        locale = "viewProxyErrorAuthFailed";
+        break;
+
+      default:
+        throw "Invalid proxy state!"
+        break;
+    }
+
+    return escapedTemplate`<p>
+      ${this.getTranslation(locale)}
+    </p>
+    <button>${this.getTranslation("viewProxyErrorToggleButton")}</button>`;
   }
 
   async handleEvent() {

@@ -5,10 +5,10 @@ import {escapedTemplate} from '../template.js'
 class ViewLogin extends View {
   show() {
     return escapedTemplate`<p>
-      ${this.getTranslation("notLoggedIn")}
+      ${this.getTranslation("viewLoginMessage")}
     </p>
     <button id="authButton">
-      ${this.getTranslation("activateButton")}
+      ${this.getTranslation("viewLoginButton")}
     </button>`;
   }
 
