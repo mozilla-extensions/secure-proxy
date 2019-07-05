@@ -1,9 +1,9 @@
 {
   "manifest_version": 2,
-  "name": "__MSG_extensionName__",
+  "name": "Firefox Private Network",
   "default_locale": "en_US",
   "version": "1.0.0",
-  "author": "Mozilla Developers",
+  "author": "Firefox",
   "applications": {
     "gecko": {
       "id": "secure-proxy@mozilla.com",
@@ -11,12 +11,17 @@
     }
   },
 
-  "description": "",
+  "description": "A secure, encrypted tunnel to the web to protect yourself everywhere you use Firefox.",
   "browser_action": {
     "browser_style": true,
     "default_icon": "img/indeterminate.png",
     "default_title": "Secure proxy",
     "default_popup": "popup.html"
+  },
+
+  "icons": {
+    "48": "icon.svg",
+    "96": "icon.svg"
   },
 
   "incognito": "spanning",
