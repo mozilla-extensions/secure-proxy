@@ -13,12 +13,20 @@ const FXA_PROFILE_SERVER = "https://latest.dev.lcip.org/profile/v1";
 const FXA_CLIENT_ID = "1c7882c43994658e";
 const JWT_HARDCODED_TOKEN = "eyJhbGciOiJSUzI1NiIsImtpZCI6IkNGVEVTVCJ9.eyJleHAiOjE1NjI4NTYxODAsImlzcyI6InN0YWdpbmcifQ.ROI-75EonHpPsprYXlTnswm2vSmNIN0NmFlsT7zhAGwSB_6r4yTlndpEDnr3s-VBm-Dd3OBIBSMbYqCT1q_jky6ow1faDoCGmXc8UbzB0rZToT5ppIPl0lpWRD5-H-wYzV_Ld3he4uZJLQgcqtHRZUl9XbqNOIi5bSzqtoWG_uiXd-iKaK35SdQ4v0q2ZAEfamgNvWcbEjMEdifDLx47rvirp2L0V3VQxACxjsO8zkNokYVMSfQaPaZG-6ezTTZtes6QiRvGx-AeHspEfWBT-Xl8r68P_yKTgxxG-vdorVkNpOlnMzDOHCPjpS1yODUx844MbhQU1MSgb5X5_lV66g";
 
+// Used to see if HTTP errors are actually valid. See the comment in
+// browser.webRequest.onCompleted.
+const SAFE_HTTPS_REQUEST = "https://www.mozilla.org/robots.txt";
+
 // Proxy configuration
 const PROXY_TYPE = "https";
 const PROXY_HOST = "proxy-staging.cloudflareclient.com";
 const PROXY_PORT = 8001;
 
 class Background {
+  constructor() {
+    this.pendingErrorFetch = false;
+  }
+
   async init() {
     // Basic configuration
     await this.computeProxyState();
@@ -33,27 +41,15 @@ class Background {
     browser.proxy.onRequest.addListener((requestInfo) => this.proxyRequestCallback(requestInfo),
                                         {urls: ["<all_urls>"]}, ["requestHeaders"]);
 
-    // This is kind of buggy. In theory we should receive errors in the
-    // onErrorOccurred callback, but sometimes we receive them here instead.
+    // We can receive http error status codes onCompleted if the connection is
+    // a plain/text (HTTP, no HTTPS). In case they are proxy errors (such as
+    // 407 or 429), we cannot trust them, because it's too easy for a web
+    // server to send them. Instead, we fetch a HTTPS request. If the proxy is
+    // blocking us for real, we will receive the same status code in
+    // onErrorOccurred.
     browser.webRequest.onCompleted.addListener(details => {
-      if (details.statusCode == 407) {
-        this.processNetworkError("NS_ERROR_PROXY_AUTHENTICATION_FAILED");
-        return;
-      }
-
-      if (details.statusCode == 501 || details.statusCode == 403) {
-        this.processNetworkError("NS_ERROR_PROXY_CONNECTION_REFUSED");
-        return;
-      }
-
-      if (details.statusCode == 502) {
-        this.processNetworkError("NS_ERROR_PROXY_BAD_GATEWAY");
-        return;
-      }
-
-      if (details.statusCode == 504) {
-        this.processNetworkError("NS_ERROR_PROXY_GATEWAY_TIMEOUT");
-        return;
+      if (details.statusCode == 407 || details.statusCode == 429) {
+        this.processPotentialNetworkError();
       }
     }, {urls: ["<all_urls>"]});
 
@@ -93,13 +89,25 @@ class Background {
       return;
     }
 
-    if (errorStatus == "NS_ERROR_PROXY_CONNECTION_REFUSED" ||
-        errorStatus == "NS_ERROR_PROXY_BAD_GATEWAY" ||
-        errorStatus == "NS_ERROR_PROXY_GATEWAY_TIMEOUT") {
+    if (errorStatus == "NS_ERROR_PROXY_CONNECTION_REFUSED") {
       this.proxyState = PROXY_STATE_PROXYERROR;
       this.updateUI();
       return;
     }
+  }
+
+  processPotentialNetworkError() {
+    if (this.pendingErrorFetch) {
+      return;
+    }
+
+    this.pendingErrorFetch = true;
+    fetch(SAFE_HTTPS_REQUEST, { cache: "no-cache"}).catch(_ => {}).then(_ => {
+      setTimeout(() => {
+        // let's wait 5 seconds before running another fetch.
+        this.pendingErrorFetch = false;
+      }, 5000);
+    });
   }
 
   showStatusPrompt() {
