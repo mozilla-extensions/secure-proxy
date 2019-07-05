@@ -51,10 +51,7 @@ var ConfirmationHint = {
       this._panel.setAttribute("hidearrow", "true");
     }
 
-    // The timeout value used here allows the panel to stay open for
-    // 1.5s second after the text transition (duration=120ms) has finished.
-    // If there is a description, we show for 4s after the text transition.
-    const DURATION = options.showDescription ? 4000 : 1500;
+    const DURATION = 8500;
     this._panel.addEventListener("popupshown", () => {
       this._animationBox.setAttribute("animate", "true");
 
