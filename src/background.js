@@ -92,7 +92,7 @@ class Background {
     if (errorStatus == "NS_ERROR_PROXY_AUTHENTICATION_FAILED") {
       this.proxyState = PROXY_STATE_PROXYAUTHFAILED;
       this.updateUI();
-      // TODO: rotate the token.. maybe?
+      this.runTokenRotation();
       return;
     }
 
@@ -179,6 +179,10 @@ class Background {
       if (proxyState == PROXY_STATE_INACTIVE) {
         this.proxyState = PROXY_STATE_INACTIVE;
       }
+
+      if (this.proxyState == PROXY_STATE_ACTIVE) {
+        await this.cacheHeaderAndScheduleTokenRotation();
+      }
     }
 
     return currentState != this.proxyState;
@@ -216,6 +220,8 @@ class Background {
     this.proxyState = value ? PROXY_STATE_ACTIVE : PROXY_STATE_INACTIVE;
     await browser.storage.local.set({proxyState: this.proxyState});
     this.updateIcon();
+
+    await this.cacheHeaderAndScheduleTokenRotation();
   }
 
   updateUI() {
@@ -239,15 +245,13 @@ class Background {
   }
 
   proxyRequestCallback(requestInfo) {
-    // TODO rotate hardcoded token here based on the user.
     if (this.shouldProxyRequest(requestInfo)) {
       return [{
         type: PROXY_TYPE,
         host: PROXY_HOST,
         port: PROXY_PORT,
-        // TODO: bearer should be replaced by the token_type from the user profile.
-        proxyAuthorizationHeader: 'bearer ' + JWT_HARDCODED_TOKEN,
-        connectionIsolationKey: 'bearer' + JWT_HARDCODED_TOKEN,
+        proxyAuthorizationHeader: this.proxyAuthorizationHeader,
+        connectionIsolationKey: this.proxyAuthorizationHeader,
       }];
     }
 
@@ -365,34 +369,14 @@ class Background {
       return;
     }
 
-    // Let's obtain the proxy token data
-    let proxyTokenData = await this.generateToken(refreshTokenData, FXA_PROXY_SCOPE);
-    if (!proxyTokenData) {
-      this.proxyState = PROXY_STATE_AUTHFAILURE;
-      await browser.storage.local.set({proxyState: this.proxyState});
-      return;
-    }
-
-    // Let's obtain the profile token data
-    let profileTokenData = await this.generateToken(refreshTokenData, FXA_PROFILE_SCOPE);
-    if (!profileTokenData) {
-      this.proxyState = PROXY_STATE_AUTHFAILURE;
-      await browser.storage.local.set({proxyState: this.proxyState});
-      return;
-    }
-
-    // Let's obtain the profile data for the user.
-    let profileData = await this.generateProfileData(profileTokenData);
-    if (!profileData) {
-      this.proxyState = PROXY_STATE_AUTHFAILURE;
-      await browser.storage.local.set({proxyState: this.proxyState});
-      return;
-    }
-
     browser.storage.local.set({refreshTokenData});
-    browser.storage.local.set({profileData});
-    browser.storage.local.set({proxyTokenData});
-    browser.storage.local.set({profileTokenData});
+
+    // Let's obtain the proxy token data
+    if (!this.maybeGenerateTokens()) {
+      this.profileState = PROXY_STATE_AUTHFAILURE;
+      await browser.storage.local.set({profileState: this.profileState});
+      return;
+    }
 
     // Let's enable the proxy.
     await this.enableProxy(true);
@@ -438,7 +422,14 @@ class Background {
       return null;
     }
 
-    return await resp.json();
+    let token = await resp.json();
+
+    // TODO: this should be part of the token!
+    if (!("auth_at" in token)) {
+       token.auth_at = new Date() / 1000;
+    }
+
+    return token;
   }
 
   async generateProfileData(refreshTokenData) {
@@ -466,6 +457,89 @@ class Background {
     this.fxaEndpoints.set(FXA_ENDPOINT_PROFILE, json[FXA_ENDPOINT_PROFILE]);
     this.fxaEndpoints.set(FXA_ENDPOINT_TOKEN, json[FXA_ENDPOINT_TOKEN]);
     this.fxaEndpoints.set(FXA_ENDPOINT_ISSUER, json[FXA_ENDPOINT_ISSUER]);
+  }
+
+  async maybeGenerateTokens() {
+    let { refreshTokenData } = await browser.storage.local.get(["refreshTokenData"]);
+    if (!refreshTokenData) {
+      throw "Invalid refreshToken?!?";
+    }
+
+    let minDiff;
+
+    let { proxyTokenData } = await browser.storage.local.get(["proxyTokenData"]);
+    if (proxyTokenData) {
+      // diff - 1 hour.
+      let diff = proxyTokenData.auth_at + proxyTokenData.expires_in - Date.now() / 1000 - 3600;
+      if (diff < 3600) {
+        proxyTokenData = null;
+      } else {
+        minDiff = diff;
+      }
+    }
+
+    if (!proxyTokenData) {
+      proxyTokenData = await this.generateToken(refreshTokenData, FXA_PROXY_SCOPE);
+      if (!proxyTokenData) {
+        return false;
+      }
+    }
+
+    let profileTokenGenerated = false;
+
+    let { profileTokenData } = await browser.storage.local.get(["profileTokenData"]);
+    if (profileTokenData) {
+      // diff - 1 hour.
+      let diff = profileTokenData.auth_at + profileTokenData.expires_in - Date.now() / 1000 - 3600;
+      if (diff < 3600) {
+        profileTokenData = null;
+      } if (minDiff > diff) {
+        minDiff = diff;
+      }
+    }
+
+    if (!profileTokenData) {
+      profileTokenData = await this.generateToken(refreshTokenData, FXA_PROFILE_SCOPE);
+      if (!profileTokenData) {
+        return false;
+      }
+
+      profileTokenGenerated = true;
+    }
+
+    let { profileData } = await browser.storage.local.get(["profileData"]);
+    // Let's obtain the profile data for the user.
+    if (!profileData || profileTokenGenerated) {
+      profileData = await this.generateProfileData(profileTokenData);
+      if (!profileData) {
+        return false;
+      }
+    }
+
+    browser.storage.local.set({proxyTokenData});
+    browser.storage.local.set({profileTokenData});
+    browser.storage.local.set({profileData});
+
+    // Let's schedule the token rotation.
+    setTimeout(_ => { this.maybeGenerateTokens(); }, minDiff);
+
+    return true;
+  }
+
+  async cacheHeaderAndScheduleTokenRotation() {
+    // Token generation can fail.
+    if (!this.maybeGenerateTokens()) {
+      this.proxyState = PROXY_STATE_AUTHFAILURE;
+      await browser.storage.local.set({proxyState: this.proxyState});
+      return;
+    }
+
+    let { proxyTokenData } = await browser.storage.local.get(["proxyTokenData"]);
+    if (!proxyTokenData) {
+      throw "Invalid proxyTokenData?!?";
+    }
+
+    this.proxyAuthorizationHeader = proxyTokenData.token_type + " " + proxyTokenData.access_token;
   }
 }
 
