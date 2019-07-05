@@ -2,20 +2,15 @@
 
 // Read pref for captive portal and disable.
 
-// TODO Get the following from https://latest.dev.lcip.org/.well-known/openid-configuration
-//  or https://accounts.firefox.com/.well-known/openid-configuration for stable.
-const FXA_OPENID = "https://latest.dev.lcip.org/.well-known/openid-configuration";
+const FXA_OPENID = "https://stomlinson.dev.lcip.org/.well-known/openid-configuration";
 
 const FXA_ENDPOINT_PROFILE = "userinfo_endpoint";
+const FXA_ENDPOINT_TOKEN = "token_endpoint";
 const FXA_ENDPOINT_ISSUER = "issuer";
 
-const FXA_SCOPE = "https://identity.mozilla.com/apps/secure-proxy";
-const FXA_SCOPES = ["profile", FXA_SCOPE];
-const FXA_OAUTH_SERVER = "https://oauth-latest.dev.lcip.org/v1";
-const FXA_CONTENT_SERVER = "https://latest.dev.lcip.org";
-const FXA_PROFILE_SERVER = "https://latest.dev.lcip.org/profile/v1";
-const FXA_CLIENT_ID = "1c7882c43994658e";
-const JWT_HARDCODED_TOKEN = "eyJhbGciOiJSUzI1NiIsImtpZCI6IkNGVEVTVCJ9.eyJleHAiOjE1NjI4NTYxODAsImlzcyI6InN0YWdpbmcifQ.ROI-75EonHpPsprYXlTnswm2vSmNIN0NmFlsT7zhAGwSB_6r4yTlndpEDnr3s-VBm-Dd3OBIBSMbYqCT1q_jky6ow1faDoCGmXc8UbzB0rZToT5ppIPl0lpWRD5-H-wYzV_Ld3he4uZJLQgcqtHRZUl9XbqNOIi5bSzqtoWG_uiXd-iKaK35SdQ4v0q2ZAEfamgNvWcbEjMEdifDLx47rvirp2L0V3VQxACxjsO8zkNokYVMSfQaPaZG-6ezTTZtes6QiRvGx-AeHspEfWBT-Xl8r68P_yKTgxxG-vdorVkNpOlnMzDOHCPjpS1yODUx844MbhQU1MSgb5X5_lV66g";
+const FXA_PROFILE_SCOPE = "profile";
+const FXA_PROXY_SCOPE = "https://identity.mozilla.com/apps/secure-proxy";
+const FXA_CLIENT_ID = "a8c528140153d1c6";
 
 // Used to see if HTTP errors are actually valid. See the comment in
 // browser.webRequest.onCompleted.
@@ -194,7 +189,7 @@ class Background {
     switch (message.type) {
       case "initInfo":
         return {
-          userInfo: await this.getProfile(),
+          userInfo: await browser.storage.local.get(["profileData"]),
           proxyState: this.proxyState,
         };
 
@@ -271,13 +266,6 @@ class Background {
              url.protocol == "ftp:";
     }
 
-    function isAuthUrl(url) {
-      const authUrls = [FXA_OPENID, FXA_OAUTH_SERVER, FXA_CONTENT_SERVER, FXA_PROFILE_SERVER];
-      return authUrls.some((item) => {
-        return new URL(item).origin == url.origin;
-      });
-    }
-
     function isLocal(url) {
       if (url.hostname == "localhost" ||
           url.hostname == "localhost.localdomain" ||
@@ -321,7 +309,15 @@ class Background {
     }
 
     // If is part of oauth also ignore
-    if (isAuthUrl(url)) {
+    const authUrls = [
+      FXA_OPENID,
+      this.fxaEndpoints.get(FXA_ENDPOINT_PROFILE),
+      this.fxaEndpoints.get(FXA_ENDPOINT_TOKEN),
+    ];
+    let isAuthUrl = authUrls.some((item) => {
+      return new URL(item).origin == url.origin;
+    });
+    if (isAuthUrl) {
       return false;
     }
 
@@ -329,101 +325,138 @@ class Background {
   }
 
   async hasValidProfile() {
-    return !!(await this.getLocalProfile());
-  }
-
-  async getLocalProfile() {
-    /*
-    Login details example:
-    {
-      "access_token": "...",
-      "token_type": "bearer",
-      "scope": "profile https://identity.mozilla.com/apps/secure-proxy",
-      "expires_in": 1209600,
-      "auth_at": 1560898917,
-      "refresh_token": "...", // What does this do? Can I request for a new token and prevent sign out?
-      "keys": {
-        "https://identity.mozilla.com/apps/secure-proxy": {
-          "kty": "oct",
-          "scope": "https://identity.mozilla.com/apps/secure-proxy",
-          "k": "...",
-          "kid": "..."
-        }
-      }
-    }
-    */
-    const { loginDetails } = await browser.storage.local.get(["loginDetails"]);
-    if (!loginDetails) {
-      return null;
+    const { refreshTokenData } = await browser.storage.local.get(["refreshTokenData"]);
+    if (!refreshTokenData) {
+      return false;
     }
 
-    // loginDetails expired.
-    if (loginDetails.auth_at + loginDetails.expires_in <= Date.now() / 1000) {
-      return null;
+    if (refreshTokenData.auth_at + refreshTokenData.expires_in <= Date.now() / 1000) {
+      return false;
     }
 
-    return loginDetails;
-  }
-
-  async getProfile() {
-    let loginDetails = await this.getLocalProfile();
-    if (!loginDetails) {
-      return null;
+    const { proxyTokenData } = await browser.storage.local.get(["proxyTokenData"]);
+    if (!proxyTokenData) {
+      return false;
     }
 
-    const key = loginDetails.keys[FXA_SCOPE];
-    const credentials = {
-      access_token: loginDetails.access_token,
-      refresh_token: loginDetails.refresh_token,
-      key,
-      metadata: {
-        server: FXA_OAUTH_SERVER,
-        client_id: FXA_CLIENT_ID,
-        scope: FXA_SCOPES
-      }
-    };
-
-    const headers = new Headers({
-      'Authorization': `Bearer ${credentials.access_token}`
-    });
-    const request = new Request(`${FXA_PROFILE_SERVER}/profile`, {
-      method: 'GET',
-      headers
-    });
-
-    const resp = await fetch(request);
-    if (resp.status === 200) {
-      return resp.json();
+    if (proxyTokenData.auth_at + proxyTokenData.expires_in <= Date.now() / 1000) {
+      return false;
     }
 
-    return null;
+    const { profileTokenData } = await browser.storage.local.get(["profileTokenData"]);
+    if (!profileTokenData) {
+      return false;
+    }
+
+    if (profileTokenData.auth_at + profileTokenData.expires_in <= Date.now() / 1000) {
+      return false;
+    }
+
+    return true;
   }
 
   async auth() {
-    const fxaKeysUtil = new fxaCryptoRelier.OAuthUtils({
-      contentServer: FXA_CONTENT_SERVER,
-      oauthServer: FXA_OAUTH_SERVER
-    });
-    const FXA_REDIRECT_URL = browser.identity.getRedirectURL();
-
-    try {
-      const loginDetails = await fxaKeysUtil.launchWebExtensionKeyFlow(FXA_CLIENT_ID, {
-        redirectUri: FXA_REDIRECT_URL,
-        scopes: FXA_SCOPES,
-      });
-
-      if (!loginDetails) {
-        throw new Error("auth failure");
-      }
-
-      browser.storage.local.set({loginDetails});
-    } catch (e) {
-      await browser.storage.local.set({proxyState: PROXY_STATE_AUTHFAILURE});
+    // Let's do the authentication. This will generate a token that is going to
+    // be used just to obtain the other ones.
+    let refreshTokenData = await this.generateRefreshToken();
+    if (!refreshTokenData) {
+      this.proxyState = PROXY_STATE_AUTHFAILURE;
+      await browser.storage.local.set({proxyState: this.proxyState});
       return;
     }
 
+    // Let's obtain the proxy token data
+    let proxyTokenData = await this.generateToken(refreshTokenData, FXA_PROXY_SCOPE);
+    if (!proxyTokenData) {
+      this.proxyState = PROXY_STATE_AUTHFAILURE;
+      await browser.storage.local.set({proxyState: this.proxyState});
+      return;
+    }
+
+    // Let's obtain the profile token data
+    let profileTokenData = await this.generateToken(refreshTokenData, FXA_PROFILE_SCOPE);
+    if (!profileTokenData) {
+      this.proxyState = PROXY_STATE_AUTHFAILURE;
+      await browser.storage.local.set({proxyState: this.proxyState});
+      return;
+    }
+
+    // Let's obtain the profile data for the user.
+    let profileData = await this.generateProfileData(profileTokenData);
+    if (!profileData) {
+      this.proxyState = PROXY_STATE_AUTHFAILURE;
+      await browser.storage.local.set({proxyState: this.proxyState});
+      return;
+    }
+
+    browser.storage.local.set({refreshTokenData});
+    browser.storage.local.set({profileData});
+    browser.storage.local.set({proxyTokenData});
+    browser.storage.local.set({profileTokenData});
+
     // Let's enable the proxy.
     await this.enableProxy(true);
+  }
+
+  async generateRefreshToken() {
+    const fxaKeysUtil = new fxaCryptoRelier.OAuthUtils({
+      contentServer: this.fxaEndpoints.get(FXA_ENDPOINT_ISSUER),
+    });
+
+    let refreshTokenData;
+
+    // This will trigger the authentication form.
+    try {
+      refreshTokenData = await fxaKeysUtil.launchWebExtensionFlow(FXA_CLIENT_ID, {
+        redirectUri: browser.identity.getRedirectURL(),
+        scopes: [FXA_PROFILE_SCOPE, FXA_PROXY_SCOPE],
+      });
+    } catch (e) {}
+
+    return refreshTokenData;
+  }
+
+  async generateToken(refreshTokenData, scope) {
+    const headers = new Headers();
+    headers.append('Content-Type', 'application/json');
+
+    const request = new Request(this.fxaEndpoints.get(FXA_ENDPOINT_TOKEN), {
+      method: 'POST',
+      headers,
+      body: JSON.stringify({
+        /* eslint-disable camelcase*/
+        client_id: FXA_CLIENT_ID,
+        grant_type: 'refresh_token',
+        refresh_token: refreshTokenData.refresh_token,
+        scope: scope,
+        /* eslint-enable camelcase*/
+      })
+    });
+
+    const resp = await fetch(request);
+    if (resp.status !== 200) {
+      return null;
+    }
+
+    return await resp.json();
+  }
+
+  async generateProfileData(refreshTokenData) {
+    const headers = new Headers({
+      'Authorization': `Bearer ${refreshTokenData.access_token}`
+    });
+
+    const request = new Request(this.fxaEndpoints.get(FXA_ENDPOINT_PROFILE), {
+      method: 'GET',
+      headers,
+    });
+
+    const resp = await fetch(request);
+    if (resp.status !== 200) {
+      return null;
+    }
+
+    return resp.json();
   }
 
   async fetchWellKnownData() {
@@ -431,6 +464,7 @@ class Background {
     let json = await resp.json();
 
     this.fxaEndpoints.set(FXA_ENDPOINT_PROFILE, json[FXA_ENDPOINT_PROFILE]);
+    this.fxaEndpoints.set(FXA_ENDPOINT_TOKEN, json[FXA_ENDPOINT_TOKEN]);
     this.fxaEndpoints.set(FXA_ENDPOINT_ISSUER, json[FXA_ENDPOINT_ISSUER]);
   }
 }

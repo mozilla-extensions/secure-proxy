@@ -10,17 +10,7 @@ class ViewMain extends View {
   }
 
   show(data) {
-    /* example state:
-       {"email":"j@email.com",
-        "locale":"en-US,en;q=0.5",
-        "amrValues":["pwd","email"],
-        "twoFactorAuthentication":false,
-        "uid":"...",
-        "avatar":"https://latest.dev.lcip.org/profile/a/...",
-        "avatarDefault":true}
-    */
-
-    let loggedIn = this.getTranslation("loggedIn", data.userInfo.email);
+    let loggedIn = this.getTranslation("loggedIn", data.userInfo.profileData.email);
 
     if (data.proxyState != PROXY_STATE_INACTIVE &&
         data.proxyState != PROXY_STATE_ACTIVE) {
