@@ -65,6 +65,9 @@ export class View {
     }
   }
 
+  // Override if you want to handle events
+  handleEvent() {}
+
   // To be overwritten if needed.
   dismiss() {}
 
