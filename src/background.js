@@ -5,6 +5,10 @@
 // TODO Get the following from https://latest.dev.lcip.org/.well-known/openid-configuration
 //  or https://accounts.firefox.com/.well-known/openid-configuration for stable.
 const FXA_OPENID = "https://latest.dev.lcip.org/.well-known/openid-configuration";
+
+const FXA_ENDPOINT_PROFILE = "userinfo_endpoint";
+const FXA_ENDPOINT_ISSUER = "issuer";
+
 const FXA_SCOPE = "https://identity.mozilla.com/apps/secure-proxy";
 const FXA_SCOPES = ["profile", FXA_SCOPE];
 const FXA_OAUTH_SERVER = "https://oauth-latest.dev.lcip.org/v1";
@@ -25,10 +29,14 @@ const PROXY_PORT = 8001;
 class Background {
   constructor() {
     this.pendingErrorFetch = false;
+
     this.survey = new Survey();
+    this.fxaEndpoints = new Map();
   }
 
   async init() {
+    await this.fetchWellKnownData();
+
     // Basic configuration
     await this.computeProxyState();
 
@@ -416,6 +424,14 @@ class Background {
 
     // Let's enable the proxy.
     await this.enableProxy(true);
+  }
+
+  async fetchWellKnownData() {
+    let resp = await fetch(FXA_OPENID);
+    let json = await resp.json();
+
+    this.fxaEndpoints.set(FXA_ENDPOINT_PROFILE, json[FXA_ENDPOINT_PROFILE]);
+    this.fxaEndpoints.set(FXA_ENDPOINT_ISSUER, json[FXA_ENDPOINT_ISSUER]);
   }
 }
 
