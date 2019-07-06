@@ -1,3 +1,5 @@
+/* eslint-disable no-unused-vars */
+
 // The user is unknown, the proxy is not configured.
 const PROXY_STATE_UNKNOWN = "unknown";
 

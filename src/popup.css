@@ -91,9 +91,10 @@ button.primary:enabled:hover:active {
   inline-size: 16px;
   display: block;
   border: none;
-  background: url('/img/i-settings32.png') -6px -6px / 28px; /* TODO get SVG or cropped PNG*/
+  background: url('/img/i-settings32.png') -6px -6px / 28px; /* TODO get SVG or cropped PNG */
   margin: auto 0 auto auto;
 }
+
 [hidden]#settingsButton {
   display: none;
 }
@@ -111,7 +112,7 @@ button.primary:enabled:hover:active {
 }
 
 [data-state="login"] #stateButton {
-  background: red; /* TODO get real image here*/
+  background: red; /* TODO get real image here */
 }
 
 [data-state="disabled"] #stateButton {

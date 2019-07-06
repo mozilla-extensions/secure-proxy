@@ -1,9 +1,6 @@
 import {View} from '../view.js'
 import {escapedTemplate} from '../template.js'
 
-const PROXY_STATE_INACTIVE = "inactive";
-const PROXY_STATE_ACTIVE = "active";
-
 // Main view.
 class ViewMain extends View {
   constructor() {
