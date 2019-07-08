@@ -50,9 +50,6 @@ class Background {
     // I don't think the extension will ever control this, however it's worth exempting in case.
     this.CAPTIVE_PORTAL_URL = await browser.experiments.proxyutils.getCaptivePortalURL();
 
-    // Message handler
-    browser.runtime.onMessage.addListener((m, s, r) => this.messageHandler(m, s, r));
-
     // Proxy configuration
     browser.proxy.onRequest.addListener((requestInfo) => this.proxyRequestCallback(requestInfo),
                                         {urls: ["<all_urls>"]}, ["requestHeaders"]);
@@ -70,9 +67,9 @@ class Background {
 
       if (this.proxyState == PROXY_STATE_CONNECTING &&
           details.statusCode == 200) {
-        // TODO: inform the panel...
         this.proxyState = PROXY_STATE_ACTIVE;
         this.updateIcon();
+        this.sendDataToCurrentPort();
       }
     }, {urls: ["<all_urls>"]});
 
@@ -87,6 +84,10 @@ class Background {
       if (hasChanged) {
         this.updateUI();
       }
+    });
+
+    browser.runtime.onConnect.addListener(port => {
+      this.panelConnected(port);
     });
 
     // Let's initialize the survey object.
@@ -118,6 +119,7 @@ class Background {
       this.proxyState = PROXY_STATE_PROXYAUTHFAILED;
       this.updateUI();
       this.maybeGenerateTokens();
+      this.sendDataToCurrentPort();
       return;
     }
 
@@ -125,6 +127,7 @@ class Background {
         errorStatus == "NS_ERROR_TOO_MANY_REQUESTS") {
       this.proxyState = PROXY_STATE_PROXYERROR;
       this.updateUI();
+      this.sendDataToCurrentPort();
       return;
     }
   }
@@ -218,30 +221,6 @@ class Background {
 
     log("computing status - final: " + this.proxyState);
     return currentState != this.proxyState;
-  }
-
-  // Our message handler
-  async messageHandler(message, sender, response) {
-    log("messageHandler - " + message.type);
-
-    switch (message.type) {
-      case "initInfo":
-        let { profileData } = await browser.storage.local.get(["profileData"]);
-        return {
-          userInfo: profileData,
-          proxyState: this.proxyState,
-        };
-
-      case "setEnabledState":
-        await this.enableProxy(message.data.enabledState);
-        break;
-
-      case "authenticate":
-        await this.auth();
-        break;
-    }
-
-    return null;
   }
 
   async enableProxy(value) {
@@ -610,6 +589,41 @@ class Background {
       profileTokenData: null,
       profileData: null,
     });
+  }
+
+  async panelConnected(port) {
+    // Overwrite any existing port. We want to talk with 1 single popup.
+    this.currentPort = port;
+
+    // Let's send the initial data.
+    port.onMessage.addListener(async message => {
+      switch (message.type) {
+        case "setEnabledState":
+          await this.enableProxy(message.data.enabledState);
+          await this.sendDataToCurrentPort();
+          break;
+
+        case "authenticate":
+          await this.auth();
+          break;
+      }
+    });
+
+    port.onDisconnect.addListener(_ => {
+      this.currentPort = null;
+    });
+
+    await this.sendDataToCurrentPort();
+  }
+
+  async sendDataToCurrentPort() {
+    if (this.currentPort) {
+      let { profileData } = await browser.storage.local.get(["profileData"]);
+      return this.currentPort.postMessage({
+        userInfo: profileData,
+        proxyState: this.proxyState,
+      });
+    }
   }
 }
 

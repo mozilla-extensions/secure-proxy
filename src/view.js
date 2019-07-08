@@ -1,6 +1,7 @@
 let views = new Map();
 
 let currentView = null;
+let currentPort = null;
 
 // This is the generic a view. Any other view should inherit from this class.
 export class View {
@@ -89,9 +90,17 @@ export class View {
 
   // Helper method to send messages to the background script.
   static async sendMessage(type, data = {}) {
-    return browser.runtime.sendMessage({
+    if (!currentPort) {
+      throw new Error("Invalid port!");
+    }
+
+    return currentPort.postMessage({
       type,
       data,
     });
+  }
+
+  static setPort(port) {
+    currentPort = port;
   }
 }
