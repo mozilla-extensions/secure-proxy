@@ -21,15 +21,26 @@ const PROXY_TYPE = "https";
 const PROXY_HOST = "proxy-staging.cloudflareclient.com";
 const PROXY_PORT = 8001;
 
+// Enable debugging
+const DEBUGGING = true
+function log(msg) {
+  if (DEBUGGING) {
+    console.log("*** Background.js *** - " + msg);
+  }
+}
+
 class Background {
   constructor() {
-    this.pendingErrorFetch = false;
+    log("constructor");
 
     this.survey = new Survey();
     this.fxaEndpoints = new Map();
+    this.pendingErrorFetch = false;
   }
 
   async init() {
+    log("init");
+
     await this.fetchWellKnownData();
 
     // Basic configuration
@@ -85,6 +96,8 @@ class Background {
   }
 
   processNetworkError(errorStatus) {
+    log("processNetworkError: " + errorStatus);
+
     if (this.proxyState != PROXY_STATE_ACTIVE) {
       return;
     }
@@ -105,15 +118,20 @@ class Background {
   }
 
   processPotentialNetworkError() {
+    log("processPotentialNetworkError");
+
     if (this.pendingErrorFetch) {
       return;
     }
+
+    log("processPotentialNetworkError - fetch starting");
 
     this.pendingErrorFetch = true;
     fetch(SAFE_HTTPS_REQUEST, { cache: "no-cache"}).catch(_ => {}).then(_ => {
       setTimeout(() => {
         // let's wait 5 seconds before running another fetch.
         this.pendingErrorFetch = false;
+        log("processPotentialNetworkError - accepting next potential error");
       }, 5000);
     });
   }
@@ -153,6 +171,8 @@ class Background {
 
   // Set this.proxyState based on the current settings.
   async computeProxyState() {
+    log("computing status - currently: " + this.proxyState);
+
     let currentState = this.proxyState;
     if (currentState !== PROXY_STATE_AUTHFAILURE) {
       this.proxyState = PROXY_STATE_UNKNOWN;
@@ -185,11 +205,14 @@ class Background {
       }
     }
 
+    log("computing status - final: " + this.proxyState);
     return currentState != this.proxyState;
   }
 
   // Our message handler
   async messageHandler(message, sender, response) {
+    log("messageHandler - " + message.type);
+
     switch (message.type) {
       case "initInfo":
         return {
@@ -210,6 +233,8 @@ class Background {
   }
 
   async enableProxy(value) {
+    log("enabling proxy: " + value);
+
     // We support the changing of proxy state only from some states.
     if (this.proxyState != PROXY_STATE_UNKNOWN &&
         this.proxyState != PROXY_STATE_ACTIVE &&
@@ -225,6 +250,8 @@ class Background {
   }
 
   updateUI() {
+    log("update UI");
+
     this.showStatusPrompt();
     this.updateIcon();
   }
@@ -242,10 +269,16 @@ class Background {
     browser.browserAction.setIcon({
       path: icon,
     });
+
+    log("update icon: " + icon);
   }
 
   proxyRequestCallback(requestInfo) {
-    if (this.shouldProxyRequest(requestInfo)) {
+    let shouldProxyRequest = this.shouldProxyRequest(requestInfo);
+
+    log("proxy request for " + requestInfo.url + " => " + shouldProxyRequest);
+
+    if (shouldProxyRequest) {
       return [{
         type: PROXY_TYPE,
         host: PROXY_HOST,
@@ -329,60 +362,85 @@ class Background {
   }
 
   async hasValidProfile() {
+    log("validating profile");
+
     const { refreshTokenData } = await browser.storage.local.get(["refreshTokenData"]);
     if (!refreshTokenData) {
+      log("no refresh token");
       return false;
     }
 
     if (refreshTokenData.auth_at + refreshTokenData.expires_in <= Date.now() / 1000) {
+      log("refresh token expired");
       return false;
     }
 
     const { proxyTokenData } = await browser.storage.local.get(["proxyTokenData"]);
     if (!proxyTokenData) {
+      log("no proxy token");
       return false;
     }
 
     if (proxyTokenData.auth_at + proxyTokenData.expires_in <= Date.now() / 1000) {
+      log("proxy token expired");
       return false;
     }
 
     const { profileTokenData } = await browser.storage.local.get(["profileTokenData"]);
     if (!profileTokenData) {
+      log("no profile token");
       return false;
     }
 
     if (profileTokenData.auth_at + profileTokenData.expires_in <= Date.now() / 1000) {
+      log("profile token expired");
       return false;
     }
 
+    log("profile validated");
     return true;
   }
 
   async auth() {
+    log("Starting the authentication");
+
     // Let's do the authentication. This will generate a token that is going to
     // be used just to obtain the other ones.
     let refreshTokenData = await this.generateRefreshToken();
     if (!refreshTokenData) {
+      log("No refresh token");
+
       this.proxyState = PROXY_STATE_AUTHFAILURE;
       await browser.storage.local.set({proxyState: this.proxyState});
       return;
     }
 
-    browser.storage.local.set({refreshTokenData});
+    // Let's store the refresh token and let's invalidate all the other tokens.
+    browser.storage.local.set({
+      refreshTokenData,
+      proxyTokenData: null,
+      profileTokenData: null,
+      profileData: null,
+    });
 
     // Let's obtain the proxy token data
     if (!await this.maybeGenerateTokens()) {
+      log("Token generation failed");
+
       this.profileState = PROXY_STATE_AUTHFAILURE;
       await browser.storage.local.set({profileState: this.profileState});
       return;
     }
+
+    log("Authentication completed");
 
     // Let's enable the proxy.
     await this.enableProxy(true);
   }
 
   async generateRefreshToken() {
+    log("generate refresh token");
+
     const fxaKeysUtil = new fxaCryptoRelier.OAuthUtils({
       contentServer: this.fxaEndpoints.get(FXA_ENDPOINT_ISSUER),
     });
@@ -395,12 +453,16 @@ class Background {
         redirectUri: browser.identity.getRedirectURL(),
         scopes: [FXA_PROFILE_SCOPE, FXA_PROXY_SCOPE],
       });
-    } catch (e) {}
+    } catch (e) {
+      log("refresh token generation failed: " + e);
+    }
 
     return refreshTokenData;
   }
 
   async generateToken(refreshTokenData, scope) {
+    log("generate token - scope: " + scope);
+
     const headers = new Headers();
     headers.append('Content-Type', 'application/json');
 
@@ -419,6 +481,7 @@ class Background {
 
     const resp = await fetch(request);
     if (resp.status !== 200) {
+      log("token generation failed: " + resp.status);
       return null;
     }
 
@@ -433,6 +496,8 @@ class Background {
   }
 
   async generateProfileData(refreshTokenData) {
+    log("generate profile data");
+
     const headers = new Headers({
       'Authorization': `Bearer ${refreshTokenData.access_token}`
     });
@@ -444,6 +509,7 @@ class Background {
 
     const resp = await fetch(request);
     if (resp.status !== 200) {
+      log("profile data generation failed: " + resp.status);
       return null;
     }
 
@@ -451,6 +517,8 @@ class Background {
   }
 
   async fetchWellKnownData() {
+    log("Fetching well-known data");
+
     let resp = await fetch(FXA_OPENID);
     let json = await resp.json();
 
@@ -460,6 +528,8 @@ class Background {
   }
 
   async maybeGenerateTokens() {
+    log("maybe generate tokens");
+
     let { refreshTokenData } = await browser.storage.local.get(["refreshTokenData"]);
     if (!refreshTokenData) {
       throw new Error("Invalid refreshToken?!?");
@@ -525,8 +595,12 @@ class Background {
   }
 
   async cacheHeaderAndScheduleTokenRotation() {
+    log("cache header and schedule token rotation");
+
     // Token generation can fail.
     if (!await this.maybeGenerateTokens()) {
+      log("token generation failed");
+
       this.proxyState = PROXY_STATE_AUTHFAILURE;
       await browser.storage.local.set({proxyState: this.proxyState});
       return;
