@@ -108,7 +108,7 @@ class Background {
     if (errorStatus == "NS_ERROR_PROXY_AUTHENTICATION_FAILED") {
       this.proxyState = PROXY_STATE_PROXYAUTHFAILED;
       this.updateUI();
-      this.runTokenRotation();
+      this.maybeGenerateTokens();
       return;
     }
 
