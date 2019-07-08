@@ -1,5 +1,6 @@
 import {View} from './view.js';
 import viewAuthFailureName from './views/authFailure.js'
+import viewConnectingName from './views/connecting.js'
 import viewErrorName from './views/error.js'
 import viewLoadingName from './views/loading.js'
 import viewLoginName from './views/login.js'
@@ -47,6 +48,10 @@ async function init() {
       // fall through
     case PROXY_STATE_ACTIVE:
       View.setView(viewMainName, {userInfo, proxyState});
+      return;
+
+    case PROXY_STATE_CONNECTING:
+      View.setView(viewConnectingName);
       return;
 
     default:

@@ -15,6 +15,7 @@ const FXA_CLIENT_ID = "a8c528140153d1c6";
 // Used to see if HTTP errors are actually valid. See the comment in
 // browser.webRequest.onCompleted.
 const SAFE_HTTPS_REQUEST = "https://www.mozilla.org/robots.txt";
+const CONNECTING_HTTPS_REQUEST = "https://www.mozilla.org/robots.txt";
 
 // Proxy configuration
 const PROXY_TYPE = "https";
@@ -46,9 +47,6 @@ class Background {
 
     await this.fetchWellKnownData();
 
-    // Basic configuration
-    await this.computeProxyState();
-
     // I don't think the extension will ever control this, however it's worth exempting in case.
     this.CAPTIVE_PORTAL_URL = await browser.experiments.proxyutils.getCaptivePortalURL();
 
@@ -69,6 +67,13 @@ class Background {
       if (details.statusCode == 407 || details.statusCode == 429) {
         this.processPotentialNetworkError();
       }
+
+      if (this.proxyState == PROXY_STATE_CONNECTING &&
+          details.statusCode == 200) {
+        // TODO: inform the panel...
+        this.proxyState = PROXY_STATE_ACTIVE;
+        this.updateIcon();
+      }
     }, {urls: ["<all_urls>"]});
 
     browser.webRequest.onErrorOccurred.addListener(details => {
@@ -87,6 +92,9 @@ class Background {
     // Let's initialize the survey object.
     await this.survey.init();
 
+    // Here we generate the current proxy state.
+    await this.computeProxyState();
+
     // UI
     this.updateUI();
   }
@@ -101,7 +109,8 @@ class Background {
   processNetworkError(errorStatus) {
     log("processNetworkError: " + errorStatus);
 
-    if (this.proxyState != PROXY_STATE_ACTIVE) {
+    if (this.proxyState !== PROXY_STATE_ACTIVE &&
+        this.proxyState !== PROXY_STATE_CONNECTING) {
       return;
     }
 
@@ -202,7 +211,8 @@ class Background {
       if (proxyState == PROXY_STATE_INACTIVE) {
         this.proxyState = PROXY_STATE_INACTIVE;
       } else if ((await this.maybeGenerateTokens())) {
-        this.proxyState = PROXY_STATE_ACTIVE;
+        this.proxyState = PROXY_STATE_CONNECTING;
+        this.testProxyConnection();
       }
     }
 
@@ -240,17 +250,25 @@ class Background {
     // We support the changing of proxy state only from some states.
     if (this.proxyState != PROXY_STATE_UNKNOWN &&
         this.proxyState != PROXY_STATE_ACTIVE &&
-        this.proxyState != PROXY_STATE_INACTIVE) {
+        this.proxyState != PROXY_STATE_INACTIVE &&
+        this.proxyState != PROXY_STATE_CONNECTING) {
       return;
     }
 
     // Let's force a new proxy state, and then let's compute it again.
-    let proxyState = value ? PROXY_STATE_ACTIVE : PROXY_STATE_INACTIVE;
+    let proxyState = value ? PROXY_STATE_CONNECTING : PROXY_STATE_INACTIVE;
     await browser.storage.local.set({proxyState});
 
     if (await this.computeProxyState()) {
       this.updateIcon();
     }
+  }
+
+  testProxyConnection() {
+    log("executing a fetch to check the connection");
+
+    // We don't care about the result of this fetch.
+    fetch(CONNECTING_HTTPS_REQUEST, { cache: "no-cache"}).catch(_ => {});
   }
 
   updateUI() {
@@ -262,7 +280,8 @@ class Background {
 
   updateIcon() {
     let icon;
-    if (this.proxyState === PROXY_STATE_INACTIVE) {
+    if (this.proxyState === PROXY_STATE_INACTIVE ||
+        this.proxyState === PROXY_STATE_CONNECTING) {
       icon = "img/badge_off.png";
     } else if (this.proxyState === PROXY_STATE_ACTIVE) {
       icon = "img/badge_on.png";
@@ -321,8 +340,14 @@ class Background {
       return false;
     }
 
-    if (this.proxyState !== PROXY_STATE_ACTIVE) {
+    if (this.proxyState !== PROXY_STATE_ACTIVE &&
+        this.proxyState !== PROXY_STATE_CONNECTING) {
       return false;
+    }
+
+    // If we are 'connecting', we want to allow just the CONNECTING_HTTPS_REQUEST.
+    if (this.proxyState === PROXY_STATE_CONNECTING) {
+      return requestInfo.url === CONNECTING_HTTPS_REQUEST;
     }
 
     if (this.CAPTIVE_PORTAL_URL === requestInfo.url) {
