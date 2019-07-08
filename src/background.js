@@ -372,7 +372,7 @@ class Background {
     browser.storage.local.set({refreshTokenData});
 
     // Let's obtain the proxy token data
-    if (!this.maybeGenerateTokens()) {
+    if (!await this.maybeGenerateTokens()) {
       this.profileState = PROXY_STATE_AUTHFAILURE;
       await browser.storage.local.set({profileState: this.profileState});
       return;
@@ -462,7 +462,7 @@ class Background {
   async maybeGenerateTokens() {
     let { refreshTokenData } = await browser.storage.local.get(["refreshTokenData"]);
     if (!refreshTokenData) {
-      throw "Invalid refreshToken?!?";
+      throw new Error("Invalid refreshToken?!?");
     }
 
     let minDiff;
@@ -516,9 +516,7 @@ class Background {
       }
     }
 
-    browser.storage.local.set({proxyTokenData});
-    browser.storage.local.set({profileTokenData});
-    browser.storage.local.set({profileData});
+    browser.storage.local.set({proxyTokenData, profileTokenData, profileData});
 
     // Let's schedule the token rotation.
     setTimeout(_ => { this.maybeGenerateTokens(); }, minDiff);
@@ -528,7 +526,7 @@ class Background {
 
   async cacheHeaderAndScheduleTokenRotation() {
     // Token generation can fail.
-    if (!this.maybeGenerateTokens()) {
+    if (!await this.maybeGenerateTokens()) {
       this.proxyState = PROXY_STATE_AUTHFAILURE;
       await browser.storage.local.set({proxyState: this.proxyState});
       return;
@@ -536,7 +534,7 @@ class Background {
 
     let { proxyTokenData } = await browser.storage.local.get(["proxyTokenData"]);
     if (!proxyTokenData) {
-      throw "Invalid proxyTokenData?!?";
+      throw new Error("Invalid proxyTokenData?!?");
     }
 
     this.proxyAuthorizationHeader = proxyTokenData.token_type + " " + proxyTokenData.access_token;
