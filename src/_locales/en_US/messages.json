@@ -5,6 +5,27 @@
   "introHeading": {
     "message": "Firefox Private Network"
   },
+  "accountLabel": {
+    "message": "Firefox Account"
+  },
+  "manageAccountLink": {
+    "message": "Manage your Account"
+  },
+  "feedbackLink": {
+    "message": "Tell us what you think"
+  },
+  "manageAccountButton": {
+    "message": "Manage Account"
+  },
+  "helpAndSupportLink": {
+    "message": "Help & Support"
+  },
+  "privacyPolicyLink": {
+    "message": "Privacy Policy"
+  },
+  "termsAndConditionsLink": {
+    "message": "Terms & Conditions"
+  },
   "loading": {
     "message": "Loading..."
   },

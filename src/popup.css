@@ -1,6 +1,8 @@
 :root {
   --base-font-size: 10px;
-  --heading-font-size: 12px;
+  --heading-font-size: 14px;
+  --body-font-size: 14px;
+  --edge-padding: 12px;
 
   --in-content-selected-text: #fff;
   --in-content-button-background: var(--grey-90-a10);
@@ -28,6 +30,19 @@
   --grey-90-a30: rgba(12, 12, 13, 0.3);
   --grey-90-a50: rgba(12, 12, 13, 0.5);
   --grey-90-a60: rgba(12, 12, 13, 0.6);
+  --ink-90: #1D1133;
+  --black: #0c0c0D;
+}
+
+* {
+  padding: 0;
+  margin: 0;
+}
+
+body {
+  color: var(--black);
+  inline-size: 320px;
+  font-size: var(--body-font-size);
 }
 
 button {
@@ -42,6 +57,12 @@ button {
   text-decoration: none;
   margin: 4px 8px;
   font-size: 1em;
+}
+
+#content button {
+  width: calc(100% - calc(var(--edge-padding) * 2));
+  margin: 4px var(--edge-padding);
+  text-align: center;
 }
 
 button.primary {
@@ -66,33 +87,43 @@ button.primary:enabled:hover:active {
 
 #content {
   inline-size: 320px;
-  margin: 20px;
 }
 
-#introHeading {
-  font-size: var(--heading-font-size);
+#content p {
+  inline-size: 296px;
+  margin: var(--edge-padding);
+}
+
+header {
+  block-size: 35px;
   font-weight: bold;
   display: flex;
   padding-inline-end: 2px;
   padding-inline-start: 2px;
   position: relative;
+  border-block-end: 1px solid #e6e6e6;
 }
 
-#introHeading button {
+header button {
   padding: 8px;
 }
 
-#introHeading h1 {
-  flex: auto;
+#introHeading {
+  font-size: var(--heading-font-size);
+  display: flex;
+  align-items: center;
+  margin: 0 auto;
+  font-weight: bold;
 }
 
 #settingsButton {
   block-size: 16px;
   inline-size: 16px;
+  min-height: auto;
+  align-self: center;
   display: block;
   border: none;
-  background: url('/img/i-settings32.png') -6px -6px / 28px; /* TODO get SVG or cropped PNG */
-  margin: auto 0 auto auto;
+  background: url('/img/i-settings32.svg') -7px -7px / 30px; /* TODO get cropped SVG to remove this cropping */
 }
 
 [hidden]#settingsButton {
@@ -100,8 +131,8 @@ button.primary:enabled:hover:active {
 }
 
 #stateButton {
-  block-size: 80px;
-  inline-size: 80px;
+  block-size: 81px;
+  inline-size: 81px;
   border-radius: 100%;
   font-size: 20px;
   background-color: #fff;
@@ -109,20 +140,79 @@ button.primary:enabled:hover:active {
   margin: auto auto;
   border: 1px solid limegreen; /* TODO get real color */
   text-align: center;
+  font-weight: bold;
 }
 
-[data-state="login"] #stateButton {
-  background: red; /* TODO get real image here */
+#stateButton::-moz-focus-inner {
+  border: 0; /* TODO make this look better */
+}
+
+[data-state="login"] #stateButton,
+[data-state="disabled"] #stateButton,
+[data-state="connecting"] #stateButton,
+[data-state="enabled"] #stateButton {
+  _background: transparent;
+  border: 0 none;
 }
 
 [data-state="disabled"] #stateButton {
   background-color: #bbb8c2;
+  font-size: 25px;
 }
 
 #state {
-  background-color: rgb(28, 17, 51);
+  background-color: var(--ink-90);
   block-size: 200px;
   display: flex;
+}
+
+[data-state="hidden"]#state {
+  display: none;
+}
+
+[data-state="login"]#state {
+  background: var(--ink-90) url('img/hero-account.svg') 0 0 / cover;
+}
+
+[data-state="disabled"]#state {
+  _background: var(--ink-90) url('img/hero-off.svg') 0 0 / cover;
+  color: #291d4f;
+}
+
+[data-state="connecting"]#state {
+  background: var(--ink-90) url('img/hero-connecting.svg') 0 0 / cover;
+}
+
+[data-state="enabled"]#state {
+  background: var(--ink-90) url('img/hero-on.svg') -2px -1px / cover;
+}
+
+.feedbackLink {
+  display: flex;
+}
+
+.feedbackLink::before {
+  content: "";
+  block-size: 16px;
+  inline-size: 16px;
+  margin-inline-end: 4px;
+  background: url('img/i-warning16.png') 0 0 / cover;
+  display: inline-block;
+}
+
+.settingsLinks {
+  padding: 0;
+}
+
+.settingsLinks li {
+  list-style: none;
+  padding: 10px var(--edge-padding);
+  border-block-end: 1px solid #e4e4e4;
+  display: flex;
+}
+
+.settingsLinks .end {
+  margin-inline-start: auto;
 }
 
 footer {

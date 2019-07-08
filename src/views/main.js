@@ -31,7 +31,11 @@ class ViewMain extends View {
     <p>
       ${loggedIn}
     </p>
-    <button id="toggleButton"></button>`;
+    <button id="toggleButton"></button>
+    <p>
+      <a href="https://qsurvey.mozilla.com/s3/fx-private-network-beta-feedback" target="_blank" rel="noopener noreferrer" class="feedbackLink">${this.getTranslation("feedbackLink")}</a> <!-- TODO check if correct link -->
+    </p>
+    `;
 
     return userInfo;
   }
@@ -56,7 +60,7 @@ class ViewMain extends View {
   showProxyState() {
     let toggleButton = document.getElementById("toggleButton");
     toggleButton.textContent = this.proxyEnabled ? this.getTranslation("disableProxy") : this.getTranslation("enableProxy");
-    View.setState("toggle", this.proxyEnabled ? this.getTranslation("proxyOn") : this.getTranslation("proxyOff"));
+    View.setState(this.proxyEnabled ? "enabled" : "disabled", this.proxyEnabled ? this.getTranslation("proxyOn") : this.getTranslation("proxyOff"));
   }
 
   stateButtonHandler() {
