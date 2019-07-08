@@ -25,6 +25,7 @@ const PROXY_PORT = 8001;
 class Background {
   constructor() {
     this.pendingErrorFetch = false;
+    this.survey = new Survey();
   }
 
   async init() {
@@ -65,6 +66,9 @@ class Background {
         this.updateUI();
       }
     });
+
+    // Let's initialize the survey object.
+    await this.survey.init();
 
     // UI
     this.updateUI();
