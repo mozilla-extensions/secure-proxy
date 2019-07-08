@@ -158,7 +158,7 @@ class Background {
     // We want to keep these states.
     if (currentState == PROXY_STATE_PROXYERROR ||
         currentState == PROXY_STATE_PROXYAUTHFAILED) {
-      this.proxyState == currentState;
+      this.proxyState = currentState;
     }
 
     // Something else is in use.
