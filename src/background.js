@@ -89,7 +89,8 @@ class Background {
       return;
     }
 
-    if (errorStatus == "NS_ERROR_PROXY_CONNECTION_REFUSED") {
+    if (errorStatus == "NS_ERROR_PROXY_CONNECTION_REFUSED" ||
+        errorStatus == "NS_ERROR_TOO_MANY_REQUESTS") {
       this.proxyState = PROXY_STATE_PROXYERROR;
       this.updateUI();
       return;
