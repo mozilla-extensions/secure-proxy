@@ -370,7 +370,7 @@ class Background {
       return false;
     }
 
-    if (refreshTokenData.auth_at + refreshTokenData.expires_in <= Date.now() / 1000) {
+    if (refreshTokenData.received_at + refreshTokenData.expires_in <= Date.now() / 1000) {
       log("refresh token expired");
       return false;
     }
@@ -381,7 +381,7 @@ class Background {
       return false;
     }
 
-    if (proxyTokenData.auth_at + proxyTokenData.expires_in <= Date.now() / 1000) {
+    if (proxyTokenData.received_at + proxyTokenData.expires_in <= Date.now() / 1000) {
       log("proxy token expired");
       return false;
     }
@@ -392,7 +392,7 @@ class Background {
       return false;
     }
 
-    if (profileTokenData.auth_at + profileTokenData.expires_in <= Date.now() / 1000) {
+    if (profileTokenData.received_at + profileTokenData.expires_in <= Date.now() / 1000) {
       log("profile token expired");
       return false;
     }
@@ -487,10 +487,8 @@ class Background {
 
     let token = await resp.json();
 
-    // TODO: this should be part of the token!
-    if (!("auth_at" in token)) {
-       token.auth_at = new Date() / 1000;
-    }
+    // Let's store when this token has been received.
+    token.received_at = Date.now() / 1000;
 
     return token;
   }
@@ -540,7 +538,7 @@ class Background {
     let { proxyTokenData } = await browser.storage.local.get(["proxyTokenData"]);
     if (proxyTokenData) {
       // diff - 1 hour.
-      let diff = proxyTokenData.auth_at + proxyTokenData.expires_in - Date.now() / 1000 - 3600;
+      let diff = proxyTokenData.received_at + proxyTokenData.expires_in - Date.now() / 1000 - 3600;
       if (diff < 3600) {
         proxyTokenData = null;
       } else {
@@ -560,7 +558,7 @@ class Background {
     let { profileTokenData } = await browser.storage.local.get(["profileTokenData"]);
     if (profileTokenData) {
       // diff - 1 hour.
-      let diff = profileTokenData.auth_at + profileTokenData.expires_in - Date.now() / 1000 - 3600;
+      let diff = profileTokenData.received_at + profileTokenData.expires_in - Date.now() / 1000 - 3600;
       if (diff < 3600) {
         profileTokenData = null;
       } if (minDiff > diff) {
