@@ -68,8 +68,7 @@ class Background {
       if (this.proxyState == PROXY_STATE_CONNECTING &&
           details.statusCode == 200) {
         this.proxyState = PROXY_STATE_ACTIVE;
-        this.updateIcon();
-        this.sendDataToCurrentPort();
+        this.updateUI();
       }
     }, {urls: ["<all_urls>"]});
 
@@ -119,7 +118,6 @@ class Background {
       this.proxyState = PROXY_STATE_PROXYAUTHFAILED;
       this.updateUI();
       this.maybeGenerateTokens();
-      this.sendDataToCurrentPort();
       return;
     }
 
@@ -127,7 +125,6 @@ class Background {
         errorStatus == "NS_ERROR_TOO_MANY_REQUESTS") {
       this.proxyState = PROXY_STATE_PROXYERROR;
       this.updateUI();
-      this.sendDataToCurrentPort();
       return;
     }
   }
@@ -152,6 +149,11 @@ class Background {
   }
 
   showStatusPrompt() {
+    // No need to show the toast if the panel is visible.
+    if (this.currentPort) {
+      return;
+    }
+
     let promptNotice;
     switch(this.proxyState) {
       case PROXY_STATE_INACTIVE:
@@ -239,7 +241,7 @@ class Background {
     await browser.storage.local.set({proxyState});
 
     if (await this.computeProxyState()) {
-      this.updateIcon();
+      this.updateUI();
     }
   }
 
@@ -255,6 +257,7 @@ class Background {
 
     this.showStatusPrompt();
     this.updateIcon();
+    this.sendDataToCurrentPort();
   }
 
   updateIcon() {
@@ -592,15 +595,18 @@ class Background {
   }
 
   async panelConnected(port) {
+    log("Panel connected");
+
     // Overwrite any existing port. We want to talk with 1 single popup.
     this.currentPort = port;
 
     // Let's send the initial data.
     port.onMessage.addListener(async message => {
+      log("Message received from the panel");
+
       switch (message.type) {
         case "setEnabledState":
           await this.enableProxy(message.data.enabledState);
-          await this.sendDataToCurrentPort();
           break;
 
         case "authenticate":
@@ -610,6 +616,7 @@ class Background {
     });
 
     port.onDisconnect.addListener(_ => {
+      log("Panel disconnected");
       this.currentPort = null;
     });
 
@@ -617,6 +624,8 @@ class Background {
   }
 
   async sendDataToCurrentPort() {
+    log("Update the panel: " + this.currentPort);
+
     if (this.currentPort) {
       let { profileData } = await browser.storage.local.get(["profileData"]);
       return this.currentPort.postMessage({
