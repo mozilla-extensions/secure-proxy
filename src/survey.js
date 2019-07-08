@@ -34,7 +34,7 @@ class Survey {
     }
 
     if (nextSurvey) {
-      let now = Math.round(now / 1000);
+      now = Math.round(now / 1000);
       let diff = surveyInitTime + nextSurvey.deltaTime - now;
       if (diff < 0) {
         this.showSurvey(nextSurvey);
