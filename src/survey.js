@@ -15,9 +15,11 @@ class Survey {
   }
 
   async scheduleNextSurvey() {
+    let now = performance.now() + performance.timeOrigin;
+
     let { surveyInitTime } = await browser.storage.local.get(["surveyInitTime"]);
     if (!surveyInitTime) {
-      surveyInitTime = Math.round(Date.now() / 1000);
+      surveyInitTime = Math.round(now / 1000);
       await browser.storage.local.set({surveyInitTime});
     }
 
@@ -32,7 +34,7 @@ class Survey {
     }
 
     if (nextSurvey) {
-      let now = Math.round(Date.now() / 1000);
+      let now = Math.round(now / 1000);
       let diff = surveyInitTime + nextSurvey.deltaTime - now;
       if (diff < 0) {
         this.showSurvey(nextSurvey);
