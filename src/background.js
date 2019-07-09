@@ -284,11 +284,11 @@ class Background {
     if (this.proxyState === PROXY_STATE_INACTIVE ||
         this.proxyState === PROXY_STATE_CONNECTING ||
         this.proxyState === PROXY_STATE_OFFLINE) {
-      icon = "img/badge_off.png";
+      icon = "img/badge_off.svg";
     } else if (this.proxyState === PROXY_STATE_ACTIVE) {
-      icon = "img/badge_on.png";
+      icon = "img/badge_on.svg";
     } else {
-      icon = "img/badge_warning.png";
+      icon = "img/badge_warning.svg";
     }
 
     browser.browserAction.setIcon({
@@ -639,6 +639,10 @@ class Background {
 
         case "survey":
           await this.survey.runSurvey(message.data.survey);
+          break;
+
+        case "goBack":
+          this.updateUI();
           break;
       }
     });

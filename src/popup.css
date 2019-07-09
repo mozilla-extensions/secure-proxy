@@ -43,6 +43,7 @@ body {
   color: var(--black);
   inline-size: 320px;
   font-size: var(--body-font-size);
+  line-height: 22px;
 }
 
 button {
@@ -116,17 +117,26 @@ header button {
   font-weight: bold;
 }
 
-#settingsButton {
+#settingsButton,
+#backButton {
   block-size: 16px;
   inline-size: 16px;
   min-height: auto;
   align-self: center;
   display: block;
   border: none;
+}
+
+#settingsButton {
   background: url('/img/i-settings32.svg') -7px -7px / 30px; /* TODO get cropped SVG to remove this cropping */
 }
 
-[hidden]#settingsButton {
+#backButton {
+  background: url('/img/arrow-left.svg');
+}
+
+[hidden]#settingsButton,
+[hidden]#backButton {
   display: none;
 }
 
@@ -147,11 +157,15 @@ header button {
   border: 0; /* TODO make this look better */
 }
 
-[data-state="login"] #stateButton,
 [data-state="disabled"] #stateButton,
 [data-state="connecting"] #stateButton,
 [data-state="enabled"] #stateButton {
-  _background: transparent;
+  border: 0 none;
+}
+
+[data-state="connecting"] #stateButton,
+[data-state="login"] #stateButton {
+  background: transparent;
   border: 0 none;
 }
 
@@ -196,7 +210,7 @@ header button {
   block-size: 16px;
   inline-size: 16px;
   margin-inline-end: 4px;
-  background: url('img/i-warning16.png') 0 0 / cover;
+  background: url('img/i-feedback16.svg') 0 0 / cover;
   display: inline-block;
 }
 
@@ -211,7 +225,7 @@ header button {
   display: flex;
 }
 
-.settingsLinks .end {
+.end {
   margin-inline-start: auto;
 }
 
@@ -219,4 +233,46 @@ footer {
   padding: 12px 20px;
   border-block-start: 1px solid #e4e4e4;
   background: #f9f9fb;
+  display: flex;
+}
+
+#toggleRow {
+  padding: 10px var(--edge-padding);
+  border-block-start: 1px solid #e4e4e4;
+  border-block-end: 1px solid #e4e4e4;
+  display: flex;
+}
+
+#toggleButton {
+  -moz-appearance: none;
+  border: 1px solid var(--grey-50);
+  background-color: var(--grey-20);
+  border-radius: 30px;
+  block-size: 14px;
+  inline-size: 22px;
+  display: flex;
+  margin-inline-start: auto;
+  align-self: center;
+}
+
+#toggleButton:checked {
+  border: 1px solid var(--blue-50);
+  background-color: var(--blue-50);
+}
+
+#toggleButton::before {
+  display: block;
+  content: "";
+  block-size: 6px;
+  inline-size: 6px;
+  border-radius: 200%;
+  align-self: center;
+  margin: 0 auto 0 0;
+  border: 1px solid var(--grey-50);
+  background: white;
+}
+
+#toggleButton:checked::before {
+  margin: 0 0 0 auto;
+  border-color: white;
 }

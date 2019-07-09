@@ -19,13 +19,19 @@ async function init() {
   port.onMessage.addListener(async msg => {
     let {userInfo, proxyState, pendingSurvey} = msg;
 
+    View.showSettings(!!userInfo);
     if (userInfo) {
       let settingsButton = document.getElementById("settingsButton");
-      settingsButton.removeAttribute("hidden");
       settingsButton.addEventListener("click", () => {
         View.setView(viewSettingsName, {userInfo, proxyState});
       });
     }
+
+    View.showBack(false);
+    let backElement = document.getElementById("backButton");
+    backElement.addEventListener("click", () => {
+      View.sendMessage("goBack");
+    });
 
     let stateButton = document.getElementById("stateButton");
     stateButton.addEventListener("click", () => {

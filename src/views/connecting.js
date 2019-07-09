@@ -4,6 +4,7 @@ import {escapedTemplate} from '../template.js'
 // This is the first view to be shown.
 class ViewConnecting extends View {
   show() {
+    View.setState("connecting");
     return escapedTemplate`<p>
       ${this.getTranslation("connecting")}
     </p>`;

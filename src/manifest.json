@@ -14,7 +14,7 @@
   "description": "",
   "browser_action": {
     "browser_style": true,
-    "default_icon": "img/badge_off.png",
+    "default_icon": "img/badge_off.svg",
     "default_title": "Secure proxy",
     "default_popup": "popup.html"
   },

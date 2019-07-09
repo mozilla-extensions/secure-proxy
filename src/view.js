@@ -35,6 +35,16 @@ export class View {
     }
   }
 
+  static showBack(shouldShow) {
+    let backElement = document.getElementById("backButton");
+    backElement.toggleAttribute("hidden", !shouldShow);
+  }
+
+  static showSettings(shouldShow) {
+    let settingsElement = document.getElementById("settingsButton");
+    settingsElement.toggleAttribute("hidden", !shouldShow);
+  }
+
   static setState(state, stateButtonText) {
     let stateElement = document.getElementById("state");
     stateElement.setAttribute("data-state", state);
