@@ -10,17 +10,6 @@
         "type": "function",
         "description": "Fired when the proxy setting is changed.",
         "parameters": []
-      },
-      {
-        "name": "onConnectivityChanged",
-        "type": "function",
-        "description": "Fired when the system becomes online/offline.",
-        "parameters": [
-          {
-            "type": "boolean",
-            "name": "hasConnectivity"
-          }
-        ]
       }
     ],
     "functions": [

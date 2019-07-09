@@ -92,16 +92,8 @@ class Background {
       this.panelConnected(port);
     });
 
-    browser.experiments.proxyutils.onConnectivityChanged.addListener(async hasConnectivity => {
-      if (hasConnectivity) {
-        log("We are online!");
-        await this.run();
-      } else {
-        log("We are offline!");
-        this.proxyState = PROXY_STATE_OFFLINE;
-        this.updateUI();
-      }
-    });
+    window.addEventListener('online', _ => this.onConnectivityChanged());
+    window.addEventListener('offline', _ => this.onConnectivityChanged());
 
     // Let's initialize the survey object.
     await this.survey.init();
@@ -664,6 +656,17 @@ class Background {
         userInfo: profileData,
         proxyState: this.proxyState,
       });
+    }
+  }
+
+  async onConnectivityChanged() {
+    if (navigator.onLine) {
+      log("We are online!");
+      await this.run();
+    } else {
+      log("We are offline!");
+      this.proxyState = PROXY_STATE_OFFLINE;
+      this.updateUI();
     }
   }
 }
