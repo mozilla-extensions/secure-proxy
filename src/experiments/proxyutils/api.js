@@ -121,6 +121,9 @@ this.proxyutils = class extends ExtensionAPI {
             }
           }).api(),
 
+          // web-extension APIs do not have network status support yet and
+          // window.ononline/onoffline do not work. Here is our custom
+          // connectivity-changed event.
           onConnectivityChanged: new EventManager({
             context,
             name: "proxyutils.onConnectivityChanged",
