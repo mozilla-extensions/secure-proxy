@@ -216,8 +216,9 @@ class Background {
 
     switch (message.type) {
       case "initInfo":
+        let { profileData } = await browser.storage.local.get(["profileData"]);
         return {
-          userInfo: await browser.storage.local.get(["profileData"]),
+          userInfo: profileData,
           proxyState: this.proxyState,
         };
 
