@@ -31,8 +31,17 @@ class ViewMain extends View {
   }
 
   postShow(data) {
-    this.proxyEnabled = this.proxyState == PROXY_STATE_ACTIVE;
-    this.showProxyState();
+    this.proxyEnabled = data.proxyState == PROXY_STATE_ACTIVE;
+
+    let toggleButton = document.getElementById("toggleButton");
+    if (this.proxyEnabled) {
+      toggleButton.textContent = this.getTranslation("disableProxy");
+      View.setState("enabled", this.getTranslation("proxyOn"));
+    } else {
+      toggleButton.textContent = this.getTranslation("enableProxy");
+      View.setState("disabled", this.getTranslation("proxyOff"));
+    }
+
   }
 
   async toggleProxy() {
@@ -40,17 +49,10 @@ class ViewMain extends View {
     // Send a message to the background script to notify the proxyEnabled has chanded.
     // This prevents the background script from having to block on reading from the storage per request.
     await View.sendMessage("setEnabledState", {enabledState: this.proxyEnabled});
-    this.showProxyState();
   }
 
   handleEvent() {
     this.toggleProxy();
-  }
-
-  showProxyState() {
-    let toggleButton = document.getElementById("toggleButton");
-    toggleButton.textContent = this.proxyEnabled ? this.getTranslation("disableProxy") : this.getTranslation("enableProxy");
-    View.setState(this.proxyEnabled ? "enabled" : "disabled", this.proxyEnabled ? this.getTranslation("proxyOn") : this.getTranslation("proxyOff"));
   }
 
   stateButtonHandler() {

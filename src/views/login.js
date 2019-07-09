@@ -16,6 +16,7 @@ class ViewLogin extends View {
 
   stateButtonHandler() {
     View.sendMessage("authenticate");
+    close();
   }
 
   handleEvent(e) {
