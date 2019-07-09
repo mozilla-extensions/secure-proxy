@@ -40,12 +40,11 @@ class Background {
     this.survey = new Survey();
     this.fxaEndpoints = new Map();
     this.pendingErrorFetch = false;
+    this.proxyState = PROXY_STATE_UNKNOWN;
   }
 
   async init() {
     log("init");
-
-    await this.fetchWellKnownData();
 
     // I don't think the extension will ever control this, however it's worth exempting in case.
     this.CAPTIVE_PORTAL_URL = await browser.experiments.proxyutils.getCaptivePortalURL();
@@ -61,6 +60,10 @@ class Background {
     // blocking us for real, we will receive the same status code in
     // onErrorOccurred.
     browser.webRequest.onCompleted.addListener(details => {
+      if (this.proxyState == PROXY_STATE_OFFLINE) {
+        return;
+      }
+
       if (details.statusCode == 407 || details.statusCode == 429) {
         this.processPotentialNetworkError();
       }
@@ -89,8 +92,31 @@ class Background {
       this.panelConnected(port);
     });
 
+    browser.experiments.proxyutils.onConnectivityChanged.addListener(async _ => {
+      if (await browser.experiments.proxyutils.hasConnectivity()) {
+        log("We are online!");
+        this.run();
+      } else {
+        log("We are offline!");
+        this.proxyState = PROXY_STATE_OFFLINE;
+        this.updateUI();
+      }
+    });
+
     // Let's initialize the survey object.
     await this.survey.init();
+  }
+
+  async run() {
+    this.proxyState = PROXY_STATE_UNKNOWN;
+
+    // Let's fetch the well-known data.
+    if (this.fxaEndpoints.size === 0 &&
+        !await this.fetchWellKnownData()) {
+      this.proxyState = PROXY_STATE_OFFLINE;
+      this.updateUI();
+      return;
+    }
 
     // Here we generate the current proxy state.
     await this.computeProxyState();
@@ -200,7 +226,8 @@ class Background {
     let currentState = this.proxyState;
     if (currentState !== PROXY_STATE_AUTHFAILURE &&
         currentState !== PROXY_STATE_PROXYERROR &&
-        currentState !== PROXY_STATE_PROXYAUTHFAILED) {
+        currentState !== PROXY_STATE_PROXYAUTHFAILED &&
+        currentState !== PROXY_STATE_OFFLINE) {
       this.proxyState = PROXY_STATE_UNKNOWN;
     }
 
@@ -263,7 +290,8 @@ class Background {
   updateIcon() {
     let icon;
     if (this.proxyState === PROXY_STATE_INACTIVE ||
-        this.proxyState === PROXY_STATE_CONNECTING) {
+        this.proxyState === PROXY_STATE_CONNECTING ||
+        this.proxyState === PROXY_STATE_OFFLINE) {
       icon = "img/badge_off.png";
     } else if (this.proxyState === PROXY_STATE_ACTIVE) {
       icon = "img/badge_on.png";
@@ -485,12 +513,16 @@ class Background {
   async fetchWellKnownData() {
     log("Fetching well-known data");
 
-    let resp = await fetch(FXA_OPENID);
-    let json = await resp.json();
+    let json = await fetch(FXA_OPENID).then(r => r.json(), e => null);
+    if (!json) {
+      return false;
+    }
 
     this.fxaEndpoints.set(FXA_ENDPOINT_PROFILE, json[FXA_ENDPOINT_PROFILE]);
     this.fxaEndpoints.set(FXA_ENDPOINT_TOKEN, json[FXA_ENDPOINT_TOKEN]);
     this.fxaEndpoints.set(FXA_ENDPOINT_ISSUER, json[FXA_ENDPOINT_ISSUER]);
+
+    return true;
   }
 
   async maybeGenerateTokens() {
@@ -638,3 +670,4 @@ class Background {
 
 let background = new Background();
 background.init();
+background.run();

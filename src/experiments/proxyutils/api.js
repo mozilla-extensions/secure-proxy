@@ -98,6 +98,11 @@ let ConfirmationHint = {
 };
 
 this.proxyutils = class extends ExtensionAPI {
+ constructor(...args) {
+    super(...args);
+    this.wasOffline = false;
+  }
+
   getAPI(context) {
     const EventManager = ExtensionCommon.EventManager;
 
@@ -116,6 +121,26 @@ this.proxyutils = class extends ExtensionAPI {
             }
           }).api(),
 
+          onConnectivityChanged: new EventManager({
+            context,
+            name: "proxyutils.onConnectivityChanged",
+            register: fire => {
+              let observer = _ => {
+                let isOffline = Services.io.offline || !Services.io.connectivity;
+                if (isOffline === this.wasOffline) {
+                  return;
+                }
+
+                this.wasOffline = !this.wasOffline;
+                fire.async();
+              }
+              Services.obs.addObserver(observer, "network:offline-status-changed");
+              return () => {
+                Services.obs.removeObserver(observer, "network:offline-status-changed");
+              }
+            }
+          }).api(),
+
           async showPrompt(message) {
             const selector = "#secure-proxy_mozilla_com-browser-action";
             ConfirmationHint.show(selector, message, {});
@@ -127,9 +152,14 @@ this.proxyutils = class extends ExtensionAPI {
                    proxyType == Ci.nsIProtocolProxyService.PROXYCONFIG_WPAD ||
                    proxyType == Ci.nsIProtocolProxyService.PROXYCONFIG_MANUAL;
           },
+
           async getCaptivePortalURL() {
             return Services.prefs.getStringPref("captivedetect.canonicalURL");
           },
+
+          async hasConnectivity() {
+            return !Services.io.offline && Services.io.connectivity;
+          }
         },
       },
     };
