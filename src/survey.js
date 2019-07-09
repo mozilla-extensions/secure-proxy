@@ -2,9 +2,8 @@ const SURVEY_UNINSTALL = "https://qsurvey.mozilla.com/s3/fx-private-network-beta
 
 // TODO set the correct deltaTime and URLs
 const SURVEYS = [
- { name: "start", deltaTime: 1, URL: "https://qsurvey.mozilla.com/s3/fx-private-network-beta-survey?type=start" },
- { name: "mid", deltaTime: 300, URL: "https://qsurvey.mozilla.com/s3/fx-private-network-beta-survey?type=start" },
- { name: "late", deltaTime: 600, URL: "https://qsurvey.mozilla.com/s3/fx-private-network-beta-survey?type=start" },
+  // 3 days
+  { name: "start", deltaTime: 259200, URL: "https://qsurvey.mozilla.com/s3/fx-private-network-beta-survey?type=start" },
 ];
 
 // This class controls the survey URLs and when they have to be shown.
@@ -26,6 +25,19 @@ class Survey {
     }
 
     // Let's find the next survey to show.
+    let nextSurvey = await this.nextSurvey();
+    if (nextSurvey) {
+      now = Math.round(now / 1000);
+      let diff = surveyInitTime + nextSurvey.deltaTime - now;
+      if (diff < 0) {
+        this.runSurvey(nextSurvey.name);
+      } else {
+        setTimeout(_ => { this.runSurvey(nextSurvey.name); }, diff * 1000);
+      }
+    }
+  }
+
+  async nextSurvey() {
     let { lastSurvey } = await browser.storage.local.get(["lastSurvey"]);
     let nextSurvey = null;
     if (!lastSurvey) {
@@ -35,23 +47,20 @@ class Survey {
       nextSurvey = SURVEYS[SURVEYS.findIndex(a => lastSurvey == a.name) + 1];
     }
 
-    if (nextSurvey) {
-      now = Math.round(now / 1000);
-      let diff = surveyInitTime + nextSurvey.deltaTime - now;
-      if (diff < 0) {
-        this.showSurvey(nextSurvey);
-      } else {
-        setTimeout(_ => { this.showSurvey(nextSurvey); }, diff * 1000);
-      }
-    }
+    return nextSurvey;
   }
 
-  async showSurvey(survey) {
+  async runSurvey(surveyName) {
+    let survey = await this.nextSurvey();
+    if (!survey || survey.name !== surveyName) {
+      return;
+    }
+
     await browser.tabs.create({
       url: survey.URL,
     })
 
-    await browser.storage.local.set({lastSurvey: survey.name});
+    await browser.storage.local.set({lastSurvey: surveyName});
     await this.scheduleNextSurvey();
   }
 }
