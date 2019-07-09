@@ -5,6 +5,7 @@ import viewErrorName from './views/error.js'
 import viewLoadingName from './views/loading.js'
 import viewLoginName from './views/login.js'
 import viewMainName from './views/main.js'
+import viewOfflineName from './views/offline.js';
 import viewProxyErrorName from './views/proxyError.js';
 import viewSettingsName from './views/settings.js';
 
@@ -56,6 +57,10 @@ async function init() {
 
       case PROXY_STATE_CONNECTING:
         View.setView(viewConnectingName);
+        return;
+
+      case PROXY_STATE_OFFLINE:
+        View.setView(viewOfflineName);
         return;
 
       default:

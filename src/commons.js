@@ -1,5 +1,8 @@
 /* eslint-disable no-unused-vars */
 
+// We are offline.
+const PROXY_STATE_OFFLINE = "offline";
+
 // The user is unknown, the proxy is not configured.
 const PROXY_STATE_UNKNOWN = "unknown";
 

@@ -29,6 +29,9 @@
   "loading": {
     "message": "Loading..."
   },
+  "offline": {
+    "message": "Offline - TBD"
+  },
   "connecting": {
     "message": "Connecting TBD"
   },
