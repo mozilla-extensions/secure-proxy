@@ -17,7 +17,7 @@ async function init() {
   View.setView(viewLoadingName);
 
   port.onMessage.addListener(async msg => {
-    let {userInfo, proxyState} = msg;
+    let {userInfo, proxyState, pendingSurvey} = msg;
 
     if (userInfo) {
       let settingsButton = document.getElementById("settingsButton");
@@ -52,7 +52,7 @@ async function init() {
       case PROXY_STATE_INACTIVE:
         // fall through
       case PROXY_STATE_ACTIVE:
-        View.setView(viewMainName, {userInfo, proxyState});
+        View.setView(viewMainName, {userInfo, proxyState, pendingSurvey});
         return;
 
       case PROXY_STATE_CONNECTING:

@@ -636,6 +636,10 @@ class Background {
         case "authenticate":
           await this.auth();
           break;
+
+        case "survey":
+          await this.survey.runSurvey(message.data.survey);
+          break;
       }
     });
 
@@ -652,9 +656,12 @@ class Background {
 
     if (this.currentPort) {
       let { profileData } = await browser.storage.local.get(["profileData"]);
+      let nextSurvey = await this.survey.nextSurvey();
+
       return this.currentPort.postMessage({
         userInfo: profileData,
         proxyState: this.proxyState,
+        pendingSurvey: nextSurvey ? nextSurvey.name : null,
       });
     }
   }

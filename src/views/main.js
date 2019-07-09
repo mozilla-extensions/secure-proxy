@@ -22,8 +22,8 @@ class ViewMain extends View {
       ${loggedIn}
     </p>
     <button id="toggleButton"></button>
-    <p>
-      <a href="https://qsurvey.mozilla.com/s3/fx-private-network-beta-feedback" target="_blank" rel="noopener noreferrer" class="feedbackLink">${this.getTranslation("feedbackLink")}</a> <!-- TODO check if correct link -->
+    <p id="survey" hidden>
+      <a href="#" target="_blank" rel="noopener noreferrer" class="feedbackLink" id="feedbackLink">${this.getTranslation("feedbackLink")}</a>
     </p>
     `;
 
@@ -31,6 +31,11 @@ class ViewMain extends View {
   }
 
   postShow(data) {
+    this.pendingSurvey = data.pendingSurvey;
+    if (data.pendingSurvey) {
+       document.getElementById("survey").removeAttribute("hidden");
+    }
+
     this.proxyEnabled = data.proxyState == PROXY_STATE_ACTIVE;
 
     let toggleButton = document.getElementById("toggleButton");
@@ -51,7 +56,14 @@ class ViewMain extends View {
     await View.sendMessage("setEnabledState", {enabledState: this.proxyEnabled});
   }
 
-  handleEvent() {
+  handleEvent(e) {
+    if (e.target.id == "feedbackLink") {
+      View.sendMessage("survey", {survey: this.pendingSurvey});
+      e.preventDefault();
+      close();
+      return;
+    }
+
     this.toggleProxy();
   }
 
