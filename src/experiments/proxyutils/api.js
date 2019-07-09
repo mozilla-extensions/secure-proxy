@@ -135,7 +135,7 @@ this.proxyutils = class extends ExtensionAPI {
                 }
 
                 this.wasOffline = !this.wasOffline;
-                fire.async();
+                fire.async(!this.wasOffline);
               }
               Services.obs.addObserver(observer, "network:offline-status-changed");
               return () => {

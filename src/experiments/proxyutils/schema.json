@@ -15,7 +15,12 @@
         "name": "onConnectivityChanged",
         "type": "function",
         "description": "Fired when the system becomes online/offline.",
-        "parameters": []
+        "parameters": [
+          {
+            "type": "boolean",
+            "name": "hasConnectivity"
+          }
+        ]
       }
     ],
     "functions": [
@@ -42,13 +47,6 @@
         "type": "function",
         "async": true,
         "description": "Return true if an existing proxy configuration has been detected",
-        "parameters": []
-      },
-      {
-        "name": "hasConnectivity",
-        "type": "function",
-        "async": true,
-        "description": "Return true if we are online",
         "parameters": []
       }
     ]

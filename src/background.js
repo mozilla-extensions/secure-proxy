@@ -92,10 +92,10 @@ class Background {
       this.panelConnected(port);
     });
 
-    browser.experiments.proxyutils.onConnectivityChanged.addListener(async _ => {
-      if (await browser.experiments.proxyutils.hasConnectivity()) {
+    browser.experiments.proxyutils.onConnectivityChanged.addListener(async hasConnectivity => {
+      if (hasConnectivity) {
         log("We are online!");
-        this.run();
+        await this.run();
       } else {
         log("We are offline!");
         this.proxyState = PROXY_STATE_OFFLINE;
