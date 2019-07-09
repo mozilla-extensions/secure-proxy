@@ -19,7 +19,7 @@ ChromeUtils.defineModuleGetter(this, "setTimeout",
                                "resource://gre/modules/Timer.jsm");
 
 // Cribbed from browser.js with some changes to allow for our strings
-var ConfirmationHint = {
+let ConfirmationHint = {
   /**
    * Shows a transient, non-interactive confirmation hint anchored to an
    * element, usually used in response to a user action to reaffirm that it was

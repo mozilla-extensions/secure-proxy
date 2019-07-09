@@ -34,8 +34,14 @@ class ViewMain extends View {
     this.proxyEnabled = data.proxyState == PROXY_STATE_ACTIVE;
 
     let toggleButton = document.getElementById("toggleButton");
-    toggleButton.textContent = this.proxyEnabled ? this.getTranslation("disableProxy") : this.getTranslation("enableProxy");
-    View.setState(this.proxyEnabled ? "enabled" : "disabled", this.proxyEnabled ? this.getTranslation("proxyOn") : this.getTranslation("proxyOff"));
+    if (this.proxyEnabled) {
+      toggleButton.textContent = this.getTranslation("disableProxy");
+      View.setState("enabled", this.getTranslation("proxyOn"));
+    } else {
+      toggleButton.textContent = this.getTranslation("enableProxy");
+      View.setState("disabled", this.getTranslation("proxyOff"));
+    }
+
   }
 
   async toggleProxy() {

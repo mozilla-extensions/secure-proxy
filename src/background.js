@@ -380,7 +380,7 @@ class Background {
     let refreshTokenData = await this.generateRefreshToken();
     if (!refreshTokenData) {
       log("No refresh token");
-      this.authFailure();
+      await this.authFailure();
       return;
     }
 
@@ -396,7 +396,7 @@ class Background {
     // Let's obtain the proxy token data
     if (!await this.maybeGenerateTokens()) {
       log("Token generation failed");
-      this.authFailure();
+      await this.authFailure();
       return;
     }
 

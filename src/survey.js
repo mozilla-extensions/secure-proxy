@@ -8,6 +8,8 @@ const SURVEYS = [
 ];
 
 // This class controls the survey URLs and when they have to be shown.
+
+// eslint-disable-next-line
 class Survey {
   async init() {
     await browser.runtime.setUninstallURL(SURVEY_UNINSTALL);
