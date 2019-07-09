@@ -4,6 +4,8 @@ import {escapedTemplate} from '../template.js'
 // Settings view.
 class ViewSettings extends View {
   show(data) {
+    View.showBack(true);
+    View.showSettings(false);
     View.setState("hidden");
     return escapedTemplate`
       <ul class="settingsLinks">
