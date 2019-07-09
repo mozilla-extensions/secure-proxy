@@ -158,10 +158,6 @@ this.proxyutils = class extends ExtensionAPI {
 
           async getCaptivePortalURL() {
             return Services.prefs.getStringPref("captivedetect.canonicalURL");
-          },
-
-          async hasConnectivity() {
-            return !Services.io.offline && Services.io.connectivity;
           }
         },
       },
