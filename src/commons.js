@@ -1,5 +1,8 @@
 /* eslint-disable no-unused-vars */
 
+// We are offline.
+const PROXY_STATE_OFFLINE = "offline";
+
 // The user is unknown, the proxy is not configured.
 const PROXY_STATE_UNKNOWN = "unknown";
 
@@ -8,6 +11,9 @@ const PROXY_STATE_INACTIVE = "inactive";
 
 // The user is registered, the proxy is active.
 const PROXY_STATE_ACTIVE = "active";
+
+// The proxy has been configured. We want to check if it works correctly.
+const PROXY_STATE_CONNECTING = "connecting";
 
 // There is another proxy in use.
 const PROXY_STATE_OTHERINUSE = "otherInUse";

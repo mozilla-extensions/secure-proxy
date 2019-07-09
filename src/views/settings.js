@@ -4,11 +4,18 @@ import {escapedTemplate} from '../template.js'
 // Settings view.
 class ViewSettings extends View {
   show(data) {
-    let loggedIn = this.getTranslation("loggedIn", data.userInfo.email);
+    View.showBack(true);
+    View.showSettings(false);
+    View.setState("hidden");
     return escapedTemplate`
-      <ul>
-        <li>${loggedIn}</li>
+      <ul class="settingsLinks">
+        <li><strong>${this.getTranslation("accountLabel")}</strong><span class="end">${data.userInfo.email}</span></li>
+        <li><a href="https://support.mozilla.org/en-US/">${this.getTranslation("manageAccountLink")}</a></li>
+        <li><a href="https://support.mozilla.org/en-US/">${this.getTranslation("helpAndSupportLink")}</a></li>
+        <li><a href="https://support.mozilla.org/en-US/">${this.getTranslation("privacyPolicyLink")}</a></li>
+        <li><a href="https://support.mozilla.org/en-US/">${this.getTranslation("termsAndConditionsLink")}</a></li>
       </ul>
+      <button class="primary">${this.getTranslation("manageAccountButton")}</button>
     `;
   }
 }

@@ -1,6 +1,7 @@
 let views = new Map();
 
 let currentView = null;
+let currentPort = null;
 
 // This is the generic a view. Any other view should inherit from this class.
 export class View {
@@ -34,6 +35,16 @@ export class View {
     }
   }
 
+  static showBack(shouldShow) {
+    let backElement = document.getElementById("backButton");
+    backElement.toggleAttribute("hidden", !shouldShow);
+  }
+
+  static showSettings(shouldShow) {
+    let settingsElement = document.getElementById("settingsButton");
+    settingsElement.toggleAttribute("hidden", !shouldShow);
+  }
+
   static setState(state, stateButtonText) {
     let stateElement = document.getElementById("state");
     stateElement.setAttribute("data-state", state);
@@ -65,6 +76,9 @@ export class View {
     }
   }
 
+  // Override if you want to handle events
+  handleEvent() {}
+
   // To be overwritten if needed.
   dismiss() {}
 
@@ -86,9 +100,17 @@ export class View {
 
   // Helper method to send messages to the background script.
   static async sendMessage(type, data = {}) {
-    return browser.runtime.sendMessage({
+    if (!currentPort) {
+      throw new Error("Invalid port!");
+    }
+
+    return currentPort.postMessage({
       type,
       data,
     });
+  }
+
+  static setPort(port) {
+    currentPort = port;
   }
 }

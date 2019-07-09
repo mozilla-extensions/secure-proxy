@@ -9,13 +9,16 @@ module.exports = {
   ],
   globals: {
     fxaCryptoRelier: false,
+    PROXY_STATE_OFFLINE: false,
     PROXY_STATE_UNKNOWN: false,
     PROXY_STATE_INACTIVE: false,
+    PROXY_STATE_CONNECTING: false,
     PROXY_STATE_ACTIVE: false,
     PROXY_STATE_OTHERINUSE: false,
     PROXY_STATE_PROXYERROR: false,
     PROXY_STATE_PROXYAUTHFAILED: false,
-    PROXY_STATE_AUTHFAILURE: false
+    PROXY_STATE_AUTHFAILURE: false,
+    Survey: false
 },
   parserOptions: {
     ecmaVersion: 2018,

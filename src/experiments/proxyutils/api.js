@@ -19,7 +19,7 @@ ChromeUtils.defineModuleGetter(this, "setTimeout",
                                "resource://gre/modules/Timer.jsm");
 
 // Cribbed from browser.js with some changes to allow for our strings
-var ConfirmationHint = {
+let ConfirmationHint = {
   /**
    * Shows a transient, non-interactive confirmation hint anchored to an
    * element, usually used in response to a user action to reaffirm that it was
@@ -51,10 +51,7 @@ var ConfirmationHint = {
       this._panel.setAttribute("hidearrow", "true");
     }
 
-    // The timeout value used here allows the panel to stay open for
-    // 1.5s second after the text transition (duration=120ms) has finished.
-    // If there is a description, we show for 4s after the text transition.
-    const DURATION = options.showDescription ? 4000 : 1500;
+    const DURATION = 8500;
     this._panel.addEventListener("popupshown", () => {
       this._animationBox.setAttribute("animate", "true");
 
@@ -101,6 +98,11 @@ var ConfirmationHint = {
 };
 
 this.proxyutils = class extends ExtensionAPI {
+ constructor(...args) {
+    super(...args);
+    this.wasOffline = false;
+  }
+
   getAPI(context) {
     const EventManager = ExtensionCommon.EventManager;
 
@@ -130,9 +132,10 @@ this.proxyutils = class extends ExtensionAPI {
                    proxyType == Ci.nsIProtocolProxyService.PROXYCONFIG_WPAD ||
                    proxyType == Ci.nsIProtocolProxyService.PROXYCONFIG_MANUAL;
           },
+
           async getCaptivePortalURL() {
             return Services.prefs.getStringPref("captivedetect.canonicalURL");
-          },
+          }
         },
       },
     };

@@ -10,16 +10,6 @@ class ViewMain extends View {
   }
 
   show(data) {
-    /* example state:
-       {"email":"j@email.com",
-        "locale":"en-US,en;q=0.5",
-        "amrValues":["pwd","email"],
-        "twoFactorAuthentication":false,
-        "uid":"...",
-        "avatar":"https://latest.dev.lcip.org/profile/a/...",
-        "avatarDefault":true}
-    */
-
     let loggedIn = this.getTranslation("loggedIn", data.userInfo.email);
 
     if (data.proxyState != PROXY_STATE_INACTIVE &&
@@ -31,14 +21,33 @@ class ViewMain extends View {
     <p>
       ${loggedIn}
     </p>
-    <button id="toggleButton"></button>`;
+    <div id="toggleRow">${this.getTranslation("introHeading")} <input type="checkbox" id="toggleButton" /></div>
+    <p id="survey" hidden class="linkRow">
+      <a href="#" target="_blank" rel="noopener noreferrer" class="feedbackLink" id="feedbackLink">${this.getTranslation("feedbackLink")}</a>
+    </p>
+    `;
 
     return userInfo;
   }
 
   postShow(data) {
-    this.proxyEnabled = this.proxyState == PROXY_STATE_ACTIVE;
-    this.showProxyState();
+    this.pendingSurvey = data.pendingSurvey;
+    if (data.pendingSurvey) {
+       document.getElementById("survey").removeAttribute("hidden");
+    }
+
+    this.proxyEnabled = data.proxyState == PROXY_STATE_ACTIVE;
+
+    let toggleButton = document.getElementById("toggleButton");
+    toggleButton.checked = this.proxyEnabled;
+    if (this.proxyEnabled) {
+      //toggleButton.textContent = this.getTranslation("disableProxy");
+      View.setState("enabled", this.getTranslation("proxyOn"));
+    } else {
+      //toggleButton.textContent = this.getTranslation("enableProxy");
+      View.setState("disabled", this.getTranslation("proxyOff"));
+    }
+
   }
 
   async toggleProxy() {
@@ -46,17 +55,17 @@ class ViewMain extends View {
     // Send a message to the background script to notify the proxyEnabled has chanded.
     // This prevents the background script from having to block on reading from the storage per request.
     await View.sendMessage("setEnabledState", {enabledState: this.proxyEnabled});
-    this.showProxyState();
   }
 
-  handleEvent() {
+  handleEvent(e) {
+    if (e.target.id == "feedbackLink") {
+      View.sendMessage("survey", {survey: this.pendingSurvey});
+      e.preventDefault();
+      close();
+      return;
+    }
+
     this.toggleProxy();
-  }
-
-  showProxyState() {
-    let toggleButton = document.getElementById("toggleButton");
-    toggleButton.textContent = this.proxyEnabled ? this.getTranslation("disableProxy") : this.getTranslation("enableProxy");
-    View.setState("toggle", this.proxyEnabled ? this.getTranslation("proxyOn") : this.getTranslation("proxyOff"));
   }
 
   stateButtonHandler() {
