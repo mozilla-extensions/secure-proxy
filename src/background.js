@@ -556,7 +556,7 @@ class Background {
     await browser.storage.local.set({proxyTokenData, profileTokenData, profileData});
 
     // Let's pick the min time diff.
-    let minDiff =  minProxyDiff < minProfileDiff ? minProxyDiff : minProfileDiff;
+    let minDiff =  Math.min(minProxyDiff, minProfileDiff);
 
     // Let's schedule the token rotation.
     this.tokenGenerationTimeout = setTimeout(async _ => {
