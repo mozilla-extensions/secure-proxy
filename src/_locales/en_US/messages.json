@@ -3,12 +3,40 @@
     "message": "Secure Proxy"
   },
 
-  "viewAllSurveyLink": {
+  "heroProxyOff": {
+    "message": "OFF"
+  },
+  "heroProxyOn": {
+    "message": "ON"
+  },
+
+  "introHeading": {
+    "message": "Firefox Private Network"
+  },
+
+  "popupLearnMore": {
+    "message": "Learn More"
+  },
+  "popupPoweredBy": {
+    "message": "Powered by CloudFlare®."
+  },
+  "popupSurveyLink": {
     "message": "Tell us what you think"
   },
-  "viewAllToggleButton": {
+  "popupToggleButton": {
     "message": "Firefox Private Network "
   },
+
+  "toastProxyOff": {
+    "message": "Firefox Private Network is off."
+  },
+  "toastProxyOn": {
+    "message": "Firefox Private Network is on."
+  },
+  "toastWarning": {
+    "message": "Firefox Private Network needs your attention!"
+  },
+
   "viewAuthFailure": {
     "message": "Sign in failed. Try again."
   },
@@ -58,39 +86,6 @@
     "message": "Terms & Conditions"
   },
 
-  "introHeading": {
-    "message": "Firefox Private Network"
-  },
-  "enableProxy": {
-    "message": "Enable Proxy"
-  },
-  "disableProxy": {
-    "message": "Disable Proxy"
-  },
-  "poweredBy": {
-    "message": "Powered by CloudFlare®."
-  },
-  "learnMore": {
-    "message": "Learn More"
-  },
-  "notProxied": {
-    "message": "Not proxied"
-  },
-  "proxyOff": {
-    "message": "OFF"
-  },
-  "proxyOn": {
-    "message": "ON"
-  },
-  "isProxied": {
-    "message": "Proxied"
-  },
-  "otherProxy": {
-    "message": "Other proxy in use!"
-  },
-  "proxyAuthFailed": {
-    "message": "Authentication failure when using the proxy"
-  },
   "internalError": {
     "message": "Internal error!"
   }
