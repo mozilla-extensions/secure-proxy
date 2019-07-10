@@ -234,7 +234,7 @@ class Background {
     }
 
     // Something else is in use.
-    let otherProxyInUse = await browser.experiments.proxyutils.hasProxyInUse();
+    let otherProxyInUse = await this.hasProxyInUse();
     if (otherProxyInUse) {
       this.proxyState = PROXY_STATE_OTHERINUSE;
     }
@@ -709,6 +709,11 @@ class Background {
 
   openUrl(url) {
     browser.tabs.create({url})
+  }
+
+  async hasProxyInUse() {
+    let proxySettings = await browser.proxy.settings.get({});
+    return ["manual", "autoConfig", "autoDetect"].includes(proxySettings.value.proxyType);
   }
 }
 

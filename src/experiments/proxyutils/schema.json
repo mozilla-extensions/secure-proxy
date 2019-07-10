@@ -57,13 +57,6 @@
             "description": "the URL to format"
           }
         ]
-      },
-      {
-        "name": "hasProxyInUse",
-        "type": "function",
-        "async": true,
-        "description": "Return true if an existing proxy configuration has been detected",
-        "parameters": []
       }
     ]
   }
