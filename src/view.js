@@ -43,6 +43,11 @@ export class View {
     toggleButton.checked = state;
   }
 
+  static hideToggleButton() {
+    let toggleRow = document.getElementById("toggleRow");
+    toggleRow.setAttribute("hidden", "hidden");
+  }
+
   static onToggleButtonClicked(e) {
     currentView.toggleButtonClicked(e);
   }
