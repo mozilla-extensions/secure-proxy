@@ -3,10 +3,12 @@ import {escapedTemplate} from '../template.js'
 
 class ViewProxyError extends View {
   show(proxyState) {
-    View.showToggleButton(false);
+    if (proxyState != PROXY_STATE_OTHERINUSE) {
+      View.showToggleButton(false);
+    }
     return escapedTemplate`
     <p>
-      ${this.getTranslation(proxyState)}
+      ${this.getTranslation("viewError-" + proxyState)}
     </p>`;
   }
 

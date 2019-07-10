@@ -9,8 +9,20 @@
   "viewAllToggleButton": {
     "message": "Firefox Private Network "
   },
+  "viewAuthFailure": {
+    "message": "Sign in failed. Try again."
+  },
   "viewConnecting": {
     "message": "Connecting to the secure server…"
+  },
+  "viewError-otherInUse": {
+    "message": "You cannot use Firefox Private Network because you are using a custom proxy setting."
+  },
+  "viewError-proxyAuthFailed": {
+    "message": "Your connection was dropped. Try turning Firefox Private Network on again."
+  },
+  "viewError-proxyError": {
+    "message": "Your connection was dropped. Try turning Firefox Private Network on again."
   },
   "viewLoginMessage":{
     "message": "Sign in to your Firefox account to start using Firefox Private Network"
@@ -46,9 +58,6 @@
   "termsAndConditionsLink": {
     "message": "Terms & Conditions"
   },
-  "loading": {
-    "message": "Loading…"
-  },
   "offline": {
     "message": "Offline - TBD"
   },
@@ -79,16 +88,10 @@
   "otherProxy": {
     "message": "Other proxy in use!"
   },
-  "proxyError": {
-    "message": "Something when wrong using the proxy"
-  },
   "proxyAuthFailed": {
     "message": "Authentication failure when using the proxy"
   },
   "internalError": {
     "message": "Internal error!"
-  },
-  "authFailure": {
-    "message": "Authentication Failure. Try again."
   }
 }

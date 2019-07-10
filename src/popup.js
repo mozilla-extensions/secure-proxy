@@ -1,5 +1,4 @@
 import {View} from './view.js';
-import viewAuthFailureName from './views/authFailure.js'
 import viewConnectingName from './views/connecting.js'
 import viewErrorName from './views/error.js'
 import viewLoadingName from './views/loading.js'
@@ -59,7 +58,9 @@ async function init() {
 
     switch (proxyState) {
       case PROXY_STATE_UNKNOWN:
-        View.setView(viewLoginName);
+        // fall through
+      case PROXY_STATE_AUTHFAILURE:
+        View.setView(viewLoginName, proxyState);
         return;
 
       case PROXY_STATE_PROXYERROR:
@@ -67,11 +68,8 @@ async function init() {
       case PROXY_STATE_PROXYAUTHFAILED:
         // fall through
       case PROXY_STATE_OTHERINUSE:
+        // fall through
         View.setView(viewProxyErrorName, proxyState);
-        return;
-
-      case PROXY_STATE_AUTHFAILURE:
-        View.setView(viewAuthFailureName);
         return;
 
       case PROXY_STATE_INACTIVE:

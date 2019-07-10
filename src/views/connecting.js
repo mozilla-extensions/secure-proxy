@@ -5,7 +5,6 @@ import {escapedTemplate} from '../template.js'
 class ViewConnecting extends View {
   show() {
     View.setState("connecting");
-
     View.showToggleButton(true);
 
     return escapedTemplate`
