@@ -172,6 +172,10 @@ this.proxyutils = class extends ExtensionAPI {
 
           async getDebuggingMode() {
             return Services.prefs.getBoolPref("secureProxy.debugging.enabled", false);
+          },
+
+          async formatURL(url) {
+            return Services.urlFormatter.formatURL(url);
           }
         },
       },

@@ -26,6 +26,9 @@ const PROXY_PORT = 8001;
 // How early we want to re-generate the tokens (in secs)
 const EXPIRE_DELTA = 3600
 
+// This URL must be formatted.
+const LEARN_MORE_URL = "https://support.mozilla.org/1/firefox/%VERSION%/%OS%/%LOCALE%/cloudflare"
+
 // Enable debugging
 let debuggingMode = false;
 function log(msg) {
@@ -54,6 +57,9 @@ class Background {
       const capitivePortalUrl = new URL(await browser.experiments.proxyutils.getCaptivePortalURL());
       this.captivePortalOrigin = capitivePortalUrl.origin;
     } catch (e) {}
+
+    // Ask the learn more link.
+    this.learnMoreUrl = await browser.experiments.proxyutils.formatURL(LEARN_MORE_URL);
 
     // Proxy configuration
     browser.proxy.onRequest.addListener((requestInfo) => this.proxyRequestCallback(requestInfo),
@@ -680,6 +686,7 @@ class Background {
         userInfo: profileData,
         proxyState: this.proxyState,
         pendingSurvey: nextSurvey ? nextSurvey.name : null,
+        learnMoreUrl: this.learnMoreUrl,
       });
     }
   }

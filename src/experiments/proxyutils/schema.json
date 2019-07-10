@@ -46,6 +46,19 @@
         "parameters": []
       },
       {
+        "name": "formatURL",
+        "type": "function",
+        "async": true,
+        "description": "Returns a formatted URL",
+        "parameters": [
+          {
+            "name": "url",
+            "type": "string",
+            "description": "the URL to format"
+          }
+        ]
+      },
+      {
         "name": "hasProxyInUse",
         "type": "function",
         "async": true,
