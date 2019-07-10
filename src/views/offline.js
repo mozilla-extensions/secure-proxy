@@ -4,7 +4,7 @@ import {escapedTemplate} from '../template.js'
 class ViewOffline extends View {
   show() {
     return escapedTemplate`<p>
-      ${this.getTranslation("offline")}
+      ${this.getTranslation("viewOffline")}
     </p>`;
   }
 }

@@ -36,6 +36,9 @@
   "viewMainInactive": {
     "message": "Using public Wi-Fi without a secure connection can put you at risk for identity theft, snooping, and malware infection."
   },
+  "viewOffline": {
+    "message": "You are offline. Check your network connection and try again."
+  },
   "viewSettings-accountLabel": {
     "message": "Firefox Account"
   },
@@ -57,9 +60,6 @@
 
   "introHeading": {
     "message": "Firefox Private Network"
-  },
-  "offline": {
-    "message": "Offline - TBD"
   },
   "enableProxy": {
     "message": "Enable Proxy"
