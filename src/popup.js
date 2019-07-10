@@ -46,15 +46,7 @@ async function init() {
 
   let toggleButton = document.getElementById("toggleButton");
   toggleButton.addEventListener("click", e => {
-    if (proxyState === PROXY_STATE_CONNECTING ||
-        proxyState === PROXY_STATE_INACTIVE ||
-        proxyState === PROXY_STATE_ACTIVE) {
-      View.sendMessage("setEnabledState", {enabledState: e.target.checked});
-      return;
-    }
-
-    // For anything else, let's do the authentication again.
-    View.sendMessage("authenticate");
+    View.onToggleButtonClicked(e);
   });
 
   port.onMessage.addListener(async msg => {
@@ -75,25 +67,21 @@ async function init() {
       case PROXY_STATE_PROXYAUTHFAILED:
         // fall through
       case PROXY_STATE_OTHERINUSE:
-        View.showToggleButton(false);
         View.setView(viewProxyErrorName, proxyState);
         return;
 
       case PROXY_STATE_AUTHFAILURE:
-        View.showToggleButton(false);
         View.setView(viewAuthFailureName);
         return;
 
       case PROXY_STATE_INACTIVE:
         // fall through
       case PROXY_STATE_ACTIVE:
-        View.showToggleButton(proxyState == PROXY_STATE_ACTIVE);
         View.showSurvey(surveyName);
         View.setView(viewMainName, {userInfo, proxyState});
         return;
 
       case PROXY_STATE_CONNECTING:
-        View.showToggleButton(true);
         View.setView(viewConnectingName);
         return;
 

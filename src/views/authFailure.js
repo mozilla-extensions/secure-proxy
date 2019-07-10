@@ -4,10 +4,15 @@ import {escapedTemplate} from '../template.js'
 // AuthFailure view.
 class ViewAuthFailure extends View {
   show() {
+    View.showToggleButton(false);
     return escapedTemplate`
     <p>
       ${this.getTranslation("authFailure")}
     </p>`;
+  }
+
+  toggleButtonClicked() {
+    View.sendMessage("authenticate");
   }
 }
 

@@ -15,6 +15,8 @@ class ViewMain extends View {
       throw new Error("Invalid proxy state for ViewMain");
     }
 
+    View.showToggleButton(data.proxyState == PROXY_STATE_ACTIVE);
+
     let text;
     if (data.proxyState === PROXY_STATE_ACTIVE) {
       text = "viewMainActive";
@@ -40,6 +42,10 @@ class ViewMain extends View {
       View.setState("disabled", this.getTranslation("proxyOff"));
     }
 
+  }
+
+  toggleButtonClicked(e) {
+    View.sendMessage("setEnabledState", {enabledState: e.target.checked});
   }
 
   async toggleProxy() {

@@ -6,10 +6,16 @@ class ViewConnecting extends View {
   show() {
     View.setState("connecting");
 
+    View.showToggleButton(true);
+
     return escapedTemplate`
     <p>
       ${this.getTranslation("viewConnecting")}
     </p>`;
+  }
+
+  toggleButtonClicked() {
+    View.sendMessage("setEnabledState", {enabledState: true});
   }
 }
 

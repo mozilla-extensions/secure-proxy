@@ -43,6 +43,10 @@ export class View {
     toggleButton.checked = state;
   }
 
+  static onToggleButtonClicked(e) {
+    currentView.toggleButtonClicked(e);
+  }
+
   static showBack(shouldShow) {
     let backElement = document.getElementById("backButton");
     backElement.toggleAttribute("hidden", !shouldShow);
@@ -106,6 +110,9 @@ export class View {
 
   // To be overwritten if needed.
   postShow() {}
+
+  // To be overwritten if needed.
+  toggleButtonClicked(e) {}
 
   // Helper method to receive translated string.
   getTranslation(stringName, ...args) {
