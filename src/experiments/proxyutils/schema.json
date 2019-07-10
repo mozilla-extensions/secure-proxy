@@ -32,6 +32,13 @@
         "parameters": []
       },
       {
+        "name": "getDebuggingMode",
+        "type": "function",
+        "async": true,
+        "description": "Returns true if we are in debugging mode. It reads the pref secureProxy.debugging.enabled",
+        "parameters": []
+      },
+      {
         "name": "hasProxyInUse",
         "type": "function",
         "async": true,

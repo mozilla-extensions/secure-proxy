@@ -27,9 +27,9 @@ const PROXY_PORT = 8001;
 const EXPIRE_DELTA = 3600
 
 // Enable debugging
-const DEBUGGING = true
+let debuggingMode = false;
 function log(msg) {
-  if (DEBUGGING) {
+  if (debuggingMode) {
     console.log("*** Background.js *** - " + msg);
   }
 }
@@ -46,6 +46,9 @@ class Background {
 
   async init() {
     log("init");
+
+    // Are we in debugging mode?
+    debuggingMode = await browser.experiments.proxyutils.getDebuggingMode();
 
     // I don't think the extension will ever control this, however it's worth exempting in case.
     this.CAPTIVE_PORTAL_URL = await browser.experiments.proxyutils.getCaptivePortalURL();
