@@ -2,7 +2,7 @@ const SURVEY_UNINSTALL = "https://qsurvey.mozilla.com/s3/fx-private-network-beta
 
 const SURVEYS = [
   // URL to show at the installation time.
-  { name: "startup", triggerAfterTime: 0, hiddenBeforeTime: 0, URL: "TODO" },
+  { name: "startup", triggerAfterTime: 0, hiddenBeforeTime: 0, URL: "TODO PROXYENABLED VERSION" },
 
   // 2 weeks (+ 3 days)
   { name: "start", triggerAfterTime: 1468800, hiddenBeforeTime: 1209600, URL: "https://qsurvey.mozilla.com/s3/fx-private-network-beta-survey?type=start" },
@@ -12,7 +12,9 @@ const SURVEYS = [
 
 // eslint-disable-next-line
 class Survey {
-  async init() {
+  async init(backgroundObj) {
+    this.background = backgroundObj;
+
     await browser.runtime.setUninstallURL(SURVEY_UNINSTALL);
     await this.scheduleNextSurvey();
   }
@@ -86,11 +88,17 @@ class Survey {
       return;
     }
 
-    await browser.tabs.create({
-      url: survey.URL,
-    })
+    let data = await this.background.proxyStatus();
+    let url = this.formatUrl(survey.URL, data);
+
+    await this.background.openUrl(url);
 
     await browser.storage.local.set({lastSurvey: surveyName});
     await this.scheduleNextSurvey();
+  }
+
+  formatUrl(url, data) {
+    return url.replace(/PROXYENABLED/g, data.proxyEnabled ? "true" : "false")
+              .replace(/VERSION/g, data.version);
   }
 }

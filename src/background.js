@@ -108,7 +108,7 @@ class Background {
     window.addEventListener('offline', _ => this.onConnectivityChanged());
 
     // Let's initialize the survey object.
-    await this.survey.init();
+    await this.survey.init(this);
   }
 
   async run() {
@@ -714,6 +714,14 @@ class Background {
   async hasProxyInUse() {
     let proxySettings = await browser.proxy.settings.get({});
     return ["manual", "autoConfig", "autoDetect"].includes(proxySettings.value.proxyType);
+  }
+
+  async proxyStatus() {
+    let self = await browser.management.getSelf();
+    return {
+      proxyEnabled: this.proxyState == PROXY_STATE_ACTIVE,
+      version: self.version,
+    }
   }
 }
 
