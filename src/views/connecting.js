@@ -9,7 +9,7 @@ class ViewConnecting extends View {
     return escapedTemplate`
     <div id="toggleRow">${this.getTranslation("introHeading")} <input type="checkbox" id="toggleButton" checked /></div>
     <p>
-      ${this.getTranslation("connecting")}
+      ${this.getTranslation("viewConnecting")}
     </p>`;
   }
 

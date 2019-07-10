@@ -2,6 +2,23 @@
   "extensionName": {
     "message": "Secure Proxy"
   },
+
+  "viewConnecting": {
+    "message": "Connecting to the secure server…"
+  },
+  "viewLoginMessage":{
+    "message": "Sign in to your Firefox account to start using Firefox Private Network"
+  },
+  "viewLoginButton":{
+    "message": "Sign in"
+  },
+  "viewMainActive": {
+    "message": "Your connection is secure, and your location is hidden from websites and trackers, making it tougher for those annoying targeted ads to track you online."
+  },
+  "viewMainInactive": {
+    "message": "Using public Wi-Fi without a secure connection can put you at risk for identity theft, snooping, and malware infection."
+  },
+
   "introHeading": {
     "message": "Firefox Private Network"
   },
@@ -27,27 +44,16 @@
     "message": "Terms & Conditions"
   },
   "loading": {
-    "message": "Loading..."
+    "message": "Loading…"
   },
   "offline": {
     "message": "Offline - TBD"
-  },
-  "connecting": {
-    "message": "Connecting TBD"
   },
   "enableProxy": {
     "message": "Enable Proxy"
   },
   "disableProxy": {
     "message": "Disable Proxy"
-  },
-  "loggedIn": {
-    "message": "Hi $NAME$",
-    "placeholders": {
-      "name" : {
-        "content" : "$1"
-      }
-    }
   },
   "poweredBy": {
     "message": "Powered by CloudFlare®."
@@ -64,22 +70,8 @@
   "proxyOn": {
     "message": "ON"
   },
-  "signInMessage": {
-    "message": "Sign in to your Firefox account to start using Firefox Private Network"
-  },
-  "signInButton": {
-    "message": "Sign in"
-  },
   "isProxied": {
     "message": "Proxied"
-  },
-  "proxyState": {
-    "message": "Proxy State: $STATENAME$",
-    "placeholders": {
-      "statename" : {
-        "content" : "$1"
-      }
-    }
   },
   "otherProxy": {
     "message": "Other proxy in use!"

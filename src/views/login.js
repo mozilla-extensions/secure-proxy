@@ -7,10 +7,10 @@ class ViewLogin extends View {
     View.setState("login");
     return escapedTemplate`
     <p>
-      ${this.getTranslation("signInMessage")}
+      ${this.getTranslation("viewLoginMessage")}
     </p>
     <button id="authButton" class="primary">
-      ${this.getTranslation("signInButton")}
+      ${this.getTranslation("viewLoginButton")}
     </button>`;
   }
 

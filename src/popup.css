@@ -236,6 +236,12 @@ footer {
   display: flex;
 }
 
+.linkRow {
+  padding: 10px var(--edge-padding);
+  border-block-start: 1px solid #e4e4e4;
+  display: flex;
+}
+
 #toggleRow {
   padding: 10px var(--edge-padding);
   border-block-start: 1px solid #e4e4e4;

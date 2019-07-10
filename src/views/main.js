@@ -17,14 +17,21 @@ class ViewMain extends View {
       throw new Error("Invalid proxy state for ViewMain");
     }
 
+    let text;
+    if (data.proxyState === PROXY_STATE_ACTIVE) {
+      text = "viewMainActive";
+    } else {
+      text = "viewMainInactive";
+    }
+
     let userInfo = escapedTemplate`
-    <p>
-      ${loggedIn}
-    </p>
     <div id="toggleRow">${this.getTranslation("introHeading")} <input type="checkbox" id="toggleButton" /></div>
-    <p id="survey" hidden class="linkRow">
-      <a href="#" target="_blank" rel="noopener noreferrer" class="feedbackLink" id="feedbackLink">${this.getTranslation("feedbackLink")}</a>
+    <p>
+      ${this.getTranslation(text)}
     </p>
+    <div id="survey" hidden class="linkRow">
+      <a href="#" target="_blank" rel="noopener noreferrer" class="feedbackLink" id="feedbackLink">${this.getTranslation("feedbackLink")}</a>
+    </div>
     `;
 
     return userInfo;
