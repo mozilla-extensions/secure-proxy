@@ -646,6 +646,10 @@ class Background {
         case "goBack":
           this.updateUI();
           break;
+
+        case "manageAccount":
+          this.manageAccount();
+          break;
       }
     });
 
@@ -681,6 +685,13 @@ class Background {
       this.proxyState = PROXY_STATE_OFFLINE;
       this.updateUI();
     }
+  }
+
+  manageAccount() {
+    let contentServer = this.fxaEndpoints.get(FXA_ENDPOINT_ISSUER);
+    browser.tabs.create({
+      url: contentServer + "/settings",
+    })
   }
 }
 
