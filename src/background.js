@@ -651,6 +651,10 @@ class Background {
         case "manageAccount":
           this.manageAccount();
           break;
+
+        case "openUrl":
+          this.openUrl(message.data.url);
+          break;
       }
     });
 
@@ -690,9 +694,11 @@ class Background {
 
   manageAccount() {
     let contentServer = this.fxaEndpoints.get(FXA_ENDPOINT_ISSUER);
-    browser.tabs.create({
-      url: contentServer + "/settings",
-    })
+    this.openUrl(contentServer + "/settings");
+  }
+
+  openUrl(url) {
+    browser.tabs.create({url})
   }
 }
 
