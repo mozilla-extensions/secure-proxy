@@ -32,6 +32,7 @@
   --grey-90-a60: rgba(12, 12, 13, 0.6);
   --ink-90: #1D1133;
   --black: #0c0c0D;
+  --grey-10: #F9F9FA;
 }
 
 * {
@@ -253,14 +254,15 @@ footer {
 
 #toggleButton {
   -moz-appearance: none;
-  border: 1px solid var(--grey-50);
-  background-color: var(--grey-20);
-  border-radius: 30px;
+  border: 1px solid var(--grey-90-a20);
+  background-color: var(--grey-10);
+  border-radius: 8px;
   block-size: 14px;
   inline-size: 22px;
   display: flex;
   margin-inline-start: auto;
   align-self: center;
+  padding: 1px;
 }
 
 #toggleButton:checked {
@@ -276,7 +278,7 @@ footer {
   border-radius: 200%;
   align-self: center;
   margin: 0 auto 0 0;
-  border: 1px solid var(--grey-50);
+  border: 1px solid var(--grey-90-a20);
   background: white;
 }
 
