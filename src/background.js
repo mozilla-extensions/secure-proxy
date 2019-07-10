@@ -174,6 +174,7 @@ class Background {
     }
 
     let promptNotice;
+    let isWarning = false;
     switch(this.proxyState) {
       case PROXY_STATE_INACTIVE:
         promptNotice = "notProxied";
@@ -189,10 +190,12 @@ class Background {
 
       case PROXY_STATE_PROXYERROR:
         promptNotice = "proxyError";
+        isWarning = true;
         break;
 
       case PROXY_STATE_PROXYAUTHFAILED:
         promptNotice = "proxyAuthFailed";
+        isWarning = true;
         break;
 
       default:
@@ -201,7 +204,7 @@ class Background {
     }
 
     if (promptNotice) {
-      browser.experiments.proxyutils.showPrompt(browser.i18n.getMessage(promptNotice));
+      browser.experiments.proxyutils.showPrompt(browser.i18n.getMessage(promptNotice), isWarning);
     }
   }
 

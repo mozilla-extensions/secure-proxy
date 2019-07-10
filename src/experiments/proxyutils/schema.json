@@ -18,11 +18,18 @@
         "type": "function",
         "description": "show the prompt.",
         "async": true,
-        "parameters": [{
-          "name": "message",
-          "type": "string",
-          "description": "test"
-        }]
+        "parameters": [
+          {
+            "name": "message",
+            "type": "string",
+            "description": "text to display in the prompt"
+          },
+          {
+            "name": "isWarning",
+            "type": "boolean",
+            "description": "if the prompt should be a warning"
+          }
+        ]
       },
       {
         "name": "getCaptivePortalURL",
