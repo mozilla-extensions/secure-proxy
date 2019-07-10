@@ -4,10 +4,11 @@ import {escapedTemplate} from '../template.js'
 // AuthFailure view.
 class ViewAuthFailure extends View {
   show() {
-    return escapedTemplate`<p>
+    return escapedTemplate`
+    <div id="toggleRow">${this.getTranslation("introHeading")} <input type="checkbox" id="toggleButton" /></div>
+    <p>
       ${this.getTranslation("authFailure")}
-    </p>
-    <button>${this.getTranslation("activateButton")}</button>`;
+    </p>`;
   }
 
   async handleEvent() {
