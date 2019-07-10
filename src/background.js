@@ -11,6 +11,7 @@ const FXA_ENDPOINT_ISSUER = "issuer";
 const FXA_PROFILE_SCOPE = "profile";
 const FXA_PROXY_SCOPE = "https://identity.mozilla.com/apps/secure-proxy";
 const FXA_CLIENT_ID = "a8c528140153d1c6";
+const FXA_EXP_TIME = 21600 // 6 hours
 
 // Used to see if HTTP errors are actually valid. See the comment in
 // browser.webRequest.onCompleted.
@@ -463,6 +464,7 @@ class Background {
         grant_type: 'refresh_token',
         refresh_token: refreshTokenData.refresh_token,
         scope: scope,
+        ttl: FXA_EXP_TIME,
         /* eslint-enable camelcase*/
       })
     });
