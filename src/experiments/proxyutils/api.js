@@ -168,6 +168,10 @@ this.proxyutils = class extends ExtensionAPI {
 
           async getCaptivePortalURL() {
             return Services.prefs.getStringPref("captivedetect.canonicalURL");
+          },
+
+          async getDebuggingMode() {
+            return Services.prefs.getBoolPref("secureProxy.debugging.enabled", false);
           }
         },
       },
