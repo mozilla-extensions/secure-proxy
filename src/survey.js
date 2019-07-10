@@ -2,7 +2,7 @@ const SURVEY_UNINSTALL = "https://qsurvey.mozilla.com/s3/fx-private-network-beta
 
 const SURVEYS = [
   // URL to show at the installation time.
-  { name: "startup", triggerAfterTime: 0, hiddenBeforeTime: 0, URL: "TODO PROXYENABLED VERSION" },
+  { name: "startup", triggerAfterTime: 0, hiddenBeforeTime: 0, URL: "TODO PROXYENABLED VERSION USAGEDAYS" },
 
   // 2 weeks (+ 3 days)
   { name: "start", triggerAfterTime: 1468800, hiddenBeforeTime: 1209600, URL: "https://qsurvey.mozilla.com/s3/fx-private-network-beta-survey?type=start" },
@@ -99,6 +99,7 @@ class Survey {
 
   formatUrl(url, data) {
     return url.replace(/PROXYENABLED/g, data.proxyEnabled ? "true" : "false")
-              .replace(/VERSION/g, data.version);
+              .replace(/VERSION/g, data.version)
+              .replace(/USAGEDAYS/g, data.usageDays)
   }
 }

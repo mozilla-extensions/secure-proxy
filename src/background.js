@@ -61,6 +61,17 @@ class Background {
     // Ask the learn more link.
     this.learnMoreUrl = await browser.experiments.proxyutils.formatURL(LEARN_MORE_URL);
 
+    // Let's take the last date of usage.
+    let { lastUsageDays } = await browser.storage.local.get(["lastUsageDays"]);
+    if (!lastUsageDays) {
+       lastUsageDays = {
+         date: null,
+         count: 0,
+       };
+    }
+
+    this.lastUsageDays = lastUsageDays;
+
     // Proxy configuration
     browser.proxy.onRequest.addListener((requestInfo) => this.proxyRequestCallback(requestInfo),
                                         {urls: ["<all_urls>"]}, ["requestHeaders"]);
@@ -400,6 +411,7 @@ class Background {
       return false;
     }
 
+    this.maybeStoreUsageDays();
     return true;
   }
 
@@ -716,11 +728,33 @@ class Background {
     return ["manual", "autoConfig", "autoDetect"].includes(proxySettings.value.proxyType);
   }
 
+  maybeStoreUsageDays() {
+    if (this.lastUsageDaysPending) {
+      return;
+    }
+
+    const options = { year: 'numeric', month: '2-digit', day: '2-digit' };
+    const dateTimeFormat = new Intl.DateTimeFormat('en-US', options).format;
+
+    let now = dateTimeFormat(Date.now());
+    if (this.lastUsageDays.date === now) {
+      return;
+    }
+
+    this.lastUsageDaysPending = true;
+    this.lastUsageDays.date = now;
+    this.lastUsageDays.count += 1;
+
+    browser.storage.local.set({lastUsageDays: this.lastUsageDays})
+           .then(_ => { this.lastUsageDaysPending = false; });
+  }
+
   async proxyStatus() {
     let self = await browser.management.getSelf();
     return {
       proxyEnabled: this.proxyState == PROXY_STATE_ACTIVE,
       version: self.version,
+      usageDays: this.lastUsageDays.count,
     }
   }
 }
