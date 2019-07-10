@@ -50,8 +50,10 @@ class Background {
     // Are we in debugging mode?
     debuggingMode = await browser.experiments.proxyutils.getDebuggingMode();
 
-    // I don't think the extension will ever control this, however it's worth exempting in case.
-    this.CAPTIVE_PORTAL_URL = await browser.experiments.proxyutils.getCaptivePortalURL();
+    try {
+      const capitivePortalUrl = new URL(await browser.experiments.proxyutils.getCaptivePortalURL());
+      this.captivePortalOrigin = capitivePortalUrl.origin;
+    } catch (e) {}
 
     // Proxy configuration
     browser.proxy.onRequest.addListener((requestInfo) => this.proxyRequestCallback(requestInfo),
@@ -354,10 +356,6 @@ class Background {
       return requestInfo.url === CONNECTING_HTTPS_REQUEST;
     }
 
-    if (this.CAPTIVE_PORTAL_URL === requestInfo.url) {
-      return false;
-    }
-
     // Internal requests, TODO verify is correct: https://github.com/jonathanKingston/secure-proxy/issues/3
     // Verify originUrl is never undefined in normal content
     if (requestInfo.originUrl === undefined &&
@@ -367,6 +365,11 @@ class Background {
 
     // Just to avoid recreating the URL several times, let's cache it.
     const url = new URL(requestInfo.url);
+
+    // Let's skip captive portal URLs.
+    if (this.captivePortalOrigin && this.captivePortalOrigin === url.origin) {
+      return false;
+    }
 
     // Only http/https/ftp requests
     if (!isProtocolSupported(url)) {
