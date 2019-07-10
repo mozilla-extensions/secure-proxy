@@ -599,7 +599,7 @@ class Background {
         log("token generation failed");
         await this.authFailure();
       }
-    }, minDiff);
+    }, minDiff * 1000);
 
     // Let's cache the header.
     this.proxyAuthorizationHeader = proxyTokenData.token_type + " " + proxyTokenData.access_token;
