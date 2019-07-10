@@ -35,9 +35,32 @@ export class View {
     }
   }
 
+  static showToggleButton(state) {
+    let toggleRow = document.getElementById("toggleRow");
+    toggleRow.removeAttribute("hidden");
+
+    let toggleButton = document.getElementById("toggleButton");
+    toggleButton.checked = state;
+  }
+
+  static onToggleButtonClicked(e) {
+    currentView.toggleButtonClicked(e);
+  }
+
   static showBack(shouldShow) {
     let backElement = document.getElementById("backButton");
     backElement.toggleAttribute("hidden", !shouldShow);
+  }
+
+  static showSurvey(surveyName) {
+    let survey = document.getElementById("survey");
+
+    if (!surveyName) {
+      survey.setAttribute("hidden", "hidden");
+      return;
+    }
+
+    survey.removeAttribute("hidden");
   }
 
   static showSettings(shouldShow) {
@@ -89,6 +112,9 @@ export class View {
 
   // To be overwritten if needed.
   postShow() {}
+
+  // To be overwritten if needed.
+  toggleButtonClicked(e) {}
 
   // Helper method to receive translated string.
   getTranslation(stringName, ...args) {

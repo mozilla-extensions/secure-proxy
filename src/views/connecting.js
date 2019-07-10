@@ -5,25 +5,16 @@ import {escapedTemplate} from '../template.js'
 class ViewConnecting extends View {
   show() {
     View.setState("connecting");
+    View.showToggleButton(true);
 
     return escapedTemplate`
-    <div id="toggleRow">${this.getTranslation("introHeading")} <input type="checkbox" id="toggleButton" checked /></div>
     <p>
-      ${this.getTranslation("connecting")}
+      ${this.getTranslation("viewConnecting")}
     </p>`;
   }
 
-  handleEvent(e) {
-    this.toggleProxy();
-  }
-
-  async toggleProxy() {
-    // In connecting state we can just disable the proxy
-    await View.sendMessage("setEnabledState", {enabledState: false});
-  }
-
-  stateButtonHandler() {
-    this.toggleProxy();
+  toggleButtonClicked() {
+    View.sendMessage("setEnabledState", {enabledState: true});
   }
 }
 

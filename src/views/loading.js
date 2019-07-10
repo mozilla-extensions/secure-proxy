@@ -4,9 +4,7 @@ import {escapedTemplate} from '../template.js'
 // This is the first view to be shown.
 class ViewLoading extends View {
   show() {
-    return escapedTemplate`<p>
-      ${this.getTranslation("loading")}
-    </p>`;
+    return escapedTemplate``;
   }
 }
 

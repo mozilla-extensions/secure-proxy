@@ -136,7 +136,9 @@ header button {
 }
 
 [hidden]#settingsButton,
-[hidden]#backButton {
+[hidden]#backButton,
+[hidden]#survey,
+[hidden]#toggleRow {
   display: none;
 }
 
@@ -201,11 +203,11 @@ header button {
   background: var(--ink-90) url('img/hero-on.svg') -2px -1px / cover;
 }
 
-.feedbackLink {
+.surveyLink {
   display: flex;
 }
 
-.feedbackLink::before {
+.surveyLink::before {
   content: "";
   block-size: 16px;
   inline-size: 16px;
@@ -233,6 +235,12 @@ footer {
   padding: 12px 20px;
   border-block-start: 1px solid #e4e4e4;
   background: #f9f9fb;
+  display: flex;
+}
+
+.linkRow {
+  padding: 10px var(--edge-padding);
+  border-block-start: 1px solid #e4e4e4;
   display: flex;
 }
 

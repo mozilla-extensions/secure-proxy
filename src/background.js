@@ -177,24 +177,19 @@ class Background {
     let isWarning = false;
     switch(this.proxyState) {
       case PROXY_STATE_INACTIVE:
-        promptNotice = "notProxied";
+        promptNotice = "toastProxyOff";
         break;
 
       case PROXY_STATE_ACTIVE:
-        promptNotice = "isProxied";
+        promptNotice = "toastProxyOn";
         break;
 
       case PROXY_STATE_OTHERINUSE:
-        promptNotice = "otherProxy";
-        break;
-
+        // Fall through
       case PROXY_STATE_PROXYERROR:
-        promptNotice = "proxyError";
-        isWarning = true;
-        break;
-
+        // Fall through
       case PROXY_STATE_PROXYAUTHFAILED:
-        promptNotice = "proxyAuthFailed";
+        promptNotice = "toastWarning";
         isWarning = true;
         break;
 

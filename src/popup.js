@@ -1,5 +1,4 @@
 import {View} from './view.js';
-import viewAuthFailureName from './views/authFailure.js'
 import viewConnectingName from './views/connecting.js'
 import viewErrorName from './views/error.js'
 import viewLoadingName from './views/loading.js'
@@ -18,6 +17,7 @@ async function init() {
 
   let userInfo;
   let proxyState;
+  let surveyName;
 
   let settingsButton = document.getElementById("settingsButton");
   settingsButton.addEventListener("click", () => {
@@ -36,17 +36,31 @@ async function init() {
     View.onStateButton();
   });
 
+  let surveyLink = document.getElementById("surveyLink");
+  surveyLink.addEventListener("click", e => {
+    View.sendMessage("survey", {survey: surveyName});
+    e.preventDefault();
+    close();
+  });
+
+  let toggleButton = document.getElementById("toggleButton");
+  toggleButton.addEventListener("click", e => {
+    View.onToggleButtonClicked(e);
+  });
+
   port.onMessage.addListener(async msg => {
     userInfo = msg.userInfo;
     proxyState = msg.proxyState;
-    let {pendingSurvey} = msg;
+    surveyName = msg.pendingSurvey;
 
     View.showSettings(!!userInfo);
     View.showBack(false);
 
     switch (proxyState) {
       case PROXY_STATE_UNKNOWN:
-        View.setView(viewLoginName);
+        // fall through
+      case PROXY_STATE_AUTHFAILURE:
+        View.setView(viewLoginName, proxyState);
         return;
 
       case PROXY_STATE_PROXYERROR:
@@ -54,17 +68,15 @@ async function init() {
       case PROXY_STATE_PROXYAUTHFAILED:
         // fall through
       case PROXY_STATE_OTHERINUSE:
+        // fall through
         View.setView(viewProxyErrorName, proxyState);
-        return;
-
-      case PROXY_STATE_AUTHFAILURE:
-        View.setView(viewAuthFailureName);
         return;
 
       case PROXY_STATE_INACTIVE:
         // fall through
       case PROXY_STATE_ACTIVE:
-        View.setView(viewMainName, {userInfo, proxyState, pendingSurvey});
+        View.showSurvey(surveyName);
+        View.setView(viewMainName, {userInfo, proxyState});
         return;
 
       case PROXY_STATE_CONNECTING:

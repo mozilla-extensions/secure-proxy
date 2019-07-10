@@ -3,14 +3,16 @@ import {escapedTemplate} from '../template.js'
 
 class ViewProxyError extends View {
   show(proxyState) {
+    if (proxyState != PROXY_STATE_OTHERINUSE) {
+      View.showToggleButton(false);
+    }
     return escapedTemplate`
-    <div id="toggleRow">${this.getTranslation("introHeading")} <input type="checkbox" id="toggleButton" /></div>
     <p>
-      ${this.getTranslation(proxyState)}
+      ${this.getTranslation("viewError-" + proxyState)}
     </p>`;
   }
 
-  async handleEvent() {
+  toggleButtonClicked() {
     View.sendMessage("authenticate");
   }
 }
