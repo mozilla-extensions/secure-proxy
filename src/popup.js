@@ -16,27 +16,33 @@ async function init() {
   // Let's start showing something...
   View.setView(viewLoadingName);
 
+  let userInfo;
+  let proxyState;
+
+  let settingsButton = document.getElementById("settingsButton");
+  settingsButton.addEventListener("click", () => {
+    if (userInfo) {
+      View.setView(viewSettingsName, {userInfo, proxyState});
+    }
+  });
+
+  let backElement = document.getElementById("backButton");
+  backElement.addEventListener("click", () => {
+    View.sendMessage("goBack");
+  });
+
+  let stateButton = document.getElementById("stateButton");
+  stateButton.addEventListener("click", () => {
+    View.onStateButton();
+  });
+
   port.onMessage.addListener(async msg => {
-    let {userInfo, proxyState, pendingSurvey} = msg;
+    userInfo = msg.userInfo;
+    proxyState = msg.proxyState;
+    let {pendingSurvey} = msg;
 
     View.showSettings(!!userInfo);
-    if (userInfo) {
-      let settingsButton = document.getElementById("settingsButton");
-      settingsButton.addEventListener("click", () => {
-        View.setView(viewSettingsName, {userInfo, proxyState});
-      });
-    }
-
     View.showBack(false);
-    let backElement = document.getElementById("backButton");
-    backElement.addEventListener("click", () => {
-      View.sendMessage("goBack");
-    });
-
-    let stateButton = document.getElementById("stateButton");
-    stateButton.addEventListener("click", () => {
-      View.onStateButton();
-    });
 
     switch (proxyState) {
       case PROXY_STATE_UNKNOWN:
