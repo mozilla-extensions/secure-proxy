@@ -9,11 +9,11 @@ class ViewSettings extends View {
     View.setState("hidden");
     return escapedTemplate`
       <ul class="settingsLinks">
-        <li><strong>${this.getTranslation("accountLabel")}</strong><span class="end">${data.userInfo.email}</span></li>
-        <li><a href="#" id="manageAccountAnchor">${this.getTranslation("manageAccountLink")}</a></li>
-        <li><a href="TODO">${this.getTranslation("helpAndSupportLink")}</a></li>
-        <li><a href="TODO">${this.getTranslation("privacyPolicyLink")}</a></li>
-        <li><a href="TODO">${this.getTranslation("termsAndConditionsLink")}</a></li>
+        <li><strong>${this.getTranslation("viewSettings-accountLabel")}</strong><span class="end">${data.userInfo.email}</span></li>
+        <li><a href="#" id="manageAccountAnchor">${this.getTranslation("viewSettings-manageAccountLink")}</a></li>
+        <li><a href="TODO">${this.getTranslation("viewSettings-helpAndSupportLink")}</a></li>
+        <li><a href="TODO">${this.getTranslation("viewSettings-privacyPolicyLink")}</a></li>
+        <li><a href="TODO">${this.getTranslation("viewSettings-termsAndConditionsLink")}</a></li>
       </ul>
       <button class="primary" id="manageAccount">${this.getTranslation("manageAccountButton")}</button>
     `;

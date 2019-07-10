@@ -36,27 +36,27 @@
   "viewMainInactive": {
     "message": "Using public Wi-Fi without a secure connection can put you at risk for identity theft, snooping, and malware infection."
   },
+  "viewSettings-accountLabel": {
+    "message": "Firefox Account"
+  },
+  "viewSettings-helpAndSupportLink": {
+    "message": "Help & Support"
+  },
+  "viewSettings-manageAccountButton": {
+    "message": "Manage Account"
+  },
+  "viewSettings-manageAccountLink": {
+    "message": "Manage your Account"
+  },
+  "viewSettings-privacyPolicyLink": {
+    "message": "Privacy Policy"
+  },
+  "viewSettings-termsAndConditionsLink": {
+    "message": "Terms & Conditions"
+  },
 
   "introHeading": {
     "message": "Firefox Private Network"
-  },
-  "accountLabel": {
-    "message": "Firefox Account"
-  },
-  "manageAccountLink": {
-    "message": "Manage your Account"
-  },
-  "manageAccountButton": {
-    "message": "Manage Account"
-  },
-  "helpAndSupportLink": {
-    "message": "Help & Support"
-  },
-  "privacyPolicyLink": {
-    "message": "Privacy Policy"
-  },
-  "termsAndConditionsLink": {
-    "message": "Terms & Conditions"
   },
   "offline": {
     "message": "Offline - TBD"
