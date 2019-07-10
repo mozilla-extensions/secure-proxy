@@ -23,7 +23,6 @@ class ViewMain extends View {
     }
 
     let userInfo = escapedTemplate`
-    <div id="toggleRow">${this.getTranslation("introHeading")} <input type="checkbox" id="toggleButton" /></div>
     <p>
       ${this.getTranslation(text)}
     </p>
@@ -35,13 +34,9 @@ class ViewMain extends View {
   postShow(data) {
     this.proxyEnabled = data.proxyState == PROXY_STATE_ACTIVE;
 
-    let toggleButton = document.getElementById("toggleButton");
-    toggleButton.checked = this.proxyEnabled;
     if (this.proxyEnabled) {
-      //toggleButton.textContent = this.getTranslation("disableProxy");
       View.setState("enabled", this.getTranslation("proxyOn"));
     } else {
-      //toggleButton.textContent = this.getTranslation("enableProxy");
       View.setState("disabled", this.getTranslation("proxyOff"));
     }
 

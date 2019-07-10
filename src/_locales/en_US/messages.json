@@ -6,6 +6,9 @@
   "viewAllSurveyLink": {
     "message": "Tell us what you think"
   },
+  "viewAllToggleButton": {
+    "message": "Firefox Private Network "
+  },
   "viewConnecting": {
     "message": "Connecting to the secure server…"
   },

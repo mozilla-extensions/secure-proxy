@@ -35,6 +35,14 @@ export class View {
     }
   }
 
+  static showToggleButton(state) {
+    let toggleRow = document.getElementById("toggleRow");
+    toggleRow.removeAttribute("hidden");
+
+    let toggleButton = document.getElementById("toggleButton");
+    toggleButton.checked = state;
+  }
+
   static showBack(shouldShow) {
     let backElement = document.getElementById("backButton");
     backElement.toggleAttribute("hidden", !shouldShow);

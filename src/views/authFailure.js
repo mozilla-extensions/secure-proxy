@@ -5,14 +5,9 @@ import {escapedTemplate} from '../template.js'
 class ViewAuthFailure extends View {
   show() {
     return escapedTemplate`
-    <div id="toggleRow">${this.getTranslation("introHeading")} <input type="checkbox" id="toggleButton" /></div>
     <p>
       ${this.getTranslation("authFailure")}
     </p>`;
-  }
-
-  async handleEvent() {
-    View.sendMessage("authenticate");
   }
 }
 

@@ -137,7 +137,8 @@ header button {
 
 [hidden]#settingsButton,
 [hidden]#backButton,
-[hidden]#survey {
+[hidden]#survey,
+[hidden]#toggleRow {
   display: none;
 }
 
