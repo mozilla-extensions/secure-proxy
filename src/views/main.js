@@ -29,20 +29,12 @@ class ViewMain extends View {
     <p>
       ${this.getTranslation(text)}
     </p>
-    <div id="survey" hidden class="linkRow">
-      <a href="#" target="_blank" rel="noopener noreferrer" class="feedbackLink" id="feedbackLink">${this.getTranslation("feedbackLink")}</a>
-    </div>
     `;
 
     return userInfo;
   }
 
   postShow(data) {
-    this.pendingSurvey = data.pendingSurvey;
-    if (data.pendingSurvey) {
-       document.getElementById("survey").removeAttribute("hidden");
-    }
-
     this.proxyEnabled = data.proxyState == PROXY_STATE_ACTIVE;
 
     let toggleButton = document.getElementById("toggleButton");
@@ -65,13 +57,6 @@ class ViewMain extends View {
   }
 
   handleEvent(e) {
-    if (e.target.id == "feedbackLink") {
-      View.sendMessage("survey", {survey: this.pendingSurvey});
-      e.preventDefault();
-      close();
-      return;
-    }
-
     this.toggleProxy();
   }
 

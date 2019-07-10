@@ -40,6 +40,16 @@ export class View {
     backElement.toggleAttribute("hidden", !shouldShow);
   }
 
+  static showSurvey(surveyName) {
+    if (!surveyName) {
+      return;
+    }
+
+    let survey = document.getElementById("survey");
+    survey.removeAttribute("hidden");
+
+  }
+
   static showSettings(shouldShow) {
     let settingsElement = document.getElementById("settingsButton");
     settingsElement.toggleAttribute("hidden", !shouldShow);

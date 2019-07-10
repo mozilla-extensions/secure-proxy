@@ -136,7 +136,8 @@ header button {
 }
 
 [hidden]#settingsButton,
-[hidden]#backButton {
+[hidden]#backButton,
+[hidden]#survey {
   display: none;
 }
 
@@ -201,11 +202,11 @@ header button {
   background: var(--ink-90) url('img/hero-on.svg') -2px -1px / cover;
 }
 
-.feedbackLink {
+.surveyLink {
   display: flex;
 }
 
-.feedbackLink::before {
+.surveyLink::before {
   content: "";
   block-size: 16px;
   inline-size: 16px;

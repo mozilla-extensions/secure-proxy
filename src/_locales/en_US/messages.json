@@ -3,6 +3,9 @@
     "message": "Secure Proxy"
   },
 
+  "viewAllSurveyLink": {
+    "message": "Tell us what you think"
+  },
   "viewConnecting": {
     "message": "Connecting to the secure server…"
   },
@@ -27,9 +30,6 @@
   },
   "manageAccountLink": {
     "message": "Manage your Account"
-  },
-  "feedbackLink": {
-    "message": "Tell us what you think"
   },
   "manageAccountButton": {
     "message": "Manage Account"
