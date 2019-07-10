@@ -47,7 +47,6 @@ export class View {
 
     let survey = document.getElementById("survey");
     survey.removeAttribute("hidden");
-
   }
 
   static showSettings(shouldShow) {

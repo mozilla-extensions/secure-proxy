@@ -10,8 +10,6 @@ class ViewMain extends View {
   }
 
   show(data) {
-    let loggedIn = this.getTranslation("loggedIn", data.userInfo.email);
-
     if (data.proxyState != PROXY_STATE_INACTIVE &&
         data.proxyState != PROXY_STATE_ACTIVE) {
       throw new Error("Invalid proxy state for ViewMain");
