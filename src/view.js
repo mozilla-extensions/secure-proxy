@@ -53,11 +53,13 @@ export class View {
   }
 
   static showSurvey(surveyName) {
+    let survey = document.getElementById("survey");
+
     if (!surveyName) {
+      survey.setAttribute("hidden", "hidden");
       return;
     }
 
-    let survey = document.getElementById("survey");
     survey.removeAttribute("hidden");
   }
 
