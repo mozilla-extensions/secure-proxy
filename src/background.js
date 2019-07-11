@@ -56,7 +56,11 @@ class Background {
     log("init");
 
     // Are we in debugging mode?
-    debuggingMode = await browser.experiments.proxyutils.getDebuggingMode();
+    try {
+      debuggingMode = await browser.experiments.proxyutils.getDebuggingMode();
+    } catch (e) {
+      debuggingMode = true;
+    }
 
     try {
       const capitivePortalUrl = new URL(await browser.experiments.proxyutils.getCaptivePortalURL());
@@ -66,7 +70,9 @@ class Background {
     }
 
     // Ask the learn more link.
-    this.learnMoreUrl = await browser.experiments.proxyutils.formatURL(LEARN_MORE_URL);
+    try {
+      this.learnMoreUrl = await browser.experiments.proxyutils.formatURL(LEARN_MORE_URL);
+    } catch (e) {}
 
     // Let's take the last date of usage.
     let { lastUsageDays } = await browser.storage.local.get(["lastUsageDays"]);
@@ -109,12 +115,14 @@ class Background {
 
 
     // proxy setting change observer
-    browser.experiments.proxyutils.onChanged.addListener(async _ => {
-      let hasChanged = await this.computeProxyState();
-      if (hasChanged) {
-        this.updateUI();
-      }
-    });
+    if (browser.experiments.proxyutils) {
+      browser.experiments.proxyutils.onChanged.addListener(async _ => {
+        let hasChanged = await this.computeProxyState();
+        if (hasChanged) {
+          this.updateUI();
+        }
+      });
+    }
 
     browser.runtime.onConnect.addListener(port => {
       this.panelConnected(port);
@@ -225,7 +233,7 @@ class Background {
         break;
     }
 
-    if (promptNotice) {
+    if (promptNotice &&  browser.experiments.proxyutils) {
       browser.experiments.proxyutils.showPrompt(browser.i18n.getMessage(promptNotice), isWarning);
     }
   }
