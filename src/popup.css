@@ -253,36 +253,39 @@ footer {
 }
 
 #toggleButton {
-  -moz-appearance: none;
-  border: 1px solid var(--grey-90-a20);
-  background-color: var(--grey-10);
-  border-radius: 8px;
-  block-size: 14px;
-  inline-size: 22px;
-  display: flex;
   margin-inline-start: auto;
   align-self: center;
-  padding: 1px;
+
+  --x-pos: .15em;
+  -moz-appearance: none;
+  background-color: var(--grey-20);
+  cursor: pointer;
+  font-size: 16px;
+  inline-size: 2em;
+  block-size: 1em;
+  border-radius: 1em;
+  border: 1px solid transparent;
+  box-sizing: content-box;
+  transition: background-color .1s ease-out;
 }
 
 #toggleButton:checked {
-  border: 1px solid var(--blue-50);
+  --x-pos: 1.15em;
   background-color: var(--blue-50);
 }
 
 #toggleButton::before {
+  position: relative;
+  inline-size: calc(1em - .3em);
+  block-size: calc(1em - .3em);
+  transform: translateY(.15em) translateX(var(--x-pos));
+  border-radius: 100%;
   display: block;
   content: "";
-  block-size: 6px;
-  inline-size: 6px;
-  border-radius: 200%;
-  align-self: center;
-  margin: 0 auto 0 0;
-  border: 1px solid var(--grey-90-a20);
-  background: white;
+  background-color: var(--grey-50);
+  transition: transform .1s ease-out;
 }
 
 #toggleButton:checked::before {
-  margin: 0 0 0 auto;
-  border-color: white;
+  background-color: white;
 }
