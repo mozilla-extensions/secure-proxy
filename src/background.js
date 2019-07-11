@@ -1,16 +1,21 @@
 // TODO whilst the proxy is enabled set media.peerconnection.enabled to false.
 
-// Read pref for captive portal and disable.
-
+// FxA openID configuration
 const FXA_OPENID = "https://stomlinson.dev.lcip.org/.well-known/openid-configuration";
 
+// List of attributes for the openID configuration
 const FXA_ENDPOINT_PROFILE = "userinfo_endpoint";
 const FXA_ENDPOINT_TOKEN = "token_endpoint";
 const FXA_ENDPOINT_ISSUER = "issuer";
 
+// Token scopes
 const FXA_PROFILE_SCOPE = "profile";
 const FXA_PROXY_SCOPE = "https://identity.mozilla.com/apps/secure-proxy";
+
+// The client ID for this extension
 const FXA_CLIENT_ID = "a8c528140153d1c6";
+
+// Token expiration time
 const FXA_EXP_TIME = 21600 // 6 hours
 
 // Used to see if HTTP errors are actually valid. See the comment in
@@ -26,7 +31,7 @@ const PROXY_PORT = 8001;
 // How early we want to re-generate the tokens (in secs)
 const EXPIRE_DELTA = 3600
 
-// This URL must be formatted.
+// This URL must be formatted
 const LEARN_MORE_URL = "https://support.mozilla.org/1/firefox/%VERSION%/%OS%/%LOCALE%/cloudflare"
 
 // Enable debugging
@@ -373,7 +378,6 @@ class Background {
       return requestInfo.url === CONNECTING_HTTPS_REQUEST;
     }
 
-    // Internal requests, TODO verify is correct: https://github.com/jonathanKingston/secure-proxy/issues/3
     // Verify originUrl is never undefined in normal content
     if (requestInfo.originUrl === undefined &&
         requestInfo.frameInfo === 0) {
