@@ -17,7 +17,7 @@ class ViewSettings extends View {
         <li><a href="TODO">${this.getTranslation("viewSettings-privacyPolicyLink")}</a></li>
         <li><a href="TODO">${this.getTranslation("viewSettings-termsAndConditionsLink")}</a></li>
       </ul>
-      <button class="primary" id="manageAccount">${this.getTranslation("manageAccountButton")}</button>
+      <button class="primary" id="manageAccount">${this.getTranslation("viewSettings-manageAccountButton")}</button>
     `;
   }
 
