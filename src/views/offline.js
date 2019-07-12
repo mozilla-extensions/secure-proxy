@@ -3,6 +3,9 @@ import {escapedTemplate} from '../template.js'
 
 class ViewOffline extends View {
   show() {
+    View.setState("disabled", this.getTranslation("heroProxyOff"));
+    View.hideToggleButton();
+
     return escapedTemplate`<p>
       ${this.getTranslation("viewOffline")}
     </p>`;
