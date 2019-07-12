@@ -240,6 +240,11 @@ class Background {
       this.tokenGenerationTimeout = 0;
     }
 
+    // We are offline.
+    if (!navigator.onLine) {
+      this.proxyState = PROXY_STATE_OFFLINE;
+    }
+
     // We want to keep these states.
     let currentState = this.proxyState;
     if (currentState !== PROXY_STATE_AUTHFAILURE &&
@@ -705,14 +710,8 @@ class Background {
   }
 
   async onConnectivityChanged() {
-    if (navigator.onLine) {
-      log("We are online!");
-      await this.run();
-    } else {
-      log("We are offline!");
-      this.proxyState = PROXY_STATE_OFFLINE;
-      this.updateUI();
-    }
+    log("connectivity changed!");
+    await this.run();
   }
 
   manageAccount() {
