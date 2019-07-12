@@ -208,12 +208,9 @@ header button {
   background: var(--ink-90) url('img/hero-on.svg') -2px -1px / cover;
 }
 
-.surveyLink {
-  display: flex;
-}
-
-.surveyLink {
+#survey {
   font-size: var(--survey-font-size);
+  padding: 10px 12px 10px 12px;
 }
 
 .surveyLink::before {
