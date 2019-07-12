@@ -47,7 +47,7 @@ body {
   inline-size: 320px;
   font-size: var(--body-font-size);
   line-height: 22px;
-  min-height: 450px;
+  min-block-size: 450px;
 }
 
 button {
@@ -210,7 +210,10 @@ header button {
 
 #survey {
   font-size: var(--survey-font-size);
-  padding: 10px 12px 10px 12px;
+  padding-inline-start: 12px;
+  padding-inline-end: 12px;
+  padding-block-start: 10px;
+  padding-block-end: 10px;
 }
 
 .surveyLink::before {
@@ -239,7 +242,10 @@ header button {
 
 footer {
   font-size: var(--footer-font-size);
-  padding: 14px 12px 14px 12px;
+  padding-inline-start: 12px;
+  padding-inline-end: 12px;
+  padding-block-start: 14px;
+  padding-block-end: 14px;
   border-block-start: 1px solid #e4e4e4;
   background: #f9f9fb;
   display: flex;
