@@ -15,7 +15,7 @@
   "browser_action": {
     "browser_style": true,
     "default_icon": "img/badge_off.svg",
-    "default_title": "Secure proxy",
+    "default_title": "__MSG_extensionName__",
     "default_popup": "popup.html"
   },
 
