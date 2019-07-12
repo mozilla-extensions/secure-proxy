@@ -45,6 +45,7 @@ body {
   inline-size: 320px;
   font-size: var(--body-font-size);
   line-height: 22px;
+  min-height: 450px;
 }
 
 button {
@@ -89,6 +90,7 @@ button.primary:enabled:hover:active {
 
 #content {
   inline-size: 320px;
+  flex: 1;
 }
 
 #content p {
