@@ -24,22 +24,29 @@ class Template {
     return String(str).replace(/[&"'<>/]/g, m => replacements[m]);
   }
 
+  potentiallyEscape(value) {
+    if (typeof value === "object") {
+      if (value instanceof Array) {
+        return value.forEach(val => this.potentiallyEscape(val));
+      }
+
+      // If we are an escaped template let join call toString on it
+      if (value.escaped) {
+        return value;
+      }
+
+      throw new Error("Unknown object to escape");
+    }
+    return this.escapeXML(value);
+  }
+
   toString() {
     const result = [];
 
     for (const [i, string] of this.strings.entries()) {
       result.push(string);
       if (i < this.values.length) {
-        if (typeof this.values[i] === "object" && this.escaped) {
-          if (this.values[i] instanceof Array) {
-            let myarray = this.values[i];
-            myarray.forEach(val => result.push(val));
-          } else {
-            result.push(this.values[i]);
-          }
-        } else {
-          result.push(this.escapeXML(this.values[i]));
-        }
+        result.push(this.potentiallyEscape(this.values[i]));
       }
     }
     return result.join("");
