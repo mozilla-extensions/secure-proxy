@@ -18,11 +18,18 @@
         "type": "function",
         "description": "show the prompt.",
         "async": true,
-        "parameters": [{
-          "name": "message",
-          "type": "string",
-          "description": "test"
-        }]
+        "parameters": [
+          {
+            "name": "message",
+            "type": "string",
+            "description": "text to display in the prompt"
+          },
+          {
+            "name": "isWarning",
+            "type": "boolean",
+            "description": "if the prompt should be a warning"
+          }
+        ]
       },
       {
         "name": "getCaptivePortalURL",
@@ -32,11 +39,24 @@
         "parameters": []
       },
       {
-        "name": "hasProxyInUse",
+        "name": "getDebuggingMode",
         "type": "function",
         "async": true,
-        "description": "Return true if an existing proxy configuration has been detected",
+        "description": "Returns true if we are in debugging mode. It reads the pref secureProxy.debugging.enabled",
         "parameters": []
+      },
+      {
+        "name": "formatURL",
+        "type": "function",
+        "async": true,
+        "description": "Returns a formatted URL",
+        "parameters": [
+          {
+            "name": "url",
+            "type": "string",
+            "description": "the URL to format"
+          }
+        ]
       }
     ]
   }

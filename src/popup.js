@@ -1,5 +1,4 @@
 import {View} from './view.js';
-import viewAuthFailureName from './views/authFailure.js'
 import viewConnectingName from './views/connecting.js'
 import viewErrorName from './views/error.js'
 import viewLoadingName from './views/loading.js'
@@ -16,31 +15,61 @@ async function init() {
   // Let's start showing something...
   View.setView(viewLoadingName);
 
+  let userInfo;
+  let proxyState;
+  let surveyName;
+  let learnMoreUrl;
+
+  let settingsButton = document.getElementById("settingsButton");
+  settingsButton.addEventListener("click", () => {
+    if (userInfo) {
+      View.setView(viewSettingsName, {userInfo, proxyState});
+    }
+  });
+
+  let backElement = document.getElementById("backButton");
+  backElement.addEventListener("click", () => {
+    View.sendMessage("goBack");
+  });
+
+  let stateButton = document.getElementById("stateButton");
+  stateButton.addEventListener("click", () => {
+    View.onStateButton();
+  });
+
+  let surveyLink = document.getElementById("surveyLink");
+  surveyLink.addEventListener("click", e => {
+    View.sendMessage("survey", {survey: surveyName});
+    e.preventDefault();
+    close();
+  });
+
+  let toggleButton = document.getElementById("toggleButton");
+  toggleButton.addEventListener("click", e => {
+    View.onToggleButtonClicked(e);
+  });
+
+  let learnMoreLink = document.getElementById("learnMoreLink");
+  learnMoreLink.addEventListener("click", e => {
+    View.sendMessage("openUrl", {url: learnMoreUrl});
+    e.preventDefault();
+    close();
+  });
+
   port.onMessage.addListener(async msg => {
-    let {userInfo, proxyState, pendingSurvey} = msg;
+    userInfo = msg.userInfo;
+    proxyState = msg.proxyState;
+    surveyName = msg.pendingSurvey;
+    learnMoreUrl = msg.learnMoreUrl;
 
     View.showSettings(!!userInfo);
-    if (userInfo) {
-      let settingsButton = document.getElementById("settingsButton");
-      settingsButton.addEventListener("click", () => {
-        View.setView(viewSettingsName, {userInfo, proxyState});
-      });
-    }
-
     View.showBack(false);
-    let backElement = document.getElementById("backButton");
-    backElement.addEventListener("click", () => {
-      View.sendMessage("goBack");
-    });
-
-    let stateButton = document.getElementById("stateButton");
-    stateButton.addEventListener("click", () => {
-      View.onStateButton();
-    });
 
     switch (proxyState) {
       case PROXY_STATE_UNKNOWN:
-        View.setView(viewLoginName);
+        // fall through
+      case PROXY_STATE_AUTHFAILURE:
+        View.setView(viewLoginName, proxyState);
         return;
 
       case PROXY_STATE_PROXYERROR:
@@ -48,17 +77,15 @@ async function init() {
       case PROXY_STATE_PROXYAUTHFAILED:
         // fall through
       case PROXY_STATE_OTHERINUSE:
+        // fall through
         View.setView(viewProxyErrorName, proxyState);
-        return;
-
-      case PROXY_STATE_AUTHFAILURE:
-        View.setView(viewAuthFailureName);
         return;
 
       case PROXY_STATE_INACTIVE:
         // fall through
       case PROXY_STATE_ACTIVE:
-        View.setView(viewMainName, {userInfo, proxyState, pendingSurvey});
+        View.showSurvey(surveyName);
+        View.setView(viewMainName, {userInfo, proxyState});
         return;
 
       case PROXY_STATE_CONNECTING:

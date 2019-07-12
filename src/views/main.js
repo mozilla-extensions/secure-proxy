@@ -10,20 +10,23 @@ class ViewMain extends View {
   }
 
   show(data) {
-    let loggedIn = this.getTranslation("loggedIn", data.userInfo.email);
-
     if (data.proxyState != PROXY_STATE_INACTIVE &&
         data.proxyState != PROXY_STATE_ACTIVE) {
       throw new Error("Invalid proxy state for ViewMain");
     }
 
+    View.showToggleButton(data.proxyState == PROXY_STATE_ACTIVE);
+
+    let text;
+    if (data.proxyState === PROXY_STATE_ACTIVE) {
+      text = "viewMainActive";
+    } else {
+      text = "viewMainInactive";
+    }
+
     let userInfo = escapedTemplate`
     <p>
-      ${loggedIn}
-    </p>
-    <div id="toggleRow">${this.getTranslation("introHeading")} <input type="checkbox" id="toggleButton" /></div>
-    <p id="survey" hidden class="linkRow">
-      <a href="#" target="_blank" rel="noopener noreferrer" class="feedbackLink" id="feedbackLink">${this.getTranslation("feedbackLink")}</a>
+      ${this.getTranslation(text)}
     </p>
     `;
 
@@ -31,23 +34,18 @@ class ViewMain extends View {
   }
 
   postShow(data) {
-    this.pendingSurvey = data.pendingSurvey;
-    if (data.pendingSurvey) {
-       document.getElementById("survey").removeAttribute("hidden");
-    }
-
     this.proxyEnabled = data.proxyState == PROXY_STATE_ACTIVE;
 
-    let toggleButton = document.getElementById("toggleButton");
-    toggleButton.checked = this.proxyEnabled;
     if (this.proxyEnabled) {
-      //toggleButton.textContent = this.getTranslation("disableProxy");
-      View.setState("enabled", this.getTranslation("proxyOn"));
+      View.setState("enabled", this.getTranslation("heroProxyOn"));
     } else {
-      //toggleButton.textContent = this.getTranslation("enableProxy");
-      View.setState("disabled", this.getTranslation("proxyOff"));
+      View.setState("disabled", this.getTranslation("heroProxyOff"));
     }
 
+  }
+
+  toggleButtonClicked(e) {
+    View.sendMessage("setEnabledState", {enabledState: e.target.checked});
   }
 
   async toggleProxy() {
@@ -58,13 +56,6 @@ class ViewMain extends View {
   }
 
   handleEvent(e) {
-    if (e.target.id == "feedbackLink") {
-      View.sendMessage("survey", {survey: this.pendingSurvey});
-      e.preventDefault();
-      close();
-      return;
-    }
-
     this.toggleProxy();
   }
 

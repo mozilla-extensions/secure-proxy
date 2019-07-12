@@ -3,9 +3,21 @@ import {escapedTemplate} from '../template.js'
 
 class ViewProxyError extends View {
   show(proxyState) {
-    return escapedTemplate`<p>
-      ${this.getTranslation(proxyState)}
+    if (proxyState == PROXY_STATE_OTHERINUSE) {
+      View.setState("hidden");
+      View.hideToggleButton();
+    } else {
+      View.setState("disabled", this.getTranslation("heroProxyOff"));
+      View.showToggleButton(false);
+    }
+    return escapedTemplate`
+    <p>
+      ${this.getTranslation("viewError-" + proxyState)}
     </p>`;
+  }
+
+  toggleButtonClicked() {
+    View.sendMessage("authenticate");
   }
 }
 

@@ -3,14 +3,22 @@ import {escapedTemplate} from '../template.js'
 
 // Login view.
 class ViewLogin extends View {
-  show() {
+  show(proxyState) {
     View.setState("login");
+
+    let text;
+    if (proxyState === PROXY_STATE_UNKNOWN) {
+      text = "viewLoginMessage";
+    } else {
+      text = "viewAuthFailure";
+    }
+
     return escapedTemplate`
     <p>
-      ${this.getTranslation("signInMessage")}
+      ${this.getTranslation(text)}
     </p>
     <button id="authButton" class="primary">
-      ${this.getTranslation("signInButton")}
+      ${this.getTranslation("viewLoginButton")}
     </button>`;
   }
 

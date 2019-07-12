@@ -51,12 +51,22 @@ let ConfirmationHint = {
       this._panel.setAttribute("hidearrow", "true");
     }
 
+    // TODO fix CSS fragility with conflicting with firefox and hardcoded vars
+    this.setCSS("#0060ED", "#fff");
+    this.setIcon();
+    if (options.isWarning) {
+      this.setCSS("#fff36e", "#0c0c0d");
+      this.setIcon("chrome://global/skin/icons/warning.svg");
+    }
+
     const DURATION = 8500;
     this._panel.addEventListener("popupshown", () => {
       this._animationBox.setAttribute("animate", "true");
 
       setTimeout(() => {
         this._panel.hidePopup(true);
+        this.setCSS();
+        this.setIcon();
       }, DURATION + 120);
     }, {once: true});
 
@@ -70,6 +80,29 @@ let ConfirmationHint = {
       position: "bottomcenter topleft",
       triggerEvent: options.event,
     });
+  },
+
+  setCSS(backgroundColor = "", textColor = "") {
+    this._panel.style.setProperty("--arrowpanel-background", backgroundColor);
+    this._panel.style.setProperty("--arrowpanel-border-color", backgroundColor);
+    this._panel.style.setProperty("--arrowpanel-color", textColor);
+  },
+
+  setIcon(iconUrl = "") {
+    let checkmarkImage = this._panel.querySelector("#confirmation-hint-checkmark-image");
+    let properties = {
+      background: `url("${iconUrl}") 0 0 / contain`,
+      fill: "black",
+      "-moz-context-properties": "fill",
+      "animation-name": "none",
+    };
+    for (let property in properties) {
+      if (iconUrl) {
+        checkmarkImage.style.setProperty(property, properties[property]);
+      } else {
+        checkmarkImage.style.removeProperty(property);
+      }
+    }
   },
 
   get _document() {
@@ -121,20 +154,21 @@ this.proxyutils = class extends ExtensionAPI {
             }
           }).api(),
 
-          async showPrompt(message) {
+          async showPrompt(message, isWarning) {
             const selector = "#secure-proxy_mozilla_com-browser-action";
-            ConfirmationHint.show(selector, message, {});
-          },
-
-          async hasProxyInUse() {
-            let proxyType = Services.prefs.getIntPref("network.proxy.type");
-            return proxyType == Ci.nsIProtocolProxyService.PROXYCONFIG_PAC ||
-                   proxyType == Ci.nsIProtocolProxyService.PROXYCONFIG_WPAD ||
-                   proxyType == Ci.nsIProtocolProxyService.PROXYCONFIG_MANUAL;
+            ConfirmationHint.show(selector, message, {isWarning});
           },
 
           async getCaptivePortalURL() {
             return Services.prefs.getStringPref("captivedetect.canonicalURL");
+          },
+
+          async getDebuggingMode() {
+            return Services.prefs.getBoolPref("secureProxy.debugging.enabled", false);
+          },
+
+          async formatURL(url) {
+            return Services.urlFormatter.formatURL(url);
           }
         },
       },

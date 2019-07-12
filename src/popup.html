@@ -13,10 +13,17 @@
     <div id="state" hidden>
       <button id="stateButton"></button>
     </div>
+    <div id="toggleRow" hidden>
+      <span data-l10n="popupToggleButton"></span>
+      <input type="checkbox" id="toggleButton" />
+    </div>
     <main id="content"></main>
+    <div id="survey" hidden class="linkRow">
+      <a href="#" target="_blank" rel="noopener noreferrer" class="surveyLink" id="surveyLink" data-l10n="popupSurveyLink"></a>
+    </div>
     <footer>
-      <span data-l10n="poweredBy"></span>
-      <a href="https://support.mozilla.org/en-US/" data-l10n="learnMore" class="end" ></a> <!--TODO fix link -->
+      <span data-l10n="popupPoweredBy"></span>
+      <a href="#" data-l10n="popupLearnMore" class="end" id="learnMoreLink"></a>
     </footer>
     <script src="commons.js"></script>
     <script src="popup.js" type="module"></script>

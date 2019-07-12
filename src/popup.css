@@ -32,6 +32,7 @@
   --grey-90-a60: rgba(12, 12, 13, 0.6);
   --ink-90: #1D1133;
   --black: #0c0c0D;
+  --grey-10: #F9F9FA;
 }
 
 * {
@@ -136,7 +137,9 @@ header button {
 }
 
 [hidden]#settingsButton,
-[hidden]#backButton {
+[hidden]#backButton,
+[hidden]#survey,
+[hidden]#toggleRow {
   display: none;
 }
 
@@ -201,11 +204,11 @@ header button {
   background: var(--ink-90) url('img/hero-on.svg') -2px -1px / cover;
 }
 
-.feedbackLink {
+.surveyLink {
   display: flex;
 }
 
-.feedbackLink::before {
+.surveyLink::before {
   content: "";
   block-size: 16px;
   inline-size: 16px;
@@ -236,6 +239,12 @@ footer {
   display: flex;
 }
 
+.linkRow {
+  padding: 10px var(--edge-padding);
+  border-block-start: 1px solid #e4e4e4;
+  display: flex;
+}
+
 #toggleRow {
   padding: 10px var(--edge-padding);
   border-block-start: 1px solid #e4e4e4;
@@ -244,35 +253,39 @@ footer {
 }
 
 #toggleButton {
-  -moz-appearance: none;
-  border: 1px solid var(--grey-50);
-  background-color: var(--grey-20);
-  border-radius: 30px;
-  block-size: 14px;
-  inline-size: 22px;
-  display: flex;
   margin-inline-start: auto;
   align-self: center;
+
+  --x-pos: .15em;
+  -moz-appearance: none;
+  background-color: var(--grey-20);
+  cursor: pointer;
+  font-size: 16px;
+  inline-size: 2em;
+  block-size: 1em;
+  border-radius: 1em;
+  border: 1px solid transparent;
+  box-sizing: content-box;
+  transition: background-color .1s ease-out;
 }
 
 #toggleButton:checked {
-  border: 1px solid var(--blue-50);
+  --x-pos: 1.15em;
   background-color: var(--blue-50);
 }
 
 #toggleButton::before {
+  position: relative;
+  inline-size: calc(1em - .3em);
+  block-size: calc(1em - .3em);
+  transform: translateY(.15em) translateX(var(--x-pos));
+  border-radius: 100%;
   display: block;
   content: "";
-  block-size: 6px;
-  inline-size: 6px;
-  border-radius: 200%;
-  align-self: center;
-  margin: 0 auto 0 0;
-  border: 1px solid var(--grey-50);
-  background: white;
+  background-color: var(--grey-50);
+  transition: transform .1s ease-out;
 }
 
 #toggleButton:checked::before {
-  margin: 0 0 0 auto;
-  border-color: white;
+  background-color: white;
 }

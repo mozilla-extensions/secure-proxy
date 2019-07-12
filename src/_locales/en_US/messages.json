@@ -5,98 +5,94 @@
   "extensionDescription": {
     "message": "A secure, encrypted tunnel to the web to protect yourself everywhere you use Firefox."
   },
+    
+  "heroProxyOff": {
+    "message": "OFF"
+  },
+  "heroProxyOn": {
+    "message": "ON"
+  },
+
   "introHeading": {
     "message": "Firefox Private Network"
   },
-  "accountLabel": {
-    "message": "Firefox Account"
-  },
-  "manageAccountLink": {
-    "message": "Manage your Account"
-  },
-  "feedbackLink": {
-    "message": "Tell us what you think"
-  },
-  "manageAccountButton": {
-    "message": "Manage Account"
-  },
-  "helpAndSupportLink": {
-    "message": "Help & Support"
-  },
-  "privacyPolicyLink": {
-    "message": "Privacy Policy"
-  },
-  "termsAndConditionsLink": {
-    "message": "Terms & Conditions"
-  },
-  "loading": {
-    "message": "Loading..."
-  },
-  "offline": {
-    "message": "Offline - TBD"
-  },
-  "connecting": {
-    "message": "Connecting TBD"
-  },
-  "enableProxy": {
-    "message": "Enable Proxy"
-  },
-  "disableProxy": {
-    "message": "Disable Proxy"
-  },
-  "loggedIn": {
-    "message": "Hi $NAME$",
-    "placeholders": {
-      "name" : {
-        "content" : "$1"
-      }
-    }
-  },
-  "poweredBy": {
-    "message": "Powered by CloudFlare®."
-  },
-  "learnMore": {
+
+  "popupLearnMore": {
     "message": "Learn More"
   },
-  "notProxied": {
-    "message": "Not proxied"
+  "popupPoweredBy": {
+    "message": "Powered by CloudFlare®."
   },
-  "proxyOff": {
-    "message": "OFF"
+  "popupSurveyLink": {
+    "message": "Tell us what you think"
   },
-  "proxyOn": {
-    "message": "ON"
+  "popupToggleButton": {
+    "message": "Firefox Private Network "
   },
-  "signInMessage": {
+
+  "toastProxyOff": {
+    "message": "Firefox Private Network is off."
+  },
+  "toastProxyOn": {
+    "message": "Firefox Private Network is on."
+  },
+  "toastWarning": {
+    "message": "Firefox Private Network needs your attention!"
+  },
+
+  "viewAuthFailure": {
+    "message": "Sign in failed. Try again."
+  },
+  "viewConnecting": {
+    "message": "Connecting to the secure server…"
+  },
+  "viewError-otherInUse": {
+    "message": "You cannot use Firefox Private Network because you are using a custom proxy setting."
+  },
+  "viewError-proxyAuthFailed": {
+    "message": "Your connection was dropped. Try turning Firefox Private Network on again."
+  },
+  "viewError-proxyError": {
+    "message": "Your connection was dropped. Try turning Firefox Private Network on again."
+  },
+  "viewLoginMessage":{
     "message": "Sign in to your Firefox account to start using Firefox Private Network"
   },
-  "signInButton": {
+  "viewLoginButton":{
     "message": "Sign in"
   },
-  "isProxied": {
-    "message": "Proxied"
+  "viewMainActive": {
+    "message": "Your connection is secure, and your location is hidden from websites and trackers, making it tougher for those annoying targeted ads to track you online."
   },
-  "proxyState": {
-    "message": "Proxy State: $STATENAME$",
-    "placeholders": {
-      "statename" : {
-        "content" : "$1"
-      }
-    }
+  "viewMainInactive": {
+    "message": "Using public Wi-Fi without a secure connection can put you at risk for identity theft, snooping, and malware infection."
   },
-  "otherProxy": {
-    "message": "Other proxy in use!"
+  "viewOffline": {
+    "message": "You are offline. Check your network connection and try again."
   },
-  "proxyError": {
-    "message": "Something when wrong using the proxy"
+  "viewSettings-accountLabel": {
+    "message": "Firefox Account"
   },
-  "proxyAuthFailed": {
-    "message": "Authentication failure when using the proxy"
+  "viewSettings-giveUsFeedbackLink": {
+    "message": "Give us feedback"
   },
+  "viewSettings-helpAndSupportLink": {
+    "message": "Help & Support"
+  },
+  "viewSettings-manageAccountButton": {
+    "message": "Manage Account"
+  },
+  "viewSettings-manageAccountLink": {
+    "message": "Manage your Account"
+  },
+  "viewSettings-privacyPolicyLink": {
+    "message": "Privacy Policy"
+  },
+  "viewSettings-termsAndConditionsLink": {
+    "message": "Terms & Conditions"
+  },
+
   "internalError": {
     "message": "Internal error!"
-  },
-  "authFailure": {
-    "message": "Authentication Failure. Try again."
   }
 }

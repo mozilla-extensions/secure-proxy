@@ -1,16 +1,22 @@
 // TODO whilst the proxy is enabled set media.peerconnection.enabled to false.
 
-// Read pref for captive portal and disable.
-
+// FxA openID configuration
 const FXA_OPENID = "https://stomlinson.dev.lcip.org/.well-known/openid-configuration";
 
+// List of attributes for the openID configuration
 const FXA_ENDPOINT_PROFILE = "userinfo_endpoint";
 const FXA_ENDPOINT_TOKEN = "token_endpoint";
 const FXA_ENDPOINT_ISSUER = "issuer";
 
+// Token scopes
 const FXA_PROFILE_SCOPE = "profile";
 const FXA_PROXY_SCOPE = "https://identity.mozilla.com/apps/secure-proxy";
+
+// The client ID for this extension
 const FXA_CLIENT_ID = "a8c528140153d1c6";
+
+// Token expiration time
+const FXA_EXP_TIME = 21600 // 6 hours
 
 // Used to see if HTTP errors are actually valid. See the comment in
 // browser.webRequest.onCompleted.
@@ -25,10 +31,13 @@ const PROXY_PORT = 8001;
 // How early we want to re-generate the tokens (in secs)
 const EXPIRE_DELTA = 3600
 
+// This URL must be formatted
+const LEARN_MORE_URL = "https://support.mozilla.org/1/firefox/%VERSION%/%OS%/%LOCALE%/cloudflare"
+
 // Enable debugging
-const DEBUGGING = true
+let debuggingMode = false;
 function log(msg) {
-  if (DEBUGGING) {
+  if (debuggingMode) {
     console.log("*** Background.js *** - " + msg);
   }
 }
@@ -46,8 +55,27 @@ class Background {
   async init() {
     log("init");
 
-    // I don't think the extension will ever control this, however it's worth exempting in case.
-    this.CAPTIVE_PORTAL_URL = await browser.experiments.proxyutils.getCaptivePortalURL();
+    // Are we in debugging mode?
+    debuggingMode = await browser.experiments.proxyutils.getDebuggingMode();
+
+    try {
+      const capitivePortalUrl = new URL(await browser.experiments.proxyutils.getCaptivePortalURL());
+      this.captivePortalOrigin = capitivePortalUrl.origin;
+    } catch (e) {}
+
+    // Ask the learn more link.
+    this.learnMoreUrl = await browser.experiments.proxyutils.formatURL(LEARN_MORE_URL);
+
+    // Let's take the last date of usage.
+    let { lastUsageDays } = await browser.storage.local.get(["lastUsageDays"]);
+    if (!lastUsageDays) {
+       lastUsageDays = {
+         date: null,
+         count: 0,
+       };
+    }
+
+    this.lastUsageDays = lastUsageDays;
 
     // Proxy configuration
     browser.proxy.onRequest.addListener((requestInfo) => this.proxyRequestCallback(requestInfo),
@@ -96,7 +124,7 @@ class Background {
     window.addEventListener('offline', _ => this.onConnectivityChanged());
 
     // Let's initialize the survey object.
-    await this.survey.init();
+    await this.survey.init(this);
   }
 
   async run() {
@@ -173,25 +201,23 @@ class Background {
     }
 
     let promptNotice;
+    let isWarning = false;
     switch(this.proxyState) {
       case PROXY_STATE_INACTIVE:
-        promptNotice = "notProxied";
+        promptNotice = "toastProxyOff";
         break;
 
       case PROXY_STATE_ACTIVE:
-        promptNotice = "isProxied";
+        promptNotice = "toastProxyOn";
         break;
 
       case PROXY_STATE_OTHERINUSE:
-        promptNotice = "otherProxy";
-        break;
-
+        // Fall through
       case PROXY_STATE_PROXYERROR:
-        promptNotice = "proxyError";
-        break;
-
+        // Fall through
       case PROXY_STATE_PROXYAUTHFAILED:
-        promptNotice = "proxyAuthFailed";
+        promptNotice = "toastWarning";
+        isWarning = true;
         break;
 
       default:
@@ -200,7 +226,7 @@ class Background {
     }
 
     if (promptNotice) {
-      browser.experiments.proxyutils.showPrompt(browser.i18n.getMessage(promptNotice));
+      browser.experiments.proxyutils.showPrompt(browser.i18n.getMessage(promptNotice), isWarning);
     }
   }
 
@@ -224,7 +250,7 @@ class Background {
     }
 
     // Something else is in use.
-    let otherProxyInUse = await browser.experiments.proxyutils.hasProxyInUse();
+    let otherProxyInUse = await this.hasProxyInUse();
     if (otherProxyInUse) {
       this.proxyState = PROXY_STATE_OTHERINUSE;
     }
@@ -352,11 +378,6 @@ class Background {
       return requestInfo.url === CONNECTING_HTTPS_REQUEST;
     }
 
-    if (this.CAPTIVE_PORTAL_URL === requestInfo.url) {
-      return false;
-    }
-
-    // Internal requests, TODO verify is correct: https://github.com/jonathanKingston/secure-proxy/issues/3
     // Verify originUrl is never undefined in normal content
     if (requestInfo.originUrl === undefined &&
         requestInfo.frameInfo === 0) {
@@ -365,6 +386,11 @@ class Background {
 
     // Just to avoid recreating the URL several times, let's cache it.
     const url = new URL(requestInfo.url);
+
+    // Let's skip captive portal URLs.
+    if (this.captivePortalOrigin && this.captivePortalOrigin === url.origin) {
+      return false;
+    }
 
     // Only http/https/ftp requests
     if (!isProtocolSupported(url)) {
@@ -389,6 +415,7 @@ class Background {
       return false;
     }
 
+    this.maybeStoreUsageDays();
     return true;
   }
 
@@ -463,6 +490,7 @@ class Background {
         grant_type: 'refresh_token',
         refresh_token: refreshTokenData.refresh_token,
         scope: scope,
+        ttl: FXA_EXP_TIME,
         /* eslint-enable camelcase*/
       })
     });
@@ -596,13 +624,10 @@ class Background {
         log("token generation failed");
         await this.authFailure();
       }
-    }, minDiff);
+    }, minDiff * 1000);
 
     // Let's cache the header.
     this.proxyAuthorizationHeader = proxyTokenData.token_type + " " + proxyTokenData.access_token;
-
-    // TODO: cloudflare doesn't accept our token yet...
-    this.proxyAuthorizationHeader = "Bearer eyJhbGciOiJSUzI1NiIsImtpZCI6IkNGVEVTVCJ9.eyJleHAiOjE1NjI4NTYxODAsImlzcyI6InN0YWdpbmcifQ.ROI-75EonHpPsprYXlTnswm2vSmNIN0NmFlsT7zhAGwSB_6r4yTlndpEDnr3s-VBm-Dd3OBIBSMbYqCT1q_jky6ow1faDoCGmXc8UbzB0rZToT5ppIPl0lpWRD5-H-wYzV_Ld3he4uZJLQgcqtHRZUl9XbqNOIi5bSzqtoWG_uiXd-iKaK35SdQ4v0q2ZAEfamgNvWcbEjMEdifDLx47rvirp2L0V3VQxACxjsO8zkNokYVMSfQaPaZG-6ezTTZtes6QiRvGx-AeHspEfWBT-Xl8r68P_yKTgxxG-vdorVkNpOlnMzDOHCPjpS1yODUx844MbhQU1MSgb5X5_lV66g";
 
     return true;
   }
@@ -644,6 +669,14 @@ class Background {
         case "goBack":
           this.updateUI();
           break;
+
+        case "manageAccount":
+          this.manageAccount();
+          break;
+
+        case "openUrl":
+          this.openUrl(message.data.url);
+          break;
       }
     });
 
@@ -666,6 +699,7 @@ class Background {
         userInfo: profileData,
         proxyState: this.proxyState,
         pendingSurvey: nextSurvey ? nextSurvey.name : null,
+        learnMoreUrl: this.learnMoreUrl,
       });
     }
   }
@@ -678,6 +712,50 @@ class Background {
       log("We are offline!");
       this.proxyState = PROXY_STATE_OFFLINE;
       this.updateUI();
+    }
+  }
+
+  manageAccount() {
+    let contentServer = this.fxaEndpoints.get(FXA_ENDPOINT_ISSUER);
+    this.openUrl(contentServer + "/settings");
+  }
+
+  openUrl(url) {
+    browser.tabs.create({url})
+  }
+
+  async hasProxyInUse() {
+    let proxySettings = await browser.proxy.settings.get({});
+    return ["manual", "autoConfig", "autoDetect"].includes(proxySettings.value.proxyType);
+  }
+
+  maybeStoreUsageDays() {
+    if (this.lastUsageDaysPending) {
+      return;
+    }
+
+    const options = { year: 'numeric', month: '2-digit', day: '2-digit' };
+    const dateTimeFormat = new Intl.DateTimeFormat('en-US', options).format;
+
+    let now = dateTimeFormat(Date.now());
+    if (this.lastUsageDays.date === now) {
+      return;
+    }
+
+    this.lastUsageDaysPending = true;
+    this.lastUsageDays.date = now;
+    this.lastUsageDays.count += 1;
+
+    browser.storage.local.set({lastUsageDays: this.lastUsageDays})
+           .then(_ => { this.lastUsageDaysPending = false; });
+  }
+
+  async proxyStatus() {
+    let self = await browser.management.getSelf();
+    return {
+      proxyEnabled: this.proxyState == PROXY_STATE_ACTIVE,
+      version: self.version,
+      usageDays: this.lastUsageDays.count,
     }
   }
 }
