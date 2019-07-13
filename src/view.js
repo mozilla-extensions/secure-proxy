@@ -76,7 +76,6 @@ export class View {
   static setState(state, stateButtonText) {
     let stateElement = document.getElementById("state");
     stateElement.setAttribute("data-state", state);
-    stateElement.toggleAttribute("hidden", !state);
     let stateButtonElement = document.getElementById("stateButton");
     stateButtonElement.textContent = stateButtonText || "";
   }
