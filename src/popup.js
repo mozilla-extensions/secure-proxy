@@ -9,6 +9,9 @@ import viewOtherInUseName from './views/otherInUse.js';
 import viewProxyErrorName from './views/proxyError.js';
 import viewSettingsName from './views/settings.js';
 
+// The shorter view life-time. In milliseconds.
+const MIN_VIEW_TIME = 250;
+
 async function init() {
   let port = browser.runtime.connect();
   View.setPort(port);
@@ -57,7 +60,41 @@ async function init() {
     close();
   });
 
-  port.onMessage.addListener(async msg => {
+  // When the last view has been shown.
+  let lastViewTime = 0;
+
+  // Pending message timer Id.
+  let pendingMessageTimerId = 0;
+
+  // Calculate if we need to postpone the display of a message and its view.
+  function postponeTimeout() {
+    if (lastViewTime === 0) {
+      return 0;
+    }
+
+    let diff = MIN_VIEW_TIME - (Date.now() - lastViewTime);
+    if (diff < 0) {
+      return 0;
+    }
+
+    return diff;
+  }
+
+  function processMessage(msg) {
+    // Let's forget about pending messages.
+    if (pendingMessageTimerId) {
+      clearTimeout(pendingMessageTimerId);
+      pendingMessageTimerId = 0;
+    }
+
+    let interval = postponeTimeout();
+    if(interval !== 0) {
+      pendingMessageTimerId = setTimeout(_ => processMessage(msg), interval);
+      return;
+    }
+
+    lastViewTime = Date.now();
+
     userInfo = msg.userInfo;
     proxyState = msg.proxyState;
     surveyName = msg.pendingSurvey;
@@ -103,7 +140,9 @@ async function init() {
         View.setView(viewErrorName, "internalError");
         return;
     }
-  });
+  }
+
+  port.onMessage.addListener(async msg => processMessage(msg));
 }
 
 init();
