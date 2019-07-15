@@ -31,8 +31,9 @@ const PROXY_PORT = 8001;
 // How early we want to re-generate the tokens (in secs)
 const EXPIRE_DELTA = 3600
 
-// This URL must be formatted
-const LEARN_MORE_URL = "https://support.mozilla.org/1/firefox/%VERSION%/%OS%/%LOCALE%/cloudflare"
+// These URLs must be formatted
+const LEARN_MORE_URL = "https://support.mozilla.org/1/firefox/%VERSION%/%OS%/%LOCALE%/cloudflare";
+const HELP_AND_SUPPORT_URL = "https://support.mozilla.org/1/firefox/%VERSION%/%OS%/%LOCALE%/firefox-private-network"
 
 // Enable debugging
 let debuggingMode = false;
@@ -679,6 +680,10 @@ class Background {
           this.manageAccount();
           break;
 
+        case "helpAndSupport":
+          this.helpAndSupport();
+          break;
+
         case "openUrl":
           this.openUrl(message.data.url);
           break;
@@ -717,6 +722,11 @@ class Background {
   manageAccount() {
     let contentServer = this.fxaEndpoints.get(FXA_ENDPOINT_ISSUER);
     this.openUrl(contentServer + "/settings");
+  }
+
+  async helpAndSupport() {
+    let url = await browser.experiments.proxyutils.formatURL(HELP_AND_SUPPORT_URL);
+    this.openUrl(url);
   }
 
   openUrl(url) {

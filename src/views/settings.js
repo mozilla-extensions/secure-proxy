@@ -12,7 +12,7 @@ class ViewSettings extends View {
       <ul class="settingsLinks">
         <li><strong>${this.getTranslation("viewSettings-accountLabel")}</strong><span class="end">${data.userInfo.email}</span></li>
         <li><a href="#" id="manageAccountAnchor">${this.getTranslation("viewSettings-manageAccountLink")}</a></li>
-        <li><a href="TODO">${this.getTranslation("viewSettings-helpAndSupportLink")}</a></li>
+        <li><a href="#" id="helpAndSupport">${this.getTranslation("viewSettings-helpAndSupportLink")}</a></li>
         <li><a href="#" id="giveUsFeedback">${this.getTranslation("viewSettings-giveUsFeedbackLink")}</a></li>
         <li><a href="TODO">${this.getTranslation("viewSettings-privacyPolicyLink")}</a></li>
         <li><a href="TODO">${this.getTranslation("viewSettings-termsAndConditionsLink")}</a></li>
@@ -28,6 +28,10 @@ class ViewSettings extends View {
 
     if (e.target.id == "giveUsFeedback") {
       View.sendMessage("openUrl", {url: "https://qsurvey.mozilla.com/s3/fx-private-network-beta-feedback"});
+    }
+
+    if (e.target.id == "helpAndSupport") {
+      View.sendMessage("helpAndSupport");
     }
 
     e.preventDefault();
