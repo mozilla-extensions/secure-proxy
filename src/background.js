@@ -384,12 +384,6 @@ class Background {
       return requestInfo.url === CONNECTING_HTTPS_REQUEST;
     }
 
-    // Verify originUrl is never undefined in normal content
-    if (requestInfo.originUrl === undefined &&
-        requestInfo.frameInfo === 0) {
-      return false;
-    }
-
     // Just to avoid recreating the URL several times, let's cache it.
     const url = new URL(requestInfo.url);
 
