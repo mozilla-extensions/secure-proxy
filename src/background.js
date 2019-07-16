@@ -62,7 +62,9 @@ class Background {
     try {
       const capitivePortalUrl = new URL(await browser.experiments.proxyutils.getCaptivePortalURL());
       this.captivePortalOrigin = capitivePortalUrl.origin;
-    } catch (e) {}
+    } catch (e) {
+      // ignore
+    }
 
     // Ask the learn more link.
     this.learnMoreUrl = await browser.experiments.proxyutils.formatURL(LEARN_MORE_URL);
