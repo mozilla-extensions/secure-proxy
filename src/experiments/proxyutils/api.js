@@ -17,6 +17,9 @@ ChromeUtils.defineModuleGetter(this, "ObjectUtils",
                                "resource://gre/modules/ObjectUtils.jsm");
 ChromeUtils.defineModuleGetter(this, "setTimeout",
                                "resource://gre/modules/Timer.jsm");
+ChromeUtils.defineModuleGetter(this, "ExtensionPreferencesManager",
+                               "resource://gre/modules/ExtensionPreferencesManager.jsm");
+
 
 // Cribbed from browser.js with some changes to allow for our strings
 let ConfirmationHint = {
@@ -130,6 +133,14 @@ let ConfirmationHint = {
   },
 };
 
+ExtensionPreferencesManager.addSetting("network.trr.mode", {
+  prefNames: ["network.trr.mode"],
+
+  setCallback(value) {
+    return { [this.prefNames[0]]: value };
+  },
+});
+
 this.proxyutils = class extends ExtensionAPI {
  constructor(...args) {
     super(...args);
@@ -142,6 +153,27 @@ this.proxyutils = class extends ExtensionAPI {
     return {
       experiments: {
         proxyutils: {
+          DNSoverHTTPEnabled: {
+            async get(details) {
+              return {
+                levelOfControl: "controllable_by_this_extension",
+                value: Preferences.get("network.trr.mode"),
+              };
+            },
+            set(details) {
+              return ExtensionPreferencesManager.setSetting(
+                context.extension.id,
+                "network.trr.mode",
+                details.value
+              );
+            },
+            clear(details) {
+              return ExtensionPreferencesManager.removeSetting(
+                context.extension.id,
+                "network.trr.mode");
+            },
+          },
+
           onChanged: new EventManager({
             context,
             name: "proxyutils.onChanged",
@@ -169,7 +201,7 @@ this.proxyutils = class extends ExtensionAPI {
 
           async formatURL(url) {
             return Services.urlFormatter.formatURL(url);
-          }
+          },
         },
       },
     };
