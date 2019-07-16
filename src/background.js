@@ -359,7 +359,9 @@ class Background {
     function isProtocolSupported(url) {
       return url.protocol == "http:" ||
              url.protocol == "https:" ||
-             url.protocol == "ftp:";
+             url.protocol == "ftp:" ||
+             url.protocol == "wss:" ||
+             url.protocol == "ws:";
     }
 
     function isLocal(url) {
