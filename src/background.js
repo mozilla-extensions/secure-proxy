@@ -1,7 +1,7 @@
 // TODO whilst the proxy is enabled set media.peerconnection.enabled to false.
 
 // FxA openID configuration
-const FXA_OPENID = "https://stomlinson.dev.lcip.org/.well-known/openid-configuration";
+const FXA_OPENID = "https://latest.dev.lcip.org/.well-known/openid-configuration";
 
 // List of attributes for the openID configuration
 const FXA_ENDPOINT_PROFILE = "userinfo_endpoint";
@@ -13,7 +13,7 @@ const FXA_PROFILE_SCOPE = "profile";
 const FXA_PROXY_SCOPE = "https://identity.mozilla.com/apps/secure-proxy";
 
 // The client ID for this extension
-const FXA_CLIENT_ID = "a8c528140153d1c6";
+const FXA_CLIENT_ID = "1c7882c43994658e";
 
 // Token expiration time
 const FXA_EXP_TIME = 21600 // 6 hours
