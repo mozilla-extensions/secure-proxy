@@ -3,7 +3,7 @@
   "name": "__MSG_extensionName__",
   "default_locale": "en_US",
   "version": "1.0.0",
-  "author": "Mozilla Developers",
+  "author": "Firefox",
   "applications": {
     "gecko": {
       "id": "secure-proxy@mozilla.com",
@@ -11,12 +11,17 @@
     }
   },
 
-  "description": "",
+  "description": "__MSG_extensionDescription__",
   "browser_action": {
     "browser_style": true,
     "default_icon": "img/badge_off.svg",
     "default_title": "__MSG_extensionName__",
     "default_popup": "popup.html"
+  },
+
+  "icons": {
+    "48": "icon.svg",
+    "96": "icon.svg"
   },
 
   "incognito": "spanning",
