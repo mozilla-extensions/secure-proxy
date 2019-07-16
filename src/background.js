@@ -51,6 +51,7 @@ class Background {
     this.fxaEndpoints = new Map();
     this.pendingErrorFetch = false;
     this.proxyState = PROXY_STATE_UNKNOWN;
+    this.webSocketConnectionIsolationCounter = 0;
   }
 
   async init() {
@@ -334,6 +335,7 @@ class Background {
 
   proxyRequestCallback(requestInfo) {
     let shouldProxyRequest = this.shouldProxyRequest(requestInfo);
+    let additionalConnectionIsolation = this.additionalConnectionIsolation(requestInfo);
 
     log("proxy request for " + requestInfo.url + " => " + shouldProxyRequest);
 
@@ -343,7 +345,7 @@ class Background {
         host: PROXY_HOST,
         port: PROXY_PORT,
         proxyAuthorizationHeader: this.proxyAuthorizationHeader,
-        connectionIsolationKey: this.proxyAuthorizationHeader,
+        connectionIsolationKey: this.proxyAuthorizationHeader + additionalConnectionIsolation,
       }];
     }
 
@@ -421,6 +423,21 @@ class Background {
 
     this.maybeStoreUsageDays();
     return true;
+  }
+
+  additionalConnectionIsolation(requestInfo) {
+    function isWebsocket(url) {
+      return url.protocol == "wss:" || url.protocol == "ws:";
+    }
+
+    const url = new URL(requestInfo.url);
+
+    if (isWebsocket(url)) {
+      const isolation = ++this.webSocketConnectionIsolationCounter;
+      return `-ws(${isolation})`;
+    }
+
+    return "";
   }
 
   async auth() {
