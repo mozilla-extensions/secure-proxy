@@ -502,6 +502,9 @@ class Background {
   async generateToken(refreshTokenData, scope) {
     log("generate token - scope: " + scope);
 
+    // See https://github.com/mozilla/fxa/blob/0ed71f677637ee5f817fa17c265191e952f5500e/packages/fxa-auth-server/fxa-oauth-server/docs/pairwise-pseudonymous-identifiers.md
+    const ppid_seed = Math.floor(Math.random() * 1024);
+
     const headers = new Headers();
     headers.append('Content-Type', 'application/json');
 
@@ -515,6 +518,7 @@ class Background {
         refresh_token: refreshTokenData.refresh_token,
         scope: scope,
         ttl: FXA_EXP_TIME,
+        ppid_seed,
         /* eslint-enable camelcase*/
       })
     });
@@ -577,70 +581,33 @@ class Background {
       return false;
     }
 
-    let now = performance.timeOrigin + performance.now();
-    let nowInSecs = Math.round(now / 1000);
-
-    let minProxyDiff = 0;
-    let minProfileDiff = 0;
-
-    let { proxyTokenData } = await browser.storage.local.get(["proxyTokenData"]);
-    if (proxyTokenData) {
-      // If we are close to the expiration time, we have to generate the token.
-      // We want to keep a big time margin: 1 hour seems good enough.
-      let diff = proxyTokenData.received_at + proxyTokenData.expires_in - nowInSecs - EXPIRE_DELTA;
-      if (diff < EXPIRE_DELTA) {
-        proxyTokenData = null;
-      } else {
-        minProxyDiff = diff;
-      }
+    let proxyTokenData = await this.maybeGenerateToken("proxyTokenData", refreshTokenData, FXA_PROXY_SCOPE);
+    if (proxyTokenData === false) {
+      return false;
     }
 
-    if (!proxyTokenData) {
-      proxyTokenData = await this.generateToken(refreshTokenData, FXA_PROXY_SCOPE);
-      if (!proxyTokenData) {
-        return false;
-      }
-
-      minProxyDiff = proxyTokenData.received_at + proxyTokenData.expires_in - nowInSecs - EXPIRE_DELTA;
-    }
-
-    let profileTokenGenerated = false;
-
-    let { profileTokenData } = await browser.storage.local.get(["profileTokenData"]);
-    if (profileTokenData) {
-      // diff - EXPIRE_DELTA
-      let diff = profileTokenData.received_at + profileTokenData.expires_in - nowInSecs - EXPIRE_DELTA;
-      if (diff < EXPIRE_DELTA) {
-        profileTokenData = null;
-      } else {
-        minProfileDiff = diff;
-      }
-    }
-
-    if (!profileTokenData) {
-      profileTokenData = await this.generateToken(refreshTokenData, FXA_PROFILE_SCOPE);
-      if (!profileTokenData) {
-        return false;
-      }
-
-      profileTokenGenerated = true;
-
-      minProfileDiff = profileTokenData.received_at + profileTokenData.expires_in - nowInSecs - EXPIRE_DELTA;
+    let profileTokenData = await this.maybeGenerateToken("profileTokenData", refreshTokenData, FXA_PROFILE_SCOPE);
+    if (profileTokenData === false) {
+      return false;
     }
 
     let { profileData } = await browser.storage.local.get(["profileData"]);
     // Let's obtain the profile data for the user.
-    if (!profileData || profileTokenGenerated) {
-      profileData = await this.generateProfileData(profileTokenData);
+    if (!profileData || profileTokenData.tokenGenerated) {
+      profileData = await this.generateProfileData(profileTokenData.tokenData);
       if (!profileData) {
         return false;
       }
     }
 
-    await browser.storage.local.set({proxyTokenData, profileTokenData, profileData});
+    await browser.storage.local.set({
+      proxyTokenData: proxyTokenData.tokenData,
+      profileTokenData: profileTokenData.tokenData,
+      profileData,
+    });
 
     // Let's pick the min time diff.
-    let minDiff = Math.min(minProxyDiff, minProfileDiff);
+    let minDiff = Math.min(proxyTokenData.minDiff, profileTokenData.minDiff);
 
     // Let's schedule the token rotation.
     this.tokenGenerationTimeout = setTimeout(async _ => {
@@ -651,9 +618,45 @@ class Background {
     }, minDiff * 1000);
 
     // Let's cache the header.
-    this.proxyAuthorizationHeader = proxyTokenData.token_type + " " + proxyTokenData.access_token;
+    this.proxyAuthorizationHeader = proxyTokenData.tokenData.token_type + " " + proxyTokenData.tokenData.access_token;
 
     return true;
+  }
+
+  async maybeGenerateToken(tokenName, refreshTokenData, scope) {
+    let minDiff = 0;
+    let tokenGenerated = false;
+
+    let now = performance.timeOrigin + performance.now();
+    let nowInSecs = Math.round(now / 1000);
+
+    let { tokenData } = await browser.storage.local.get([tokenName]);
+    if (tokenData) {
+      // If we are close to the expiration time, we have to generate the token.
+      // We want to keep a big time margin: 1 hour seems good enough.
+      let diff = tokenData.received_at + tokenData.expires_in - nowInSecs - EXPIRE_DELTA;
+      if (diff < EXPIRE_DELTA) {
+        tokenData = null;
+      } else {
+        minDiff = diff;
+      }
+    }
+
+    if (!tokenData) {
+      tokenData = await this.generateToken(refreshTokenData, scope);
+      if (!tokenData) {
+        return false;
+      }
+
+      minDiff = tokenData.received_at + tokenData.expires_in - nowInSecs - EXPIRE_DELTA;
+      tokenGenerated = true;
+    }
+
+    return {
+      minDiff,
+      tokenData,
+      tokenGenerated,
+    }
   }
 
   async authFailure() {
