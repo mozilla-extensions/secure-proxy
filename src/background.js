@@ -1,5 +1,3 @@
-// TODO whilst the proxy is enabled set media.peerconnection.enabled to false.
-
 // FxA openID configuration
 const FXA_OPENID = "https://latest.dev.lcip.org/.well-known/openid-configuration";
 
@@ -101,9 +99,7 @@ class Background {
 
       if (this.proxyState == PROXY_STATE_CONNECTING &&
           details.statusCode == 200) {
-        browser.experiments.proxyutils.DNSoverHTTPEnabled.set({value: 2});
-        this.proxyState = PROXY_STATE_ACTIVE;
-        this.updateUI();
+        this.connectionSucceeded();
       }
     }, {urls: ["<all_urls>"]});
 
@@ -275,11 +271,10 @@ class Background {
       }
     }
 
-    // If we are here, the proxy is not active. At least we are in connecting
-    // state. It's time to set the default TRR mode.
+    // If we are here we are not active yet. At least we are connecting.
+    // Restore default settings.
     if (currentState != this.proxyState) {
-      // This is async, but we don't care about waiting for the promise
-      // resolution.
+      this.restoreMediaPeerConnections();
       browser.experiments.proxyutils.DNSoverHTTPEnabled.clear({});
     }
 
@@ -789,6 +784,21 @@ class Background {
       version: self.version,
       usageDays: this.lastUsageDays.count,
     }
+  }
+
+  disableMediaPeerConnections() {
+    browser.privacy.network.peerConnectionEnabled.set({ value: false });
+  }
+
+  restoreMediaPeerConnections() {
+    browser.privacy.network.peerConnectionEnabled.clear({});
+  }
+
+  connectionSucceeded() {
+    browser.experiments.proxyutils.DNSoverHTTPEnabled.set({value: 2});
+    this.disableMediaPeerConnections();
+    this.proxyState = PROXY_STATE_ACTIVE;
+    this.updateUI();
   }
 }
 
