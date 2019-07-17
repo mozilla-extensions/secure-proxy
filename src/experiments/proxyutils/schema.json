@@ -57,6 +57,24 @@
             "description": "the URL to format"
           }
         ]
+      },
+      {
+        "name": "loadNetError",
+        "type": "function",
+        "async": true,
+        "description": "Loads a net error",
+        "parameters": [
+          {
+            "name": "errorCode",
+            "type": "integer",
+            "description": "the neterror to load"
+          },
+          {
+            "name": "tabId",
+            "type": "integer",
+            "description": "the tabId to load it into"
+          }
+        ]
       }
     ],
     "properties": {

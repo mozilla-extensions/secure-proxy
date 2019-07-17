@@ -20,7 +20,6 @@ ChromeUtils.defineModuleGetter(this, "setTimeout",
 ChromeUtils.defineModuleGetter(this, "ExtensionPreferencesManager",
                                "resource://gre/modules/ExtensionPreferencesManager.jsm");
 
-
 // Cribbed from browser.js with some changes to allow for our strings
 let ConfirmationHint = {
   /**
@@ -149,6 +148,27 @@ this.proxyutils = class extends ExtensionAPI {
 
   getAPI(context) {
     const EventManager = ExtensionCommon.EventManager;
+    let {
+      Management: {
+        global: { tabTracker },
+      },
+    } = ChromeUtils.import("resource://gre/modules/Extension.jsm", null);
+    let { extension } = context;
+
+    let { tabManager, windowManager } = extension;
+
+    function getTabOrActive(tabId) {
+      let tab =
+        tabId !== null ? tabTracker.getTab(tabId) : tabTracker.activeTab;
+      if (!context.canAccessWindow(tab.ownerGlobal)) {
+        throw new ExtensionError(
+          tabId === null
+            ? "Cannot access activeTab"
+            : `Invalid tab ID: ${tabId}`
+        );
+      }
+      return tab;
+    }
 
     return {
       experiments: {
@@ -202,6 +222,18 @@ this.proxyutils = class extends ExtensionAPI {
           async formatURL(url) {
             return Services.urlFormatter.formatURL(url);
           },
+
+          async loadNetError(errorCode, tabId) {
+            let nativeTab = getTabOrActive(tabId);
+            let uri = Services.uriFixup.createExposableURI(nativeTab.linkedBrowser.currentURI);
+            let errorEnum = "NS_ERROR_PROXY_BAD_GATEWAY";
+            if (errorCode == 407 && errorCode == 429) {
+              errorEnum = "NS_ERROR_UNKNOWN_PROXY_HOST";
+            }
+            const code =  `let spec = "${uri.spec}"; let uri = Services.uriFixup.createExposableURI(Services.io.newURI(spec)); docShell.displayLoadError(Cr.${errorEnum}, uri, docShell.failedChannel);`;
+            const mm = nativeTab.linkedBrowser.messageManager;
+            mm.loadFrameScript(`data:,${encodeURI(code)}`, false);
+          }
         },
       },
     };
