@@ -82,9 +82,7 @@ class Background {
     browser.proxy.onRequest.addListener((requestInfo) => this.proxyRequestCallback(requestInfo),
                                         {urls: ["<all_urls>"]}, ["requestHeaders"]);
 
-
-    // The proxy returns errors that are warped which we should show a real looking error page for
-    // These only occur over http and we can't really handle sub resources
+    // Handle header errors before we render the response
     browser.webRequest.onHeadersReceived.addListener(details => {
       if (this.proxyState == PROXY_STATE_OFFLINE) {
         return;
@@ -100,6 +98,8 @@ class Background {
         this.processPotentialNetworkError();
       }
 
+      // The proxy returns errors that are warped which we should show a real looking error page for
+      // These only occur over http and we can't really handle sub resources
       if ([502, 407, 429].includes(details.statusCode) &&
           details.tabId &&
           details.type == "main_frame" &&
@@ -107,8 +107,6 @@ class Background {
             return header.name == "cf-warp-error" && header.value == 1;
           })) {
         browser.experiments.proxyutils.loadNetError(details.statusCode, details.tabId);
-
-        return { cancel: true };
       }
     }, {urls: ["http://*/*"]}, ["responseHeaders", "blocking"]);
 
