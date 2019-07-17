@@ -473,6 +473,9 @@ class Background {
 
     log("Authentication completed");
 
+    // We are in an inactive state at this point.
+    this.proxyState = PROXY_STATE_INACTIVE;
+
     // Let's enable the proxy.
     await this.enableProxy(true);
   }
