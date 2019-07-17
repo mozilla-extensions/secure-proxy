@@ -84,28 +84,44 @@ class Background {
     browser.proxy.onRequest.addListener((requestInfo) => this.proxyRequestCallback(requestInfo),
                                         {urls: ["<all_urls>"]}, ["requestHeaders"]);
 
-    // We can receive http error status codes onCompleted if the connection is
-    // a plain/text (HTTP, no HTTPS). In case they are proxy errors (such as
-    // 407 or 429), we cannot trust them, because it's too easy for a web
-    // server to send them. Instead, we fetch a HTTPS request. If the proxy is
-    // blocking us for real, we will receive the same status code in
-    // onErrorOccurred.
-    browser.webRequest.onCompleted.addListener(details => {
+
+    // The proxy returns errors that are warped which we should show a real looking error page for
+    // These only occur over http and we can't really handle sub resources
+    browser.webRequest.onHeadersReceived.addListener(details => {
       if (this.proxyState == PROXY_STATE_OFFLINE) {
         return;
       }
 
+      // We can receive http error status codes onCompleted if the connection is
+      // a plain/text (HTTP, no HTTPS). In case they are proxy errors (such as
+      // 407 or 429), we cannot trust them, because it's too easy for a web
+      // server to send them. Instead, we fetch a HTTPS request. If the proxy is
+      // blocking us for real, we will receive the same status code in
+      // onErrorOccurred.
       if (details.statusCode == 407 || details.statusCode == 429) {
         this.processPotentialNetworkError();
       }
 
+      if ([502, 407, 429].includes(details.statusCode) &&
+          details.tabId &&
+          details.type == "main_frame" &&
+          details.responseHeaders.find((header) => {
+            return header.name == "cf-warp-error" && header.value == 1;
+          })) {
+        browser.experiments.proxyutils.loadNetError(details.statusCode, details.tabId);
+
+        return { cancel: true };
+      }
+    }, {urls: ["http://*/*"]}, ["responseHeaders", "blocking"]);
+
+    browser.webRequest.onHeadersReceived.addListener(details => {
       if (this.proxyState == PROXY_STATE_CONNECTING &&
           details.statusCode == 200) {
         browser.experiments.proxyutils.DNSoverHTTPEnabled.set({value: 2});
         this.proxyState = PROXY_STATE_ACTIVE;
         this.updateUI();
       }
-    }, {urls: ["<all_urls>"]});
+    }, {urls: [CONNECTING_HTTPS_REQUEST]}, ["responseHeaders", "blocking"]);
 
     browser.webRequest.onErrorOccurred.addListener(details => {
       this.processNetworkError(details.error);
