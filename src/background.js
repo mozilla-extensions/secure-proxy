@@ -106,7 +106,8 @@ class Background {
           details.responseHeaders.find((header) => {
             return header.name == "cf-warp-error" && header.value == 1;
           })) {
-        browser.experiments.proxyutils.loadNetError(details.statusCode, details.tabId);
+        browser.experiments.proxyutils.loadNetError(details.statusCode, details.url, details.tabId);
+        return {cancel: true};
       }
     }, {urls: ["http://*/*"]}, ["responseHeaders", "blocking"]);
 

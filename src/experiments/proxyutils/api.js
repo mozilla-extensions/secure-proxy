@@ -223,14 +223,14 @@ this.proxyutils = class extends ExtensionAPI {
             return Services.urlFormatter.formatURL(url);
           },
 
-          async loadNetError(errorCode, tabId) {
+          async loadNetError(errorCode, url, tabId) {
             let nativeTab = getTabOrActive(tabId);
-            let uri = Services.uriFixup.createExposableURI(nativeTab.linkedBrowser.currentURI);
+            let uri = Services.uriFixup.createExposableURI(Services.io.newURI(url));
             let errorEnum = "NS_ERROR_PROXY_BAD_GATEWAY";
             if (errorCode == 407 && errorCode == 429) {
               errorEnum = "NS_ERROR_UNKNOWN_PROXY_HOST";
             }
-            const code =  `let spec = "${uri.spec}"; let uri = Services.uriFixup.createExposableURI(Services.io.newURI(spec)); docShell.displayLoadError(Cr.${errorEnum}, uri, docShell.failedChannel);`;
+            const code = `let spec = "${uri.spec}"; let uri = Services.io.newURI(spec); docShell.displayLoadError(Cr.${errorEnum}, uri, docShell.failedChannel);`;
             const mm = nativeTab.linkedBrowser.messageManager;
             mm.loadFrameScript(`data:,${encodeURI(code)}`, false);
           }
