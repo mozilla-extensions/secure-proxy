@@ -2,7 +2,7 @@
   "manifest_version": 2,
   "name": "__MSG_extensionName__",
   "default_locale": "en_US",
-  "version": "0.1",
+  "version": "0.2",
   "author": "Firefox",
   "applications": {
     "gecko": {
@@ -33,12 +33,13 @@
       "cookies",
       "identity",
       "management",
+      "privacy",
+      "proxy",
       "storage",
       "tabs",
-      "webRequestBlocking",
+      "webNavigation",
       "webRequest",
-      "proxy",
-      "webNavigation"
+      "webRequestBlocking"
   ],
 
   "experiment_apis": {
