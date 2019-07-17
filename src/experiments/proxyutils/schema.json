@@ -58,6 +58,12 @@
           }
         ]
       }
-    ]
+    ],
+    "properties": {
+      "DNSoverHTTPEnabled": {
+        "$ref": "types.Setting",
+        "description": "This property controls DOH"
+      }
+    }
   }
 ]

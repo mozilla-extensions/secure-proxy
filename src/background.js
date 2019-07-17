@@ -78,7 +78,6 @@ class Background {
          count: 0,
        };
     }
-
     this.lastUsageDays = lastUsageDays;
 
     // Proxy configuration
@@ -102,6 +101,7 @@ class Background {
 
       if (this.proxyState == PROXY_STATE_CONNECTING &&
           details.statusCode == 200) {
+        browser.experiments.proxyutils.DNSoverHTTPEnabled.set({value: 2});
         this.proxyState = PROXY_STATE_ACTIVE;
         this.updateUI();
       }
@@ -273,6 +273,14 @@ class Background {
         this.proxyState = PROXY_STATE_CONNECTING;
         this.testProxyConnection();
       }
+    }
+
+    // If we are here, the proxy is not active. At least we are in connecting
+    // state. It's time to set the default TRR mode.
+    if (currentState != this.proxyState) {
+      // This is async, but we don't care about waiting for the promise
+      // resolution.
+      browser.experiments.proxyutils.DNSoverHTTPEnabled.clear({});
     }
 
     log("computing status - final: " + this.proxyState);
