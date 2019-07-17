@@ -11,7 +11,7 @@ const FXA_PROFILE_SCOPE = "profile";
 const FXA_PROXY_SCOPE = "https://identity.mozilla.com/apps/secure-proxy";
 
 // The client ID for this extension
-const FXA_CLIENT_ID = "1c7882c43994658e";
+const FXA_CLIENT_ID = "a8c528140153d1c6";
 
 // Token expiration time
 const FXA_EXP_TIME = 21600 // 6 hours
