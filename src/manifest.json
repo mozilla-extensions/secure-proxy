@@ -33,12 +33,13 @@
       "cookies",
       "identity",
       "management",
+      "privacy",
+      "proxy",
       "storage",
       "tabs",
-      "webRequestBlocking",
+      "webNavigation",
       "webRequest",
-      "proxy",
-      "webNavigation"
+      "webRequestBlocking"
   ],
 
   "experiment_apis": {
