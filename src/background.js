@@ -99,10 +99,7 @@ class Background {
 
       if (this.proxyState == PROXY_STATE_CONNECTING &&
           details.statusCode == 200) {
-        browser.experiments.proxyutils.DNSoverHTTPEnabled.set({value: 2});
-        this.disableMediaPeerConnections();
-        this.proxyState = PROXY_STATE_ACTIVE;
-        this.updateUI();
+        this.connectionSucceeded();
       }
     }, {urls: ["<all_urls>"]});
 
@@ -795,6 +792,13 @@ class Background {
 
   restoreMediaPeerConnections() {
     browser.privacy.network.peerConnectionEnabled.clear({});
+  }
+
+  connectionSucceeded() {
+    browser.experiments.proxyutils.DNSoverHTTPEnabled.set({value: 2});
+    this.disableMediaPeerConnections();
+    this.proxyState = PROXY_STATE_ACTIVE;
+    this.updateUI();
   }
 }
 
