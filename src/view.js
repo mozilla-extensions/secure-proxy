@@ -1,3 +1,4 @@
+import {Template} from './template.js';
 let views = new Map();
 
 let currentView = null;
@@ -27,7 +28,7 @@ export class View {
 
     console.log(`Show: ${name}`);
     let template = currentView.show(data);
-    if (template && template.escaped) {
+    if (template && template instanceof Template) {
       content.addEventListener("click", currentView);
       content.addEventListener("submit", currentView);
       content.innerHTML = template;
