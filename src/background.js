@@ -143,15 +143,18 @@ class Background {
   }
 
   async run() {
-    this.proxyState = PROXY_STATE_UNKNOWN;
-
-    // Let's fetch the well-known data.
-    if (this.fxaEndpoints.size === 0 &&
-        !await this.fetchWellKnownData()) {
-      this.proxyState = PROXY_STATE_OFFLINE;
-      this.updateUI();
-      return;
+    if (this.fxaEndpoints.size === 0) {
+      this.proxyState = PROXY_STATE_LOADING;
+      // Let's fetch the well-known data.
+      let wellKnownData = await this.fetchWellKnownData();
+      if (!wellKnownData) {
+        this.proxyState = PROXY_STATE_OFFLINE;
+        this.updateUI();
+        return;
+      }
     }
+    this.proxyState = PROXY_STATE_UNKNOWN;
+    this.updateUI();
 
     // Here we generate the current proxy state.
     await this.computeProxyState();

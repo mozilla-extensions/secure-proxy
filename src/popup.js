@@ -67,6 +67,9 @@ async function init() {
     View.showBack(false);
 
     switch (proxyState) {
+      case PROXY_STATE_LOADING:
+        // We want to keep the 'loading' view.
+        return;
       case PROXY_STATE_UNKNOWN:
         // fall through
       case PROXY_STATE_AUTHFAILURE:

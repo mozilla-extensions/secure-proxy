@@ -46,6 +46,9 @@
   "viewConnecting": {
     "message": "Connecting to the secure server…"
   },
+  "viewLoading": {
+    "message": "Loading…"
+  },
   "viewLoginMessage":{
     "message": "Sign in to your Firefox account to start using Firefox Private Network"
   },
