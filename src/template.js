@@ -1,6 +1,5 @@
-class Template {
+export class Template {
   constructor(strings, values) {
-    this.escaped = true;
     this.values = values;
     this.strings = strings;
   }
@@ -27,11 +26,11 @@ class Template {
   potentiallyEscape(value) {
     if (typeof value === "object") {
       if (value instanceof Array) {
-        return value.forEach(val => this.potentiallyEscape(val));
+        return value.map(val => this.potentiallyEscape(val)).join("");
       }
 
       // If we are an escaped template let join call toString on it
-      if (value.escaped) {
+      if (value instanceof Template) {
         return value;
       }
 
