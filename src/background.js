@@ -461,6 +461,9 @@ class Background {
   async auth() {
     log("Starting the authentication");
 
+    // non authenticate state.
+    this.proxyState = PROXY_STATE_UNKNOWN;
+
     // Let's do the authentication. This will generate a token that is going to
     // be used just to obtain the other ones.
     let refreshTokenData = await this.generateRefreshToken();
