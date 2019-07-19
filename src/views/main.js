@@ -55,10 +55,6 @@ class ViewMain extends View {
     await View.sendMessage("setEnabledState", {enabledState: this.proxyEnabled});
   }
 
-  handleEvent(e) {
-    this.toggleProxy();
-  }
-
   stateButtonHandler() {
     this.toggleProxy();
   }
