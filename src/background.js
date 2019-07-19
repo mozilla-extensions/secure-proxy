@@ -298,6 +298,7 @@ class Background {
     if (currentState != this.proxyState) {
       this.restoreMediaPeerConnections();
       this.resetDNSoverHTTP()
+      this.enableFTP();
     }
 
     log("computing status - final: " + this.proxyState);
@@ -827,6 +828,7 @@ class Background {
 
   connectionSucceeded() {
     this.activateDNSoverHTTP();
+    this.disableFTP();
     this.disableMediaPeerConnections();
     this.proxyState = PROXY_STATE_ACTIVE;
     this.updateUI();
@@ -840,6 +842,14 @@ class Background {
   resetDNSoverHTTP() {
     browser.experiments.proxyutils.DNSoverHTTPEnabled.clear({});
     browser.experiments.proxyutils.DNSoverHTTPBootstrapAddress.clear({});
+  }
+
+  enableFTP() {
+    browser.experiments.proxyutils.FTPEnabled.clear({});
+  }
+
+  disableFTP() {
+    browser.experiments.proxyutils.FTPEnabled.set({value: false});
   }
 }
 
