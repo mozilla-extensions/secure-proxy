@@ -140,6 +140,14 @@ ExtensionPreferencesManager.addSetting("network.trr.mode", {
   },
 });
 
+ExtensionPreferencesManager.addSetting("network.trr.bootstrapAddress", {
+  prefNames: ["network.trr.bootstrapAddress"],
+
+  setCallback(value) {
+    return { [this.prefNames[0]]: value };
+  },
+});
+
 this.proxyutils = class extends ExtensionAPI {
  constructor(...args) {
     super(...args);
@@ -191,6 +199,27 @@ this.proxyutils = class extends ExtensionAPI {
               return ExtensionPreferencesManager.removeSetting(
                 context.extension.id,
                 "network.trr.mode");
+            },
+          },
+
+          DNSoverHTTPBootstrapAddress: {
+            async get(details) {
+              return {
+                levelOfControl: "controllable_by_this_extension",
+                value: Preferences.get("network.trr.bootstrapAddress"),
+              };
+            },
+            set(details) {
+              return ExtensionPreferencesManager.setSetting(
+                context.extension.id,
+                "network.trr.bootstrapAddress",
+                details.value
+              );
+            },
+            clear(details) {
+              return ExtensionPreferencesManager.removeSetting(
+                context.extension.id,
+                "network.trr.bootstrapAddress");
             },
           },
 
