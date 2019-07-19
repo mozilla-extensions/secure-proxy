@@ -33,6 +33,10 @@ const EXPIRE_DELTA = 3600
 const LEARN_MORE_URL = "https://support.mozilla.org/1/firefox/%VERSION%/%OS%/%LOCALE%/cloudflare";
 const HELP_AND_SUPPORT_URL = "https://support.mozilla.org/1/firefox/%VERSION%/%OS%/%LOCALE%/firefox-private-network"
 
+// Parameters for DNS over HTTP
+const DOH_MODE = 3;
+const DOH_BOOTSTRAP_ADDRESS = "1.1.1.1"
+
 // Enable debugging
 let debuggingMode = false;
 function log(msg) {
@@ -290,7 +294,7 @@ class Background {
     // Restore default settings.
     if (currentState != this.proxyState) {
       this.restoreMediaPeerConnections();
-      browser.experiments.proxyutils.DNSoverHTTPEnabled.clear({});
+      this.resetDNSoverHTTP()
     }
 
     log("computing status - final: " + this.proxyState);
@@ -819,10 +823,20 @@ class Background {
   }
 
   connectionSucceeded() {
-    browser.experiments.proxyutils.DNSoverHTTPEnabled.set({value: 2});
+    this.activateDNSoverHTTP();
     this.disableMediaPeerConnections();
     this.proxyState = PROXY_STATE_ACTIVE;
     this.updateUI();
+  }
+
+  activateDNSoverHTTP() {
+    browser.experiments.proxyutils.DNSoverHTTPEnabled.set({value: DOH_MODE});
+    browser.experiments.proxyutils.DNSoverHTTPBootstrapAddress.set({value: DOH_BOOTSTRAP_ADDRESS});
+  }
+
+  resetDNSoverHTTP() {
+    browser.experiments.proxyutils.DNSoverHTTPEnabled.clear({});
+    browser.experiments.proxyutils.DNSoverHTTPBootstrapAddress.clear({});
   }
 }
 

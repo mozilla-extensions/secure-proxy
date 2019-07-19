@@ -85,7 +85,11 @@
     "properties": {
       "DNSoverHTTPEnabled": {
         "$ref": "types.Setting",
-        "description": "This property controls DOH"
+        "description": "This property controls DOH mode"
+      },
+      "DNSoverHTTPBootstrapAddress": {
+        "$ref": "types.Setting",
+        "description": "This property controls DOH bootstrap address"
       }
     }
   }
