@@ -1,5 +1,8 @@
 /* eslint-disable no-unused-vars */
 
+// We are loading resources
+const PROXY_STATE_LOADING = "loading";
+
 // We are offline.
 const PROXY_STATE_OFFLINE = "offline";
 
