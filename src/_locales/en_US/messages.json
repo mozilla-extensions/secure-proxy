@@ -47,7 +47,7 @@
     "message": "Connecting to the secure server…"
   },
   "viewLoading": {
-    "message": "Loading…"
+    "message": "Establishing connection to Firefox Private Network. This should take just a few more moments."
   },
   "viewLoginMessage":{
     "message": "Sign in to your Firefox account to start using Firefox Private Network"
