@@ -7,7 +7,7 @@ class ViewLogin extends View {
     View.setState("login");
 
     let text;
-    if (proxyState === PROXY_STATE_UNKNOWN) {
+    if (proxyState === PROXY_STATE_UNAUTHENTICATED) {
       text = "viewLoginMessage";
     } else {
       text = "viewAuthFailure";
