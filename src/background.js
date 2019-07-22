@@ -405,7 +405,12 @@ class Background {
       return false;
     }
 
+    // We want to continue the sending of requests to the proxy even if we
+    // receive errors, in order to avoid exposing the IP when something goes
+    // wrong.
     if (this.proxyState !== PROXY_STATE_ACTIVE &&
+        this.proxyState !== PROXY_STATE_PROXYERROR &&
+        this.proxyState !== PROXY_STATE_PROXYAUTHFAILED &&
         this.proxyState !== PROXY_STATE_CONNECTING) {
       return false;
     }
