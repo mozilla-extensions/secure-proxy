@@ -8,6 +8,7 @@ import viewOfflineName from './views/offline.js';
 import viewOtherInUseName from './views/otherInUse.js';
 import viewProxyErrorName from './views/proxyError.js';
 import viewSettingsName from './views/settings.js';
+const loadingTimeout = 5000;
 
 async function init() {
   let port = browser.runtime.connect();
@@ -15,6 +16,7 @@ async function init() {
 
   // Let's start showing something...
   View.setView(viewLoadingName);
+  let timeoutId = setTimeout(_ => View.setView(viewErrorName, "loadingError"), loadingTimeout);
 
   let userInfo;
   let proxyState;
@@ -58,6 +60,10 @@ async function init() {
   });
 
   port.onMessage.addListener(async msg => {
+    if (timeoutId) {
+      clearTimeout(timeoutId);
+      timeoutId = 0;
+    }
     userInfo = msg.userInfo;
     proxyState = msg.proxyState;
     surveyName = msg.pendingSurvey;
