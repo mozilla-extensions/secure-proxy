@@ -52,7 +52,7 @@ class Background {
     this.survey = new Survey();
     this.fxaEndpoints = new Map();
     this.pendingErrorFetch = false;
-    this.proxyState = PROXY_STATE_UNKNOWN;
+    this.proxyState = PROXY_STATE_UNAUTHENTICATED;
     this.webSocketConnectionIsolationCounter = 0;
   }
 
@@ -157,7 +157,7 @@ class Background {
         return;
       }
     }
-    this.proxyState = PROXY_STATE_UNKNOWN;
+    this.proxyState = PROXY_STATE_UNAUTHENTICATED;
     this.updateUI();
 
     // Here we generate the current proxy state.
@@ -273,7 +273,7 @@ class Background {
         currentState !== PROXY_STATE_PROXYERROR &&
         currentState !== PROXY_STATE_PROXYAUTHFAILED &&
         currentState !== PROXY_STATE_OFFLINE) {
-      this.proxyState = PROXY_STATE_UNKNOWN;
+      this.proxyState = PROXY_STATE_UNAUTHENTICATED;
     }
 
     // Something else is in use.
@@ -283,7 +283,7 @@ class Background {
     }
 
     // All seems good. Let's see if the proxy should enabled.
-    if (this.proxyState == PROXY_STATE_UNKNOWN) {
+    if (this.proxyState == PROXY_STATE_UNAUTHENTICATED) {
       let { proxyState } = await browser.storage.local.get(["proxyState"]);
       if (proxyState == PROXY_STATE_INACTIVE) {
         this.proxyState = PROXY_STATE_INACTIVE;
@@ -308,7 +308,7 @@ class Background {
     log("enabling proxy: " + value);
 
     // We support the changing of proxy state only from some states.
-    if (this.proxyState != PROXY_STATE_UNKNOWN &&
+    if (this.proxyState != PROXY_STATE_UNAUTHENTICATED &&
         this.proxyState != PROXY_STATE_ACTIVE &&
         this.proxyState != PROXY_STATE_INACTIVE &&
         this.proxyState != PROXY_STATE_CONNECTING) {
@@ -469,7 +469,7 @@ class Background {
     log("Starting the authentication");
 
     // non authenticate state.
-    this.proxyState = PROXY_STATE_UNKNOWN;
+    this.proxyState = PROXY_STATE_UNAUTHENTICATED;
 
     // Let's do the authentication. This will generate a token that is going to
     // be used just to obtain the other ones.

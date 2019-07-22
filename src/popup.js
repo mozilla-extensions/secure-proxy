@@ -70,7 +70,7 @@ async function init() {
       case PROXY_STATE_LOADING:
         // We want to keep the 'loading' view.
         return;
-      case PROXY_STATE_UNKNOWN:
+      case PROXY_STATE_UNAUTHENTICATED:
         // fall through
       case PROXY_STATE_AUTHFAILURE:
         View.setView(viewLoginName, proxyState);
