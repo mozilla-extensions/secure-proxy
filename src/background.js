@@ -84,7 +84,7 @@ class Background {
 
     // Proxy configuration
     browser.proxy.onRequest.addListener((requestInfo) => this.proxyRequestCallback(requestInfo),
-                                        {urls: ["<all_urls>"]}, ["requestHeaders"]);
+                                        {urls: ["<all_urls>"]});
 
     // Handle header errors before we render the response
     browser.webRequest.onHeadersReceived.addListener(details => {
