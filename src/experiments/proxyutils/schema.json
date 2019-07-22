@@ -32,17 +32,10 @@
         ]
       },
       {
-        "name": "getCaptivePortalURL",
+        "name": "getProxyPrefs",
         "type": "function",
         "async": true,
-        "description": "Get the captive portal URL.",
-        "parameters": []
-      },
-      {
-        "name": "getDebuggingMode",
-        "type": "function",
-        "async": true,
-        "description": "Returns true if we are in debugging mode. It reads the pref secureProxy.debugging.enabled",
+        "description": "Returns an object with all the prefs we care about.",
         "parameters": []
       },
       {
