@@ -95,6 +95,10 @@
     "message": "Terms & Conditions"
   },
 
+  "loadingError": {
+    "message": "Connection timeout, check your internet connection."
+  },
+
   "internalError": {
     "message": "Internal error!"
   }
