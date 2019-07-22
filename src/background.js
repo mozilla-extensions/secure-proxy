@@ -298,6 +298,7 @@ class Background {
     if (currentState != this.proxyState) {
       this.restoreMediaPeerConnections();
       this.resetDNSoverHTTP();
+      browser.experiments.proxyutils.reloadOrDiscardTabs();
       this.resetFTP();
     }
 
