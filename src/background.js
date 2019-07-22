@@ -297,7 +297,8 @@ class Background {
     // Restore default settings.
     if (currentState != this.proxyState) {
       this.restoreMediaPeerConnections();
-      this.resetDNSoverHTTP()
+      this.resetDNSoverHTTP();
+      browser.experiments.proxyutils.reloadOrDiscardTabs();
     }
 
     log("computing status - final: " + this.proxyState);

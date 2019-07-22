@@ -19,6 +19,8 @@ ChromeUtils.defineModuleGetter(this, "setTimeout",
                                "resource://gre/modules/Timer.jsm");
 ChromeUtils.defineModuleGetter(this, "ExtensionPreferencesManager",
                                "resource://gre/modules/ExtensionPreferencesManager.jsm");
+ChromeUtils.defineModuleGetter(this, "BrowserWindowTracker",
+                               "resource:///modules/BrowserWindowTracker.jsm");
 
 // Cribbed from browser.js with some changes to allow for our strings
 let ConfirmationHint = {
@@ -262,7 +264,25 @@ this.proxyutils = class extends ExtensionAPI {
             const code = `let spec = "${uri.spec}"; let uri = Services.io.newURI(spec); docShell.displayLoadError(Cr.${errorEnum}, uri, docShell.failedChannel);`;
             const mm = nativeTab.linkedBrowser.messageManager;
             mm.loadFrameScript(`data:,${encodeURI(code)}`, false);
-          }
+          },
+
+          /**
+           * Discard the browsers of all tabs in all windows. Pinned tabs, as
+           * well as tabs for which discarding doesn't succeed (e.g. selected
+           * tabs, tabs with beforeunload listeners), are reloaded.
+           * The current tab will also be reloaded as you can't discard the current.
+           * Copied mostly from reloadAllOtherTabs in Firefox code.
+           */
+          async reloadOrDiscardTabs() {
+            BrowserWindowTracker.orderedWindows.forEach(win => {
+              let otherGBrowser = win.gBrowser;
+              for (let tab of otherGBrowser.tabs) {
+                if (tab.pinned || !otherGBrowser.discardBrowser(tab)) {
+                  otherGBrowser.reloadTab(tab);
+                }
+              }
+            });
+          },
         },
       },
     };
