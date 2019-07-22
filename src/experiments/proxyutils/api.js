@@ -132,6 +132,14 @@ let ConfirmationHint = {
   },
 };
 
+ExtensionPreferencesManager.addSetting("network.ftp.enabled", {
+  prefNames: ["network.ftp.enabled"],
+
+  setCallback(value) {
+    return { [this.prefNames[0]]: value };
+  },
+});
+
 ExtensionPreferencesManager.addSetting("network.trr.mode", {
   prefNames: ["network.trr.mode"],
 
@@ -181,6 +189,28 @@ this.proxyutils = class extends ExtensionAPI {
     return {
       experiments: {
         proxyutils: {
+
+          FTPEnabled: {
+            async get(details) {
+              return {
+                levelOfControl: "controllable_by_this_extension",
+                value: Preferences.get("network.ftp.enabled"),
+              };
+            },
+            set(details) {
+              return ExtensionPreferencesManager.setSetting(
+                context.extension.id,
+                "network.ftp.enabled",
+                details.value
+              );
+            },
+            clear(details) {
+              return ExtensionPreferencesManager.removeSetting(
+                context.extension.id,
+                "network.ftp.enabled");
+            },
+          },
+
           DNSoverHTTPEnabled: {
             async get(details) {
               return {
