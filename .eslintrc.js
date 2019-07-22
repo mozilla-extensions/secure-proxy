@@ -19,6 +19,7 @@ module.exports = {
     PROXY_STATE_PROXYERROR: false,
     PROXY_STATE_PROXYAUTHFAILED: false,
     PROXY_STATE_AUTHFAILURE: false,
+    PROXY_STATE_UNAUTHENTICATED: false,
     Survey: false
 },
   parserOptions: {
@@ -33,6 +34,7 @@ module.exports = {
     "no-unused-vars": ["error", {vars: "all", args: "none", ignoreRestSiblings: true}],
     "no-var": "warn",
     "no-warning-comments": "warn",
-    "prefer-const": "off"
+    "prefer-const": "off",
+    "semi": ["off", "always"]
   }
 };
