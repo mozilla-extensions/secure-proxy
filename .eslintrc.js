@@ -11,7 +11,6 @@ module.exports = {
     fxaCryptoRelier: false,
     PROXY_STATE_LOADING: false,
     PROXY_STATE_OFFLINE: false,
-    PROXY_STATE_UNKNOWN: false,
     PROXY_STATE_INACTIVE: false,
     PROXY_STATE_CONNECTING: false,
     PROXY_STATE_ACTIVE: false,
