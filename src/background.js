@@ -298,12 +298,30 @@ class Background {
     if (currentState != this.proxyState) {
       this.restoreMediaPeerConnections();
       this.resetDNSoverHTTP();
-      browser.experiments.proxyutils.reloadOrDiscardTabs();
+      this.reloadOrDiscardTabs();
       this.resetFTP();
     }
 
     log("computing status - final: " + this.proxyState);
     return currentState != this.proxyState;
+  }
+
+  /**
+   * Behaviour mostly copied from reloadAllOtherTabs in Firefox code.
+   * Selects all tabs that aren't already discarded, also ignoring pinned tabs
+   * as we would like to always refresh pinned tabs.
+   * Firefox won't discard the selected tab so after that we refresh all tabs
+   *  that aren't discarded already.
+   */
+  async reloadOrDiscardTabs() {
+    let regularTabs = await browser.tabs.query({discarded: false, pinned: false});
+    let reloadTabIds = regularTabs.map(tab => tab.id);
+    await browser.tabs.discard(reloadTabIds);
+
+    let nonDiscardedTabs = await browser.tabs.query({discarded: false});
+    nonDiscardedTabs.forEach(tab => {
+      browser.tabs.reload(tab.id);
+    });
   }
 
   async enableProxy(value) {
