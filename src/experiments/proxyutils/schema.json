@@ -80,14 +80,6 @@
             "description": "the tabId to load it into"
           }
         ]
-      },
-      {
-        "name": "reloadOrDiscardTabs",
-        "type": "function",
-        "async": true,
-        "description": "Reloads all other tabs",
-        "parameters": [
-        ]
       }
     ],
     "properties": {

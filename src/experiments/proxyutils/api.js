@@ -293,23 +293,6 @@ this.proxyutils = class extends ExtensionAPI {
             mm.loadFrameScript(`data:,${encodeURI(code)}`, false);
           },
 
-          /**
-           * Discard the browsers of all tabs in all windows. Pinned tabs, as
-           * well as tabs for which discarding doesn't succeed (e.g. selected
-           * tabs, tabs with beforeunload listeners), are reloaded.
-           * The current tab will also be reloaded as you can't discard the current.
-           * Copied mostly from reloadAllOtherTabs in Firefox code.
-           */
-          async reloadOrDiscardTabs() {
-            BrowserWindowTracker.orderedWindows.forEach(win => {
-              let otherGBrowser = win.gBrowser;
-              for (let tab of otherGBrowser.tabs) {
-                if (tab.pinned || !otherGBrowser.discardBrowser(tab)) {
-                  otherGBrowser.reloadTab(tab);
-                }
-              }
-            });
-          },
         },
       },
     };
