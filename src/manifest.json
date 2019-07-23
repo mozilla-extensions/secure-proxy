@@ -28,16 +28,12 @@
 
   "permissions": [
       "<all_urls>",
-      "browsingData",
-      "contextualIdentities",
-      "cookies",
       "identity",
       "management",
       "privacy",
       "proxy",
       "storage",
       "tabs",
-      "webNavigation",
       "webRequest",
       "webRequestBlocking"
   ],
