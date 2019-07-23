@@ -196,7 +196,7 @@ header button {
 }
 
 [data-state="disabled"]#state {
-  _background: var(--ink-90) url('img/hero-off.svg') 0 0 / cover;
+  background: var(--ink-90) url('img/hero-off.svg') 0 0 / cover;
   color: #291d4f;
 }
 
