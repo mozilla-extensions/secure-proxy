@@ -793,9 +793,13 @@ class Background {
     await this.run();
   }
 
-  manageAccount() {
+  async manageAccount() {
     let contentServer = this.fxaEndpoints.get(FXA_ENDPOINT_ISSUER);
-    this.openUrl(contentServer + "/settings");
+    let { profileData } = await browser.storage.local.get(["profileData"]);
+    let url = new URL(contentServer + "/settings");
+    url.searchParams.set("uid", profileData.uid);
+    url.searchParams.set("email", profileData.email);
+    this.openUrl(url.href);
   }
 
   async helpAndSupport() {
