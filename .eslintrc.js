@@ -11,7 +11,6 @@ module.exports = {
     fxaCryptoRelier: false,
     PROXY_STATE_LOADING: false,
     PROXY_STATE_OFFLINE: false,
-    PROXY_STATE_UNKNOWN: false,
     PROXY_STATE_INACTIVE: false,
     PROXY_STATE_CONNECTING: false,
     PROXY_STATE_ACTIVE: false,
@@ -19,6 +18,7 @@ module.exports = {
     PROXY_STATE_PROXYERROR: false,
     PROXY_STATE_PROXYAUTHFAILED: false,
     PROXY_STATE_AUTHFAILURE: false,
+    PROXY_STATE_UNAUTHENTICATED: false,
     Survey: false
 },
   parserOptions: {
@@ -33,6 +33,7 @@ module.exports = {
     "no-unused-vars": ["error", {vars: "all", args: "none", ignoreRestSiblings: true}],
     "no-var": "warn",
     "no-warning-comments": "warn",
-    "prefer-const": "off"
+    "prefer-const": "off",
+    "semi": ["off", "always"]
   }
 };

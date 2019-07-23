@@ -4,7 +4,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-/* globals ChromeUtils, ExtensionAPI, ExtensionCommon, Services */
+/* globals ChromeUtils, ExtensionAPI, ExtensionCommon, Services, ExtensionPreferencesManager, ExtensionError, Preferences, BrowserWindowTracker */
 
 "use strict";
 
@@ -171,9 +171,6 @@ this.proxyutils = class extends ExtensionAPI {
         global: { tabTracker },
       },
     } = ChromeUtils.import("resource://gre/modules/Extension.jsm", null);
-    let { extension } = context;
-
-    let { tabManager, windowManager } = extension;
 
     function getTabOrActive(tabId) {
       let tab =
