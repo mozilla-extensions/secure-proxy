@@ -35,6 +35,10 @@
   --ink-90: #1D1133;
   --black: #0c0c0D;
   --grey-10: #F9F9FA;
+
+  --link-link: var(--blue-50);
+  --link-hover: var(--blue-60);
+  --link-active: var(--blue-70);
 }
 
 * {
@@ -50,12 +54,25 @@ body {
   min-block-size: 450px;
 }
 
+a:link {
+  color: var(--link-link);
+  cursor: pointer;
+}
+
+a:hover {
+  color: var(--link-hover);
+}
+
+a:active {
+  color: var(--link-active);
+}
+
 button {
   -moz-appearance: none;
   min-height: 32px;
   color: inherit !important;
   border: 1px solid transparent;
-  border-radius: 2px;
+  border-radius: 8px;
   background-color: var(--in-content-button-background);
   font-weight: 400;
   padding: 0 8px;
@@ -182,7 +199,7 @@ header button {
 }
 
 #state {
-  background-color: var(--ink-90);
+  background: var(--ink-90) url('img/background-loading.png') 0 0 / cover;
   block-size: 200px;
   display: flex;
 }
@@ -196,16 +213,18 @@ header button {
 }
 
 [data-state="disabled"]#state {
-  _background: var(--ink-90) url('img/hero-off.svg') 0 0 / cover;
+  background: var(--ink-90) url('img/background-off.png') 0 0 / cover;
   color: #291d4f;
 }
 
 [data-state="connecting"]#state {
-  background: var(--ink-90) url('img/hero-connecting.svg') 0 0 / cover;
+  background: url('img/hero-connecting.svg') -2px -1px / cover,
+              var(--ink-90) url('img/background-loading.png') 0 0 / cover;
 }
 
 [data-state="enabled"]#state {
-  background: var(--ink-90) url('img/hero-on.svg') -2px -1px / cover;
+  background: url('img/hero-on.svg') -2px -1px / cover,
+              var(--ink-90) url('img/background-on.png') 0 0 / cover;
 }
 
 #survey {
