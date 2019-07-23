@@ -11,6 +11,8 @@
     }
   },
 
+  "homepage_url": "https://private-network.firefox.com",
+
   "description": "__MSG_extensionDescription__",
   "browser_action": {
     "browser_style": true,
