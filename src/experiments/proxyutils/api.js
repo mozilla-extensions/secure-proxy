@@ -4,7 +4,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-/* globals ChromeUtils, ExtensionAPI, ExtensionCommon, Services, ExtensionPreferencesManager, ExtensionError, Preferences, BrowserWindowTracker */
+/* globals ChromeUtils, ExtensionAPI, ExtensionCommon, Services, ExtensionPreferencesManager, ExtensionError, Preferences, Cu */
 
 "use strict";
 
@@ -20,8 +20,6 @@ ChromeUtils.defineModuleGetter(this, "setTimeout",
                                "resource://gre/modules/Timer.jsm");
 ChromeUtils.defineModuleGetter(this, "ExtensionPreferencesManager",
                                "resource://gre/modules/ExtensionPreferencesManager.jsm");
-ChromeUtils.defineModuleGetter(this, "BrowserWindowTracker",
-                               "resource:///modules/BrowserWindowTracker.jsm");
 
 Cu.importGlobalProperties(["URL"]);
 
@@ -218,7 +216,7 @@ this.proxyutils = class extends ExtensionAPI {
             prefName);
         },
       };
-    };
+    }
 
     return {
       experiments: {
