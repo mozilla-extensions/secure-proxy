@@ -10,7 +10,8 @@
 
 ChromeUtils.defineModuleGetter(this, "Services",
                                "resource://gre/modules/Services.jsm");
-
+ChromeUtils.defineModuleGetter(this, "Preferences",
+                               "resource://gre/modules/Preferences.jsm");
 ChromeUtils.defineModuleGetter(this, "UIState",
                                "resource://services-sync/UIState.jsm");
 ChromeUtils.defineModuleGetter(this, "ObjectUtils",
@@ -158,6 +159,14 @@ ExtensionPreferencesManager.addSetting("network.trr.bootstrapAddress", {
   },
 });
 
+ExtensionPreferencesManager.addSetting("network.trr.excluded-domains", {
+  prefNames: ["network.trr.excluded-domains"],
+
+  setCallback(value) {
+    return { [this.prefNames[0]]: value };
+  },
+});
+
 this.proxyutils = class extends ExtensionAPI {
  constructor(...args) {
     super(...args);
@@ -185,7 +194,7 @@ this.proxyutils = class extends ExtensionAPI {
       return tab;
     }
 
-    function prefHelper(prefName) {
+    function prefHelper(prefName, setCb) {
       return {
         async get(details) {
           return {
@@ -194,10 +203,11 @@ this.proxyutils = class extends ExtensionAPI {
           };
         },
         set(details) {
+          let value = setCb ? setCb(details.value) : details.value;
           return ExtensionPreferencesManager.setSetting(
             context.extension.id,
             prefName,
-            details.value
+            value
           );
         },
         clear(details) {
@@ -215,6 +225,11 @@ this.proxyutils = class extends ExtensionAPI {
           FTPEnabled: prefHelper("network.ftp.enabled"),
           DNSoverHTTPEnabled: prefHelper("network.trr.mode"),
           DNSoverHTTPBootstrapAddress: prefHelper("network.trr.bootstrapAddress"),
+          DNSoverHTTPExcludeDomains: prefHelper("network.trr.excluded-domains", value => {
+            let domains = Preferences.get("network.trr.excluded-domains").split(",");
+            domains.push(value);
+            return domains.join(",");
+          }),
 
           onChanged: new EventManager({
             context,

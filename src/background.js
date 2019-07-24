@@ -856,6 +856,7 @@ class Background {
 
     browser.experiments.proxyutils.DNSoverHTTPEnabled.set({value: DOH_MODE});
     browser.experiments.proxyutils.DNSoverHTTPBootstrapAddress.set({value: DOH_BOOTSTRAP_ADDRESS});
+    browser.experiments.proxyutils.DNSoverHTTPExcludeDomains.set({value: PROXY_HOST});
 
     browser.experiments.proxyutils.FTPEnabled.set({value: false});
   }
@@ -865,6 +866,7 @@ class Background {
 
     browser.experiments.proxyutils.DNSoverHTTPEnabled.clear({});
     browser.experiments.proxyutils.DNSoverHTTPBootstrapAddress.clear({});
+    browser.experiments.proxyutils.DNSoverHTTPExcludeDomains.clear({});
 
     browser.experiments.proxyutils.FTPEnabled.clear({});
   }
