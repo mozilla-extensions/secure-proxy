@@ -1,4 +1,4 @@
-const SURVEY_UNINSTALL = "https://qsurvey.mozilla.com/s3/fx-private-network-beta-survey?type=exit";
+const SURVEY_UNINSTALL = "https://qsurvey.mozilla.com/s3/Secure-Proxy-Exit-Survey?sub=no";
 
 // Survey URLs can contain 'magic' words. These will be replaced with values.
 // Here the list of the supported keywords and their meanings:
@@ -7,11 +7,8 @@ const SURVEY_UNINSTALL = "https://qsurvey.mozilla.com/s3/fx-private-network-beta
 // - USAGEDAYS - number of days with the proxy enabled (at least for 1 request)
 
 const SURVEYS = [
-  // URL to show at the installation time.
-  // TODO: { name: "startup", triggerAfterTime: 0, URL: "TODO PROXYENABLED VERSION USAGEDAYS" },
-
-  // 2 weeks (+ 3 days)
-  { name: "start", triggerAfterTime: 1468800, URL: "https://qsurvey.mozilla.com/s3/fx-private-network-beta-survey?type=start" },
+  // 14 days
+  { name: "start", triggerAfterTime: 1209600, URL: "https://qsurvey.mozilla.com/s3/fx-private-network-beta-survey" },
 ];
 
 // This class controls the survey URLs and when they have to be shown.

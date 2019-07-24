@@ -27,8 +27,8 @@ class ViewSettings extends View {
         </li>
         <li>
           <ul>
-            <li><a href="TODO">${this.getTranslation("viewSettings-privacyPolicyLink")}</a></li>
-            <li><a href="TODO">${this.getTranslation("viewSettings-termsAndConditionsLink")}</a></li>
+            <li><a href="#" id="privacyPolicy">${this.getTranslation("viewSettings-privacyPolicyLink")}</a></li>
+            <li><a href="#" id="termsAndConditions">${this.getTranslation("viewSettings-termsAndConditionsLink")}</a></li>
           </ul>
         </li>
       </ul>
@@ -38,25 +38,17 @@ class ViewSettings extends View {
   footer() {
     return escapedTemplate`
       <span>${this.getTranslation("popupPoweredBy")}</span>
-      <a href="#" class="end" id="learnMoreLink">${this.getTranslation("popupLearnMore")}</a>
+      <a href="#" class="end" id="learnMore">${this.getTranslation("popupLearnMore")}</a>
     `;
   }
 
   handleEvent(e) {
-
-    if (e.target.id == "learnMoreLink") {
-      View.sendMessage("learnMore");
-    }
-    if (e.target.id == "manageAccount") {
-      View.sendMessage("manageAccount");
+    if (["learnMore", "manageAccount", "helpAndSupport", "privacyPolicy", "termsAndConditions"].includes(e.target.id)) {
+      View.sendMessage(e.target.id);
     }
 
     if (e.target.id == "giveUsFeedback") {
       View.sendMessage("openUrl", {url: "https://qsurvey.mozilla.com/s3/fx-private-network-beta-feedback"});
-    }
-
-    if (e.target.id == "helpAndSupport") {
-      View.sendMessage("helpAndSupport");
     }
 
     e.preventDefault();
