@@ -20,7 +20,6 @@ async function init() {
 
   let userInfo;
   let proxyState;
-  let surveyName;
 
   let settingsButton = document.getElementById("settingsButton");
   settingsButton.addEventListener("click", () => {
@@ -39,13 +38,6 @@ async function init() {
     View.onStateButton();
   });
 
-  let surveyLink = document.getElementById("surveyLink");
-  surveyLink.addEventListener("click", e => {
-    View.sendMessage("survey", {survey: surveyName});
-    e.preventDefault();
-    close();
-  });
-
   let toggleButton = document.getElementById("toggleButton");
   toggleButton.addEventListener("click", e => {
     View.onToggleButtonClicked(e);
@@ -58,7 +50,6 @@ async function init() {
     }
     userInfo = msg.userInfo;
     proxyState = msg.proxyState;
-    surveyName = msg.pendingSurvey;
 
     View.showSettings(!!userInfo);
     View.showBack(false);
@@ -87,7 +78,6 @@ async function init() {
       case PROXY_STATE_INACTIVE:
         // fall through
       case PROXY_STATE_ACTIVE:
-        View.showSurvey(surveyName);
         View.setView(viewMainName, {userInfo, proxyState});
         return;
 

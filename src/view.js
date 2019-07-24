@@ -67,17 +67,6 @@ export class View {
     backElement.toggleAttribute("hidden", !shouldShow);
   }
 
-  static showSurvey(surveyName) {
-    let survey = document.getElementById("survey");
-
-    if (!surveyName) {
-      survey.setAttribute("hidden", "hidden");
-      return;
-    }
-
-    survey.removeAttribute("hidden");
-  }
-
   static showSettings(shouldShow) {
     let settingsElement = document.getElementById("settingsButton");
     settingsElement.toggleAttribute("hidden", !shouldShow);
