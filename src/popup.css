@@ -274,7 +274,6 @@ footer {
   --x-pos: .15em;
   -moz-appearance: none;
   background-color: var(--grey-20);
-  cursor: pointer;
   font-size: 16px;
   inline-size: 2em;
   block-size: 1em;
