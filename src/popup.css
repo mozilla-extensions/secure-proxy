@@ -1,7 +1,6 @@
 :root {
   --base-font-size: 10px;
   --heading-font-size: 14px;
-  --survey-font-size: 12px;
   --footer-font-size: 12px;
   --body-font-size: 14px;
   --edge-padding: 12px;
@@ -227,23 +226,6 @@ header button {
 [data-state="enabled"]#state {
   background: url('img/hero-on.svg') -2px -1px / cover,
               var(--ink-90) url('img/background-on.png') 0 0 / cover;
-}
-
-#survey {
-  font-size: var(--survey-font-size);
-  padding-inline-start: 12px;
-  padding-inline-end: 12px;
-  padding-block-start: 10px;
-  padding-block-end: 10px;
-}
-
-.surveyLink::before {
-  content: "";
-  block-size: 16px;
-  inline-size: 16px;
-  margin-inline-end: 4px;
-  background: url('img/i-feedback16.svg') 0 0 / cover;
-  display: inline-block;
 }
 
 .settingsLinks {

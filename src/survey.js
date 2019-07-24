@@ -8,10 +8,10 @@ const SURVEY_UNINSTALL = "https://qsurvey.mozilla.com/s3/fx-private-network-beta
 
 const SURVEYS = [
   // URL to show at the installation time.
-  // TODO: { name: "startup", triggerAfterTime: 0, hiddenBeforeTime: 0, URL: "TODO PROXYENABLED VERSION USAGEDAYS" },
+  // TODO: { name: "startup", triggerAfterTime: 0, URL: "TODO PROXYENABLED VERSION USAGEDAYS" },
 
   // 2 weeks (+ 3 days)
-  { name: "start", triggerAfterTime: 1468800, hiddenBeforeTime: 1209600, URL: "https://qsurvey.mozilla.com/s3/fx-private-network-beta-survey?type=start" },
+  { name: "start", triggerAfterTime: 1468800, URL: "https://qsurvey.mozilla.com/s3/fx-private-network-beta-survey?type=start" },
 ];
 
 // This class controls the survey URLs and when they have to be shown.
@@ -35,7 +35,7 @@ class Survey {
     }
 
     // Let's find the next survey to show.
-    let nextSurvey = await this.nextSurveyInternal();
+    let nextSurvey = await this.nextSurvey();
     if (nextSurvey) {
       now = Math.round(now / 1000);
       let diff = surveyInitTime + nextSurvey.triggerAfterTime - now;
@@ -47,8 +47,8 @@ class Survey {
     }
   }
 
-  // Return the next available survey ignoring hiddenBeforeTime.
-  async nextSurveyInternal() {
+  // Return the next available survey.
+  async nextSurvey() {
     let { lastSurvey } = await browser.storage.local.get(["lastSurvey"]);
     let nextSurvey = null;
     if (!lastSurvey) {
@@ -56,33 +56,6 @@ class Survey {
     } else {
       // If the next one doesn't exist, nextSurvey will be undefined.
       nextSurvey = SURVEYS[SURVEYS.findIndex(a => lastSurvey == a.name) + 1];
-    }
-
-    return nextSurvey;
-  }
-
-  // Return the next available survey considering hiddenBeforeTime.
-  async nextSurvey() {
-    let nextSurvey = await this.nextSurveyInternal();
-    if (!nextSurvey) {
-      return null;
-    }
-
-    // Maybe we are not ready for this survey yet...
-    if (nextSurvey.hiddenBeforeTime) {
-      let { surveyInitTime } = await browser.storage.local.get(["surveyInitTime"]);
-      if (!surveyInitTime) {
-        throw new Error("We must have a init time!");
-      }
-
-      let now = performance.now() + performance.timeOrigin;
-      let nowInSecs = Math.round(now / 1000);
-
-      let diff = surveyInitTime + nextSurvey.hiddenBeforeTime - nowInSecs;
-      if (diff > 0) {
-         // Not ready yet.
-         return null;
-      }
     }
 
     return nextSurvey;
