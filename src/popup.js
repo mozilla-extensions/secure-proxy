@@ -21,7 +21,6 @@ async function init() {
   let userInfo;
   let proxyState;
   let surveyName;
-  let learnMoreUrl;
 
   let settingsButton = document.getElementById("settingsButton");
   settingsButton.addEventListener("click", () => {
@@ -52,13 +51,6 @@ async function init() {
     View.onToggleButtonClicked(e);
   });
 
-  let learnMoreLink = document.getElementById("learnMoreLink");
-  learnMoreLink.addEventListener("click", e => {
-    View.sendMessage("openUrl", {url: learnMoreUrl});
-    e.preventDefault();
-    close();
-  });
-
   port.onMessage.addListener(async msg => {
     if (timeoutId) {
       clearTimeout(timeoutId);
@@ -67,7 +59,6 @@ async function init() {
     userInfo = msg.userInfo;
     proxyState = msg.proxyState;
     surveyName = msg.pendingSurvey;
-    learnMoreUrl = msg.learnMoreUrl;
 
     View.showSettings(!!userInfo);
     View.showBack(false);

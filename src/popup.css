@@ -77,7 +77,10 @@ button {
   font-weight: 400;
   padding: 0 8px;
   text-decoration: none;
-  margin: 4px 8px;
+  margin-inline-start: 8px;
+  margin-inline-end: 8px;
+  margin-block-start: 4px;
+  margin-block-end: 4px;
   font-size: 1em;
 }
 
@@ -133,6 +136,7 @@ header button {
 
 #introHeading {
   font-size: var(--heading-font-size);
+  line-height: 22px;
   display: flex;
   align-items: center;
   margin: 0 auto;
@@ -157,11 +161,8 @@ header button {
   background: url('/img/arrow-left.svg');
 }
 
-[hidden]#settingsButton,
-[hidden]#backButton,
-[hidden]#survey,
-[hidden]#toggleRow {
-  display: none;
+[hidden] {
+  display: none !important;
 }
 
 #stateButton {
@@ -209,7 +210,8 @@ header button {
 }
 
 [data-state="login"]#state {
-  background: var(--ink-90) url('img/hero-account.svg') 0 0 / cover;
+  background: url('img/hero-account.svg') -2px -1px / cover,
+              var(--ink-90) url('img/background-off.png') 0 0 / cover;
 }
 
 [data-state="disabled"]#state {
