@@ -37,6 +37,10 @@ const HELP_AND_SUPPORT_URL = "https://support.mozilla.org/1/firefox/%VERSION%/%O
 const DOH_MODE = 3;
 const DOH_BOOTSTRAP_ADDRESS = "1.1.1.1"
 
+// If run() fails, it will be retriggered after this timeout (in milliseconds)
+const RUN_TIMEOUT = 5000; // 5 secs
+const FETCH_TIMEOUT = 10000; // 10 secs
+
 // Enable debugging
 let debuggingMode = false;
 function log(msg) {
@@ -154,6 +158,8 @@ class Background {
       if (!wellKnownData) {
         this.proxyState = PROXY_STATE_OFFLINE;
         this.updateUI();
+
+        setTimeout(_ => this.run(), RUN_TIMEOUT);
         return;
       }
     }
@@ -263,7 +269,7 @@ class Background {
     }
 
     // We are offline.
-    if (!navigator.onLine) {
+    if (!navigator.onLine || this.fxaEndpoints.size === 0) {
       this.proxyState = PROXY_STATE_OFFLINE;
     }
 
@@ -614,7 +620,14 @@ class Background {
   async fetchWellKnownData() {
     log("Fetching well-known data");
 
-    let json = await fetch(FXA_OPENID).then(r => r.json(), e => null);
+    // Let's fetch the data with a timeout of FETCH_TIMEOUT milliseconds.
+    let json = await Promise.race([
+      fetch(FXA_OPENID).then(r => r.json(), e => null),
+      new Promise(resolve => {
+        setTimeout(_ => resolve(null), FETCH_TIMEOUT);
+      }),
+    ]);
+
     if (!json) {
       return false;
     }
