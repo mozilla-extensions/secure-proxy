@@ -87,6 +87,10 @@
       "DNSoverHTTPBootstrapAddress": {
         "$ref": "types.Setting",
         "description": "This property controls DOH bootstrap address"
+      },
+      "DNSoverHTTPExcludeDomains": {
+        "$ref": "types.Setting",
+        "description": "This property controls DOH exclude domains list"
       }
     }
   }

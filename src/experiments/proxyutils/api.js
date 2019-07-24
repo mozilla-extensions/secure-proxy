@@ -10,7 +10,8 @@
 
 ChromeUtils.defineModuleGetter(this, "Services",
                                "resource://gre/modules/Services.jsm");
-
+ChromeUtils.defineModuleGetter(this, "Preferences",
+                               "resource://gre/modules/Preferences.jsm");
 ChromeUtils.defineModuleGetter(this, "UIState",
                                "resource://services-sync/UIState.jsm");
 ChromeUtils.defineModuleGetter(this, "ObjectUtils",
@@ -160,6 +161,14 @@ ExtensionPreferencesManager.addSetting("network.trr.bootstrapAddress", {
   },
 });
 
+ExtensionPreferencesManager.addSetting("network.trr.excluded-domains", {
+  prefNames: ["network.trr.excluded-domains"],
+
+  setCallback(value) {
+    return { [this.prefNames[0]]: value };
+  },
+});
+
 this.proxyutils = class extends ExtensionAPI {
  constructor(...args) {
     super(...args);
@@ -187,72 +196,42 @@ this.proxyutils = class extends ExtensionAPI {
       return tab;
     }
 
+    function prefHelper(prefName, setCb) {
+      return {
+        async get(details) {
+          return {
+            levelOfControl: "controllable_by_this_extension",
+            value: Preferences.get(prefName),
+          };
+        },
+        set(details) {
+          let value = setCb ? setCb(details.value) : details.value;
+          return ExtensionPreferencesManager.setSetting(
+            context.extension.id,
+            prefName,
+            value
+          );
+        },
+        clear(details) {
+          return ExtensionPreferencesManager.removeSetting(
+            context.extension.id,
+            prefName);
+        },
+      };
+    };
+
     return {
       experiments: {
         proxyutils: {
 
-          FTPEnabled: {
-            async get(details) {
-              return {
-                levelOfControl: "controllable_by_this_extension",
-                value: Preferences.get("network.ftp.enabled"),
-              };
-            },
-            set(details) {
-              return ExtensionPreferencesManager.setSetting(
-                context.extension.id,
-                "network.ftp.enabled",
-                details.value
-              );
-            },
-            clear(details) {
-              return ExtensionPreferencesManager.removeSetting(
-                context.extension.id,
-                "network.ftp.enabled");
-            },
-          },
-
-          DNSoverHTTPEnabled: {
-            async get(details) {
-              return {
-                levelOfControl: "controllable_by_this_extension",
-                value: Preferences.get("network.trr.mode"),
-              };
-            },
-            set(details) {
-              return ExtensionPreferencesManager.setSetting(
-                context.extension.id,
-                "network.trr.mode",
-                details.value
-              );
-            },
-            clear(details) {
-              return ExtensionPreferencesManager.removeSetting(
-                context.extension.id,
-                "network.trr.mode");
-            },
-          },
-
-          DNSoverHTTPBootstrapAddress: {
-            async get(details) {
-              return {
-                levelOfControl: "controllable_by_this_extension",
-                value: Preferences.get("network.trr.bootstrapAddress"),
-              };
-            },
-            set(details) {
-              return ExtensionPreferencesManager.setSetting(
-                context.extension.id,
-                "network.trr.bootstrapAddress",
-                details.value
-              );
-            },
-            clear(details) {
-              return ExtensionPreferencesManager.removeSetting(
-                context.extension.id,
-                "network.trr.bootstrapAddress");
-            },
-          },
+          FTPEnabled: prefHelper("network.ftp.enabled"),
+          DNSoverHTTPEnabled: prefHelper("network.trr.mode"),
+          DNSoverHTTPBootstrapAddress: prefHelper("network.trr.bootstrapAddress"),
+          DNSoverHTTPExcludeDomains: prefHelper("network.trr.excluded-domains", value => {
+            let domains = Preferences.get("network.trr.excluded-domains").split(",");
+            domains.push(value);
+            return domains.join(",");
+          }),
 
           onChanged: new EventManager({
             context,
