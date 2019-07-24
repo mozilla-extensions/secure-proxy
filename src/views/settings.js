@@ -24,7 +24,7 @@ class ViewSettings extends View {
   footer() {
     return escapedTemplate`
       <span>${this.getTranslation("popupPoweredBy")}</span>
-      <a href="#" data-l10n="popupLearnMore" class="end" id="learnMoreLink"></a>
+      <a href="#" class="end" id="learnMoreLink">${this.getTranslation("popupLearnMore")}</a>
     `;
   }
 

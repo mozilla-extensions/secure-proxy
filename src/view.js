@@ -18,6 +18,7 @@ export class View {
     }
 
     if (currentView) {
+      footer.removeEventListener("click", currentView);
       content.removeEventListener("click", currentView);
       content.removeEventListener("submit", currentView);
       currentView.dismiss();
@@ -31,6 +32,7 @@ export class View {
     console.log(`Show: ${name}`);
     let template = currentView.show(data);
     if (template && template instanceof Template) {
+      footer.addEventListener("click", currentView);
       content.addEventListener("click", currentView);
       content.addEventListener("submit", currentView);
       content.innerHTML = template;
