@@ -21,7 +21,17 @@ class ViewSettings extends View {
     `;
   }
 
+  footer() {
+    return escapedTemplate`
+      <span>${this.getTranslation("popupPoweredBy")}</span>
+      <a href="#" data-l10n="popupLearnMore" class="end" id="learnMoreLink"></a>
+    `;
+  }
+
   handleEvent(e) {
+    if (e.target.id == "learnMoreLink") {
+      View.sendMessage("learnMore");
+    }
     if (e.target.id == "manageAccount" || e.target.id == "manageAccountAnchor") {
       View.sendMessage("manageAccount");
     }

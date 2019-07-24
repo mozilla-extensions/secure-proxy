@@ -10,6 +10,7 @@ export class View {
   // Static method to set the current view. The previous one will be dismissed.
   static setView(name, data = null) {
     let content = document.getElementById("content");
+    let footer = document.querySelector("footer");
     let view = views.get(name);
     if (!(view instanceof View)) {
       console.error("Invalid view name: " + name);
@@ -25,6 +26,7 @@ export class View {
     currentView = view;
     // Clear the display always.
     content.innerHTML = "";
+    footer.toggleAttribute("hidden", true);
 
     console.log(`Show: ${name}`);
     let template = currentView.show(data);
@@ -33,6 +35,11 @@ export class View {
       content.addEventListener("submit", currentView);
       content.innerHTML = template;
       currentView.postShow(data, content);
+    }
+    let footerTemplate = currentView.footer(data);
+    if (footerTemplate && footerTemplate instanceof Template) {
+      footer.innerHTML = footerTemplate;
+      footer.toggleAttribute("hidden", false);
     }
   }
 
@@ -114,6 +121,9 @@ export class View {
   show() {
     console.error("Each view should implement show() method!");
   }
+
+  // To be overwritten if needed.
+  footer() {}
 
   // To be overwritten if needed.
   postShow() {}

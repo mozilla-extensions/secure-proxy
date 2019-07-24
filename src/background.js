@@ -73,9 +73,6 @@ class Background {
       // ignore
     }
 
-    // Ask the learn more link.
-    this.learnMoreUrl = await browser.experiments.proxyutils.formatURL(LEARN_MORE_URL);
-
     // Let's take the last date of usage.
     let { lastUsageDays } = await browser.storage.local.get(["lastUsageDays"]);
     if (!lastUsageDays) {
@@ -772,6 +769,10 @@ class Background {
           this.helpAndSupport();
           break;
 
+        case "learnMore":
+          this.learnMore();
+          break;
+
         case "openUrl":
           this.openUrl(message.data.url);
           break;
@@ -797,7 +798,6 @@ class Background {
         userInfo: profileData,
         proxyState: this.proxyState,
         pendingSurvey: nextSurvey ? nextSurvey.name : null,
-        learnMoreUrl: this.learnMoreUrl,
       });
     }
   }
@@ -818,6 +818,11 @@ class Background {
 
   async helpAndSupport() {
     let url = await browser.experiments.proxyutils.formatURL(HELP_AND_SUPPORT_URL);
+    this.openUrl(url);
+  }
+
+  async learnMore() {
+    let url = await browser.experiments.proxyutils.formatURL(LEARN_MORE_URL);
     this.openUrl(url);
   }
 
