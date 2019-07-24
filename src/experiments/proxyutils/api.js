@@ -185,72 +185,36 @@ this.proxyutils = class extends ExtensionAPI {
       return tab;
     }
 
+    function prefHelper(prefName) {
+      return {
+        async get(details) {
+          return {
+            levelOfControl: "controllable_by_this_extension",
+            value: Preferences.get(prefName),
+          };
+        },
+        set(details) {
+          return ExtensionPreferencesManager.setSetting(
+            context.extension.id,
+            prefName,
+            details.value
+          );
+        },
+        clear(details) {
+          return ExtensionPreferencesManager.removeSetting(
+            context.extension.id,
+            prefName);
+        },
+      };
+    };
+
     return {
       experiments: {
         proxyutils: {
 
-          FTPEnabled: {
-            async get(details) {
-              return {
-                levelOfControl: "controllable_by_this_extension",
-                value: Preferences.get("network.ftp.enabled"),
-              };
-            },
-            set(details) {
-              return ExtensionPreferencesManager.setSetting(
-                context.extension.id,
-                "network.ftp.enabled",
-                details.value
-              );
-            },
-            clear(details) {
-              return ExtensionPreferencesManager.removeSetting(
-                context.extension.id,
-                "network.ftp.enabled");
-            },
-          },
-
-          DNSoverHTTPEnabled: {
-            async get(details) {
-              return {
-                levelOfControl: "controllable_by_this_extension",
-                value: Preferences.get("network.trr.mode"),
-              };
-            },
-            set(details) {
-              return ExtensionPreferencesManager.setSetting(
-                context.extension.id,
-                "network.trr.mode",
-                details.value
-              );
-            },
-            clear(details) {
-              return ExtensionPreferencesManager.removeSetting(
-                context.extension.id,
-                "network.trr.mode");
-            },
-          },
-
-          DNSoverHTTPBootstrapAddress: {
-            async get(details) {
-              return {
-                levelOfControl: "controllable_by_this_extension",
-                value: Preferences.get("network.trr.bootstrapAddress"),
-              };
-            },
-            set(details) {
-              return ExtensionPreferencesManager.setSetting(
-                context.extension.id,
-                "network.trr.bootstrapAddress",
-                details.value
-              );
-            },
-            clear(details) {
-              return ExtensionPreferencesManager.removeSetting(
-                context.extension.id,
-                "network.trr.bootstrapAddress");
-            },
-          },
+          FTPEnabled: prefHelper("network.ftp.enabled"),
+          DNSoverHTTPEnabled: prefHelper("network.trr.mode"),
+          DNSoverHTTPBootstrapAddress: prefHelper("network.trr.bootstrapAddress"),
 
           onChanged: new EventManager({
             context,
