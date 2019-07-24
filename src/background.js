@@ -683,7 +683,8 @@ class Background {
     let now = performance.timeOrigin + performance.now();
     let nowInSecs = Math.round(now / 1000);
 
-    let { tokenData } = await browser.storage.local.get([tokenName]);
+    let data = await browser.storage.local.get([tokenName]);
+    let tokenData = data[tokenName];
     if (tokenData) {
       // If we are close to the expiration time, we have to generate the token.
       // We want to keep a big time margin: 1 hour seems good enough.
