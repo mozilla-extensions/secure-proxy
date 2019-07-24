@@ -873,7 +873,7 @@ class Background {
 
     browser.experiments.proxyutils.DNSoverHTTPEnabled.set({value: DOH_MODE});
     browser.experiments.proxyutils.DNSoverHTTPBootstrapAddress.set({value: DOH_BOOTSTRAP_ADDRESS});
-    browser.experiments.proxyutils.DNSoverHTTPExcludeDomains.set({value: PROXY_HOST});
+    browser.experiments.proxyutils.DNSoverHTTPExcludeDomains.set({value: PROXY_URL});
 
     browser.experiments.proxyutils.FTPEnabled.set({value: false});
   }
