@@ -22,6 +22,8 @@ ChromeUtils.defineModuleGetter(this, "ExtensionPreferencesManager",
 ChromeUtils.defineModuleGetter(this, "BrowserWindowTracker",
                                "resource:///modules/BrowserWindowTracker.jsm");
 
+Cu.importGlobalProperties(["URL"]);
+
 // Cribbed from browser.js with some changes to allow for our strings
 let ConfirmationHint = {
   /**
@@ -269,12 +271,30 @@ this.proxyutils = class extends ExtensionAPI {
             ConfirmationHint.show(selector, message, {isWarning});
           },
 
-          async getCaptivePortalURL() {
-            return Services.prefs.getStringPref("captivedetect.canonicalURL");
-          },
+          async getProxyPrefs() {
+            function getURLFromPref(pref) {
+              let url;
+              try {
+                url = Services.prefs.getStringPref(pref);
+              } catch (e) {
+                // No pref value set
+                return;
+              }
 
-          async getDebuggingMode() {
-            return Services.prefs.getBoolPref("secureProxy.debugging.enabled", false);
+              try {
+                return new URL(url).href;
+              } catch (e) {
+                console.log("Invalid value for pref " + pref);
+                return null;
+              }
+            }
+
+            return {
+              debuggingEnabled: Services.prefs.getBoolPref("secureProxy.debugging.enabled", false),
+              captiveDetect: Services.prefs.getStringPref("captivedetect.canonicalURL"),
+              fxaURL: getURLFromPref("secureProxy.fxaOpenID.overwrite"),
+              proxyURL: getURLFromPref("secureProxy.proxyURL.overwrite"),
+            };
           },
 
           async formatURL(url) {

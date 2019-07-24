@@ -22,9 +22,7 @@ const SAFE_HTTPS_REQUEST = "https://www.mozilla.org/robots.txt";
 const CONNECTING_HTTPS_REQUEST = "https://www.mozilla.org/robots.txt";
 
 // Proxy configuration
-const PROXY_TYPE = "https";
-const PROXY_HOST = "proxy-staging.cloudflareclient.com";
-const PROXY_PORT = 8001;
+const PROXY_URL = "https://proxy-staging.cloudflareclient.com:8001";
 
 // How early we want to re-generate the tokens (in secs)
 const EXPIRE_DELTA = 3600
@@ -61,13 +59,20 @@ class Background {
   }
 
   async init() {
+    const prefs = await browser.experiments.proxyutils.getProxyPrefs();
+    debuggingMode = prefs.debuggingEnabled;
+
     log("init");
 
-    // Are we in debugging mode?
-    debuggingMode = await browser.experiments.proxyutils.getDebuggingMode();
+    this.fxaOpenID = prefs.fxaURL || FXA_OPENID;
+
+    let proxyURL = new URL(prefs.proxyURL || PROXY_URL);
+    this.proxyType = proxyURL.protocol == "https:" ? "https" : "http";
+    this.proxyPort = proxyURL.port || (proxyURL.protocol == "https:" ? 443 : 80);
+    this.proxyHost = proxyURL.hostname;
 
     try {
-      const capitivePortalUrl = new URL(await browser.experiments.proxyutils.getCaptivePortalURL());
+      const capitivePortalUrl = new URL(prefs.captiveDetect);
       this.captivePortalOrigin = capitivePortalUrl.origin;
     } catch (e) {
       // ignore
@@ -389,9 +394,9 @@ class Background {
 
     if (shouldProxyRequest) {
       return [{
-        type: PROXY_TYPE,
-        host: PROXY_HOST,
-        port: PROXY_PORT,
+        type: this.proxyType,
+        host: this.proxyHost,
+        port: this.proxyPort,
         proxyAuthorizationHeader: this.proxyAuthorizationHeader,
         connectionIsolationKey: this.proxyAuthorizationHeader + additionalConnectionIsolation,
       }];
@@ -463,7 +468,7 @@ class Background {
 
     // If is part of oauth also ignore
     const authUrls = [
-      FXA_OPENID,
+      this.fxaOpenID,
       this.fxaEndpoints.get(FXA_ENDPOINT_PROFILE),
       this.fxaEndpoints.get(FXA_ENDPOINT_TOKEN),
     ];
@@ -619,7 +624,7 @@ class Background {
 
     // Let's fetch the data with a timeout of FETCH_TIMEOUT milliseconds.
     let json = await Promise.race([
-      fetch(FXA_OPENID).then(r => r.json(), e => null),
+      fetch(this.fxaOpenID).then(r => r.json(), e => null),
       new Promise(resolve => {
         setTimeout(_ => resolve(null), FETCH_TIMEOUT);
       }),
@@ -895,5 +900,4 @@ class Background {
 }
 
 let background = new Background();
-background.init();
-background.run();
+background.init().then(_ => background.run());
