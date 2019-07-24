@@ -1,5 +1,5 @@
 // FxA openID configuration
-const FXA_OPENID = "https://latest.dev.lcip.org/.well-known/openid-configuration";
+const FXA_OPENID = "https://accounts.firefox.com/.well-known/openid-configuration";
 
 // List of attributes for the openID configuration
 const FXA_ENDPOINT_PROFILE = "userinfo_endpoint";
