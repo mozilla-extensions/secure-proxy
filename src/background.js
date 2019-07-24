@@ -296,10 +296,8 @@ class Background {
     // If we are here we are not active yet. At least we are connecting.
     // Restore default settings.
     if (currentState != this.proxyState) {
-      this.restoreMediaPeerConnections();
-      this.resetDNSoverHTTP();
+      this.inactiveSteps();
       this.reloadOrDiscardTabs();
-      this.resetFTP();
     }
 
     log("computing status - final: " + this.proxyState);
@@ -847,38 +845,28 @@ class Background {
     }
   }
 
-  disableMediaPeerConnections() {
-    browser.privacy.network.peerConnectionEnabled.set({ value: false });
-  }
-
-  restoreMediaPeerConnections() {
-    browser.privacy.network.peerConnectionEnabled.clear({});
-  }
-
   connectionSucceeded() {
-    this.activateDNSoverHTTP();
-    this.disableMediaPeerConnections();
-    this.disableFTP();
+    this.afterConnectionSteps();
     this.proxyState = PROXY_STATE_ACTIVE;
     this.updateUI();
   }
 
-  activateDNSoverHTTP() {
+  afterConnectionSteps() {
+    browser.privacy.network.peerConnectionEnabled.set({ value: false });
+
     browser.experiments.proxyutils.DNSoverHTTPEnabled.set({value: DOH_MODE});
     browser.experiments.proxyutils.DNSoverHTTPBootstrapAddress.set({value: DOH_BOOTSTRAP_ADDRESS});
+
+    browser.experiments.proxyutils.FTPEnabled.set({value: false});
   }
 
-  resetDNSoverHTTP() {
+  inactiveSteps() {
+    browser.privacy.network.peerConnectionEnabled.clear({});
+
     browser.experiments.proxyutils.DNSoverHTTPEnabled.clear({});
     browser.experiments.proxyutils.DNSoverHTTPBootstrapAddress.clear({});
-  }
 
-  resetFTP() {
     browser.experiments.proxyutils.FTPEnabled.clear({});
-  }
-
-  disableFTP() {
-    browser.experiments.proxyutils.FTPEnabled.set({value: false});
   }
 }
 
