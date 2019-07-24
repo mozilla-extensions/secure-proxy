@@ -43,6 +43,7 @@
 * {
   padding: 0;
   margin: 0;
+  box-sizing: border-box;
 }
 
 body {
@@ -228,15 +229,75 @@ header button {
               var(--ink-90) url('img/background-on.png') 0 0 / cover;
 }
 
-.settingsLinks {
+.settingsMenu {
   padding: 0;
 }
 
-.settingsLinks li {
+.settingsMenu a {
+  display: flex;
+  width: 100%;
+  color: black;
+  text-decoration: none;
+  padding-block-start: 6px;
+  padding-block-end: 6px;
+  padding-inline-start: var(--edge-padding);
+  padding-inline-end: var(--edge-padding);
   list-style: none;
-  padding: 10px var(--edge-padding);
+}
+
+.settingsMenu a:hover {
+  background: var(--grey-20);
+}
+
+.settingsMenu img {
+  align-self: center;
+  margin-block-start: 4px;
+  margin-inline-end: 8px;
+  block-size: 24px;
+  inline-size: 24px;
+}
+
+.settingsMenu .manage {
+  padding-block-start: 6px;
+  padding-block-end: 6px;
+}
+
+.settingsMenu #manageAccount {
+  block-size: 50px;
+  padding-block-start: 0;
+  padding-block-end: 0;
+  padding-inline-start: 8px;
+  padding-inline-end: 8px;
+}
+
+.settingsMenu .details {
+  display: flex;
+  flex-direction: column;
+  align-self: center;
+  line-height: 20px;
+  font-size: 15px;
+}
+
+.settingsMenu .details strong {
+  font-weight: normal;
+  color: var(--grey-90-a60);
+  line-height: 16px;
+  font-size: 13px;
+}
+
+.settingsMenu ul {
+  width: 100%;
+}
+
+.settingsMenu > li {
   border-block-end: 1px solid #e4e4e4;
   display: flex;
+  padding-block-start: 9px;
+  padding-block-end: 9px;
+}
+
+.settingsMenu li {
+  list-style: none;
 }
 
 .end {
@@ -261,7 +322,10 @@ footer {
 }
 
 #toggleRow {
-  padding: 10px var(--edge-padding);
+  padding-block-start: 12px;
+  padding-block-end: 10px;
+  padding-inline-start: var(--edge-padding);
+  padding-inline-end: var(--edge-padding);
   border-block-start: 1px solid #e4e4e4;
   border-block-end: 1px solid #e4e4e4;
   display: flex;
