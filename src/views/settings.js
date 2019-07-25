@@ -9,15 +9,29 @@ class ViewSettings extends View {
     View.hideToggleButton();
     View.setState("hidden");
     return escapedTemplate`
-      <ul class="settingsLinks">
-        <li><strong>${this.getTranslation("viewSettings-accountLabel")}</strong><span class="end">${data.userInfo.email}</span></li>
-        <li><a href="#" id="manageAccountAnchor">${this.getTranslation("viewSettings-manageAccountLink")}</a></li>
-        <li><a href="#" id="helpAndSupport">${this.getTranslation("viewSettings-helpAndSupportLink")}</a></li>
-        <li><a href="#" id="giveUsFeedback">${this.getTranslation("viewSettings-giveUsFeedbackLink")}</a></li>
-        <li><a href="TODO">${this.getTranslation("viewSettings-privacyPolicyLink")}</a></li>
-        <li><a href="TODO">${this.getTranslation("viewSettings-termsAndConditionsLink")}</a></li>
+      <ul class="settingsMenu">
+        <li class="manage">
+          <a href="#" id="manageAccount">
+            <img src="${data.userInfo.avatar}" />
+            <div class="details">
+              <span>${data.userInfo.email}</span>
+              <strong>${this.getTranslation("viewSettings-manageAccountLink")}</strong>
+            </div>
+          </a>
+        </li>
+        <li>
+          <ul>
+            <li><a href="#" id="helpAndSupport">${this.getTranslation("viewSettings-helpAndSupportLink")}</a></li>
+            <li><a href="#" id="giveUsFeedback">${this.getTranslation("viewSettings-giveUsFeedbackLink")}</a></li>
+          </ul>
+        </li>
+        <li>
+          <ul>
+            <li><a href="TODO">${this.getTranslation("viewSettings-privacyPolicyLink")}</a></li>
+            <li><a href="TODO">${this.getTranslation("viewSettings-termsAndConditionsLink")}</a></li>
+          </ul>
+        </li>
       </ul>
-      <button class="primary" id="manageAccount">${this.getTranslation("viewSettings-manageAccountButton")}</button>
     `;
   }
 
@@ -29,10 +43,11 @@ class ViewSettings extends View {
   }
 
   handleEvent(e) {
+
     if (e.target.id == "learnMoreLink") {
       View.sendMessage("learnMore");
     }
-    if (e.target.id == "manageAccount" || e.target.id == "manageAccountAnchor") {
+    if (e.target.id == "manageAccount") {
       View.sendMessage("manageAccount");
     }
 
