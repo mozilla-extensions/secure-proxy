@@ -112,6 +112,19 @@ button.primary:enabled:hover:active {
   background-color: var(--in-content-primary-button-background-active);
 }
 
+.warning {
+  padding-inline-start: 20px;
+}
+
+.warning::before {
+  content: "";
+  display: inline-block;
+  block-size: 16px;
+  inline-size: 16px;
+  background: url("img/i-warning16.svg");
+  margin-inline-start: -22px;
+}
+
 #content {
   inline-size: 320px;
   flex: 1;
