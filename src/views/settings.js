@@ -35,6 +35,8 @@ class ViewSettings extends View {
     `;
   }
 
+  headingText() { return "introSettings"; }
+
   footer() {
     return escapedTemplate`
       <span>${this.getTranslation("popupPoweredBy")}</span>

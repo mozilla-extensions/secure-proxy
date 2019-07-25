@@ -29,6 +29,8 @@ export class View {
     content.innerHTML = "";
     footer.toggleAttribute("hidden", true);
 
+    introHeading.textContent = currentView.getTranslation(currentView.headingText());
+
     console.log(`Show: ${name}`);
     let template = currentView.show(data);
     if (template && template instanceof Template) {
@@ -78,6 +80,9 @@ export class View {
     let stateButtonElement = document.getElementById("stateButton");
     stateButtonElement.textContent = stateButtonText || "";
   }
+
+  // To be overwritten with a string for the header
+  headingText() { return "introHeading"; }
 
   // To be overwritten to return an escaped template if the panel should have one
   state() { return null; }

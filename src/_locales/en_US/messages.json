@@ -16,6 +16,9 @@
   "introHeading": {
     "message": "Firefox Private Network"
   },
+  "introSettings": {
+    "message": "Settings"
+  },
 
   "popupLearnMore": {
     "message": "Learn More"
