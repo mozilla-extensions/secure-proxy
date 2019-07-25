@@ -42,13 +42,16 @@ class ViewSettings extends View {
     `;
   }
 
-  handleEvent(e) {
+  async handleEvent(e) {
     if (["learnMore", "manageAccount", "helpAndSupport", "privacyPolicy", "termsAndConditions"].includes(e.target.id)) {
-      View.sendMessage(e.target.id);
+      await View.sendMessage(e.target.id);
+    }
+    if (e.target.closest("#manageAccount")) {
+      await View.sendMessage("manageAccount");
     }
 
     if (e.target.id == "giveUsFeedback") {
-      View.sendMessage("openUrl", {url: "https://qsurvey.mozilla.com/s3/fx-private-network-beta-feedback"});
+      await View.sendMessage("openUrl", {url: "https://qsurvey.mozilla.com/s3/fx-private-network-beta-feedback"});
     }
 
     e.preventDefault();
