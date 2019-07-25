@@ -30,8 +30,10 @@ const EXPIRE_DELTA = 3600
 // These URLs must be formatted
 const LEARN_MORE_URL = "https://support.mozilla.org/1/firefox/%VERSION%/%OS%/%LOCALE%/cloudflare";
 const HELP_AND_SUPPORT_URL = "https://support.mozilla.org/1/firefox/%VERSION%/%OS%/%LOCALE%/firefox-private-network"
-const PRIVACY_POLICY_URL = "https://www.mozilla.org/%LOCALE%/privacy/firefox-private-network";
-const TERMS_AND_CONDITIONS_URL = "https://www.mozilla.org/%LOCALE%/about/legal/terms/firefox-private-network";
+
+// These URLs do not need to be formatted
+const PRIVACY_POLICY_URL = "https://www.mozilla.org/privacy/firefox-private-network";
+const TERMS_AND_CONDITIONS_URL = "https://www.mozilla.org/about/legal/terms/firefox-private-network";
 
 // Parameters for DNS over HTTP
 const DOH_MODE = 3;
@@ -775,11 +777,11 @@ class Background {
           break;
 
         case "privacyPolicy":
-          this.formatAndOpenURL(PRIVACY_POLICY_URL);
+          this.openUrl(PRIVACY_POLICY_URL);
           break;
 
         case "termsAndConditions":
-          this.formatAndOpenURL(TERMS_AND_CONDITIONS_URL);
+          this.openUrl(TERMS_AND_CONDITIONS_URL);
           break;
 
         case "openUrl":
