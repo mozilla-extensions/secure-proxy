@@ -38,6 +38,8 @@
   --link-link: var(--blue-50);
   --link-hover: var(--blue-60);
   --link-active: var(--blue-70);
+  /* Make title centered */
+  --center-offset: -32px;
 }
 
 * {
@@ -72,7 +74,7 @@ button {
   min-height: 32px;
   color: inherit !important;
   border: 1px solid transparent;
-  border-radius: 8px;
+  border-radius: 6px;
   background-color: var(--in-content-button-background);
   font-weight: 400;
   padding: 0 8px;
@@ -155,10 +157,12 @@ header button {
 
 #settingsButton {
   background: url('/img/i-settings32.svg') -7px -7px / 30px; /* TODO get cropped SVG to remove this cropping */
+  margin-inline-start: var(--center-offset);
 }
 
 #backButton {
   background: url('/img/arrow-left.svg');
+  margin-inline-end: var(--center-offset);
 }
 
 [hidden] {
@@ -250,23 +254,23 @@ header button {
 }
 
 .settingsMenu img {
+  border-radius: 200%;
   align-self: center;
-  margin-block-start: 4px;
   margin-inline-end: 8px;
-  block-size: 24px;
-  inline-size: 24px;
+  block-size: 32px;
+  inline-size: 32px;
 }
 
 .settingsMenu .manage {
   padding-block-start: 6px;
-  padding-block-end: 6px;
+  padding-block-end: 8px;
 }
 
 .settingsMenu #manageAccount {
   block-size: 50px;
   padding-block-start: 0;
   padding-block-end: 0;
-  padding-inline-start: 8px;
+  padding-inline-start: 12px;
   padding-inline-end: 8px;
 }
 
