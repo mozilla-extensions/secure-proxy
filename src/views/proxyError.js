@@ -7,7 +7,7 @@ class ViewProxyError extends View {
     View.showToggleButton(false);
 
     return escapedTemplate`
-    <p>
+    <p class="warning">
       ${this.getTranslation("viewProxyError-" + proxyState)}
     </p>`;
   }
