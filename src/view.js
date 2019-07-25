@@ -1,4 +1,4 @@
-import {Template} from './template.js';
+import {Template} from "./template.js";
 let views = new Map();
 
 let currentView = null;
@@ -6,7 +6,6 @@ let currentPort = null;
 
 // This is the generic a view. Any other view should inherit from this class.
 export class View {
-
   // Static method to set the current view. The previous one will be dismissed.
   static setView(name, data = null) {
     let content = document.getElementById("content");
@@ -29,6 +28,7 @@ export class View {
     content.innerHTML = "";
     footer.toggleAttribute("hidden", true);
 
+    let introHeading = document.getElementById("introHeading");
     introHeading.textContent = currentView.getTranslation(currentView.headingText());
 
     console.log(`Show: ${name}`);
@@ -37,12 +37,12 @@ export class View {
       footer.addEventListener("click", currentView);
       content.addEventListener("click", currentView);
       content.addEventListener("submit", currentView);
-      content.innerHTML = template;
+      template.renderTo(content);
       currentView.postShow(data, content);
     }
     let footerTemplate = currentView.footer(data);
     if (footerTemplate && footerTemplate instanceof Template) {
-      footer.innerHTML = footerTemplate;
+      footerTemplate.renderTo(footer);
       footer.toggleAttribute("hidden", false);
     }
   }

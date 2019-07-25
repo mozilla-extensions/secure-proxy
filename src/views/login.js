@@ -1,5 +1,5 @@
-import {View} from '../view.js'
-import {escapedTemplate} from '../template.js'
+import {View} from "../view.js";
+import {escapedTemplate} from "../template.js";
 
 // Login view.
 class ViewLogin extends View {
@@ -28,7 +28,7 @@ class ViewLogin extends View {
   }
 
   handleEvent(e) {
-    if (e.target.id == "authButton") {
+    if (e.target.id === "authButton") {
       View.sendMessage("authenticate");
     }
   }

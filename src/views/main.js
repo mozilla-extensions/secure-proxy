@@ -1,5 +1,5 @@
-import {View} from '../view.js'
-import {escapedTemplate} from '../template.js'
+import {View} from "../view.js";
+import {escapedTemplate} from "../template.js";
 
 // Main view.
 class ViewMain extends View {
@@ -10,12 +10,12 @@ class ViewMain extends View {
   }
 
   show(data) {
-    if (data.proxyState != PROXY_STATE_INACTIVE &&
-        data.proxyState != PROXY_STATE_ACTIVE) {
+    if (data.proxyState !== PROXY_STATE_INACTIVE &&
+        data.proxyState !== PROXY_STATE_ACTIVE) {
       throw new Error("Invalid proxy state for ViewMain");
     }
 
-    View.showToggleButton(data.proxyState == PROXY_STATE_ACTIVE);
+    View.showToggleButton(data.proxyState === PROXY_STATE_ACTIVE);
 
     let text;
     if (data.proxyState === PROXY_STATE_ACTIVE) {
@@ -34,14 +34,13 @@ class ViewMain extends View {
   }
 
   postShow(data) {
-    this.proxyEnabled = data.proxyState == PROXY_STATE_ACTIVE;
+    this.proxyEnabled = data.proxyState === PROXY_STATE_ACTIVE;
 
     if (this.proxyEnabled) {
       View.setState("enabled", this.getTranslation("heroProxyOn"));
     } else {
       View.setState("disabled", this.getTranslation("heroProxyOff"));
     }
-
   }
 
   toggleButtonClicked(e) {

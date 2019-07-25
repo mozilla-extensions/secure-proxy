@@ -4,7 +4,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-/* globals ChromeUtils, ExtensionAPI, ExtensionCommon, Services, ExtensionPreferencesManager, ExtensionError, Preferences, Cu */
+/* globals ExtensionAPI, ExtensionCommon, Services, ExtensionPreferencesManager, ExtensionError, Preferences */
 
 "use strict";
 
@@ -21,6 +21,7 @@ ChromeUtils.defineModuleGetter(this, "setTimeout",
 ChromeUtils.defineModuleGetter(this, "ExtensionPreferencesManager",
                                "resource://gre/modules/ExtensionPreferencesManager.jsm");
 
+// eslint-disable-next-line mozilla/reject-importGlobalProperties
 Cu.importGlobalProperties(["URL"]);
 
 // Cribbed from browser.js with some changes to allow for our strings
@@ -239,7 +240,7 @@ this.proxyutils = class extends ExtensionAPI {
               Services.prefs.addObserver("network.proxy.type", observer);
               return () => {
                 Services.prefs.removeObserver("network.proxy.type", observer);
-              }
+              };
             }
           }).api(),
 
@@ -255,7 +256,7 @@ this.proxyutils = class extends ExtensionAPI {
                 url = Services.prefs.getStringPref(pref);
               } catch (e) {
                 // No pref value set
-                return;
+                return null;
               }
 
               try {
@@ -282,7 +283,7 @@ this.proxyutils = class extends ExtensionAPI {
             let nativeTab = getTabOrActive(tabId);
             let uri = Services.uriFixup.createExposableURI(Services.io.newURI(url));
             let errorEnum = "NS_ERROR_PROXY_BAD_GATEWAY";
-            if (errorCode == 407 && errorCode == 429) {
+            if (errorCode === 407 && errorCode === 429) {
               errorEnum = "NS_ERROR_UNKNOWN_PROXY_HOST";
             }
             const code = `let spec = "${uri.spec}"; let uri = Services.io.newURI(spec); docShell.displayLoadError(Cr.${errorEnum}, uri, docShell.failedChannel);`;

@@ -5,7 +5,8 @@ module.exports = {
     webextensions: true
   },
   extends: [
-    "eslint:recommended"
+    "eslint:recommended",
+    "plugin:mozilla/recommended"
   ],
   globals: {
     fxaCryptoRelier: false,
@@ -20,20 +21,22 @@ module.exports = {
     PROXY_STATE_AUTHFAILURE: false,
     PROXY_STATE_UNAUTHENTICATED: false,
     Survey: false
-},
+  },
   parserOptions: {
     ecmaVersion: 2018,
     sourceType: "module"
   },
+  plugins: [
+    "mozilla"
+  ],
   root: true,
   rules: {
-    "eqeqeq": "off",
+    "prettier/prettier": "off",
+
+    "comma-dangle": ["off", "never"],
+    "eqeqeq": "error",
     "no-console": "off",
-    "no-throw-literal": "error",
-    "no-unused-vars": ["error", {vars: "all", args: "none", ignoreRestSiblings: true}],
-    "no-var": "warn",
-    "no-warning-comments": "warn",
-    "prefer-const": "off",
-    "semi": ["off", "always"]
+    "no-unused-vars": ["error", {vars: "local", args: "none"}],
+    "no-var": "error"
   }
 };

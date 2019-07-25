@@ -14,7 +14,7 @@ const FXA_PROXY_SCOPE = "https://identity.mozilla.com/apps/secure-proxy";
 const FXA_CLIENT_ID = "a8c528140153d1c6";
 
 // Token expiration time
-const FXA_EXP_TIME = 21600 // 6 hours
+const FXA_EXP_TIME = 21600; // 6 hours
 
 // Used to see if HTTP errors are actually valid. See the comment in
 // browser.webRequest.onCompleted.
@@ -25,11 +25,11 @@ const CONNECTING_HTTPS_REQUEST = "https://www.mozilla.org/robots.txt";
 const PROXY_URL = "https://proxy-staging.cloudflareclient.com:8001";
 
 // How early we want to re-generate the tokens (in secs)
-const EXPIRE_DELTA = 3600
+const EXPIRE_DELTA = 3600;
 
 // These URLs must be formatted
 const LEARN_MORE_URL = "https://support.mozilla.org/1/firefox/%VERSION%/%OS%/%LOCALE%/cloudflare";
-const HELP_AND_SUPPORT_URL = "https://support.mozilla.org/1/firefox/%VERSION%/%OS%/%LOCALE%/firefox-private-network"
+const HELP_AND_SUPPORT_URL = "https://support.mozilla.org/1/firefox/%VERSION%/%OS%/%LOCALE%/firefox-private-network";
 
 // These URLs do not need to be formatted
 const PRIVACY_POLICY_URL = "https://www.mozilla.org/privacy/firefox-private-network";
@@ -37,7 +37,7 @@ const TERMS_AND_CONDITIONS_URL = "https://www.mozilla.org/about/legal/terms/fire
 
 // Parameters for DNS over HTTP
 const DOH_MODE = 3;
-const DOH_BOOTSTRAP_ADDRESS = "1.1.1.1"
+const DOH_BOOTSTRAP_ADDRESS = "1.1.1.1";
 
 // If run() fails, it will be retriggered after this timeout (in milliseconds)
 const RUN_TIMEOUT = 5000; // 5 secs
@@ -71,8 +71,8 @@ class Background {
     this.fxaOpenID = prefs.fxaURL || FXA_OPENID;
 
     let proxyURL = new URL(prefs.proxyURL || PROXY_URL);
-    this.proxyType = proxyURL.protocol == "https:" ? "https" : "http";
-    this.proxyPort = proxyURL.port || (proxyURL.protocol == "https:" ? 443 : 80);
+    this.proxyType = proxyURL.protocol === "https:" ? "https" : "http";
+    this.proxyPort = proxyURL.port || (proxyURL.protocol === "https:" ? 443 : 80);
     this.proxyHost = proxyURL.hostname;
 
     try {
@@ -98,8 +98,8 @@ class Background {
 
     // Handle header errors before we render the response
     browser.webRequest.onHeadersReceived.addListener(details => {
-      if (this.proxyState == PROXY_STATE_OFFLINE) {
-        return;
+      if (this.proxyState === PROXY_STATE_OFFLINE) {
+        return {};
       }
 
       // We can receive http error status codes onCompleted if the connection is
@@ -108,7 +108,7 @@ class Background {
       // server to send them. Instead, we fetch a HTTPS request. If the proxy is
       // blocking us for real, we will receive the same status code in
       // onErrorOccurred.
-      if (details.statusCode == 407 || details.statusCode == 429) {
+      if (details.statusCode === 407 || details.statusCode === 429) {
         this.processPotentialNetworkError();
       }
 
@@ -116,18 +116,19 @@ class Background {
       // These only occur over http and we can't really handle sub resources
       if ([502, 407, 429].includes(details.statusCode) &&
           details.tabId &&
-          details.type == "main_frame" &&
+          details.type === "main_frame" &&
           details.responseHeaders.find((header) => {
-            return header.name == "cf-warp-error" && header.value == 1;
+            return header.name === "cf-warp-error" && header.value === 1;
           })) {
         browser.experiments.proxyutils.loadNetError(details.statusCode, details.url, details.tabId);
         return {cancel: true};
       }
+      return {};
     }, {urls: ["http://*/*"]}, ["responseHeaders", "blocking"]);
 
     browser.webRequest.onHeadersReceived.addListener(details => {
-      if (this.proxyState == PROXY_STATE_CONNECTING &&
-          details.statusCode == 200) {
+      if (this.proxyState === PROXY_STATE_CONNECTING &&
+          details.statusCode === 200) {
         this.connectionSucceeded();
       }
     }, {urls: [CONNECTING_HTTPS_REQUEST]}, ["responseHeaders", "blocking"]);
@@ -149,8 +150,8 @@ class Background {
       this.panelConnected(port);
     });
 
-    window.addEventListener('online', _ => this.onConnectivityChanged());
-    window.addEventListener('offline', _ => this.onConnectivityChanged());
+    window.addEventListener("online", _ => this.onConnectivityChanged());
+    window.addEventListener("offline", _ => this.onConnectivityChanged());
 
     // Let's initialize the survey object.
     await this.survey.init(this);
@@ -194,18 +195,17 @@ class Background {
       return;
     }
 
-    if (errorStatus == "NS_ERROR_PROXY_AUTHENTICATION_FAILED") {
+    if (errorStatus === "NS_ERROR_PROXY_AUTHENTICATION_FAILED") {
       this.proxyState = PROXY_STATE_PROXYAUTHFAILED;
       this.updateUI();
       this.maybeGenerateTokens();
       return;
     }
 
-    if (errorStatus == "NS_ERROR_PROXY_CONNECTION_REFUSED" ||
-        errorStatus == "NS_ERROR_TOO_MANY_REQUESTS") {
+    if (errorStatus === "NS_ERROR_PROXY_CONNECTION_REFUSED" ||
+        errorStatus === "NS_ERROR_TOO_MANY_REQUESTS") {
       this.proxyState = PROXY_STATE_PROXYERROR;
       this.updateUI();
-      return;
     }
   }
 
@@ -236,7 +236,7 @@ class Background {
 
     let promptNotice;
     let isWarning = false;
-    switch(this.proxyState) {
+    switch (this.proxyState) {
       case PROXY_STATE_INACTIVE:
         promptNotice = "toastProxyOff";
         break;
@@ -295,9 +295,9 @@ class Background {
     }
 
     // All seems good. Let's see if the proxy should enabled.
-    if (this.proxyState == PROXY_STATE_UNAUTHENTICATED) {
+    if (this.proxyState === PROXY_STATE_UNAUTHENTICATED) {
       let { proxyState } = await browser.storage.local.get(["proxyState"]);
-      if (proxyState == PROXY_STATE_INACTIVE) {
+      if (proxyState === PROXY_STATE_INACTIVE) {
         this.proxyState = PROXY_STATE_INACTIVE;
       } else if ((await this.maybeGenerateTokens())) {
         this.proxyState = PROXY_STATE_CONNECTING;
@@ -307,13 +307,13 @@ class Background {
 
     // If we are here we are not active yet. At least we are connecting.
     // Restore default settings.
-    if (currentState != this.proxyState) {
+    if (currentState !== this.proxyState) {
       this.inactiveSteps();
       this.reloadOrDiscardTabs();
     }
 
     log("computing status - final: " + this.proxyState);
-    return currentState != this.proxyState;
+    return currentState !== this.proxyState;
   }
 
   /**
@@ -338,10 +338,10 @@ class Background {
     log("enabling proxy: " + value);
 
     // We support the changing of proxy state only from some states.
-    if (this.proxyState != PROXY_STATE_UNAUTHENTICATED &&
-        this.proxyState != PROXY_STATE_ACTIVE &&
-        this.proxyState != PROXY_STATE_INACTIVE &&
-        this.proxyState != PROXY_STATE_CONNECTING) {
+    if (this.proxyState !== PROXY_STATE_UNAUTHENTICATED &&
+        this.proxyState !== PROXY_STATE_ACTIVE &&
+        this.proxyState !== PROXY_STATE_INACTIVE &&
+        this.proxyState !== PROXY_STATE_CONNECTING) {
       return;
     }
 
@@ -414,18 +414,18 @@ class Background {
    */
   shouldProxyRequest(requestInfo) {
     function isProtocolSupported(url) {
-      return url.protocol == "http:" ||
-             url.protocol == "https:" ||
-             url.protocol == "ftp:" ||
-             url.protocol == "wss:" ||
-             url.protocol == "ws:";
+      return url.protocol === "http:" ||
+             url.protocol === "https:" ||
+             url.protocol === "ftp:" ||
+             url.protocol === "wss:" ||
+             url.protocol === "ws:";
     }
 
     function isLocal(url) {
-      if (url.hostname == "localhost" ||
-          url.hostname == "localhost.localdomain" ||
-          url.hostname == "localhost6" ||
-          url.hostname == "localhost6.localdomain6") {
+      if (url.hostname === "localhost" ||
+          url.hostname === "localhost.localdomain" ||
+          url.hostname === "localhost6" ||
+          url.hostname === "localhost6.localdomain6") {
         return true;
       }
       const localports = /(^127\.)|(^192\.168\.)|(^10\.)|(^172\.1[6-9]\.)|(^172\.2[0-9]\.)|(^172\.3[0-1]\.)|(^::1$)|(^[fF][cCdD])/;
@@ -475,7 +475,7 @@ class Background {
       this.fxaEndpoints.get(FXA_ENDPOINT_TOKEN),
     ];
     let isAuthUrl = authUrls.some((item) => {
-      return new URL(item).origin == url.origin;
+      return new URL(item).origin === url.origin;
     });
     if (isAuthUrl) {
       return false;
@@ -487,7 +487,7 @@ class Background {
 
   additionalConnectionIsolation(requestInfo) {
     function isWebsocket(url) {
-      return url.protocol == "wss:" || url.protocol == "ws:";
+      return url.protocol === "wss:" || url.protocol === "ws:";
     }
 
     const url = new URL(requestInfo.url);
@@ -569,17 +569,17 @@ class Background {
     const ppid_seed = Math.floor(Math.random() * 1024);
 
     const headers = new Headers();
-    headers.append('Content-Type', 'application/json');
+    headers.append("Content-Type", "application/json");
 
     const request = new Request(this.fxaEndpoints.get(FXA_ENDPOINT_TOKEN), {
-      method: 'POST',
+      method: "POST",
       headers,
       body: JSON.stringify({
         /* eslint-disable camelcase*/
         client_id: FXA_CLIENT_ID,
-        grant_type: 'refresh_token',
+        grant_type: "refresh_token",
         refresh_token: refreshTokenData.refresh_token,
-        scope: scope,
+        scope,
         ttl: FXA_EXP_TIME,
         ppid_seed,
         /* eslint-enable camelcase*/
@@ -604,11 +604,11 @@ class Background {
     log("generate profile data");
 
     const headers = new Headers({
-      'Authorization': `Bearer ${profileTokenData.access_token}`
+      "Authorization": `Bearer ${profileTokenData.access_token}`
     });
 
     const request = new Request(this.fxaEndpoints.get(FXA_ENDPOINT_PROFILE), {
-      method: 'GET',
+      method: "GET",
       headers,
     });
 
@@ -727,7 +727,7 @@ class Background {
       minDiff,
       tokenData,
       tokenGenerated,
-    }
+    };
   }
 
   async authFailure() {
@@ -809,6 +809,7 @@ class Background {
         proxyState: this.proxyState,
       });
     }
+    return null;
   }
 
   async onConnectivityChanged() {
@@ -830,7 +831,7 @@ class Background {
   }
 
   openUrl(url) {
-    browser.tabs.create({url})
+    browser.tabs.create({url});
   }
 
   async hasProxyInUse() {
@@ -843,8 +844,8 @@ class Background {
       return;
     }
 
-    const options = { year: 'numeric', month: '2-digit', day: '2-digit' };
-    const dateTimeFormat = new Intl.DateTimeFormat('en-US', options).format;
+    const options = { year: "numeric", month: "2-digit", day: "2-digit" };
+    const dateTimeFormat = new Intl.DateTimeFormat("en-US", options).format;
 
     let now = dateTimeFormat(Date.now());
     if (this.lastUsageDays.date === now) {
@@ -862,10 +863,10 @@ class Background {
   async proxyStatus() {
     let self = await browser.management.getSelf();
     return {
-      proxyEnabled: this.proxyState == PROXY_STATE_ACTIVE,
+      proxyEnabled: this.proxyState === PROXY_STATE_ACTIVE,
       version: self.version,
       usageDays: this.lastUsageDays.count,
-    }
+    };
   }
 
   connectionSucceeded() {

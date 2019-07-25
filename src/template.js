@@ -50,6 +50,11 @@ export class Template {
     }
     return result.join("");
   }
+
+  renderTo(el) {
+    // eslint-disable-next-line no-unsanitized/property
+    el.innerHTML = this;
+  }
 }
 
 export function escapedTemplate(strings, ...values) {

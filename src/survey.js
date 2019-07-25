@@ -52,7 +52,7 @@ class Survey {
       nextSurvey = SURVEYS[0];
     } else {
       // If the next one doesn't exist, nextSurvey will be undefined.
-      nextSurvey = SURVEYS[SURVEYS.findIndex(a => lastSurvey == a.name) + 1];
+      nextSurvey = SURVEYS[SURVEYS.findIndex(a => lastSurvey === a.name) + 1];
     }
 
     return nextSurvey;
@@ -76,6 +76,6 @@ class Survey {
   formatUrl(url, data) {
     return url.replace(/PROXYENABLED/g, data.proxyEnabled ? "true" : "false")
               .replace(/VERSION/g, data.version)
-              .replace(/USAGEDAYS/g, data.usageDays)
+              .replace(/USAGEDAYS/g, data.usageDays);
   }
 }
