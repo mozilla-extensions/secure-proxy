@@ -183,6 +183,7 @@ header button {
 }
 
 #stateButton {
+  position: relative;
   block-size: 81px;
   inline-size: 81px;
   border-radius: 100%;
@@ -190,7 +191,7 @@ header button {
   background-color: #fff;
   display: inline;
   margin: auto auto;
-  border: 1px solid limegreen; /* TODO get real color */
+  border: #29C1A1 1px solid;
   text-align: center;
   font-weight: bold;
 }
@@ -199,13 +200,44 @@ header button {
   border: 0; /* TODO make this look better */
 }
 
+@keyframes stateButton-hover {
+  0.00% {transform: scale(1);}
+  17.24% {transform: scale(1.2382);}
+  37.93% {transform: scale(1.1938);}
+  58.62% {transform: scale(1.2009999999999998);}
+  79.31% {transform: scale(1.1998);}
+  100.00% {transform: scale(1.2);}
+}
+
+#stateButton:hover {
+  animation: stateButton-hover;
+  animation-duration: 1.75s;
+  animation-fill-mode: both;
+  animation-timing-function: cubic-bezier(0.445,  0.050, 0.550, 0.950);
+}
+
+@keyframes stateButton-connecting {
+  0.00% {transform: scale(1);}
+  14.77% {transform: scale(0.11079999999999998);}
+  31.81% {transform: scale(0.3464);}
+  48.86% {transform: scale(0.28859999999999997);}
+  65.91% {transform: scale(0.3028);}
+  82.95% {transform: scale(0.2993);}
+  100.00% {transform: scale(0.30019999999999997);}
+}
+
+[data-state="connecting"] #stateButton {
+  animation: stateButton-connecting;
+  animation-duration: 1.65s;
+  animation-fill-mode: both;
+  animation-timing-function: cubic-bezier(0.445,  0.050, 0.550, 0.950);
+}
+
 [data-state="disabled"] #stateButton,
-[data-state="connecting"] #stateButton,
-[data-state="enabled"] #stateButton {
+[data-state="connecting"] #stateButton {
   border: 0 none;
 }
 
-[data-state="connecting"] #stateButton,
 [data-state="login"] #stateButton {
   background: transparent;
   border: 0 none;
@@ -220,6 +252,10 @@ header button {
   background: var(--ink-90) url('img/background-loading.png') 0 0 / cover;
   block-size: 200px;
   display: flex;
+  overflow: hidden;
+  width: 320px;
+  height: 200px;
+  position: relative;
 }
 
 [data-state="hidden"]#state {
@@ -237,13 +273,44 @@ header button {
 }
 
 [data-state="connecting"]#state {
-  background: url('img/hero-connecting.svg') -2px -1px / cover,
-              var(--ink-90) url('img/background-loading.png') 0 0 / cover;
+  background: var(--ink-90) url('img/background-loading.png') 0 0 / cover;
 }
 
 [data-state="enabled"]#state {
-  background: url('img/hero-on.svg') -2px -1px / cover,
-              var(--ink-90) url('img/background-on.png') 0 0 / cover;
+  background: var(--ink-90) url('img/background-on.png') 0 0 / cover;
+}
+
+@keyframes circle-effect {
+  0.00% {transform: scale(1); opacity: 1;}
+  100.00% {transform: scale(4); opacity: 0;}
+}
+
+[data-state="enabled"] .enabled-circle {
+  width: 80px;
+  height: 80px;
+  box-shadow: 0px 0px 1px #00c8d7;
+  /* container width (320px) / 2 - self width (80px) / 2 */
+  left: 120px;
+  /* container height (200px) / 2 - self height (80px) / 2 */
+  top: 60px;
+  border-radius: 100%;
+  position: absolute;
+  animation: circle-effect;
+  animation-iteration-count: infinite;
+  animation-duration: 4s;
+  animation-timing-function: cubic-bezier(0.445,  0.050, 0.550, 0.950);
+}
+
+#enabled-circle-2 {
+  animation-delay: 1s;
+}
+
+#enabled-circle-3 {
+  animation-delay: 2s;
+}
+
+#enabled-circle-4 {
+  animation-delay: 3s;
 }
 
 .settingsMenu {
