@@ -1,4 +1,4 @@
-const SURVEY_UNINSTALL = "https://qsurvey.mozilla.com/s3/Secure-Proxy-Exit-Survey?sub=no";
+const SURVEY_UNINSTALL = "https://qsurvey.mozilla.com/s3/fx-private-network-beta-exit-survey?sub=no";
 
 // Survey URLs can contain 'magic' words. These will be replaced with values.
 // Here the list of the supported keywords and their meanings:
@@ -8,7 +8,8 @@ const SURVEY_UNINSTALL = "https://qsurvey.mozilla.com/s3/Secure-Proxy-Exit-Surve
 
 const SURVEYS = [
   // 14 days
-  { name: "start", triggerAfterTime: 1209600, URL: "https://qsurvey.mozilla.com/s3/fx-private-network-beta-survey" },
+  { name: "14-day", triggerAfterTime: 1209600, URL: "https://qsurvey.mozilla.com/s3/fx-private-network-beta-survey?type=14-day&enabled=PROXYENABLED&v=VERSION&days=USAGEDAYS" },
+
 ];
 
 // This class controls the survey URLs and when they have to be shown.
