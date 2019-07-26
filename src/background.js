@@ -60,6 +60,9 @@ class Background {
     this.pendingErrorFetch = false;
     this.proxyState = PROXY_STATE_UNAUTHENTICATED;
     this.webSocketConnectionIsolationCounter = 0;
+
+   // A map of content-script ports. The key is the tabId.
+    this.contentScriptPorts = new Map();
   }
 
   async init() {
@@ -147,7 +150,17 @@ class Background {
     });
 
     browser.runtime.onConnect.addListener(port => {
-      this.panelConnected(port);
+      if (port.name === "port-from-cs") {
+        this.contentScriptConnected(port);
+        return;
+      }
+
+      if (port.name === "panel") {
+        this.panelConnected(port);
+        return;
+      }
+
+      console.log("Invalid port name!");
     });
 
     window.addEventListener("online", _ => this.onConnectivityChanged());
@@ -872,12 +885,11 @@ class Background {
   connectionSucceeded() {
     this.afterConnectionSteps();
     this.proxyState = PROXY_STATE_ACTIVE;
+    this.informContentScripts();
     this.updateUI();
   }
 
   afterConnectionSteps() {
-    browser.privacy.network.peerConnectionEnabled.set({ value: false });
-
     browser.experiments.proxyutils.DNSoverHTTPEnabled.set({value: DOH_MODE});
     browser.experiments.proxyutils.DNSoverHTTPBootstrapAddress.set({value: DOH_BOOTSTRAP_ADDRESS});
     browser.experiments.proxyutils.DNSoverHTTPExcludeDomains.set({value: this.proxyHost});
@@ -886,13 +898,34 @@ class Background {
   }
 
   inactiveSteps() {
-    browser.privacy.network.peerConnectionEnabled.clear({});
-
     browser.experiments.proxyutils.DNSoverHTTPEnabled.clear({});
     browser.experiments.proxyutils.DNSoverHTTPBootstrapAddress.clear({});
     browser.experiments.proxyutils.DNSoverHTTPExcludeDomains.clear({});
 
     browser.experiments.proxyutils.FTPEnabled.clear({});
+  }
+
+  contentScriptConnected(port) {
+    log("content-script connected");
+
+    this.contentScriptPorts.set(port.sender.tab.id, port);
+    // Let's inform the new port about the current state.
+    this.contentScriptNotify(port);
+
+    port.onDisconnect.addListener(_ => {
+      log("content-script port disconnected");
+      this.contentScriptPorts.delete(port.sender.tab.id);
+    });
+  }
+
+  contentScriptNotify(p) {
+    p.postMessage({type: "proxyState", enabled: this.proxyState == PROXY_STATE_ACTIVE});
+  }
+
+  informContentScripts() {
+    this.contentScriptPorts.forEach(p => {
+      this.contentScriptNotify(p);
+    });
   }
 }
 

@@ -11,7 +11,7 @@ import viewSettingsName from "./views/settings.js";
 const loadingTimeout = 5000;
 
 async function init() {
-  let port = browser.runtime.connect();
+  let port = browser.runtime.connect({name: "panel"});
   View.setPort(port);
 
   // Let's start showing something...
