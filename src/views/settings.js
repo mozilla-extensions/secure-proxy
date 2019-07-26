@@ -1,5 +1,5 @@
-import {View} from '../view.js'
-import {escapedTemplate} from '../template.js'
+import {View} from "../view.js";
+import {escapedTemplate} from "../template.js";
 
 // Settings view.
 class ViewSettings extends View {
@@ -52,7 +52,7 @@ class ViewSettings extends View {
       await View.sendMessage("manageAccount");
     }
 
-    if (e.target.id == "giveUsFeedback") {
+    if (e.target.id === "giveUsFeedback") {
       await View.sendMessage("openUrl", {url: "https://qsurvey.mozilla.com/s3/fx-private-network-beta-feedback"});
     }
 

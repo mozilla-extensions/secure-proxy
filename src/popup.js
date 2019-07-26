@@ -1,13 +1,13 @@
-import {View} from './view.js';
-import viewConnectingName from './views/connecting.js'
-import viewErrorName from './views/error.js'
-import viewLoadingName from './views/loading.js'
-import viewLoginName from './views/login.js'
-import viewMainName from './views/main.js'
-import viewOfflineName from './views/offline.js';
-import viewOtherInUseName from './views/otherInUse.js';
-import viewProxyErrorName from './views/proxyError.js';
-import viewSettingsName from './views/settings.js';
+import {View} from "./view.js";
+import viewConnectingName from "./views/connecting.js";
+import viewErrorName from "./views/error.js";
+import viewLoadingName from "./views/loading.js";
+import viewLoginName from "./views/login.js";
+import viewMainName from "./views/main.js";
+import viewOfflineName from "./views/offline.js";
+import viewOtherInUseName from "./views/otherInUse.js";
+import viewProxyErrorName from "./views/proxyError.js";
+import viewSettingsName from "./views/settings.js";
 const loadingTimeout = 5000;
 
 async function init() {
@@ -91,7 +91,6 @@ async function init() {
 
       default:
         View.setView(viewErrorName, "internalError");
-        return;
     }
   });
 }
