@@ -322,7 +322,10 @@ class Background {
     // Restore default settings.
     if (currentState !== this.proxyState) {
       this.inactiveSteps();
-      this.reloadOrDiscardTabs();
+
+      if (this.proxyState === PROXY_STATE_INACTIVE) {
+        this.reloadOrDiscardTabs();
+      }
     }
 
     log("computing status - final: " + this.proxyState);
@@ -884,6 +887,7 @@ class Background {
 
   connectionSucceeded() {
     this.afterConnectionSteps();
+    this.reloadOrDiscardTabs();
     this.proxyState = PROXY_STATE_ACTIVE;
     this.informContentScripts();
     this.updateUI();
