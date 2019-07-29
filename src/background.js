@@ -19,7 +19,7 @@ const FXA_EXP_TIME = 21600; // 6 hours
 // Used to see if HTTP errors are actually valid. See the comment in
 // browser.webRequest.onCompleted.
 const SAFE_HTTPS_REQUEST = "https://www.mozilla.org/robots.txt";
-const CONNECTING_HTTPS_REQUEST = "https://www.mozilla.org/robots.txt";
+const CONNECTING_HTTPS_REQUEST = "http://test.factor11.cloudflareclient.com/";
 
 // Proxy configuration
 const PROXY_URL = "https://proxy-staging.cloudflareclient.com:8001";
