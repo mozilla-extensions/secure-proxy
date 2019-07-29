@@ -16,9 +16,6 @@
   "injectedModalHeading": {
     "message": "Firefox Private Network"
   },
-  "injectedModalText": {
-    "message": "To protect your connection to %S, Private Network disabled parts of this page. Turning off Private Network will enable all functionality, but makes your connection to this site less secure."
-  },
   "injectedModalDismissButton": {
     "message": "Not Now"
   },

@@ -11,20 +11,40 @@ class ContentScriptBanner {
     return browser.i18n.getMessage(stringName);
   }
 
-
-  insertBanner() {
-console.log("banner");
-    let modal = document.createElement("div");
+  async insertBanner() {
+    this.modal = document.createElement("section");
+    this.modal.id = "injectedModal";
+    let domainName = window.location.hostname.replace(/^www./, "");
     let template = escapedTemplate`
-      <h1>${this.getTranslation("injectedModalHeading")}</h1>
-      <p>${this.getTranslation("injectedModalText")}</p>
-      <button>${this.getTranslation("injectedModalDismissButton")}</button>
-      <button>${this.getTranslation("injectedModalAcceptButton")}</button>
+      <div class="content">
+        <header>
+          <button id="close"></button>
+        </header>
+        <h1>${this.getTranslation("injectedModalHeading")}</h1>
+        <p>To protect your connection to <strong>${domainName}</strong>, Private Network disabled parts of this page. Turning off Private Network will enable all functionality, but makes your connection to this site less secure.</p>
+        <footer>
+          <button id="notNow">${this.getTranslation("injectedModalDismissButton")}</button>
+          <button>${this.getTranslation("injectedModalAcceptButton")}</button>
+        </footer>
+      </div>
     `;
-    template.renderTo(modal);
-console.log("banner", modal);
-    document.body.appendChild(modal);
-console.log("banner", modal);
+    this.modal.addEventListener("click", this);
+    template.renderTo(this.modal);
+    document.body.appendChild(this.modal);
+  }
+
+  close() {
+    document.body.removeChild(this.modal);
+    this.modal = null;
+  }
+
+  handleEvent(e) {
+    console.log("b", e);
+    if (e.target.id === "close" || e.target.id === "notNow") {
+      this.close();
+    } else {
+      browser.runtime.sendMessage({message: "exemptSite", origin: window.location.origin});
+    }
   }
 }
 

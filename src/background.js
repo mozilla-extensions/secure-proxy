@@ -161,6 +161,9 @@ class Background {
       }
     });
 
+    browser.runtime.onMessage.addListener(a => {
+console.log("boop", a);
+    });
     browser.runtime.onConnect.addListener(port => {
       if (port.name === "port-from-cs") {
         this.contentScriptConnected(port);
@@ -798,6 +801,7 @@ class Background {
 
     // Let's send the initial data.
     port.onMessage.addListener(async message => {
+console.log("boop");
       log("Message received from the panel");
 
       switch (message.type) {
