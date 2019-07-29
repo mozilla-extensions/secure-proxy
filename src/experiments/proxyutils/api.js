@@ -236,8 +236,20 @@ this.proxyutils = class extends ExtensionAPI {
             } catch (e) {
             }
 
+            try {
+              let cdu = Services.prefs.getStringPref("network.connectivity-service.IPv4.url");
+              domains.push(new URL(cdu).hostname);
+            } catch (e) {
+            }
+
+            try {
+              let cdu = Services.prefs.getStringPref("network.connectivity-service.IPv6.url");
+              domains.push(new URL(cdu).hostname);
+            } catch (e) {
+            }
+
             let localhostDomains = [ "localhost.localdomain", "localhost6.localdomain6", "localhost6"];
-            return domains.concat(localhostDomains).join(",");
+            return [...new Set(domains.concat(localhostDomains))].join(",");
           }),
 
           onChanged: new EventManager({
