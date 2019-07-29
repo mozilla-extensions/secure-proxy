@@ -136,8 +136,8 @@ class Background {
       }
     }, {urls: [CONNECTING_HTTPS_REQUEST]}, ["responseHeaders", "blocking"]);
 
-    browser.webRequest.onErrorOccurred.addListener(details => {
-      this.processNetworkError(details.error);
+    browser.webRequest.onErrorOccurred.addListener(async details => {
+      await this.processNetworkError(details.error);
     }, {urls: ["<all_urls>"]});
 
 
@@ -200,7 +200,7 @@ class Background {
     return browser.i18n.getMessage(stringName);
   }
 
-  processNetworkError(errorStatus) {
+  async processNetworkError(errorStatus) {
     log("processNetworkError: " + errorStatus);
 
     if (this.proxyState !== PROXY_STATE_ACTIVE &&
@@ -210,8 +210,15 @@ class Background {
 
     if (errorStatus === "NS_ERROR_PROXY_AUTHENTICATION_FAILED") {
       this.proxyState = PROXY_STATE_PROXYAUTHFAILED;
+
+      await browser.storage.local.set({
+        proxyTokenData: null,
+        profileTokenData: null,
+        profileData: null,
+      });
+
       this.updateUI();
-      this.maybeGenerateTokens();
+      await this.maybeGenerateTokens();
       return;
     }
 
