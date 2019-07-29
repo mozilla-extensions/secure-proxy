@@ -65,6 +65,12 @@
       "matches": ["<all_urls>"],
       "js": ["content-script.js"],
       "run_at": "document_start"
+    },
+    {
+      "matches": ["*://*.messenger.com/*"],
+      "js": ["template.js", "content-script-modal.js"],
+      "css": ["content-modal.css"],
+      "run_at": "document_end"
     }
   ]
 }

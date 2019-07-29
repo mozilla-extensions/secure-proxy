@@ -1,5 +1,4 @@
 import {View} from "../view.js";
-import {escapedTemplate} from "../template.js";
 
 // Main view.
 class ViewMain extends View {
