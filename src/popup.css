@@ -160,21 +160,30 @@ header button {
 
 #settingsButton,
 #backButton {
+  --button-background: transparent;
+  box-sizing: content-box;
   block-size: 16px;
   inline-size: 16px;
   min-height: auto;
   align-self: center;
   display: block;
   border: none;
+  padding: 4px;
+  border-radius: 2px;
+}
+
+#settingsButton:hover,
+#backButton:hover {
+  --button-background: var(--grey-20);
 }
 
 #settingsButton {
-  background: url('/img/i-settings32.svg') -7px -7px / 30px; /* TODO get cropped SVG to remove this cropping */
   margin-inline-start: var(--center-offset);
+  background: var(--button-background) url('/img/i-settings32.svg') 50% / 30px no-repeat; /* TODO get cropped SVG to remove this cropping */
 }
 
 #backButton {
-  background: url('/img/arrow-left.svg');
+  background: var(--button-background) url('/img/arrow-left.svg') 50% / 16px no-repeat;
   margin-inline-end: var(--center-offset);
 }
 
