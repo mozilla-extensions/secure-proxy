@@ -229,7 +229,15 @@ this.proxyutils = class extends ExtensionAPI {
           DNSoverHTTPExcludeDomains: prefHelper("network.trr.excluded-domains", value => {
             let domains = Preferences.get("network.trr.excluded-domains").split(",");
             domains.push(value);
-            return domains.join(",");
+
+            try {
+              let cdu = Services.prefs.getStringPref("captivedetect.canonicalURL");
+              domains.push(new URL(cdu).hostname);
+            } catch (e) {
+            }
+
+            let localhostDomains = [ "localhost.localdomain", "localhost6.localdomain6", "localhost6"];
+            return domains.concat(localhostDomains).join(",");
           }),
 
           onChanged: new EventManager({
