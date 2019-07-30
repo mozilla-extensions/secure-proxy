@@ -66,7 +66,7 @@ class Background {
   }
 
   async init() {
-    const prefs = await browser.experiments.proxyutils.getProxyPrefs();
+    const prefs = await browser.experiments.proxyutils.settings.get({});
     debuggingMode = prefs.debuggingEnabled;
 
     log("init");
@@ -1010,18 +1010,19 @@ class Background {
   }
 
   afterConnectionSteps() {
-    browser.experiments.proxyutils.DNSoverHTTPEnabled.set({value: DOH_MODE});
-    browser.experiments.proxyutils.DNSoverHTTPBootstrapAddress.set({value: DOH_BOOTSTRAP_ADDRESS});
-    browser.experiments.proxyutils.DNSoverHTTPExcludeDomains.set({value: this.proxyHost});
+    browser.experiments.proxyutils.DNSoverHTTP.set({
+      value: {
+        mode: DOH_MODE,
+        bootstrapAddress: DOH_BOOTSTRAP_ADDRESS,
+        excludedDomains: this.proxyHost,
+      }
+    });
 
     browser.experiments.proxyutils.FTPEnabled.set({value: false});
   }
 
   inactiveSteps() {
-    browser.experiments.proxyutils.DNSoverHTTPEnabled.clear({});
-    browser.experiments.proxyutils.DNSoverHTTPBootstrapAddress.clear({});
-    browser.experiments.proxyutils.DNSoverHTTPExcludeDomains.clear({});
-
+    browser.experiments.proxyutils.DNSoverHTTP.clear({});
     browser.experiments.proxyutils.FTPEnabled.clear({});
   }
 
