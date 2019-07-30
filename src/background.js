@@ -232,25 +232,17 @@ class Background {
   async processNetworkError(url, errorStatus) {
     log(`processNetworkError: ${url}  ${errorStatus}`);
 
-    if (this.proxyState !== PROXY_STATE_ACTIVE &&
-        this.proxyState !== PROXY_STATE_CONNECTING) {
-      return;
-    }
-
     if (errorStatus === "NS_ERROR_PROXY_AUTHENTICATION_FAILED") {
-      this.proxyState = PROXY_STATE_PROXYAUTHFAILED;
-
-      await browser.storage.local.set({
-        proxyTokenData: null,
-        profileTokenData: null,
-        profileData: null,
-      });
-
-      this.updateUI();
-      await this.maybeGenerateTokens();
+      if (!(await this.maybeRecoverFromAuthFailure()) &&
+          (this.proxyState === PROXY_STATE_ACTIVE ||
+           this.proxyState === PROXY_STATE_CONNECTING)) {
+        this.proxyState = PROXY_STATE_PROXYAUTHFAILED;
+        this.updateUI();
+      }
       return;
     }
 
+    // From here, we need user interaction to recover.
     if (errorStatus === "NS_ERROR_PROXY_CONNECTION_REFUSED" ||
         errorStatus === "NS_ERROR_TOO_MANY_REQUESTS") {
       this.proxyState = PROXY_STATE_PROXYERROR;
@@ -1003,6 +995,8 @@ class Background {
   }
 
   connectionSucceeded() {
+    this.hasPendingRecovering = false;
+
     this.afterConnectionSteps();
     this.reloadOrDiscardTabs();
     this.proxyState = PROXY_STATE_ACTIVE;
@@ -1052,6 +1046,32 @@ class Background {
     this.contentScriptPorts.forEach(p => {
       this.contentScriptNotify(p);
     });
+  }
+
+  async maybeRecoverFromAuthFailure() {
+    // If we are already trying to recover from an authentication failure, it's
+    // time to inform the user.
+    if (this.hasPendingRecovering) {
+      return false;
+    }
+
+    // We need new tokens.
+    await browser.storage.local.set({
+      proxyTokenData: null,
+      profileTokenData: null,
+      profileData: null,
+    });
+
+    // Token generation failure! Let's inform the user.
+    if (!(await this.maybeGenerateTokens())) {
+      return false;
+    }
+
+    // Let's go back to a connecting state.
+    this.hasPendingRecovering = true;
+    this.proxyState = PROXY_STATE_CONNECTING;
+    this.testProxyConnection();
+    return true;
   }
 }
 
