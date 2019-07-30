@@ -7,6 +7,9 @@ const SURVEY_UNINSTALL = "https://qsurvey.mozilla.com/s3/fx-private-network-beta
 // - USAGEDAYS - number of days with the proxy enabled (at least for 1 request)
 
 const SURVEYS = [
+  // Onboarding page
+  { name: "onboarding", triggerAfterTime: 0, URL: "https://private-network.firefox.com/onboarding" },
+
   // 14 days
   { name: "14-day", triggerAfterTime: 1209600, URL: "https://qsurvey.mozilla.com/s3/fx-private-network-beta-survey?type=14-day&enabled=PROXYENABLED&v=VERSION&days=USAGEDAYS" },
 
