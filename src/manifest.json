@@ -48,14 +48,6 @@
         "script": "experiments/proxyutils/api.js",
         "paths": [["experiments", "proxyutils"]]
       }
-    },
-    "popupNotification": {
-      "schema": "experiments/popupNotification/schema.json",
-      "parent": {
-        "scopes": ["addon_parent"],
-        "script": "experiments/popupNotification/api.js",
-        "paths": [["experiments", "popupNotification"]]
-      }
     }
   },
 
