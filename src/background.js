@@ -919,7 +919,7 @@ class Background {
   }
 
   contentScriptNotify(p) {
-    p.postMessage({type: "proxyState", enabled: this.proxyState == PROXY_STATE_ACTIVE});
+    p.postMessage({type: "proxyState", enabled: this.proxyState === PROXY_STATE_ACTIVE});
   }
 
   informContentScripts() {
