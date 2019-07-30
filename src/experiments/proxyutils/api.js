@@ -57,7 +57,7 @@ let ConfirmationHint = {
       this._panel.setAttribute("hidearrow", "true");
     }
 
-    // TODO fix CSS fragility with conflicting with firefox and hardcoded vars
+    // Bug https://github.com/mozilla/secure-proxy/issues/252
     this.setCSS("#0060ED", "#fff");
     this.setIcon();
     if (options.isWarning) {
