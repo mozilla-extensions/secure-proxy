@@ -2,18 +2,10 @@
 
 const ContentScript = {
   proxyEnabled: false,
+  exempted: false,
 
   async init() {
     this.createPort();
-    // Check if we are a site that we show a banner for
-    if (this.originIsExemptable()) {
-      let store = await this.checkStorage();
-      if (!store) {
-        new ContentScriptBanner();
-      } if (store === "ignoreSite") {
-        return;
-      }
-    }
     this.overwriteProperties();
     return;
   },
@@ -30,19 +22,16 @@ const ContentScript = {
     ].includes(window.location.hostname);
   },
 
-  getKey() {
-    return "webRTCDisable_" + window.location.origin;
-  },
-
-  async checkStorage() {
-    let key = this.getKey();
-    let data = await browser.storage.local.get([key]);
-    return data[key];
-  },
-
   createPort() {
     this.port = browser.runtime.connect({ name:"port-from-cs" });
     this.port.onMessage.addListener(message => {
+      this.exempted = message.exempted;
+
+      // Check if we are a site that we show a banner for
+      if (this.originIsExemptable() && this.exempted === undefined) {
+        new ContentScriptBanner();
+      }
+
       if (message.type === "proxyState") {
         this.proxyEnabled = message.enabled;
         return;
@@ -72,7 +61,7 @@ const ContentScript = {
       data.originalMethod = data.parentObject.wrappedJSObject[data.methodName];
       Object.defineProperty(data.parentObject.wrappedJSObject, data.methodName, {
        get: exportFunction(() => {
-        if (this.proxyEnabled) {
+        if (this.proxyEnabled && this.exempted !== "exempt") {
           if (data.type === "method") {
             return exportFunction(() => {
               return window.wrappedJSObject.Promise.reject(new window.wrappedJSObject.Error("SecurityError"));
@@ -92,8 +81,8 @@ const ContentScript = {
     });
   },
 
-  async exempt() {
-    return this.port.postMessage({type: "thing"});
+  async exempt(type) {
+    return this.port.postMessage({ type });
   }
 };
 
@@ -151,20 +140,16 @@ class ContentScriptBanner {
   }
 
   async handleSiteEvent(e) {
-    let message;
+    let type;
     if (e.target.id === "close" || e.target.id === "notNow") {
-      message = "ignoreSite";
+      type = "ignoreTab";
     } else if (e.target.id === "exempt") {
-      message = "exemptSite";
+      type = "exemptTab";
     } else {
       return;
     }
-    await browser.storage.local.set({[ContentScript.getKey()]: message});
     this.close();
-    if (message === "exemptSite") {
-      await ContentScript.exempt();
-      window.location.reload();
-    }
+    await ContentScript.exempt(type);
   }
 
   handleEvent(e) {

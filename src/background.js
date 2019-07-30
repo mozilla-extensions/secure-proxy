@@ -55,7 +55,7 @@ class Background {
     log("constructor");
 
     this.survey = new Survey();
-    this.exemptTabIds = new Set();
+    this.exemptTabIds = new Map();
     this.fxaEndpoints = new Map();
     this.proxyState = PROXY_STATE_UNAUTHENTICATED;
     this.webSocketConnectionIsolationCounter = 0;
@@ -95,6 +95,9 @@ class Background {
     }
     this.lastUsageDays = lastUsageDays;
 
+    browser.tabs.onRemoved.addListener((tabId) => {
+      this.exemptTabIds.delete(tabId);
+    });
     // Proxy configuration
     browser.proxy.onRequest.addListener(async requestInfo => {
       return this.proxyRequestCallback(requestInfo);
@@ -454,7 +457,7 @@ class Background {
    */
   shouldProxyRequest(requestInfo) {
     // If user has exempted the tab from the proxy, don't proxy
-    if (this.exemptTabIds.has(requestInfo.tabId)) {
+    if (this.exemptTabIds.get(requestInfo.tabId) === "exemptTab") {
       return false;
     }
 
@@ -969,7 +972,7 @@ class Background {
     log("content-script connected");
 
     port.onMessage.addListener(async message => {
-      this.exemptTabIds.add(port.sender.tab.id);
+      this.exemptTabIds.set(port.sender.tab.id, message.type);
       console.log("got message", message, port.sender.tab.id);
     });
 
@@ -984,7 +987,8 @@ class Background {
   }
 
   contentScriptNotify(p) {
-    p.postMessage({type: "proxyState", enabled: this.proxyState === PROXY_STATE_ACTIVE});
+    const exempted = this.exemptTabIds.get(p.sender.tab.id);
+    p.postMessage({type: "proxyState", enabled: this.proxyState === PROXY_STATE_ACTIVE, exempted});
   }
 
   informContentScripts() {
