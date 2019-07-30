@@ -4,8 +4,39 @@ const ContentScript = {
   proxyEnabled: false,
 
   async init() {
+    // Check if we are a site that we show a banner for
+    if (this.originIsExemptable()) {
+      let store = await this.checkStorage();
+      if (!store) {
+        new ContentScriptBanner();
+      } if (store === "ignoreSite") {
+        return;
+      }
+    }
+    this.initOverride();
+    return;
+  },
+
+  initOverride() {
     this.createPort();
     this.overwriteProperties();
+  },
+
+  originIsExemptable() {
+    if (["www.messenger.com"].includes(window.location.hostname)) {
+      return true;
+    }
+    return false;
+  },
+
+  getKey() {
+    return "content_" + window.location.origin;
+  },
+
+  async checkStorage() {
+    let key = this.getKey();
+    let data = await browser.storage.local.get([key]);
+    return data[key];
   },
 
   createPort() {
@@ -62,3 +93,76 @@ const ContentScript = {
 };
 
 ContentScript.init();
+
+class ContentScriptBanner {
+  constructor() {
+    this.insertBannerOnDocumentLoad();
+  }
+
+  insertBannerOnDocumentLoad() {
+    const run = () => {
+      this.insertBanner();
+    };
+    if (document.readyState == "loading") {
+      document.addEventListener('DOMContentLoaded', run);
+    } else {
+      run();
+    }
+  }
+
+  // Helper method to receive translated string.
+  getTranslation(stringName, ...args) {
+    if (args.length > 0) {
+      return browser.i18n.getMessage(stringName, ...args);
+    }
+    return browser.i18n.getMessage(stringName);
+  }
+
+  async insertBanner() {
+    this.modal = document.createElement("section");
+    this.modal.id = "injectedModal";
+    let domainName = window.location.hostname.replace(/^www./, "");
+    let template = escapedTemplate`
+      <div class="content">
+        <header>
+          <button id="close"></button>
+        </header>
+        <h1>${this.getTranslation("injectedModalHeading")}</h1>
+        <p>To protect your connection to <strong>${domainName}</strong>, Private Network disabled parts of this page. Turning off Private Network will enable all functionality, but makes your connection to this site less secure.</p>
+        <footer>
+          <button id="notNow">${this.getTranslation("injectedModalDismissButton")}</button>
+          <button id="exempt">${this.getTranslation("injectedModalAcceptButton")}</button>
+        </footer>
+      </div>
+    `;
+    this.modal.addEventListener("click", this);
+    template.renderTo(this.modal);
+    document.body.appendChild(this.modal);
+  }
+
+  close() {
+    document.body.removeChild(this.modal);
+    this.modal = null;
+  }
+
+  async handleSiteEvent(e) {
+    let message;
+    if (e.target.id === "close" || e.target.id === "notNow") {
+      message = "ignoreSite";
+    } else if (e.target.id === "exempt") {
+      message = "exemptSite";
+    } else {
+      return;
+    }
+    await browser.storage.local.set({[ContentScript.getKey()]: message});
+    //await browser.runtime.sendMessage({message, origin: window.location.origin});
+    this.close();
+    if (message === "exemptSite") {
+      window.location.reload();
+    }
+  }
+
+  handleEvent(e) {
+    this.handleSiteEvent(e);
+  }
+}
