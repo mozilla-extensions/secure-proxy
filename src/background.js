@@ -60,6 +60,7 @@ class Background {
     this.pendingErrorFetch = false;
     this.proxyState = PROXY_STATE_UNAUTHENTICATED;
     this.webSocketConnectionIsolationCounter = 0;
+    this.nextExpireTime = 0;
 
    // A map of content-script ports. The key is the tabId.
     this.contentScriptPorts = new Map();
@@ -96,8 +97,9 @@ class Background {
     this.lastUsageDays = lastUsageDays;
 
     // Proxy configuration
-    browser.proxy.onRequest.addListener((requestInfo) => this.proxyRequestCallback(requestInfo),
-                                        {urls: ["<all_urls>"]});
+    browser.proxy.onRequest.addListener(async requestInfo => {
+      return this.proxyRequestCallback(requestInfo);
+    }, {urls: ["<all_urls>"]});
 
     // Handle header errors before we render the response
     browser.webRequest.onHeadersReceived.addListener(details => {
@@ -411,13 +413,19 @@ class Background {
     log("update icon: " + icon);
   }
 
-  proxyRequestCallback(requestInfo) {
+  async proxyRequestCallback(requestInfo) {
     let shouldProxyRequest = this.shouldProxyRequest(requestInfo);
     let additionalConnectionIsolation = this.additionalConnectionIsolation(requestInfo);
 
     log("proxy request for " + requestInfo.url + " => " + shouldProxyRequest);
 
     if (shouldProxyRequest) {
+      let nowInSecs = Math.round((performance.timeOrigin + performance.now()) / 1000);
+      if (this.nextExpireTime && nowInSecs >= this.nextExpireTime) {
+        log("Suspend detected!");
+        await this.maybeGenerateTokens();
+      }
+
       return [{
         type: this.proxyType,
         host: this.proxyHost,
@@ -712,6 +720,9 @@ class Background {
 
     // Let's cache the header.
     this.proxyAuthorizationHeader = proxyTokenData.tokenData.token_type + " " + proxyTokenData.tokenData.access_token;
+
+    this.nextExpireTime = Math.min(proxyTokenData.tokenData.received_at + proxyTokenData.tokenData.expires_in,
+                                   profileTokenData.tokenData.received_at + profileTokenData.tokenData.expires_in);
 
     return true;
   }
