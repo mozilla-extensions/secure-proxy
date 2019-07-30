@@ -18,7 +18,7 @@ const FXA_EXP_TIME = 21600; // 6 hours
 
 // Testing URL. This request is sent with the proxy settings when we are in
 // connecting state. If this succeeds, we go to active state.
-const CONNECTING_HTTPS_REQUEST = "http://test.factor11.cloudflareclient.com/";
+const CONNECTING_HTTP_REQUEST = "http://test.factor11.cloudflareclient.com/";
 
 // Proxy configuration
 const PROXY_URL = "https://proxy-staging.cloudflareclient.com:8001";
@@ -114,11 +114,11 @@ class Background {
           })) {
         switch (details.statusCode) {
           case 407:
-            this.processNetworkError("NS_ERROR_PROXY_AUTHENTICATION_FAILED");
+            this.processNetworkError(details.url, "NS_ERROR_PROXY_AUTHENTICATION_FAILED");
             break;
 
           case 429:
-            this.processNetworkError("NS_ERROR_TOO_MANY_REQUESTS");
+            this.processNetworkError(details.url, "NS_ERROR_TOO_MANY_REQUESTS");
             break;
         }
       }
@@ -138,14 +138,18 @@ class Background {
     }, {urls: ["http://*/*"]}, ["responseHeaders", "blocking"]);
 
     browser.webRequest.onHeadersReceived.addListener(details => {
-      if (this.proxyState === PROXY_STATE_CONNECTING &&
-          details.statusCode === 200) {
+      if (this.proxyState !== PROXY_STATE_CONNECTING) {
+        return;
+      }
+
+      if (details.statusCode === 200) {
         this.connectionSucceeded();
       }
-    }, {urls: [CONNECTING_HTTPS_REQUEST]}, ["responseHeaders", "blocking"]);
+
+    }, {urls: [CONNECTING_HTTP_REQUEST]}, ["responseHeaders", "blocking"]);
 
     browser.webRequest.onErrorOccurred.addListener(async details => {
-      await this.processNetworkError(details.error);
+      await this.processNetworkError(details.url, details.error);
     }, {urls: ["<all_urls>"]});
 
 
@@ -171,13 +175,18 @@ class Background {
       console.log("Invalid port name!");
     });
 
-    window.addEventListener("online", _ => this.onConnectivityChanged());
-    window.addEventListener("offline", _ => this.onConnectivityChanged());
+    // connectivity observer.
+    browser.experiments.proxyutils.onConnectionChanged.addListener(connectivity => {
+      this.onConnectivityChanged(connectivity);
+    });
 
     // Let's initialize the survey object.
     await this.survey.init(this);
   }
 
+  // This method is executed multiple times: at startup time, and each time we
+  // go back online. It fetches all the required resources and it computes the
+  // proxy state.
   async run() {
     if (this.fxaEndpoints.size === 0) {
       this.proxyState = PROXY_STATE_LOADING;
@@ -191,8 +200,11 @@ class Background {
         return;
       }
     }
+
+    // Better to be in this state to compute the new one, but we don't want to
+    // update the UI, right now, because maybe the user is already
+    // authenticated.
     this.proxyState = PROXY_STATE_UNAUTHENTICATED;
-    this.updateUI();
 
     // Here we generate the current proxy state.
     await this.computeProxyState();
@@ -208,8 +220,8 @@ class Background {
     return browser.i18n.getMessage(stringName);
   }
 
-  async processNetworkError(errorStatus) {
-    log("processNetworkError: " + errorStatus);
+  async processNetworkError(url, errorStatus) {
+    log(`processNetworkError: ${url}  ${errorStatus}`);
 
     if (this.proxyState !== PROXY_STATE_ACTIVE &&
         this.proxyState !== PROXY_STATE_CONNECTING) {
@@ -233,6 +245,15 @@ class Background {
     if (errorStatus === "NS_ERROR_PROXY_CONNECTION_REFUSED" ||
         errorStatus === "NS_ERROR_TOO_MANY_REQUESTS") {
       this.proxyState = PROXY_STATE_PROXYERROR;
+      this.updateUI();
+      return;
+    }
+
+    if (this.proxyState === PROXY_STATE_CONNECTING &&
+        url === CONNECTING_HTTP_REQUEST &&
+        (errorStatus === "NS_ERROR_UNKNOWN_PROXY_HOST" ||
+         errorStatus === "NS_ERROR_ABORT")) {
+      this.proxyState = PROXY_STATE_OFFLINE;
       this.updateUI();
     }
   }
@@ -370,7 +391,7 @@ class Background {
     log("executing a fetch to check the connection");
 
     // We don't care about the result of this fetch.
-    fetch(CONNECTING_HTTPS_REQUEST, { cache: "no-cache"}).catch(_ => {});
+    fetch(CONNECTING_HTTP_REQUEST, { cache: "no-cache"}).catch(_ => {});
   }
 
   updateUI() {
@@ -463,9 +484,9 @@ class Background {
       return false;
     }
 
-    // If we are 'connecting', we want to allow just the CONNECTING_HTTPS_REQUEST.
+    // If we are 'connecting', we want to allow just the CONNECTING_HTTP_REQUEST.
     if (this.proxyState === PROXY_STATE_CONNECTING) {
-      return requestInfo.url === CONNECTING_HTTPS_REQUEST;
+      return requestInfo.url === CONNECTING_HTTP_REQUEST;
     }
 
     // Just to avoid recreating the URL several times, let's cache it.
@@ -840,9 +861,26 @@ class Background {
     return null;
   }
 
-  async onConnectivityChanged() {
+  async onConnectivityChanged(connectivity) {
     log("connectivity changed!");
-    await this.run();
+
+    // (!inactive) -> offline.
+    if ((this.proxyState === PROXY_STATE_LOADING ||
+         this.proxyState === PROXY_STATE_UNAUTHENTICATED ||
+         this.proxyState === PROXY_STATE_ACTIVE ||
+         this.proxyState === PROXY_STATE_CONNECTING ||
+         this.proxyState === PROXY_STATE_PROXYERROR ||
+         this.proxyState === PROXY_STATE_PROXYAUTHFAILED ||
+         this.proxyState ===PROXY_STATE_AUTHFAILURE) && !connectivity) {
+      this.proxyState = PROXY_STATE_OFFLINE;
+      this.updateUI();
+      return;
+    }
+
+    // Offline -> online.
+    if ((this.proxyState === PROXY_STATE_OFFLINE) && connectivity) {
+      await this.run();
+    }
   }
 
   async manageAccount() {
