@@ -55,6 +55,7 @@ class Background {
     log("constructor");
 
     this.survey = new Survey();
+    this.exemptTabIds = new Set();
     this.fxaEndpoints = new Map();
     this.proxyState = PROXY_STATE_UNAUTHENTICATED;
     this.webSocketConnectionIsolationCounter = 0;
@@ -452,6 +453,11 @@ class Background {
    * Returns null if the request is internal and shouldn't count.
    */
   shouldProxyRequest(requestInfo) {
+    // If user has exempted the tab from the proxy, don't proxy
+    if (this.exemptTabIds.has(requestInfo.tabId)) {
+      return false;
+    }
+
     function isProtocolSupported(url) {
       return url.protocol === "http:" ||
              url.protocol === "https:" ||
@@ -961,6 +967,11 @@ class Background {
 
   contentScriptConnected(port) {
     log("content-script connected");
+
+    port.onMessage.addListener(async message => {
+      this.exemptTabIds.add(port.sender.tab.id);
+      console.log("got message", message, port.sender.tab.id);
+    });
 
     this.contentScriptPorts.set(port.sender.tab.id, port);
     // Let's inform the new port about the current state.

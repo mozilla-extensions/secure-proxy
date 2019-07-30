@@ -13,7 +13,7 @@ const defaultConfig = {
     firefox: "nightly",
     browserConsole: true,
     startUrl: ["about:debugging"],
-    pref: [],
+    pref: ["secureProxy.debugging.enabled=true"],
   },
 };
 

@@ -4,6 +4,7 @@ const ContentScript = {
   proxyEnabled: false,
 
   async init() {
+    this.createPort();
     // Check if we are a site that we show a banner for
     if (this.originIsExemptable()) {
       let store = await this.checkStorage();
@@ -13,24 +14,24 @@ const ContentScript = {
         return;
       }
     }
-    this.initOverride();
+    this.overwriteProperties();
     return;
   },
 
-  initOverride() {
-    this.createPort();
-    this.overwriteProperties();
-  },
-
   originIsExemptable() {
-    if (["www.messenger.com"].includes(window.location.hostname)) {
-      return true;
-    }
-    return false;
+    return [
+      "hangouts.google.com",
+      "meet.google.com",
+      "www.messenger.com",
+      "appear.in",
+      "jitsi.org",
+      "talky.io",
+      "webex.com",
+    ].includes(window.location.hostname);
   },
 
   getKey() {
-    return "content_" + window.location.origin;
+    return "webRTCDisable_" + window.location.origin;
   },
 
   async checkStorage() {
@@ -89,6 +90,10 @@ const ContentScript = {
        set: exportFunction(function() {}, window),
       });
     });
+  },
+
+  async exempt() {
+    return this.port.postMessage({type: "thing"});
   }
 };
 
@@ -155,9 +160,9 @@ class ContentScriptBanner {
       return;
     }
     await browser.storage.local.set({[ContentScript.getKey()]: message});
-    //await browser.runtime.sendMessage({message, origin: window.location.origin});
     this.close();
     if (message === "exemptSite") {
+      await ContentScript.exempt();
       window.location.reload();
     }
   }
