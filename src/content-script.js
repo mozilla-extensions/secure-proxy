@@ -22,7 +22,7 @@ const ContentScript = {
   },
 
   createPort() {
-    this.port = browser.runtime.connect({ name:"port-from-cs" });
+    this.port = browser.runtime.connect({ name: "port-from-cs" });
     this.port.onMessage.addListener(message => {
       this.exempted = message.exempted;
 
@@ -96,8 +96,8 @@ class ContentScriptBanner {
     const run = () => {
       this.insertBanner();
     };
-    if (document.readyState == "loading") {
-      document.addEventListener('DOMContentLoaded', run);
+    if (document.readyState === "loading") {
+      document.addEventListener("DOMContentLoaded", run);
     } else {
       run();
     }

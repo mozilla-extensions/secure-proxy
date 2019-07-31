@@ -155,7 +155,6 @@ class Background {
       if (details.statusCode === 200) {
         this.connectionSucceeded();
       }
-
     }, {urls: [CONNECTING_HTTP_REQUEST]}, ["responseHeaders", "blocking"]);
 
     browser.webRequest.onErrorOccurred.addListener(async details => {
@@ -939,7 +938,7 @@ class Background {
          this.proxyState === PROXY_STATE_CONNECTING ||
          this.proxyState === PROXY_STATE_PROXYERROR ||
          this.proxyState === PROXY_STATE_PROXYAUTHFAILED ||
-         this.proxyState ===PROXY_STATE_AUTHFAILURE) && !connectivity) {
+         this.proxyState === PROXY_STATE_AUTHFAILURE) && !connectivity) {
       this.proxyState = PROXY_STATE_OFFLINE;
       this.updateUI();
       return;
