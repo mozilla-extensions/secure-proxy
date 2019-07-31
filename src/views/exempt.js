@@ -1,18 +1,18 @@
 import {View} from "../view.js";
 
-class ViewProxyError extends View {
+class ViewExemptTab extends View {
   show(proxyState) {
     View.setState("disabled", this.getTranslation("heroProxyOff"));
     View.showToggleButton(false);
 
     return escapedTemplate`
     <p class="warning">
-      ${this.getTranslation("viewProxyError-" + proxyState)}
+      ${this.getTranslation("viewExemptTab")}
     </p>`;
   }
 
   toggleButtonClicked() {
-    View.sendMessage("authenticate");
+    View.sendMessage("removeExemptTab");
   }
 
   stateButtonHandler() {
@@ -20,8 +20,8 @@ class ViewProxyError extends View {
   }
 }
 
-const view = new ViewProxyError();
-const name = "proxyError";
+const view = new ViewExemptTab();
+const name = "exemptTab";
 
 View.registerView(view, name);
 export default name;

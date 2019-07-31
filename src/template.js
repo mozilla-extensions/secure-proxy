@@ -1,4 +1,4 @@
-export class Template {
+class Template {
   constructor(strings, values) {
     this.values = values;
     this.strings = strings;
@@ -57,6 +57,6 @@ export class Template {
   }
 }
 
-export function escapedTemplate(strings, ...values) {
+function escapedTemplate(strings, ...values) {
   return new Template(strings, values);
 }

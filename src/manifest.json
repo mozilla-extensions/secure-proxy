@@ -51,6 +51,8 @@
     }
   },
 
+  "web_accessible_resources": ["fonts/*.woff2"],
+
   "background": {
       "scripts": [
         "vendor/fxa-crypto-relier.js",
@@ -63,7 +65,8 @@
   "content_scripts": [
     {
       "matches": ["<all_urls>"],
-      "js": ["content-script.js"],
+      "js": ["commons.js", "template.js", "content-script.js"],
+      "css": ["content-modal.css"],
       "run_at": "document_start"
     }
   ]

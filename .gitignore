@@ -1,4 +1,5 @@
 *.swp
+*.swo
 src/vendor/*
 node_modules/*
 dist/*

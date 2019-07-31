@@ -13,6 +13,19 @@
     "message": "ON"
   },
 
+  "injectedModalHeading": {
+    "message": "Firefox Private Network"
+  },
+  "injectedModalDismissButton": {
+    "message": "Not Now"
+  },
+  "injectedModalAcceptButton": {
+    "message": "Turn off for this site"
+  },
+  "viewExemptTab": {
+    "message": "Firefox private network is off for this tab. Your connection to this site is not secure."
+  },
+
   "introHeading": {
     "message": "Firefox Private Network"
   },

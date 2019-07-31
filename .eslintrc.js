@@ -9,6 +9,7 @@ module.exports = {
     "plugin:mozilla/recommended"
   ],
   globals: {
+    Template: false,
     fxaCryptoRelier: false,
     PROXY_STATE_LOADING: false,
     PROXY_STATE_OFFLINE: false,

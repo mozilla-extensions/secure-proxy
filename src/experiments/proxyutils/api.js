@@ -291,7 +291,7 @@ this.proxyutils = class extends ExtensionAPI {
                   connectivity = gNetworkLinkService.isLinkUp;
                 }
                 fire.async(connectivity);
-              }
+              };
               Services.obs.addObserver(observer, "network:link-status-changed");
               return () => {
                 Services.obs.removeObserver(observer, "network:link-status-changed");

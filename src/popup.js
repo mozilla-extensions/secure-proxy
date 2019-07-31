@@ -7,6 +7,7 @@ import viewMainName from "./views/main.js";
 import viewOfflineName from "./views/offline.js";
 import viewOtherInUseName from "./views/otherInUse.js";
 import viewProxyErrorName from "./views/proxyError.js";
+import viewExempt from "./views/exempt.js";
 import viewSettingsName from "./views/settings.js";
 const loadingTimeout = 5000;
 
@@ -67,7 +68,6 @@ async function init() {
       case PROXY_STATE_PROXYERROR:
         // fall through
       case PROXY_STATE_PROXYAUTHFAILED:
-        // fall through
         View.setView(viewProxyErrorName, proxyState);
         return;
 
@@ -78,7 +78,11 @@ async function init() {
       case PROXY_STATE_INACTIVE:
         // fall through
       case PROXY_STATE_ACTIVE:
-        View.setView(viewMainName, {userInfo, proxyState});
+        if (msg.exempt && proxyState === PROXY_STATE_ACTIVE) {
+          View.setView(viewExempt, proxyState);
+        } else {
+          View.setView(viewMainName, {userInfo, proxyState});
+        }
         return;
 
       case PROXY_STATE_CONNECTING:

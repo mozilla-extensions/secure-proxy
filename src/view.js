@@ -1,4 +1,3 @@
-import {Template} from "./template.js";
 let views = new Map();
 
 let currentView = null;
