@@ -10,6 +10,18 @@
         "type": "function",
         "description": "Fired when the proxy setting is changed.",
         "parameters": []
+      },
+      {
+        "name": "onConnectionChanged",
+        "type": "function",
+        "description": "Fired when the network connection state changes.",
+        "parameters": [
+          {
+            "name": "connectivity",
+            "type": "boolean",
+            "description": "The connectivity status"
+          }
+        ]
       }
     ],
     "functions": [

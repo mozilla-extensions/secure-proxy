@@ -20,6 +20,12 @@ ChromeUtils.defineModuleGetter(this, "setTimeout",
                                "resource://gre/modules/Timer.jsm");
 ChromeUtils.defineModuleGetter(this, "ExtensionPreferencesManager",
                                "resource://gre/modules/ExtensionPreferencesManager.jsm");
+ChromeUtils.defineModuleGetter(this, "XPCOMUtils",
+                               "resource://gre/modules/XPCOMUtils.jsm");
+
+XPCOMUtils.defineLazyServiceGetter(this, "gNetworkLinkService",
+                                   "@mozilla.org/network/network-link-service;1",
+                                   "nsINetworkLinkService");
 
 // eslint-disable-next-line mozilla/reject-importGlobalProperties
 Cu.importGlobalProperties(["URL"]);
@@ -271,6 +277,24 @@ this.proxyutils = class extends ExtensionAPI {
               Services.prefs.addObserver("network.proxy.type", observer);
               return () => {
                 Services.prefs.removeObserver("network.proxy.type", observer);
+              };
+            }
+          }).api(),
+
+          onConnectionChanged: new EventManager({
+            context,
+            name: "proxyutils.onConnectionChanged",
+            register: fire => {
+              let observer = _ => {
+                let connectivity = false;
+                if (!gNetworkLinkService.linkStatusKnown) {
+                  connectivity = gNetworkLinkService.isLinkUp;
+                }
+                fire.async(connectivity);
+              }
+              Services.obs.addObserver(observer, "network:link-status-changed");
+              return () => {
+                Services.obs.removeObserver(observer, "network:link-status-changed");
               };
             }
           }).api(),
