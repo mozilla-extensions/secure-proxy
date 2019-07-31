@@ -16,10 +16,9 @@ const FXA_CLIENT_ID = "a8c528140153d1c6";
 // Token expiration time
 const FXA_EXP_TIME = 21600; // 6 hours
 
-// Used to see if HTTP errors are actually valid. See the comment in
-// browser.webRequest.onCompleted.
-const SAFE_HTTPS_REQUEST = "https://www.mozilla.org/robots.txt";
-const CONNECTING_HTTPS_REQUEST = "https://www.mozilla.org/robots.txt";
+// Testing URL. This request is sent with the proxy settings when we are in
+// connecting state. If this succeeds, we go to active state.
+const CONNECTING_HTTPS_REQUEST = "http://test.factor11.cloudflareclient.com/";
 
 // Proxy configuration
 const PROXY_URL = "https://proxy-staging.cloudflareclient.com:8001";
@@ -57,7 +56,6 @@ class Background {
 
     this.survey = new Survey();
     this.fxaEndpoints = new Map();
-    this.pendingErrorFetch = false;
     this.proxyState = PROXY_STATE_UNAUTHENTICATED;
     this.webSocketConnectionIsolationCounter = 0;
     this.nextExpireTime = 0;
@@ -107,14 +105,22 @@ class Background {
         return {};
       }
 
-      // We can receive http error status codes onCompleted if the connection is
-      // a plain/text (HTTP, no HTTPS). In case they are proxy errors (such as
-      // 407 or 429), we cannot trust them, because it's too easy for a web
-      // server to send them. Instead, we fetch a HTTPS request. If the proxy is
-      // blocking us for real, we will receive the same status code in
-      // onErrorOccurred.
-      if (details.statusCode === 407 || details.statusCode === 429) {
-        this.processPotentialNetworkError();
+      // In case of HTTP error status codes, received by onCompleted(), we know that:
+      // 1. the connection is a plain/text (HTTP, no HTTPS).
+      // 2. if they are 'real', there is an extra cf-warp-error header, set by
+      //    the proxy.
+      if (details.responseHeaders.find((header) => {
+            return header.name === "cf-warp-error" && header.value === 1;
+          })) {
+        switch (details.statusCode) {
+          case 407:
+            this.processNetworkError("NS_ERROR_PROXY_AUTHENTICATION_FAILED");
+            break;
+
+          case 429:
+            this.processNetworkError("NS_ERROR_TOO_MANY_REQUESTS");
+            break;
+        }
       }
 
       // The proxy returns errors that are warped which we should show a real looking error page for
@@ -229,25 +235,6 @@ class Background {
       this.proxyState = PROXY_STATE_PROXYERROR;
       this.updateUI();
     }
-  }
-
-  processPotentialNetworkError() {
-    log("processPotentialNetworkError");
-
-    if (this.pendingErrorFetch) {
-      return;
-    }
-
-    log("processPotentialNetworkError - fetch starting");
-
-    this.pendingErrorFetch = true;
-    fetch(SAFE_HTTPS_REQUEST, { cache: "no-cache"}).catch(_ => {}).then(_ => {
-      setTimeout(() => {
-        // let's wait 5 seconds before running another fetch.
-        this.pendingErrorFetch = false;
-        log("processPotentialNetworkError - accepting next potential error");
-      }, 5000);
-    });
   }
 
   showStatusPrompt() {
