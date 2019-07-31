@@ -44,9 +44,9 @@ const FETCH_TIMEOUT = 10000; // 10 secs
 
 // Enable debugging
 let debuggingMode = false;
-function log(msg) {
+function log(msg, ...rest) {
   if (debuggingMode) {
-    console.log("*** Background.js *** - " + msg);
+    console.log("*** Background.js *** - " + msg, ...rest);
   }
 }
 
@@ -854,7 +854,7 @@ class Background {
 
     // Let's send the initial data.
     port.onMessage.addListener(async message => {
-      log("Message received from the panel");
+      log("Message received from the panel", message);
 
       switch (message.type) {
         case "setEnabledState":
@@ -913,10 +913,9 @@ class Background {
   }
 
   async sendDataToCurrentPort() {
-    log("Update the panel: " + this.currentPort);
-    let exempt = await this.isCurrentTabExempt();
-
+    log("Update the panel: ", this.currentPort);
     if (this.currentPort) {
+      let exempt = await this.isCurrentTabExempt();
       let { profileData } = await browser.storage.local.get(["profileData"]);
 
       return this.currentPort.postMessage({

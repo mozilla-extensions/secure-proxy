@@ -44,7 +44,7 @@ class ViewSettings extends View {
   }
 
   async handleEvent(e) {
-    if (["learnMore", "manageAccount", "helpAndSupport", "privacyPolicy", "termsAndConditions"].includes(e.target.id)) {
+    if (["learnMore", "helpAndSupport", "privacyPolicy", "termsAndConditions"].includes(e.target.id)) {
       await View.sendMessage(e.target.id);
     }
     if (e.target.closest("#manageAccount")) {
