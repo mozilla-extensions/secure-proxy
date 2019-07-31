@@ -55,7 +55,7 @@ class Background {
     log("constructor");
 
     this.survey = new Survey();
-    this.exemptTabIds = new Map();
+    this.exemptTabStatus = new Map();
     this.fxaEndpoints = new Map();
     this.proxyState = PROXY_STATE_UNAUTHENTICATED;
     this.webSocketConnectionIsolationCounter = 0;
@@ -96,8 +96,14 @@ class Background {
     this.lastUsageDays = lastUsageDays;
 
     browser.tabs.onRemoved.addListener((tabId) => {
-      this.exemptTabIds.delete(tabId);
+      this.removeExemptTab(tabId);
     });
+
+    browser.tabs.onUpdated.addListener((tabId) => {
+      // Icon overrides are changes when the user navigates
+      this.setTabIcon(tabId);
+    });
+
     // Proxy configuration
     browser.proxy.onRequest.addListener(async requestInfo => {
       return this.proxyRequestCallback(requestInfo);
@@ -406,8 +412,10 @@ class Background {
     this.sendDataToCurrentPort();
   }
 
+  // This updates any tab that doesn't have an exemption
   updateIcon() {
     let icon;
+    let badgeWarning = "img/badge_warning.svg";
     if (this.proxyState === PROXY_STATE_INACTIVE ||
         this.proxyState === PROXY_STATE_CONNECTING ||
         this.proxyState === PROXY_STATE_OFFLINE) {
@@ -415,14 +423,25 @@ class Background {
     } else if (this.proxyState === PROXY_STATE_ACTIVE) {
       icon = "img/badge_on.svg";
     } else {
-      icon = "img/badge_warning.svg";
+      icon = badgeWarning;
     }
 
     browser.browserAction.setIcon({
       path: icon,
     });
+  }
 
-    log("update icon: " + icon);
+  // Used to set or remove tab exemption icons
+  setTabIcon(tabId) {
+    let path;
+    if (this.isTabExempt(tabId)) {
+      path = "img/badge_warning.svg";
+    }
+
+    browser.browserAction.setIcon({
+      path,
+      tabId
+    });
   }
 
   async proxyRequestCallback(requestInfo) {
@@ -450,6 +469,32 @@ class Background {
     return {type: "direct"};
   }
 
+  async getCurrentTab() {
+    let currentTab = (await browser.tabs.query({currentWindow: true, active: true}))[0];
+    return currentTab;
+  }
+
+  async isCurrentTabExempt() {
+    let currentTab = await this.getCurrentTab();
+    return currentTab && this.isTabExempt(currentTab.id);
+  }
+
+  isTabExempt(tabId) {
+    return this.exemptTabStatus.get(tabId) === "exemptTab";
+  }
+
+  removeExemptTab(tabId) {
+    this.exemptTabStatus.delete(tabId);
+    this.setTabIcon(tabId);
+    // Re-enable the content script blocking on the tab
+    this.informContentScripts();
+  }
+
+  exemptTab(tabId, type) {
+    this.exemptTabStatus.set(tabId, type);
+    this.setTabIcon(tabId);
+  }
+
   /**
    * Decides if we should be proxying the request.
    * Returns true if the request should be proxied
@@ -457,7 +502,7 @@ class Background {
    */
   shouldProxyRequest(requestInfo) {
     // If user has exempted the tab from the proxy, don't proxy
-    if (this.exemptTabIds.get(requestInfo.tabId) === "exemptTab") {
+    if (this.isTabExempt(requestInfo.tabId)) {
       return false;
     }
 
@@ -814,6 +859,13 @@ class Background {
           await this.enableProxy(message.data.enabledState);
           break;
 
+        case "removeExemptTab":
+          const currentTab = await this.getCurrentTab();
+          if (currentTab) {
+            this.removeExemptTab(currentTab.id);
+          }
+          break;
+
         case "authenticate":
           await this.auth();
           break;
@@ -857,6 +909,7 @@ class Background {
   }
 
   async sendDataToCurrentPort() {
+    let exempt = await this.isCurrentTabExempt();
     log("Update the panel: " + this.currentPort);
 
     if (this.currentPort) {
@@ -865,6 +918,7 @@ class Background {
       return this.currentPort.postMessage({
         userInfo: profileData,
         proxyState: this.proxyState,
+        exempt,
       });
     }
     return null;
@@ -972,8 +1026,7 @@ class Background {
     log("content-script connected");
 
     port.onMessage.addListener(async message => {
-      this.exemptTabIds.set(port.sender.tab.id, message.type);
-      console.log("got message", message, port.sender.tab.id);
+      this.exemptTab(port.sender.tab.id, message.type);
     });
 
     this.contentScriptPorts.set(port.sender.tab.id, port);
@@ -987,7 +1040,7 @@ class Background {
   }
 
   contentScriptNotify(p) {
-    const exempted = this.exemptTabIds.get(p.sender.tab.id);
+    const exempted = this.exemptTabStatus.get(p.sender.tab.id);
     p.postMessage({type: "proxyState", enabled: this.proxyState === PROXY_STATE_ACTIVE, exempted});
   }
 

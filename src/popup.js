@@ -7,6 +7,7 @@ import viewMainName from "./views/main.js";
 import viewOfflineName from "./views/offline.js";
 import viewOtherInUseName from "./views/otherInUse.js";
 import viewProxyErrorName from "./views/proxyError.js";
+import viewExempt from "./views/exempt.js";
 import viewSettingsName from "./views/settings.js";
 const loadingTimeout = 5000;
 
@@ -54,6 +55,11 @@ async function init() {
     View.showSettings(!!userInfo);
     View.showBack(false);
 
+    if (msg.exempt) {
+      View.setView(viewExempt, proxyState);
+      return;
+    }
+
     switch (proxyState) {
       case PROXY_STATE_LOADING:
         // We want to keep the 'loading' view.
@@ -67,7 +73,6 @@ async function init() {
       case PROXY_STATE_PROXYERROR:
         // fall through
       case PROXY_STATE_PROXYAUTHFAILED:
-        // fall through
         View.setView(viewProxyErrorName, proxyState);
         return;
 
