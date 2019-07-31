@@ -227,6 +227,14 @@ this.proxyutils = class extends ExtensionAPI {
           DNSoverHTTPEnabled: prefHelper("network.trr.mode"),
           DNSoverHTTPBootstrapAddress: prefHelper("network.trr.bootstrapAddress"),
           DNSoverHTTPExcludeDomains: prefHelper("network.trr.excluded-domains", value => {
+            // We want to keep the existing domains, plus we want to exclude
+            // some more:
+            // - all the captive portal URLs, because the DNS bootstrap IP
+            //   could be blocked by the current network.
+            // - the proxy hostname (this is received by the extension),
+            //   because we want to use the DNS bootstrap IP via proxy, and this
+            //   would be a deadlock.
+            // - a few localhost domains, because these cannot be resolved.
             let domains = Preferences.get("network.trr.excluded-domains").split(",");
             domains.push(value);
 
@@ -249,7 +257,10 @@ this.proxyutils = class extends ExtensionAPI {
             }
 
             let localhostDomains = [ "localhost.localdomain", "localhost6.localdomain6", "localhost6"];
-            return [...new Set(domains.concat(localhostDomains))].join(",");
+            let finalDomains = domains.concat(localhostDomains);
+
+            // Let's remove the duplicates using a Set.
+            return [...new Set(finalDomains)].join(",");
           }),
 
           onChanged: new EventManager({
