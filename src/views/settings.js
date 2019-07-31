@@ -46,17 +46,19 @@ class ViewSettings extends View {
   async handleEvent(e) {
     if (["learnMore", "manageAccount", "helpAndSupport", "privacyPolicy", "termsAndConditions"].includes(e.target.id)) {
       await View.sendMessage(e.target.id);
+      close();
     }
     if (e.target.closest("#manageAccount")) {
       await View.sendMessage("manageAccount");
+      close();
     }
 
     if (e.target.id === "giveUsFeedback") {
       await View.sendMessage("openUrl", {url: "https://qsurvey.mozilla.com/s3/fx-private-network-beta-feedback"});
+      close();
     }
 
     e.preventDefault();
-    close();
   }
 }
 
