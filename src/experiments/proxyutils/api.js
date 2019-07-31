@@ -243,6 +243,28 @@ this.proxyutils = class extends ExtensionAPI {
             }
           ),
 
+          WebSocketSPDYEnabled: Object.assign(
+            ExtensionPreferencesManager.getSettingsAPI(
+              context.extension.id,
+              "network.http.spdy.websockets",
+              () => {
+                return Services.prefs.getBoolPref("network.http.spdy.websockets");
+              },
+              undefined,
+              false,
+              () => {}
+            ),
+            {
+              set: details => {
+                return ExtensionPreferencesManager.setSetting(
+                  context.extension.id,
+                  "network.http.spdy.websockets",
+                  details.value
+                );
+              },
+            }
+          ),
+
           DNSoverHTTP: Object.assign(
             ExtensionPreferencesManager.getSettingsAPI(
               context.extension.id,

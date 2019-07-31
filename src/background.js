@@ -1019,11 +1019,13 @@ class Background {
     });
 
     browser.experiments.proxyutils.FTPEnabled.set({value: false});
+    browser.experiments.proxyutils.WebSocketSPDYEnabled.set({value: false});
   }
 
   inactiveSteps() {
     browser.experiments.proxyutils.DNSoverHTTP.clear({});
     browser.experiments.proxyutils.FTPEnabled.clear({});
+    browser.experiments.proxyutils.WebSocketSPDYEnabled.clear({});
   }
 
   contentScriptConnected(port) {

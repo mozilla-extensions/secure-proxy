@@ -89,6 +89,10 @@
         "$ref": "types.Setting",
         "description": "This property controls FTP protocol"
       },
+      "WebSocketSPDYEnabled": {
+        "$ref": "types.Setting",
+        "description": "This property controls websocket SPDY"
+      },
       "DNSoverHTTP": {
         "$ref": "types.Setting",
         "description": "This property controls DOH"
