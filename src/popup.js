@@ -55,11 +55,6 @@ async function init() {
     View.showSettings(!!userInfo);
     View.showBack(false);
 
-    if (msg.exempt) {
-      View.setView(viewExempt, proxyState);
-      return;
-    }
-
     switch (proxyState) {
       case PROXY_STATE_LOADING:
         // We want to keep the 'loading' view.
@@ -83,7 +78,11 @@ async function init() {
       case PROXY_STATE_INACTIVE:
         // fall through
       case PROXY_STATE_ACTIVE:
-        View.setView(viewMainName, {userInfo, proxyState});
+        if (msg.exempt && proxyState === PROXY_STATE_ACTIVE) {
+          View.setView(viewExempt, proxyState);
+        } else {
+          View.setView(viewMainName, {userInfo, proxyState});
+        }
         return;
 
       case PROXY_STATE_CONNECTING:

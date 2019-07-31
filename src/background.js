@@ -415,7 +415,6 @@ class Background {
   // This updates any tab that doesn't have an exemption
   updateIcon() {
     let icon;
-    let badgeWarning = "img/badge_warning.svg";
     if (this.proxyState === PROXY_STATE_INACTIVE ||
         this.proxyState === PROXY_STATE_CONNECTING ||
         this.proxyState === PROXY_STATE_OFFLINE) {
@@ -423,7 +422,7 @@ class Background {
     } else if (this.proxyState === PROXY_STATE_ACTIVE) {
       icon = "img/badge_on.svg";
     } else {
-      icon = badgeWarning;
+      icon = "img/badge_warning.svg";
     }
 
     browser.browserAction.setIcon({
@@ -433,6 +432,8 @@ class Background {
 
   // Used to set or remove tab exemption icons
   setTabIcon(tabId) {
+    log(`updating tab icon: ${tabId}`);
+    // default value here is undefined which resets the icon back when it becomes non exempt again
     let path;
     if (this.isTabExempt(tabId)) {
       path = "img/badge_warning.svg";
@@ -484,6 +485,7 @@ class Background {
   }
 
   removeExemptTab(tabId) {
+    log(`removeExemptTab ${tabId}`);
     this.exemptTabStatus.delete(tabId);
     this.setTabIcon(tabId);
     // Re-enable the content script blocking on the tab
@@ -491,6 +493,7 @@ class Background {
   }
 
   exemptTab(tabId, type) {
+    log(`exemptTab ${tabId} ${type}`);
     this.exemptTabStatus.set(tabId, type);
     this.setTabIcon(tabId);
   }
@@ -860,9 +863,11 @@ class Background {
           break;
 
         case "removeExemptTab":
+          // port.sender.tab doesn't exist for browser actions
           const currentTab = await this.getCurrentTab();
           if (currentTab) {
             this.removeExemptTab(currentTab.id);
+            this.updateUI();
           }
           break;
 
@@ -909,8 +914,8 @@ class Background {
   }
 
   async sendDataToCurrentPort() {
-    let exempt = await this.isCurrentTabExempt();
     log("Update the panel: " + this.currentPort);
+    let exempt = await this.isCurrentTabExempt();
 
     if (this.currentPort) {
       let { profileData } = await browser.storage.local.get(["profileData"]);

@@ -7,7 +7,6 @@ const ContentScript = {
   async init() {
     this.createPort();
     this.overwriteProperties();
-    return;
   },
 
   originIsExemptable() {
