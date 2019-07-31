@@ -72,10 +72,10 @@ class Background {
 
     this.fxaOpenID = prefs.fxaURL || FXA_OPENID;
 
-    let proxyURL = new URL(prefs.proxyURL || PROXY_URL);
-    this.proxyType = proxyURL.protocol === "https:" ? "https" : "http";
-    this.proxyPort = proxyURL.port || (proxyURL.protocol === "https:" ? 443 : 80);
-    this.proxyHost = proxyURL.hostname;
+    this.proxyURL = new URL(prefs.proxyURL || PROXY_URL);
+    this.proxyType = this.proxyURL.protocol === "https:" ? "https" : "http";
+    this.proxyPort = this.proxyURL.port || (this.proxyURL.protocol === "https:" ? 443 : 80);
+    this.proxyHost = this.proxyURL.hostname;
 
     try {
       const capitivePortalUrl = new URL(prefs.captiveDetect);
@@ -580,7 +580,7 @@ class Background {
     return refreshTokenData;
   }
 
-  async generateToken(refreshTokenData, scope) {
+  async generateToken(refreshTokenData, scope, resource) {
     log("generate token - scope: " + scope);
 
     // See https://github.com/mozilla/fxa/blob/0ed71f677637ee5f817fa17c265191e952f5500e/packages/fxa-auth-server/fxa-oauth-server/docs/pairwise-pseudonymous-identifiers.md
@@ -600,6 +600,7 @@ class Background {
         scope,
         ttl: FXA_EXP_TIME,
         ppid_seed,
+        resource,
         /* eslint-enable camelcase*/
       })
     });
@@ -669,12 +670,18 @@ class Background {
       return false;
     }
 
-    let proxyTokenData = await this.maybeGenerateToken("proxyTokenData", refreshTokenData, FXA_PROXY_SCOPE);
+    let proxyTokenData = await this.maybeGenerateToken("proxyTokenData",
+                                                       refreshTokenData,
+                                                       FXA_PROXY_SCOPE,
+                                                       this.proxyURL.href);
     if (proxyTokenData === false) {
       return false;
     }
 
-    let profileTokenData = await this.maybeGenerateToken("profileTokenData", refreshTokenData, FXA_PROFILE_SCOPE);
+    let profileTokenData = await this.maybeGenerateToken("profileTokenData",
+                                                         refreshTokenData,
+                                                         FXA_PROFILE_SCOPE,
+                                                         this.fxaEndpoints.get(FXA_ENDPOINT_PROFILE));
     if (profileTokenData === false) {
       return false;
     }
@@ -714,7 +721,7 @@ class Background {
     return true;
   }
 
-  async maybeGenerateToken(tokenName, refreshTokenData, scope) {
+  async maybeGenerateToken(tokenName, refreshTokenData, scope, resource) {
     let minDiff = 0;
     let tokenGenerated = false;
 
@@ -735,7 +742,7 @@ class Background {
     }
 
     if (!tokenData) {
-      tokenData = await this.generateToken(refreshTokenData, scope);
+      tokenData = await this.generateToken(refreshTokenData, scope, resource);
       if (!tokenData) {
         return false;
       }
