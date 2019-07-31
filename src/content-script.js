@@ -61,7 +61,7 @@ const ContentScript = {
       data.originalMethod = data.parentObject.wrappedJSObject[data.methodName];
       Object.defineProperty(data.parentObject.wrappedJSObject, data.methodName, {
        get: exportFunction(() => {
-        if (this.proxyEnabled && this.exempted !== "exempt") {
+        if (this.proxyEnabled && this.exempted !== "exemptTab") {
           if (data.type === "method") {
             return exportFunction(() => {
               return window.wrappedJSObject.Promise.reject(new window.wrappedJSObject.Error("SecurityError"));
