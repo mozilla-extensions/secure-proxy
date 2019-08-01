@@ -10,6 +10,7 @@ const ContentScript = {
   },
 
   originIsExemptable() {
+    // Trim trailing period from hostname as is a separate origin
     return [
       "hangouts.google.com",
       "meet.google.com",
@@ -18,7 +19,7 @@ const ContentScript = {
       "jitsi.org",
       "talky.io",
       "webex.com",
-    ].includes(window.location.hostname);
+    ].includes(window.location.hostname.replace(/\.?$/, ""));
   },
 
   createPort() {
