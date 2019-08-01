@@ -44,13 +44,6 @@
         ]
       },
       {
-        "name": "getProxyPrefs",
-        "type": "function",
-        "async": true,
-        "description": "Returns an object with all the prefs we care about.",
-        "parameters": []
-      },
-      {
         "name": "formatURL",
         "type": "function",
         "async": true,
@@ -88,21 +81,17 @@
       }
     ],
     "properties": {
+      "settings": {
+        "$ref": "types.Setting",
+        "description": "This property controls the proxy settings"
+      },
       "FTPEnabled": {
         "$ref": "types.Setting",
         "description": "This property controls FTP protocol"
       },
-      "DNSoverHTTPEnabled": {
+      "DNSoverHTTP": {
         "$ref": "types.Setting",
-        "description": "This property controls DOH mode"
-      },
-      "DNSoverHTTPBootstrapAddress": {
-        "$ref": "types.Setting",
-        "description": "This property controls DOH bootstrap address"
-      },
-      "DNSoverHTTPExcludeDomains": {
-        "$ref": "types.Setting",
-        "description": "This property controls DOH exclude domains list"
+        "description": "This property controls DOH"
       }
     }
   }

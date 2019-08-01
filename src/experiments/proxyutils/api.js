@@ -142,6 +142,30 @@ let ConfirmationHint = {
   },
 };
 
+function getStringPrefValue(pref) {
+  try {
+    return Services.prefs.getStringPref(pref);
+  } catch (e) {
+    // No pref value set
+    return null;
+  }
+}
+
+function getURLFromPref(pref) {
+  const url = getStringPrefValue(pref);
+  if (url === null) {
+    // No pref value set
+    return null;
+  }
+
+  try {
+    return new URL(url).href;
+  } catch (e) {
+    console.log("Invalid value for pref " + pref);
+    return null;
+  }
+}
+
 ExtensionPreferencesManager.addSetting("network.ftp.enabled", {
   prefNames: ["network.ftp.enabled"],
 
@@ -150,27 +174,19 @@ ExtensionPreferencesManager.addSetting("network.ftp.enabled", {
   },
 });
 
-ExtensionPreferencesManager.addSetting("network.trr.mode", {
-  prefNames: ["network.trr.mode"],
+ExtensionPreferencesManager.addSetting("secureProxy.DNSoverHTTP", {
+  prefNames: [
+    "network.trr.mode",
+    "network.trr.bootstrapAddress",
+    "network.trr.excluded-domains",
+  ],
 
   setCallback(value) {
-    return { [this.prefNames[0]]: value };
-  },
-});
-
-ExtensionPreferencesManager.addSetting("network.trr.bootstrapAddress", {
-  prefNames: ["network.trr.bootstrapAddress"],
-
-  setCallback(value) {
-    return { [this.prefNames[0]]: value };
-  },
-});
-
-ExtensionPreferencesManager.addSetting("network.trr.excluded-domains", {
-  prefNames: ["network.trr.excluded-domains"],
-
-  setCallback(value) {
-    return { [this.prefNames[0]]: value };
+    return {
+      "network.trr.mode": value.mode,
+      "network.trr.bootstrapAddress": value.bootstrapAddress,
+      "network.trr.excluded-domains": value.excludedDomains,
+    }
   },
 });
 
@@ -201,73 +217,109 @@ this.proxyutils = class extends ExtensionAPI {
       return tab;
     }
 
-    function prefHelper(prefName, setCb) {
-      return {
-        async get(details) {
-          return {
-            levelOfControl: "controllable_by_this_extension",
-            value: Preferences.get(prefName),
-          };
-        },
-        set(details) {
-          let value = setCb ? setCb(details.value) : details.value;
-          return ExtensionPreferencesManager.setSetting(
-            context.extension.id,
-            prefName,
-            value
-          );
-        },
-        clear(details) {
-          return ExtensionPreferencesManager.removeSetting(
-            context.extension.id,
-            prefName);
-        },
-      };
-    }
-
     return {
       experiments: {
         proxyutils: {
 
-          FTPEnabled: prefHelper("network.ftp.enabled"),
-          DNSoverHTTPEnabled: prefHelper("network.trr.mode"),
-          DNSoverHTTPBootstrapAddress: prefHelper("network.trr.bootstrapAddress"),
-          DNSoverHTTPExcludeDomains: prefHelper("network.trr.excluded-domains", value => {
-            // We want to keep the existing domains, plus we want to exclude
-            // some more:
-            // - all the captive portal URLs, because the DNS bootstrap IP
-            //   could be blocked by the current network.
-            // - the proxy hostname (this is received by the extension),
-            //   because we want to use the DNS bootstrap IP via proxy, and this
-            //   would be a deadlock.
-            // - a few localhost domains, because these cannot be resolved.
-            let domains = Preferences.get("network.trr.excluded-domains").split(",");
-            domains.push(value);
-
-            try {
-              let cdu = Services.prefs.getStringPref("captivedetect.canonicalURL");
-              domains.push(new URL(cdu).hostname);
-            } catch (e) {
+          FTPEnabled: Object.assign(
+            ExtensionPreferencesManager.getSettingsAPI(
+              context.extension.id,
+              "network.ftp.enabled",
+              () => {
+                return Services.prefs.getBoolPref("network.ftp.enabled");
+              },
+              undefined,
+              false,
+              () => {}
+            ),
+            {
+              set: details => {
+                return ExtensionPreferencesManager.setSetting(
+                  context.extension.id,
+                  "network.ftp.enabled",
+                  details.value
+                );
+              },
             }
+          ),
 
-            try {
-              let cdu = Services.prefs.getStringPref("network.connectivity-service.IPv4.url");
-              domains.push(new URL(cdu).hostname);
-            } catch (e) {
+          DNSoverHTTP: Object.assign(
+            ExtensionPreferencesManager.getSettingsAPI(
+              context.extension.id,
+              "secureProxy.DNSoverHTTP",
+              () => {
+                return {
+                  mode: Services.prefs.getIntPref("network.trr.mode"),
+                  bootstrapAddress: Services.prefs.getCharPref("network.trr.bootstrapAddress"),
+                  excludedDomains: Services.prefs.getCharPref("network.trr.excluded-domains"),
+                };
+              },
+              undefined,
+              false,
+              () => {}
+            ),
+            {
+              set: details => {
+                // We want to keep the existing domains, plus we want to exclude
+                // some more:
+                // - all the captive portal URLs, because the DNS bootstrap IP
+                //   could be blocked by the current network.
+                // - the proxy hostname (this is received by the extension),
+                //   because we want to use the DNS bootstrap IP via proxy, and this
+                //   would be a deadlock.
+                // - a few localhost domains, because these cannot be resolved.
+
+                let domains = Services.prefs.getCharPref("network.trr.excluded-domains").split(",");
+                domains = domains.concat(details.value.excludedDomains.split(","));
+
+                [
+                  "captivedetect.canonicalURL",
+                  "network.connectivity-service.IPv4.url",
+                  "network.connectivity-service.IPv6.url"
+                ].forEach(pref => {
+                  try {
+                    const cdu = getStringPrefValue(pref);
+                    let hostname = new URL(cdu).hostname;
+                    if (hostname) {
+                      domains.push(hostname);
+                    }
+                  } catch (err) {
+                    // ignore
+                  }
+                });
+
+                let localhostDomains = [ "localhost.localdomain", "localhost6.localdomain6", "localhost6"];
+                let excludedDomains = [...new Set(domains.concat(localhostDomains))].join(",");
+
+                return ExtensionPreferencesManager.setSetting(
+                  context.extension.id,
+                  "secureProxy.DNSoverHTTP",
+                  {
+                    mode: details.value.mode,
+                    bootstrapAddress: details.value.bootstrapAddress,
+                    excludedDomains
+                  }
+                );
+              },
             }
+          ),
 
-            try {
-              let cdu = Services.prefs.getStringPref("network.connectivity-service.IPv6.url");
-              domains.push(new URL(cdu).hostname);
-            } catch (e) {
-            }
-
-            let localhostDomains = [ "localhost.localdomain", "localhost6.localdomain6", "localhost6"];
-            let finalDomains = domains.concat(localhostDomains);
-
-            // Let's remove the duplicates using a Set.
-            return [...new Set(finalDomains)].join(",");
-          }),
+          settings: {
+            async get(details) {
+              return {
+                debuggingEnabled: Services.prefs.getBoolPref("secureProxy.debugging.enabled", false),
+                captiveDetect: getStringPrefValue("captivedetect.canonicalURL"),
+                fxaURL: getURLFromPref("secureProxy.fxaOpenID.overwrite"),
+                proxyURL: getURLFromPref("secureProxy.proxyURL.overwrite"),
+              };
+            },
+            set(details) {
+              throw new ExtensionError("secureProxy.settings are readonly");
+            },
+            clear(details) {
+              throw new ExtensionError("secureProxy.settings are readonly");
+            },
+          },
 
           onChanged: new EventManager({
             context,
@@ -302,32 +354,6 @@ this.proxyutils = class extends ExtensionAPI {
           async showPrompt(message, isWarning) {
             const selector = "#secure-proxy_mozilla_com-browser-action";
             ConfirmationHint.show(selector, message, {isWarning});
-          },
-
-          async getProxyPrefs() {
-            function getURLFromPref(pref) {
-              let url;
-              try {
-                url = Services.prefs.getStringPref(pref);
-              } catch (e) {
-                // No pref value set
-                return null;
-              }
-
-              try {
-                return new URL(url).href;
-              } catch (e) {
-                console.log("Invalid value for pref " + pref);
-                return null;
-              }
-            }
-
-            return {
-              debuggingEnabled: Services.prefs.getBoolPref("secureProxy.debugging.enabled", false),
-              captiveDetect: Services.prefs.getStringPref("captivedetect.canonicalURL"),
-              fxaURL: getURLFromPref("secureProxy.fxaOpenID.overwrite"),
-              proxyURL: getURLFromPref("secureProxy.proxyURL.overwrite"),
-            };
           },
 
           async formatURL(url) {
