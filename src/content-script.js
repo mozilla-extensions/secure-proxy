@@ -24,15 +24,16 @@ const ContentScript = {
   createPort() {
     this.port = browser.runtime.connect({ name: "port-from-cs" });
     this.port.onMessage.addListener(message => {
-      this.exempted = message.exempted;
-
-      // Check if we are a site that we show a banner for
-      if (this.originIsExemptable() && this.exempted === undefined) {
-        new ContentScriptBanner();
-      }
-
       if (message.type === "proxyState") {
+        this.exempted = message.exempted;
         this.proxyEnabled = message.enabled;
+
+        // Check if we are a site that we show a banner for
+        if (this.proxyEnabled &&
+            this.originIsExemptable() &&
+            this.exempted === undefined) {
+          new ContentScriptBanner();
+        }
         return;
       }
 
