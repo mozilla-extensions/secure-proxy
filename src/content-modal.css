@@ -61,15 +61,15 @@
   align-self: center;
   justify-self: center;
   padding-block-start: 20px;
-  padding-block-end: 64px;
+  padding-block-end: 32px;
   padding-inline-start: 30px;
   padding-inline-end: 30px;
-  max-inline-size: 600px;
+  max-inline-size: 500px;
   min-inline-size: 280px;
 
   border-radius: 8px;
   background: #fff;
-  font-size: 18px;
+  font-size: 16px;
   color: var(--black);
   display: flex;
   flex-direction: column;
@@ -102,7 +102,7 @@
 
 #injectedModal button {
   font-family: var(--font-metro);
-  font-size: 18px;
+  font-size: 16px;
   -moz-appearance: none;
   color: inherit !important;
   border: 1px solid transparent;
