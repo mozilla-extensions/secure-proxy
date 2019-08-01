@@ -395,6 +395,14 @@ header button {
   list-style: none;
 }
 
+.settingsMenu #email {
+  max-inline-size: 270px;
+  inline-size: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
 .end {
   margin-inline-start: auto;
 }

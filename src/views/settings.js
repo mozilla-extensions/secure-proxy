@@ -13,7 +13,7 @@ class ViewSettings extends View {
           <a href="#" id="manageAccount">
             <img src="${data.userInfo.avatar}" />
             <div class="details">
-              <span>${data.userInfo.email}</span>
+              <span id="email">${data.userInfo.email}</span>
               <strong>${this.getTranslation("viewSettings-manageAccountLink")}</strong>
             </div>
           </a>
