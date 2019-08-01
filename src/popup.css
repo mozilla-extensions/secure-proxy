@@ -113,10 +113,13 @@ button.primary:enabled:hover:active {
 }
 
 .warning {
+  position: relative;
   padding-inline-start: 20px;
 }
 
 .warning::before {
+  position: absolute;
+  inset-block-start: 2px;
   content: "";
   display: inline-block;
   block-size: 16px;

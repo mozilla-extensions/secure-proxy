@@ -23,7 +23,7 @@
     "message": "Turn off for this site"
   },
   "viewExemptTab": {
-    "message": "Firefox private network is off for this tab. Your connection to this site is not secure."
+    "message": "Firefox Private Network is off for this tab. Your connection to this site is not secure."
   },
 
   "introHeading": {
