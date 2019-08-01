@@ -186,7 +186,7 @@ ExtensionPreferencesManager.addSetting("secureProxy.DNSoverHTTP", {
       "network.trr.mode": value.mode,
       "network.trr.bootstrapAddress": value.bootstrapAddress,
       "network.trr.excluded-domains": value.excludedDomains,
-    }
+    };
   },
 });
 
