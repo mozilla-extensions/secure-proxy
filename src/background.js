@@ -61,8 +61,12 @@ class Background {
     this.webSocketConnectionIsolationCounter = 0;
     this.nextExpireTime = 0;
 
-   // A map of content-script ports. The key is the tabId.
+    // A map of content-script ports. The key is the tabId.
     this.contentScriptPorts = new Map();
+
+    // This is Set of pending operatations to do after a token generation.
+    this.postTokenGenerationOps = new Set();
+    this.generatingTokens = false;
   }
 
   async init() {
@@ -181,7 +185,7 @@ class Background {
         return;
       }
 
-      console.log("Invalid port name!");
+      log("Invalid port name!");
     });
 
     // connectivity observer.
@@ -450,23 +454,23 @@ class Background {
 
     log("proxy request for " + requestInfo.url + " => " + shouldProxyRequest);
 
-    if (shouldProxyRequest) {
-      let nowInSecs = Math.round((performance.timeOrigin + performance.now()) / 1000);
-      if (this.nextExpireTime && nowInSecs >= this.nextExpireTime) {
-        log("Suspend detected!");
-        await this.maybeGenerateTokens();
-      }
-
-      return [{
-        type: this.proxyType,
-        host: this.proxyHost,
-        port: this.proxyPort,
-        proxyAuthorizationHeader: this.proxyAuthorizationHeader,
-        connectionIsolationKey: this.proxyAuthorizationHeader + additionalConnectionIsolation,
-      }];
+    if (!shouldProxyRequest) {
+      return {type: "direct"};
     }
 
-    return {type: "direct"};
+    let nowInSecs = Math.round((performance.timeOrigin + performance.now()) / 1000);
+    if (this.nextExpireTime && nowInSecs >= this.nextExpireTime) {
+      log("Suspend detected!");
+      await this.maybeGenerateTokens();
+    }
+
+    return [{
+      type: this.proxyType,
+      host: this.proxyHost,
+      port: this.proxyPort,
+      proxyAuthorizationHeader: this.proxyAuthorizationHeader,
+      connectionIsolationKey: this.proxyAuthorizationHeader + additionalConnectionIsolation,
+    }];
   }
 
   async getCurrentTab() {
@@ -742,23 +746,41 @@ class Background {
   async maybeGenerateTokens() {
     log("maybe generate tokens");
 
+    if (this.generatingTokens) {
+      log("token generation in progress. Let's wait.");
+      return new Promise(resolve => { this.postTokenGenerationOps.add(resolve); });
+    }
+
+    this.generatingTokens = true;
+    const result = await this.maybeGenerateTokensInternal();
+    this.generatingTokens = false;
+
+    // Let's take all the ops and execute them.
+    let ops = this.postTokenGenerationOps;
+    this.postTokenGenerationOps = new Set();
+    ops.forEach(value => value(result));
+
+    return result;
+  }
+
+  async maybeGenerateTokensInternal() {
     let { refreshTokenData } = await browser.storage.local.get(["refreshTokenData"]);
     if (!refreshTokenData) {
       return false;
     }
 
-    let proxyTokenData = await this.maybeGenerateToken("proxyTokenData",
-                                                       refreshTokenData,
-                                                       FXA_PROXY_SCOPE,
-                                                       this.proxyURL.href);
+    let proxyTokenData = await this.maybeGenerateSingleToken("proxyTokenData",
+                                                             refreshTokenData,
+                                                             FXA_PROXY_SCOPE,
+                                                             this.proxyURL.href);
     if (proxyTokenData === false) {
       return false;
     }
 
-    let profileTokenData = await this.maybeGenerateToken("profileTokenData",
-                                                         refreshTokenData,
-                                                         FXA_PROFILE_SCOPE,
-                                                         this.fxaEndpoints.get(FXA_ENDPOINT_PROFILE));
+    let profileTokenData = await this.maybeGenerateSingleToken("profileTokenData",
+                                                               refreshTokenData,
+                                                               FXA_PROFILE_SCOPE,
+                                                               this.fxaEndpoints.get(FXA_ENDPOINT_PROFILE));
     if (profileTokenData === false) {
       return false;
     }
@@ -798,7 +820,9 @@ class Background {
     return true;
   }
 
-  async maybeGenerateToken(tokenName, refreshTokenData, scope, resource) {
+  async maybeGenerateSingleToken(tokenName, refreshTokenData, scope, resource) {
+    log(`maybe generate token:  ${tokenName}`);
+
     let minDiff = 0;
     let tokenGenerated = false;
 
@@ -812,19 +836,23 @@ class Background {
       // We want to keep a big time margin: 1 hour seems good enough.
       let diff = tokenData.received_at + tokenData.expires_in - nowInSecs - EXPIRE_DELTA;
       if (diff < EXPIRE_DELTA) {
+        log("token exists but it's expired.");
         tokenData = null;
       } else {
+        log(`token expires in ${minDiff}`);
         minDiff = diff;
       }
     }
 
     if (!tokenData) {
+      log("generating token");
       tokenData = await this.generateToken(refreshTokenData, scope, resource);
       if (!tokenData) {
         return false;
       }
 
       minDiff = tokenData.received_at + tokenData.expires_in - nowInSecs - EXPIRE_DELTA;
+      log(`token expires in ${minDiff}`);
       tokenGenerated = true;
     }
 
@@ -1010,11 +1038,23 @@ class Background {
   }
 
   afterConnectionSteps() {
+    // We need to exclude FxA endpoints in order to avoid a deadlock:
+    // 1. a new request is processed, but the tokens are invalid. We start the
+    //    generation of a new token.
+    // 2. The generation of tokens starts a new network request which will be
+    //    processed as the previous point. This is deadlock.
+    let excludedDomains = [ this.proxyHost ];
+    [FXA_ENDPOINT_PROFILE, FXA_ENDPOINT_TOKEN, FXA_ENDPOINT_ISSUER].forEach(e => {
+      try {
+        excludedDomains.push(new URL(this.fxaEndpoints.get(e)).hostname);
+      } catch (e) {}
+    });
+
     browser.experiments.proxyutils.DNSoverHTTP.set({
       value: {
         mode: DOH_MODE,
         bootstrapAddress: DOH_BOOTSTRAP_ADDRESS,
-        excludedDomains: this.proxyHost,
+        excludedDomains: excludedDomains.join(","),
       }
     });
 
