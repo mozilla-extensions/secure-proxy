@@ -307,10 +307,10 @@ this.proxyutils = class extends ExtensionAPI {
           settings: {
             async get(details) {
               return {
-                debuggingEnabled: Services.prefs.getBoolPref("secureProxy.debugging.enabled", false),
+                debuggingEnabled: false,
                 captiveDetect: getStringPrefValue("captivedetect.canonicalURL"),
-                fxaURL: getURLFromPref("secureProxy.fxaOpenID.overwrite"),
-                proxyURL: getURLFromPref("secureProxy.proxyURL.overwrite"),
+                fxaURL: null,
+                proxyURL: null,
               };
             },
             set(details) {
