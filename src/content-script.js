@@ -3,6 +3,7 @@
 const ContentScript = {
   proxyEnabled: false,
   exempted: false,
+  bannerShowing: false,
 
   async init() {
     this.createPort();
@@ -33,7 +34,8 @@ const ContentScript = {
         if (this.proxyEnabled &&
             this.originIsExemptable() &&
             this.exempted === undefined) {
-          new ContentScriptBanner();
+          this.bannerShowing = true;
+          new ContentScriptBanner(false);
         }
         return;
       }
@@ -63,6 +65,10 @@ const ContentScript = {
       Object.defineProperty(data.parentObject.wrappedJSObject, data.methodName, {
        get: exportFunction(() => {
         if (this.proxyEnabled && this.exempted !== "exemptTab") {
+          if (this.exempted === undefined && this.bannerShowing === false) {
+            this.bannerShowing = true;
+            new ContentScriptBanner(true);
+          }
           if (data.type === "method") {
             return exportFunction(() => {
               return window.wrappedJSObject.Promise.reject(new window.wrappedJSObject.Error("SecurityError"));
@@ -90,7 +96,9 @@ const ContentScript = {
 ContentScript.init();
 
 class ContentScriptBanner {
-  constructor() {
+  // If the banner is contextual refresh the page on approve
+  constructor(contextual) {
+    this.contextual = contextual;
     this.insertBannerOnDocumentLoad();
   }
 
@@ -151,6 +159,9 @@ class ContentScriptBanner {
     }
     this.close();
     await ContentScript.exempt(type);
+    if (this.contextual && type === "exemptTab") {
+      window.location.reload();
+    }
   }
 
   handleEvent(e) {
