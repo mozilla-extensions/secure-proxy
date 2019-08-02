@@ -16,7 +16,6 @@
   --black: #0c0c0D;
   --grey-10: #F9F9FA;
 
-  all: initial;
   background: var(--grey-90-a30);
   display: grid;
   position: fixed;
@@ -31,6 +30,11 @@
 
   --font-metro: "Metropolis", -apple-system, sans-serif;
   --font-inter:  "Inter UI", -apple-system, 'Segoe UI', 'Open Sans', 'Helvetica Neue', sans-serif;
+}
+
+#injectedModal * {
+  all: initial;
+  font-family: var(--font-inter);
 }
 
 @font-face {
@@ -73,7 +77,6 @@
   color: var(--black);
   display: flex;
   flex-direction: column;
-  font-family: var(--font-inter);
 }
 
 #injectedModal .content p {
@@ -98,6 +101,10 @@
   min-block-size: 35px;
 
   margin-block-end: 26px;
+}
+
+#injectedModal strong {
+  font-weight: bold;
 }
 
 #injectedModal button {
