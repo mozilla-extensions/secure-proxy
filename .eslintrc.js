@@ -10,6 +10,7 @@ module.exports = {
   ],
   globals: {
     Template: false,
+    escapedTemplate: false,
     fxaCryptoRelier: false,
     PROXY_STATE_LOADING: false,
     PROXY_STATE_OFFLINE: false,

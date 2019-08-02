@@ -57,6 +57,7 @@ class Template {
   }
 }
 
+// eslint-disable-next-line no-unused-vars
 function escapedTemplate(strings, ...values) {
   return new Template(strings, values);
 }
