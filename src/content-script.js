@@ -1,9 +1,8 @@
 /* global exportFunction */
-
-function prettyHostname(hostname) {
+async function prettyHostname(hostname) {
   // Trim trailing period from hostname as is a separate origin.
-  return hostname.replace(/\.?$/, "")
-    .replace(/^www\./, "");
+  hostname = hostname.replace(/\.?$/, "");
+  return await browser.runtime.sendMessage({ type: "getBaseDomainFromHost", hostname });
 }
 
 const ContentScript = {
@@ -16,7 +15,7 @@ const ContentScript = {
     this.overwriteProperties();
   },
 
-  originIsExemptable() {
+  async originIsExemptable() {
     return [
       "hangouts.google.com",
       "meet.google.com",
@@ -25,19 +24,19 @@ const ContentScript = {
       "jitsi.org",
       "talky.io",
       "webex.com",
-    ].includes(prettyHostname(window.location.hostname));
+    ].includes((await prettyHostname(window.location.hostname)));
   },
 
   createPort() {
     this.port = browser.runtime.connect({ name: "port-from-cs" });
-    this.port.onMessage.addListener(message => {
+    this.port.onMessage.addListener(async message => {
       if (message.type === "proxyState") {
         this.exempted = message.exempted;
         this.proxyEnabled = message.enabled;
 
         // Check if we are a site that we show a banner for
         if (this.proxyEnabled &&
-            this.originIsExemptable() &&
+            await this.originIsExemptable() &&
             this.exempted === undefined) {
           this.bannerShowing = true;
           new ContentScriptBanner(false);
@@ -93,8 +92,8 @@ const ContentScript = {
     });
   },
 
-  async exempt(type) {
-    return this.port.postMessage({ type });
+  async exempt(status) {
+    return browser.runtime.sendMessage({ type: "exempt", status });
   }
 };
 
@@ -129,7 +128,7 @@ class ContentScriptBanner {
   async insertBanner() {
     this.modal = document.createElement("section");
     this.modal.id = "injectedModal";
-    let domainName = prettyHostname(window.location.hostname);
+    let domainName = await prettyHostname(window.location.hostname);
     let template = escapedTemplate`
       <div class="content">
         <header>

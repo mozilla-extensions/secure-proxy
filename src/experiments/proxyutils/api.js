@@ -360,6 +360,10 @@ this.proxyutils = class extends ExtensionAPI {
             return Services.urlFormatter.formatURL(url);
           },
 
+          async getBaseDomainFromHost(url) {
+            return Services.eTLD.getBaseDomainFromHost(url);
+          },
+
           async loadNetError(errorCode, url, tabId) {
             let nativeTab = getTabOrActive(tabId);
             let uri = Services.uriFixup.createExposableURI(Services.io.newURI(url));

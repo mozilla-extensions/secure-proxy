@@ -174,6 +174,15 @@ class Background {
       }
     });
 
+    browser.runtime.onMessage.addListener(async (message, sender) => {
+      if (message.type === "getBaseDomainFromHost") {
+        return browser.experiments.proxyutils.getBaseDomainFromHost(message.hostname);
+      }
+      if (message.type == "exempt") {
+        this.exemptTab(sender.tab.id, message.status);
+      }
+    });
+
     browser.runtime.onConnect.addListener(port => {
       if (port.name === "port-from-cs") {
         this.contentScriptConnected(port);
@@ -473,9 +482,9 @@ class Background {
     this.informContentScripts();
   }
 
-  exemptTab(tabId, type) {
-    log(`exemptTab ${tabId} ${type}`);
-    this.exemptTabStatus.set(tabId, type);
+  exemptTab(tabId, status) {
+    log(`exemptTab ${tabId} ${status}`);
+    this.exemptTabStatus.set(tabId, status);
     this.setTabIcon(tabId);
   }
 
@@ -1045,10 +1054,6 @@ class Background {
 
   contentScriptConnected(port) {
     log("content-script connected");
-
-    port.onMessage.addListener(async message => {
-      this.exemptTab(port.sender.tab.id, message.type);
-    });
 
     this.contentScriptPorts.set(port.sender.tab.id, port);
     // Let's inform the new port about the current state.
