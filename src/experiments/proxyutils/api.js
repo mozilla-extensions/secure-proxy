@@ -338,7 +338,7 @@ this.proxyutils = class extends ExtensionAPI {
             name: "proxyutils.onConnectionChanged",
             register: fire => {
               let observer = _ => {
-                let connectivity = false;
+                let connectivity = true; // let's be optimistic!
                 if (!gNetworkLinkService.linkStatusKnown) {
                   connectivity = gNetworkLinkService.isLinkUp;
                 }
