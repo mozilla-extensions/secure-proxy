@@ -1,5 +1,11 @@
 /* global exportFunction */
 
+function prettyHostname(hostname) {
+  // Trim trailing period from hostname as is a separate origin.
+  return hostname.replace(/\.?$/, "")
+    .replace(/^www\./, "");
+}
+
 const ContentScript = {
   proxyEnabled: false,
   exempted: false,
@@ -11,16 +17,15 @@ const ContentScript = {
   },
 
   originIsExemptable() {
-    // Trim trailing period from hostname as is a separate origin
     return [
       "hangouts.google.com",
       "meet.google.com",
-      "www.messenger.com",
+      "messenger.com",
       "appear.in",
       "jitsi.org",
       "talky.io",
       "webex.com",
-    ].includes(window.location.hostname.replace(/\.?$/, ""));
+    ].includes(prettyHostname(window.location.hostname));
   },
 
   createPort() {
@@ -124,7 +129,7 @@ class ContentScriptBanner {
   async insertBanner() {
     this.modal = document.createElement("section");
     this.modal.id = "injectedModal";
-    let domainName = window.location.hostname.replace(/^www./, "");
+    let domainName = prettyHostname(window.location.hostname);
     let template = escapedTemplate`
       <div class="content">
         <header>
