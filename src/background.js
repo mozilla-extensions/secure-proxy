@@ -119,13 +119,15 @@ class Background {
         return {};
       }
 
+      let hasWarpError = !!details.responseHeaders.find((header) => {
+        return header.name === "cf-warp-error" && header.value === "1";
+      });
+
       // In case of HTTP error status codes, received by onCompleted(), we know that:
       // 1. the connection is a plain/text (HTTP, no HTTPS).
       // 2. if they are 'real', there is an extra cf-warp-error header, set by
       //    the proxy.
-      if (details.responseHeaders.find((header) => {
-            return header.name === "cf-warp-error" && header.value === 1;
-          })) {
+      if (hasWarpError) {
         switch (details.statusCode) {
           case 407:
             this.processNetworkError(details.url, "NS_ERROR_PROXY_AUTHENTICATION_FAILED");
@@ -142,9 +144,7 @@ class Background {
       if ([502, 407, 429].includes(details.statusCode) &&
           details.tabId &&
           details.type === "main_frame" &&
-          details.responseHeaders.find((header) => {
-            return header.name === "cf-warp-error" && header.value === 1;
-          })) {
+          hasWarpError) {
         browser.experiments.proxyutils.loadNetError(details.statusCode, details.url, details.tabId);
         return {cancel: true};
       }
