@@ -49,6 +49,17 @@ const ContentScript = {
     });
   },
 
+  potentiallyShowContextBanner() {
+    if (this.exempted === undefined && this.bannerShowing === false) {
+      this.bannerShowing = true;
+      new ContentScriptBanner(true);
+    }
+  },
+
+  shouldOverload() {
+    return this.proxyEnabled && this.exempted !== "exemptTab";
+  },
+
   overwriteProperties() {
     const overwrittenProperties = new Set([
       { originalMethod: null, parentObject: window.navigator.mediaDevices, methodName: "getSupportedConstraints", type: "method" },
@@ -66,30 +77,38 @@ const ContentScript = {
         return;
       }
 
+      function overrideProp(object, property, original) {
+        Object.defineProperty(object, property, {
+         get: exportFunction(() => {
+          if (ContentScript.shouldOverload()) {
+            ContentScript.potentiallyShowContextBanner();
+            if (data.type === "method") {
+              return exportFunction(() => {
+                return window.wrappedJSObject.Promise.reject(new window.wrappedJSObject.Error("SecurityError"));
+              }, window);
+            }
+
+            if (data.type === "object") {
+              throw new window.wrappedJSObject.Error("SecurityError");
+            }
+          }
+
+          return original;
+         }, window),
+
+         set: exportFunction(() => {
+           if (ContentScript.shouldOverload()) {
+             ContentScript.potentiallyShowContextBanner();
+           }
+         }, window),
+        });
+      }
+
       data.originalMethod = data.parentObject.wrappedJSObject[data.methodName];
-      Object.defineProperty(data.parentObject.wrappedJSObject, data.methodName, {
-       get: exportFunction(() => {
-        if (this.proxyEnabled && this.exempted !== "exemptTab") {
-          if (this.exempted === undefined && this.bannerShowing === false) {
-            this.bannerShowing = true;
-            new ContentScriptBanner(true);
-          }
-          if (data.type === "method") {
-            return exportFunction(() => {
-              return window.wrappedJSObject.Promise.reject(new window.wrappedJSObject.Error("SecurityError"));
-            }, window);
-          }
-
-          if (data.type === "object") {
-            throw new window.wrappedJSObject.Error("SecurityError");
-          }
-        }
-
-        return data.originalMethod;
-       }, window),
-
-       set: exportFunction(function() {}, window),
-      });
+      overrideProp(data.parentObject.wrappedJSObject, data.methodName, data.originalMethod);
+      if (data.type === "object") {
+        overrideProp(data.parentObject.wrappedJSObject[data.methodName], "prototype", data.originalMethod.prototype);
+      }
     });
   },
 
