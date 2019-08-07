@@ -20,7 +20,7 @@
     "message": "Not Now"
   },
   "injectedModalAcceptButton": {
-    "message": "Turn Off for This Site"
+    "message": "Turn Off for This Tab"
   },
   "viewExemptTab": {
     "message": "Firefox Private Network is off for this tab. Your connection to this site is not secure."
