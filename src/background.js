@@ -67,6 +67,9 @@ class Background {
     // This is Set of pending operatations to do after a token generation.
     this.postTokenGenerationOps = new Set();
     this.generatingTokens = false;
+
+    // Timeout for run() when offline is detected.
+    this.runTimeoutId = 0;
   }
 
   async init() {
@@ -210,6 +213,8 @@ class Background {
   // go back online. It fetches all the required resources and it computes the
   // proxy state.
   async run() {
+    clearTimeout(this.runTimeoutId);
+
     if (this.fxaEndpoints.size === 0) {
       this.proxyState = PROXY_STATE_LOADING;
       // Let's fetch the well-known data.
@@ -218,7 +223,7 @@ class Background {
         this.proxyState = PROXY_STATE_OFFLINE;
         this.updateUI();
 
-        setTimeout(_ => this.run(), RUN_TIMEOUT);
+        this.runTimeoutId = setTimeout(_ => this.run(), RUN_TIMEOUT);
         return;
       }
     }
