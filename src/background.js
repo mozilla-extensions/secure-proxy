@@ -481,7 +481,7 @@ class Background {
 
   removeExemptTab(tabId) {
     log(`removeExemptTab ${tabId}`);
-    this.exemptTabStatus.delete(tabId);
+    this.exemptTabStatus.set(tabId, "ignoreTab");
     this.setTabIcon(tabId);
     // Re-enable the content script blocking on the tab
     this.informContentScripts();
