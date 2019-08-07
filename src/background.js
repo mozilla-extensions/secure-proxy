@@ -74,19 +74,19 @@ class Background {
 
   async init() {
     const prefs = await browser.experiments.proxyutils.settings.get({});
-    debuggingMode = prefs.debuggingEnabled;
+    debuggingMode = prefs.value.debuggingEnabled;
 
     log("init");
 
-    this.fxaOpenID = prefs.fxaURL || FXA_OPENID;
+    this.fxaOpenID = prefs.value.fxaURL || FXA_OPENID;
 
-    this.proxyURL = new URL(prefs.proxyURL || PROXY_URL);
+    this.proxyURL = new URL(prefs.value.proxyURL || PROXY_URL);
     this.proxyType = this.proxyURL.protocol === "https:" ? "https" : "http";
     this.proxyPort = this.proxyURL.port || (this.proxyURL.protocol === "https:" ? 443 : 80);
     this.proxyHost = this.proxyURL.hostname;
 
     try {
-      const capitivePortalUrl = new URL(prefs.captiveDetect);
+      const capitivePortalUrl = new URL(prefs.value.captiveDetect);
       this.captivePortalOrigin = capitivePortalUrl.origin;
     } catch (e) {
       // ignore
