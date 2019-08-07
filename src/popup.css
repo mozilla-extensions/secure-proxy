@@ -227,6 +227,7 @@ header button {
   animation: stateButton-hover;
   animation-duration: 1.75s;
   animation-fill-mode: both;
+  animation-direction: alternate;
   animation-timing-function: cubic-bezier(0.445,  0.050, 0.550, 0.950);
 }
 
@@ -253,7 +254,7 @@ header button {
 }
 
 [data-state="login"] #stateButton {
-  background: transparent;
+  background: url('img/hero-account.svg') 0 0 / cover;
   border: 0 none;
 }
 
@@ -277,8 +278,7 @@ header button {
 }
 
 [data-state="login"]#state {
-  background: url('img/hero-account.svg') -2px -1px / cover,
-              var(--ink-90) url('img/background-off.png') 0 0 / cover;
+  background: var(--ink-90) url('img/background-off.png') 0 0 / cover;
 }
 
 [data-state="disabled"]#state {
