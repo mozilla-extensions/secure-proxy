@@ -36,6 +36,7 @@ const ContentScript = {
 
         // Check if we are a site that we show a banner for
         if (this.proxyEnabled &&
+            this.bannerShowing === false &&
             await this.originIsExemptable() &&
             this.exempted === undefined) {
           this.bannerShowing = true;
