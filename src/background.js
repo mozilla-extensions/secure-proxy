@@ -110,6 +110,11 @@ class Background {
       // Icon overrides are changes when the user navigates
       this.setTabIcon(tabId);
     });
+    browser.tabs.onActivated.addListener((info) => {
+      if (this.isTabExempt(info.tabId)) {
+        this.showStatusPrompt();
+      }
+    });
 
     // Proxy configuration
     browser.proxy.onRequest.addListener(async requestInfo => {
@@ -314,6 +319,11 @@ class Background {
       default:
         // no message.
         break;
+    }
+
+    if (this.isCurrentTabExempt()) {
+      promptNotice = "toastWarning";
+      isWarning = true;
     }
 
     if (promptNotice) {
