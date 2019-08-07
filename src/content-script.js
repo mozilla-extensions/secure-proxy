@@ -102,12 +102,8 @@ const ContentScript = {
          }, window),
         });
       }
-
       data.originalMethod = data.parentObject.wrappedJSObject[data.methodName];
       overrideProp(data.parentObject.wrappedJSObject, data.methodName, data.originalMethod);
-      if (data.type === "object") {
-        overrideProp(data.parentObject.wrappedJSObject[data.methodName], "prototype", data.originalMethod.prototype);
-      }
     });
   },
 
