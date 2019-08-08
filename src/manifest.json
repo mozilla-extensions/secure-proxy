@@ -57,7 +57,8 @@
         "vendor/fxa-crypto-relier.js",
         "commons.js",
         "survey.js",
-        "background.js"
+        "background.js",
+        "identityForFennec.js"
       ]
   },
 

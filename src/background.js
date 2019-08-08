@@ -74,9 +74,14 @@ class Background {
 
   async init() {
     const prefs = await browser.experiments.proxyutils.settings.get({});
-    debuggingMode = prefs.value.debuggingEnabled;
+    debuggingMode = true || prefs.value.debuggingEnabled;
 
     log("init");
+
+    // Mobile hack!
+    if (!browser.identity) {
+      browser.identity = identityForFennec;
+    }
 
     this.fxaOpenID = prefs.value.fxaURL || FXA_OPENID;
 
@@ -443,9 +448,11 @@ class Background {
       icon = "img/badge_warning.svg";
     }
 
-    browser.browserAction.setIcon({
-      path: icon,
-    });
+    try {
+      browser.browserAction.setIcon({
+        path: icon,
+      });
+    } catch (e) {}
   }
 
   // Used to set or remove tab exemption icons
@@ -457,10 +464,12 @@ class Background {
       path = "img/badge_warning.svg";
     }
 
-    browser.browserAction.setIcon({
-      path,
-      tabId
-    });
+    try {
+      browser.browserAction.setIcon({
+        path,
+        tabId
+      });
+    } catch (e) {}
   }
 
   async proxyRequestCallback(requestInfo) {
@@ -998,8 +1007,12 @@ class Background {
   }
 
   async hasProxyInUse() {
-    let proxySettings = await browser.proxy.settings.get({});
-    return ["manual", "autoConfig", "autoDetect"].includes(proxySettings.value.proxyType);
+    try {   
+      let proxySettings = await browser.proxy.settings.get({});
+      return ["manual", "autoConfig", "autoDetect"].includes(proxySettings.value.proxyType);
+    } catch (e) {
+      return false;
+    }
   }
 
   maybeStoreUsageDays() {
