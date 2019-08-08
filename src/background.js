@@ -54,6 +54,7 @@ class Background {
   constructor() {
     log("constructor");
 
+    this.connectionId = 0;
     this.survey = new Survey();
     this.exemptTabStatus = new Map();
     this.fxaEndpoints = new Map();
@@ -484,7 +485,7 @@ class Background {
       host: this.proxyHost,
       port: this.proxyPort,
       proxyAuthorizationHeader: this.proxyAuthorizationHeader,
-      connectionIsolationKey: this.proxyAuthorizationHeader + additionalConnectionIsolation,
+      connectionIsolationKey: this.proxyAuthorizationHeader + additionalConnectionIsolation + this.connectionId,
     }];
   }
 
@@ -972,6 +973,7 @@ class Background {
   }
 
   async onConnectivityChanged(connectivity) {
+    this.connectionId += 1;
     log("connectivity changed!");
 
     // Offline -> online.
