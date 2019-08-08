@@ -57,7 +57,7 @@ class Background {
     this.survey = new Survey();
     this.exemptTabStatus = new Map();
     this.fxaEndpoints = new Map();
-    this.proxyState = PROXY_STATE_UNAUTHENTICATED;
+    this.proxyState = PROXY_STATE_LOADING;
     this.webSocketConnectionIsolationCounter = 0;
     this.nextExpireTime = 0;
 
@@ -123,10 +123,6 @@ class Background {
 
     // Handle header errors before we render the response
     browser.webRequest.onHeadersReceived.addListener(details => {
-      if (this.proxyState === PROXY_STATE_OFFLINE) {
-        return {};
-      }
-
       let hasWarpError = !!details.responseHeaders.find((header) => {
         return header.name === "cf-warp-error" && header.value === "1";
       });
@@ -160,7 +156,8 @@ class Background {
     }, {urls: ["http://*/*"]}, ["responseHeaders", "blocking"]);
 
     browser.webRequest.onHeadersReceived.addListener(details => {
-      if (this.proxyState !== PROXY_STATE_CONNECTING) {
+      if (this.proxyState !== PROXY_STATE_CONNECTING &&
+          this.proxyState !== PROXY_STATE_OFFLINE) {
         return;
       }
 
@@ -218,31 +215,47 @@ class Background {
   // go back online. It fetches all the required resources and it computes the
   // proxy state.
   async run() {
+    log("run!");
+
     clearTimeout(this.runTimeoutId);
 
     if (this.fxaEndpoints.size === 0) {
-      this.proxyState = PROXY_STATE_LOADING;
+      const previousProxyState = this.proxyState;
+
       // Let's fetch the well-known data.
       let wellKnownData = await this.fetchWellKnownData();
       if (!wellKnownData) {
-        this.proxyState = PROXY_STATE_OFFLINE;
-        this.updateUI();
+        log("failed to fetch well-known resources");
 
-        this.runTimeoutId = setTimeout(_ => this.run(), RUN_TIMEOUT);
+        // We are offline. Let's show the 'offline' view, and let's try to
+        // fetch the well-known data again later.
+        this.setOfflineAndStartRecoveringTimer();
+
+        if (previousProxyState !== PROXY_STATE_OFFLINE) {
+          this.updateUI();
+        }
+
         return;
       }
-    }
 
-    // Better to be in this state to compute the new one, but we don't want to
-    // update the UI, right now, because maybe the user is already
-    // authenticated.
-    this.proxyState = PROXY_STATE_UNAUTHENTICATED;
+      // Better to be in this state to compute the new one.
+      this.proxyState = PROXY_STATE_LOADING;
+    }
 
     // Here we generate the current proxy state.
     await this.computeProxyState();
 
     // UI
     this.updateUI();
+  }
+
+  setOfflineAndStartRecoveringTimer() {
+    log("set offline state and start the timer");
+
+    this.proxyState = PROXY_STATE_OFFLINE;
+
+    clearTimeout(this.runTimeoutId);
+    this.runTimeoutId = setTimeout(_ => this.run(), RUN_TIMEOUT);
   }
 
   getTranslation(stringName, ...args) {
@@ -281,16 +294,17 @@ class Background {
       return;
     }
 
-    if (this.proxyState === PROXY_STATE_CONNECTING &&
+    if ((this.proxyState === PROXY_STATE_CONNECTING ||
+         this.proxyState === PROXY_STATE_OFFLINE) &&
         url === CONNECTING_HTTP_REQUEST &&
         (errorStatus === "NS_ERROR_UNKNOWN_PROXY_HOST" ||
          errorStatus === "NS_ERROR_ABORT")) {
-      this.proxyState = PROXY_STATE_OFFLINE;
+      this.setOfflineAndStartRecoveringTimer();
       this.updateUI();
     }
   }
 
-  showStatusPrompt() {
+  async showStatusPrompt() {
     // No need to show the toast if the panel is visible.
     if (this.currentPort) {
       return;
@@ -321,7 +335,7 @@ class Background {
         break;
     }
 
-    if (this.isCurrentTabExempt()) {
+    if (await this.isCurrentTabExempt()) {
       promptNotice = "toastWarning";
       isWarning = true;
     }
@@ -341,17 +355,16 @@ class Background {
       this.tokenGenerationTimeout = 0;
     }
 
-    // We are offline.
-    if (!navigator.onLine || this.fxaEndpoints.size === 0) {
-      this.proxyState = PROXY_STATE_OFFLINE;
+    // The run() failed to fetch the well-known resources. We are offline.
+    if (this.fxaEndpoints.size === 0) {
+      this.setOfflineAndStartRecoveringTimer();
     }
 
     // We want to keep these states.
     let currentState = this.proxyState;
     if (currentState !== PROXY_STATE_AUTHFAILURE &&
         currentState !== PROXY_STATE_PROXYERROR &&
-        currentState !== PROXY_STATE_PROXYAUTHFAILED &&
-        currentState !== PROXY_STATE_OFFLINE) {
+        currentState !== PROXY_STATE_PROXYAUTHFAILED) {
       this.proxyState = PROXY_STATE_UNAUTHENTICATED;
     }
 
@@ -546,8 +559,10 @@ class Background {
       return false;
     }
 
-    // If we are 'connecting', we want to allow just the CONNECTING_HTTP_REQUEST.
-    if (this.proxyState === PROXY_STATE_CONNECTING) {
+    // If we are 'connecting' or 'offline' state, we want to allow just the
+    // CONNECTING_HTTP_REQUEST.
+    if (this.proxyState === PROXY_STATE_CONNECTING ||
+        this.proxyState === PROXY_STATE_OFFLINE) {
       return requestInfo.url === CONNECTING_HTTP_REQUEST;
     }
 
@@ -649,7 +664,6 @@ class Background {
     });
 
     let refreshTokenData;
-
     // This will trigger the authentication form.
     try {
       refreshTokenData = await fxaKeysUtil.launchWebExtensionFlow(FXA_CLIENT_ID, {
@@ -959,19 +973,6 @@ class Background {
 
   async onConnectivityChanged(connectivity) {
     log("connectivity changed!");
-
-    // (!inactive) -> offline.
-    if ((this.proxyState === PROXY_STATE_LOADING ||
-         this.proxyState === PROXY_STATE_UNAUTHENTICATED ||
-         this.proxyState === PROXY_STATE_ACTIVE ||
-         this.proxyState === PROXY_STATE_CONNECTING ||
-         this.proxyState === PROXY_STATE_PROXYERROR ||
-         this.proxyState === PROXY_STATE_PROXYAUTHFAILED ||
-         this.proxyState === PROXY_STATE_AUTHFAILURE) && !connectivity) {
-      this.proxyState = PROXY_STATE_OFFLINE;
-      this.updateUI();
-      return;
-    }
 
     // Offline -> online.
     if ((this.proxyState === PROXY_STATE_OFFLINE) && connectivity) {
