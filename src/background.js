@@ -433,18 +433,25 @@ class Background {
   // This updates any tab that doesn't have an exemption
   updateIcon() {
     let icon;
+    let text;
     if (this.proxyState === PROXY_STATE_INACTIVE ||
         this.proxyState === PROXY_STATE_CONNECTING ||
         this.proxyState === PROXY_STATE_OFFLINE) {
       icon = "img/badge_off.svg";
+      text = "badgeOffText";
     } else if (this.proxyState === PROXY_STATE_ACTIVE) {
       icon = "img/badge_on.svg";
+      text = "badgeOnText";
     } else {
       icon = "img/badge_warning.svg";
+      text = "badgeWarningText";
     }
 
     browser.browserAction.setIcon({
       path: icon,
+    });
+    browser.browserAction.setTitle({
+      title: this.getTranslation(text),
     });
   }
 
@@ -453,13 +460,20 @@ class Background {
     log(`updating tab icon: ${tabId}`);
     // default value here is undefined which resets the icon back when it becomes non exempt again
     let path;
+    // default title resets the tab title
+    let title = null;
     if (this.isTabExempt(tabId)) {
+      title = this.getTranslation("badgeWarningText");
       path = "img/badge_warning.svg";
     }
 
     browser.browserAction.setIcon({
       path,
       tabId
+    });
+    browser.browserAction.setTitle({
+      tabId,
+      title
     });
   }
 
