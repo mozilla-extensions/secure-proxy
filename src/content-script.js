@@ -40,7 +40,7 @@ const ContentScript = {
             await this.originIsExemptable() &&
             this.exempted === undefined) {
           this.bannerShowing = true;
-          new ContentScriptBanner(false);
+          new ContentScriptBanner();
         }
         return;
       }
@@ -52,7 +52,7 @@ const ContentScript = {
   potentiallyShowContextBanner() {
     if (this.exempted === undefined && this.bannerShowing === false) {
       this.bannerShowing = true;
-      new ContentScriptBanner(true);
+      new ContentScriptBanner();
     }
   },
 
@@ -118,9 +118,7 @@ const ContentScript = {
 ContentScript.init();
 
 class ContentScriptBanner {
-  // If the banner is contextual refresh the page on approve
-  constructor(contextual) {
-    this.contextual = contextual;
+  constructor() {
     this.insertBannerOnDocumentLoad();
   }
 
@@ -181,7 +179,7 @@ class ContentScriptBanner {
     }
     this.close();
     await ContentScript.exempt(type);
-    if (this.contextual && type === "exemptTab") {
+    if (type === "exemptTab") {
       window.location.reload();
     }
   }
