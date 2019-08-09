@@ -5,6 +5,16 @@
   "extensionDescription": {
     "message": "A secure, encrypted tunnel to the web to protect yourself everywhere you use Firefox."
   },
+
+  "badgeOnText": {
+    "message": "Firefox Private Network is On"
+  },
+  "badgeOffText": {
+    "message": "Firefox Private Network is Off"
+  },
+  "badgeWarningText": {
+    "message": "Firefox Private Network is inactive"
+  },
     
   "heroProxyOff": {
     "message": "OFF"
