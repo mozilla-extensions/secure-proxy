@@ -70,6 +70,7 @@ export class View {
 
   static showSettings(shouldShow) {
     let settingsElement = document.getElementById("settingsButton");
+    settingsElement.setAttribute("aria-label", currentView.getTranslation("popupSettingsButtonLabel"));
     settingsElement.toggleAttribute("hidden", !shouldShow);
   }
 

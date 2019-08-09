@@ -56,7 +56,10 @@
     "message": "Powered by Cloudflare®."
   },
   "popupToggleButton": {
-    "message": "Firefox Private Network "
+    "message": "Firefox Private Network"
+  },
+  "popupSettingsButtonLabel": {
+    "message": "Settings"
   },
 
   "toastProxyOff": {
