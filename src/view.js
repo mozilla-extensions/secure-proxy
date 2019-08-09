@@ -51,6 +51,7 @@ export class View {
     toggleRow.removeAttribute("hidden");
 
     let toggleButton = document.getElementById("toggleButton");
+    toggleButton.setAttribute("aria-label", currentView.getTranslation("popupToggleButtonLabel"));
     toggleButton.checked = state;
   }
 
