@@ -2,7 +2,7 @@ import {View} from "../view.js";
 
 class ViewOffline extends View {
   show() {
-    View.setState("disabled", this.getTranslation("heroProxyOff"));
+    View.setState("disabled", {text: this.getTranslation("heroProxyOff")});
     View.hideToggleButton();
 
     return escapedTemplate`<p>

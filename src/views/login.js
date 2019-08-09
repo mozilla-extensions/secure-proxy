@@ -3,7 +3,7 @@ import {View} from "../view.js";
 // Login view.
 class ViewLogin extends View {
   show(proxyState) {
-    View.setState("login");
+    View.setState("login", {label: this.getTranslation("heroProxyLogin")});
 
     let text;
     if (proxyState === PROXY_STATE_UNAUTHENTICATED) {

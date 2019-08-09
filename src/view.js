@@ -73,11 +73,16 @@ export class View {
     settingsElement.toggleAttribute("hidden", !shouldShow);
   }
 
-  static setState(state, stateButtonText) {
+  static setState(state, stateButtonSettings = {}) {
     let stateElement = document.getElementById("state");
     stateElement.setAttribute("data-state", state);
     let stateButtonElement = document.getElementById("stateButton");
-    stateButtonElement.textContent = stateButtonText || "";
+    stateButtonElement.textContent = stateButtonSettings.text || "";
+    if (stateButtonSettings.label) {
+      stateButtonElement.setAttribute("aria-label", stateButtonSettings.label);
+    } else {
+      stateButtonElement.removeAttribute("aria-label");
+    }
   }
 
   // To be overwritten with a string for the header

@@ -12,6 +12,12 @@
   "heroProxyOn": {
     "message": "ON"
   },
+  "heroProxyLogin": {
+    "message": "Login"
+  },
+  "heroProxyConnecting": {
+    "message": "Connecting"
+  },
 
   "injectedModalHeading": {
     "message": "Firefox Private Network"
