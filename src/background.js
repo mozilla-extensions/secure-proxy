@@ -536,17 +536,18 @@ class Background {
     }
 
     function isLocal(url) {
-      if (url.hostname === "localhost" ||
-          url.hostname === "localhost.localdomain" ||
-          url.hostname === "localhost6" ||
-          url.hostname === "localhost6.localdomain6") {
-        return true;
-      }
-      const localports = /(^127\.)|(^192\.168\.)|(^10\.)|(^172\.1[6-9]\.)|(^172\.2[0-9]\.)|(^172\.3[0-1]\.)|(^::1$)|(^[fF][cCdD])/;
-      if (localports.test(url.hostname)) {
-        return true;
-      }
-      return false;
+      let hostname = url.hostname;
+      return (/(.+\.)?localhost$/.test(hostname) ||
+        /(.+\.)?localhost6$/.test(hostname) ||
+        /(.+\.)?localhost.localdomain$/.test(hostname) ||
+        /(.+\.)?localhost6.localdomain6$/.test(hostname) ||
+        /^127\.\d{1,3}\.\d{1,3}\.\d{1,3}$/.test(hostname) ||
+        /^192\.168\.\d{1,3}\.\d{1,3}$/.test(hostname) ||
+        /^10\.\d{1,3}\.\d{1,3}\.\d{1,3}$/.test(hostname) ||
+        /^172\.1[6-9]\.\d{1,3}\.\d{1,3}$/.test(hostname) ||
+        /^172\.2[0-9]\.\d{1,3}\.\d{1,3}$/.test(hostname) ||
+        /^172\.3[0-1]\.\d{1,3}\.\d{1,3}$/.test(hostname) ||
+        /\[[0:]+1\]/.test(hostname));
     }
 
     // We want to continue the sending of requests to the proxy even if we
