@@ -62,10 +62,10 @@ const ContentScript = {
 
   overwriteProperties() {
     const overwrittenProperties = new Set([
-      { originalMethod: null, parentObject: window.navigator.mediaDevices, methodName: "getSupportedConstraints", type: "method" },
-      { originalMethod: null, parentObject: window.navigator.mediaDevices, methodName: "enumerateDevices", type: "method" },
-      { originalMethod: null, parentObject: window.navigator.mediaDevices, methodName: "getUserMedia", type: "method" },
-      { originalMethod: null, parentObject: window.navigator.mediaDevices, methodName: "getDisplayMedia", type: "method" },
+      { originalMethod: null, parentObject: window.navigator.mediaDevices, methodName: "getSupportedConstraints", type: "method", potentiallyShowContextBanner: true },
+      { originalMethod: null, parentObject: window.navigator.mediaDevices, methodName: "enumerateDevices", type: "method", potentiallyShowContextBanner: false },
+      { originalMethod: null, parentObject: window.navigator.mediaDevices, methodName: "getUserMedia", type: "method", potentiallyShowContextBanner: true },
+      { originalMethod: null, parentObject: window.navigator.mediaDevices, methodName: "getDisplayMedia", type: "method", potentiallyShowContextBanner: true },
       { originalMethod: null, parentObject: window, methodName: "RTCPeerConnection", type: "object" },
       { originalMethod: null, parentObject: window, methodName: "RTCIceCandidate", type: "object" },
       { originalMethod: null, parentObject: window, methodName: "RTCPeerConnectionStatic", type: "object" },
@@ -81,9 +81,11 @@ const ContentScript = {
         Object.defineProperty(object, property, {
          get: exportFunction(() => {
           if (ContentScript.shouldOverload()) {
-            ContentScript.potentiallyShowContextBanner();
             if (data.type === "method") {
               return exportFunction(() => {
+                if (data.potentiallyShowContextBanner) {
+                  ContentScript.potentiallyShowContextBanner();
+                }
                 return window.wrappedJSObject.Promise.reject(new window.wrappedJSObject.Error("SecurityError"));
               }, window);
             }
