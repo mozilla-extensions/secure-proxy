@@ -3,7 +3,7 @@ import {View} from "../view.js";
 // This is the first view to be shown.
 class ViewConnecting extends View {
   show() {
-    View.setState("connecting");
+    View.setState("connecting", {label: this.getTranslation("heroProxyConnecting")});
     View.showToggleButton(true);
 
     return escapedTemplate`

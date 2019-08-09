@@ -2,7 +2,7 @@ import {View} from "../view.js";
 
 class ViewProxyError extends View {
   show(proxyState) {
-    View.setState("disabled", this.getTranslation("heroProxyOff"));
+    View.setState("disabled", {text: this.getTranslation("heroProxyOff")});
     View.showToggleButton(false);
 
     return escapedTemplate`

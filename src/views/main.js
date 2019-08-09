@@ -36,9 +36,9 @@ class ViewMain extends View {
     this.proxyEnabled = data.proxyState === PROXY_STATE_ACTIVE;
 
     if (this.proxyEnabled) {
-      View.setState("enabled", this.getTranslation("heroProxyOn"));
+      View.setState("enabled", {text: this.getTranslation("heroProxyOn")});
     } else {
-      View.setState("disabled", this.getTranslation("heroProxyOff"));
+      View.setState("disabled", {text: this.getTranslation("heroProxyOff")});
     }
   }
 
