@@ -66,6 +66,8 @@ const ContentScript = {
       { originalMethod: null, parentObject: window.navigator.mediaDevices, methodName: "enumerateDevices", type: "method", potentiallyShowContextBanner: false },
       { originalMethod: null, parentObject: window.navigator.mediaDevices, methodName: "getUserMedia", type: "method", potentiallyShowContextBanner: true },
       { originalMethod: null, parentObject: window.navigator.mediaDevices, methodName: "getDisplayMedia", type: "method", potentiallyShowContextBanner: true },
+      { originalMethod: null, parentObject: window.navigator, methodName: "mozGetUserMedia", type: "method", potentiallyShowContextBanner: true },
+      { originalMethod: null, parentObject: window.navigator, methodName: "mozGetUserMediaDevices", type: "method", potentiallyShowContextBanner: true },
       { originalMethod: null, parentObject: window, methodName: "RTCPeerConnection", type: "object" },
       { originalMethod: null, parentObject: window, methodName: "RTCIceCandidate", type: "object" },
       { originalMethod: null, parentObject: window, methodName: "RTCPeerConnectionStatic", type: "object" },
