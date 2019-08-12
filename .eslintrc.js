@@ -9,9 +9,15 @@ module.exports = {
     "plugin:mozilla/recommended"
   ],
   globals: {
+    Component: false,
     Template: false,
     escapedTemplate: false,
+    debuggingMode: true,
     fxaCryptoRelier: false,
+    log: false,
+    FxAUtils: false,
+    Network: false,
+    UI: false,
     PROXY_STATE_LOADING: false,
     PROXY_STATE_OFFLINE: false,
     PROXY_STATE_INACTIVE: false,
@@ -22,6 +28,7 @@ module.exports = {
     PROXY_STATE_PROXYAUTHFAILED: false,
     PROXY_STATE_AUTHFAILURE: false,
     PROXY_STATE_UNAUTHENTICATED: false,
+    PROXY_URL: false,
     Survey: false
   },
   parserOptions: {

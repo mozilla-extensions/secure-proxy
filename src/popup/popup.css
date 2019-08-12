@@ -132,7 +132,7 @@ button.primary:enabled:hover:active {
   display: inline-block;
   block-size: 16px;
   inline-size: 16px;
-  background: url("img/i-warning16.svg");
+  background: url("/img/i-warning16.svg");
   margin-inline-start: -22px;
 }
 
@@ -262,7 +262,7 @@ header button {
 }
 
 [data-state="login"] #stateButton {
-  background: url('img/hero-account.svg') 0 0 / cover;
+  background: url('/img/hero-account.svg') 0 0 / cover;
   border: 0 none;
 }
 
@@ -272,7 +272,7 @@ header button {
 }
 
 #state {
-  background: var(--ink-90) url('img/background-loading.png') 0 0 / cover;
+  background: var(--ink-90) url('/img/background-loading.png') 0 0 / cover;
   block-size: 200px;
   display: flex;
   overflow: hidden;
@@ -286,20 +286,20 @@ header button {
 }
 
 [data-state="login"]#state {
-  background: var(--ink-90) url('img/background-off.png') 0 0 / cover;
+  background: var(--ink-90) url('/img/background-off.png') 0 0 / cover;
 }
 
 [data-state="disabled"]#state {
-  background: var(--ink-90) url('img/background-off.png') 0 0 / cover;
+  background: var(--ink-90) url('/img/background-off.png') 0 0 / cover;
   color: #291d4f;
 }
 
 [data-state="connecting"]#state {
-  background: var(--ink-90) url('img/background-loading.png') 0 0 / cover;
+  background: var(--ink-90) url('/img/background-loading.png') 0 0 / cover;
 }
 
 [data-state="enabled"]#state {
-  background: var(--ink-90) url('img/background-on.png') 0 0 / cover;
+  background: var(--ink-90) url('/img/background-on.png') 0 0 / cover;
 }
 
 @keyframes circle-effect {
