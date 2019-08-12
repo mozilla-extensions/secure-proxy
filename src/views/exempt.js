@@ -21,7 +21,4 @@ class ViewExemptTab extends View {
 }
 
 const view = new ViewExemptTab();
-const name = "exemptTab";
-
-View.registerView(view, name);
-export default name;
+export default view;

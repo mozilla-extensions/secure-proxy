@@ -18,7 +18,4 @@ class ViewConnecting extends View {
 }
 
 const view = new ViewConnecting();
-const name = "connecting";
-
-View.registerView(view, name);
-export default name;
+export default view;

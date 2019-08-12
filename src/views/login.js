@@ -34,7 +34,4 @@ class ViewLogin extends View {
 }
 
 const view = new ViewLogin();
-const name = "login";
-
-View.registerView(view, name);
-export default name;
+export default view;

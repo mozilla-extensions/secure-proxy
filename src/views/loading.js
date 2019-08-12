@@ -12,7 +12,4 @@ class ViewLoading extends View {
 }
 
 const view = new ViewLoading();
-const name = "loading";
-
-View.registerView(view, name);
-export default name;
+export default view;
