@@ -13,7 +13,4 @@ class ViewOtherInUse extends View {
 }
 
 const view = new ViewOtherInUse();
-const name = "otherInUse";
-
-View.registerView(view, name);
-export default name;
+export default view;

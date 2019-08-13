@@ -11,7 +11,4 @@ class ViewError extends View {
 }
 
 const view = new ViewError();
-const name = "error";
-
-View.registerView(view, name);
-export default name;
+export default view;

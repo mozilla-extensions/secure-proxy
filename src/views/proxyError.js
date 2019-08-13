@@ -21,7 +21,4 @@ class ViewProxyError extends View {
 }
 
 const view = new ViewProxyError();
-const name = "proxyError";
-
-View.registerView(view, name);
-export default name;
+export default view;

@@ -1,23 +1,14 @@
-import {View} from "./view.js";
-import viewConnectingName from "./views/connecting.js";
-import viewErrorName from "./views/error.js";
-import viewLoadingName from "./views/loading.js";
-import viewLoginName from "./views/login.js";
-import viewMainName from "./views/main.js";
-import viewOfflineName from "./views/offline.js";
-import viewOtherInUseName from "./views/otherInUse.js";
-import viewProxyErrorName from "./views/proxyError.js";
-import viewExempt from "./views/exempt.js";
-import viewSettingsName from "./views/settings.js";
 const loadingTimeout = 5000;
 
 async function init() {
+  const {View} = await import("./view.js");
+  // Let's start showing something...
+  View.setView("loading");
+
   let port = browser.runtime.connect({name: "panel"});
   View.setPort(port);
 
-  // Let's start showing something...
-  View.setView(viewLoadingName);
-  let timeoutId = setTimeout(_ => View.setView(viewErrorName, "loadingError"), loadingTimeout);
+  let timeoutId = setTimeout(_ => View.setView("error", "loadingError"), loadingTimeout);
 
   let userInfo;
   let proxyState;
@@ -25,7 +16,7 @@ async function init() {
   let settingsButton = document.getElementById("settingsButton");
   settingsButton.addEventListener("click", () => {
     if (userInfo) {
-      View.setView(viewSettingsName, {userInfo, proxyState});
+      View.setView("settings", {userInfo, proxyState});
     }
   });
 
@@ -62,41 +53,48 @@ async function init() {
       case PROXY_STATE_UNAUTHENTICATED:
         // fall through
       case PROXY_STATE_AUTHFAILURE:
-        View.setView(viewLoginName, proxyState);
+        View.setView("login", proxyState);
         return;
 
       case PROXY_STATE_PROXYERROR:
         // fall through
       case PROXY_STATE_PROXYAUTHFAILED:
-        View.setView(viewProxyErrorName, proxyState);
+        View.setView("proxyError", proxyState);
         return;
 
       case PROXY_STATE_OTHERINUSE:
-        View.setView(viewOtherInUseName, proxyState);
+        View.setView("otherInUse", proxyState);
         return;
 
       case PROXY_STATE_INACTIVE:
         // fall through
       case PROXY_STATE_ACTIVE:
         if (msg.exempt && proxyState === PROXY_STATE_ACTIVE) {
-          View.setView(viewExempt, proxyState);
+          View.setView("exempt", proxyState);
         } else {
-          View.setView(viewMainName, {userInfo, proxyState});
+          View.setView("main", {userInfo, proxyState});
         }
         return;
 
       case PROXY_STATE_CONNECTING:
-        View.setView(viewConnectingName);
+        View.setView("connecting");
         return;
 
       case PROXY_STATE_OFFLINE:
-        View.setView(viewOfflineName);
+        View.setView("offline");
         return;
 
       default:
-        View.setView(viewErrorName, "internalError");
+        View.setView("error", "internalError");
     }
   });
 }
 
-init();
+// Defer loading until the document has loaded
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", () => {
+    init();
+  });
+} else {
+  init();
+}

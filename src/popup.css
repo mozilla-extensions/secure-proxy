@@ -56,6 +56,14 @@ body {
   min-block-size: 450px;
 }
 
+body.loading {
+  background: url("img/loading-screen.svg") 0 0 no-repeat;
+}
+
+body.loading * {
+  display: none !important;
+}
+
 a:link {
   color: var(--link-link);
   cursor: pointer;

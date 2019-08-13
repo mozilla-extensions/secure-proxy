@@ -6,7 +6,11 @@ let currentPort = null;
 // This is the generic a view. Any other view should inherit from this class.
 export class View {
   // Static method to set the current view. The previous one will be dismissed.
-  static setView(name, data = null) {
+  static async setView(name, data = null) {
+    if (!views.has(name)) {
+      let view = await import(`./views/${name}.js`);
+      this.registerView(view.default, name);
+    }
     let content = document.getElementById("content");
     let footer = document.querySelector("footer");
     let view = views.get(name);
@@ -44,6 +48,7 @@ export class View {
       footerTemplate.renderTo(footer);
       footer.toggleAttribute("hidden", false);
     }
+    document.body.classList.remove("loading");
   }
 
   static showToggleButton(state) {

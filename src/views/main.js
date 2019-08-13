@@ -59,7 +59,4 @@ class ViewMain extends View {
 }
 
 const view = new ViewMain();
-const name = "main";
-
-View.registerView(view, name);
-export default name;
+export default view;

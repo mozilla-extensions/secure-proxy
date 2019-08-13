@@ -12,7 +12,4 @@ class ViewOffline extends View {
 }
 
 const view = new ViewOffline();
-const name = "offline";
-
-View.registerView(view, name);
-export default name;
+export default view;

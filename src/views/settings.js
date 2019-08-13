@@ -63,7 +63,4 @@ class ViewSettings extends View {
 }
 
 const view = new ViewSettings();
-const name = "settings";
-
-View.registerView(view, name);
-export default name;
+export default view;
