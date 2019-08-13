@@ -89,7 +89,7 @@
 }
 
 #injectedModal h1 {
-  background: url("img/landscape-modal-logo.svg") 50% 0 no-repeat;
+  background: url("/img/landscape-modal-logo.svg") 50% 0 no-repeat;
   text-indent: -9999px;
   align-self: center;
   flex: 1;
@@ -142,7 +142,7 @@
   margin: 0;
   margin-inline-start: auto;
   border-radius: 200%;
-  background: var(--in-content-button-background) url(img/close.svg) 50% no-repeat;
+  background: var(--in-content-button-background) url(/img/close.svg) 50% no-repeat;
 }
 
 #injectedModal footer {

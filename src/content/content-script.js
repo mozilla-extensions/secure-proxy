@@ -2,7 +2,7 @@
 async function prettyHostname(hostname) {
   // Trim trailing period from hostname as is a separate origin.
   hostname = hostname.replace(/\.?$/, "");
-  return await browser.runtime.sendMessage({ type: "getBaseDomainFromHost", hostname });
+  return browser.runtime.sendMessage({ type: "getBaseDomainFromHost", hostname });
 }
 
 const ContentScript = {

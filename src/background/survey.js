@@ -4,24 +4,25 @@ const SURVEY_UNINSTALL = "https://qsurvey.mozilla.com/s3/fx-private-network-beta
 // Here the list of the supported keywords and their meanings:
 // - PROXYENABLED - replaced with 'true' or 'false', based on the proxy state.
 // - VERSION - the extension version.
-// - USAGEDAYS - number of days with the proxy enabled (at least for 1 request)
 
 const SURVEYS = [
   // Onboarding/welcome page
   { name: "onboarding", triggerAfterTime: 0, URL: "https://private-network.firefox.com/welcome" },
 
   // 14 days
-  { name: "14-day", triggerAfterTime: 1209600, URL: "https://qsurvey.mozilla.com/s3/fx-private-network-beta-survey?type=14-day&enabled=PROXYENABLED&v=VERSION&days=USAGEDAYS" },
+  { name: "14-day", triggerAfterTime: 1209600, URL: "https://qsurvey.mozilla.com/s3/fx-private-network-beta-survey?type=14-day&enabled=PROXYENABLED&v=VERSION" },
 
 ];
 
 // This class controls the survey URLs and when they have to be shown.
 
 // eslint-disable-next-line
-class Survey {
-  async init(backgroundObj) {
-    this.background = backgroundObj;
+class Survey extends Component {
+  constructor(receiver) {
+    super(receiver);
+  }
 
+  async init() {
     await browser.runtime.setUninstallURL(SURVEY_UNINSTALL);
     await this.scheduleNextSurvey();
   }
@@ -68,18 +69,16 @@ class Survey {
       return;
     }
 
-    let data = await this.background.proxyStatus();
-    let url = this.formatUrl(survey.URL, data);
-
-    await this.background.openUrl(url);
+    let url = await this.formatUrl(survey.URL);
+    await browser.tabs.create({url});
 
     await browser.storage.local.set({lastSurvey: surveyName});
     await this.scheduleNextSurvey();
   }
 
-  formatUrl(url, data) {
-    return url.replace(/PROXYENABLED/g, data.proxyEnabled ? "true" : "false")
-              .replace(/VERSION/g, data.version)
-              .replace(/USAGEDAYS/g, data.usageDays);
+  async formatUrl(url, data) {
+    let self = await browser.management.getSelf();
+    return url.replace(/PROXYENABLED/g, this.cachedProxyState === PROXY_STATE_ACTIVE ? "true" : "false")
+              .replace(/VERSION/g, self.version);
   }
 }

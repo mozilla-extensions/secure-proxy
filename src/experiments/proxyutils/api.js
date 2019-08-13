@@ -151,21 +151,6 @@ function getStringPrefValue(pref) {
   }
 }
 
-function getURLFromPref(pref) {
-  const url = getStringPrefValue(pref);
-  if (url === null) {
-    // No pref value set
-    return null;
-  }
-
-  try {
-    return new URL(url).href;
-  } catch (e) {
-    console.log("Invalid value for pref " + pref);
-    return null;
-  }
-}
-
 ExtensionPreferencesManager.addSetting("proxyutils.settings", {
   prefNames: ["captivedetect.canonicalURL"],
 

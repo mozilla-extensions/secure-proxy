@@ -19,12 +19,12 @@
     "browser_style": true,
     "default_icon": "img/badge_initial.svg",
     "default_title": "__MSG_extensionName__",
-    "default_popup": "popup.html"
+    "default_popup": "popup/popup.html"
   },
 
   "icons": {
-    "48": "icon.svg",
-    "96": "icon.svg"
+    "48": "img/icon.svg",
+    "96": "img/icon.svg"
   },
 
   "incognito": "spanning",
@@ -55,17 +55,21 @@
   "background": {
       "scripts": [
         "vendor/fxa-crypto-relier.js",
-        "commons.js",
-        "survey.js",
-        "background.js"
+        "commons/utils.js",
+        "background/component.js",
+        "background/fxa.js",
+        "background/network.js",
+        "background/survey.js",
+        "background/ui.js",
+        "background/background.js"
       ]
   },
 
   "content_scripts": [
     {
       "matches": ["<all_urls>"],
-      "js": ["commons.js", "template.js", "content-script.js"],
-      "css": ["content-modal.css"],
+      "js": ["commons/utils.js", "commons/template.js", "content/content-script.js"],
+      "css": ["content/content-modal.css"],
       "run_at": "document_start"
     }
   ]

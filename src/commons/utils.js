@@ -1,5 +1,8 @@
 /* eslint-disable no-unused-vars */
 
+// Proxy configuration
+const PROXY_URL = "https://proxy-staging.cloudflareclient.com:8001";
+
 // We are loading resources
 const PROXY_STATE_LOADING = "loading";
 
@@ -29,3 +32,11 @@ const PROXY_STATE_PROXYAUTHFAILED = "proxyAuthFailed";
 
 // Authentication failed
 const PROXY_STATE_AUTHFAILURE = "authFailure";
+
+// Enable debugging
+let debuggingMode = false;
+function log(msg, ...rest) {
+  if (debuggingMode) {
+    console.log("*** secure-proxy *** - " + msg, ...rest);
+  }
+}
