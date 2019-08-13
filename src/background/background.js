@@ -52,35 +52,11 @@ class Background {
   }
 
   // This method is executed multiple times: at startup time, and each time we
-  // go back online. It fetches all the required resources and it computes the
-  // proxy state.
+  // go back online. It computes the proxy state.
   async run() {
     log("run!");
 
     clearTimeout(this.runTimeoutId);
-
-    if (!this.fxa.hasWellKnownData()) {
-      const previousProxyState = this.proxyState;
-
-      // Let's fetch the well-known data.
-      let wellKnownData = await this.fxa.fetchWellKnownData();
-      if (!wellKnownData) {
-        log("failed to fetch well-known resources");
-
-        // We are offline. Let's show the 'offline' view, and let's try to
-        // fetch the well-known data again later.
-        this.setOfflineAndStartRecoveringTimer();
-
-        if (previousProxyState !== PROXY_STATE_OFFLINE) {
-          this.ui.update();
-        }
-
-        return;
-      }
-
-      // Better to be in this state to compute the new one.
-      this.setProxyState(PROXY_STATE_LOADING);
-    }
 
     // Here we generate the current proxy state.
     await this.computeProxyState();
@@ -115,11 +91,6 @@ class Background {
     if (this.tokenGenerationTimeout) {
       clearTimeout(this.tokenGenerationTimeout);
       this.tokenGenerationTimeout = 0;
-    }
-
-    // The run() failed to fetch the well-known resources. We are offline.
-    if (!this.fxa.hasWellKnownData()) {
-      this.setOfflineAndStartRecoveringTimer();
     }
 
     // We want to keep these states.
