@@ -136,13 +136,27 @@ class Network extends Component {
 
     function isLocal(url) {
       let hostname = url.hostname;
-      return (/(.+\.)?localhost$/.test(hostname) ||
-        /(.+\.)?localhost6$/.test(hostname) ||
-        /(.+\.)?localhost.localdomain$/.test(hostname) ||
-        /(.+\.)?localhost6.localdomain6$/.test(hostname) ||
+      return (/^(.+\.)?localhost$/.test(hostname) ||
+        /^(.+\.)?localhost6$/.test(hostname) ||
+        /^(.+\.)?localhost.localdomain$/.test(hostname) ||
+        /^(.+\.)?localhost6.localdomain6$/.test(hostname) ||
+        // https://tools.ietf.org/html/rfc2606
+        /\.example$/.test(hostname) ||
+        /\.invalid$/.test(hostname) ||
+        /\.test$/.test(hostname) ||
+        // https://tools.ietf.org/html/rfc8375
+        /^(.+\.)?home\.arpa$/.test(hostname) ||
+        // https://tools.ietf.org/html/rfc6762
+        /\.local$/.test(hostname) ||
+        // Loopback
         /^127\.\d{1,3}\.\d{1,3}\.\d{1,3}$/.test(hostname) ||
+        // Link Local
+        /^169\.254\.\d{1,3}\.\d{1,3}$/.test(hostname) ||
+        // Private use
         /^192\.168\.\d{1,3}\.\d{1,3}$/.test(hostname) ||
+        // Private use
         /^10\.\d{1,3}\.\d{1,3}\.\d{1,3}$/.test(hostname) ||
+        // Private use
         /^172\.1[6-9]\.\d{1,3}\.\d{1,3}$/.test(hostname) ||
         /^172\.2[0-9]\.\d{1,3}\.\d{1,3}$/.test(hostname) ||
         /^172\.3[0-1]\.\d{1,3}\.\d{1,3}$/.test(hostname) ||
