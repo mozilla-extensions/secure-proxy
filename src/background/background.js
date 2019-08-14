@@ -5,6 +5,9 @@ class Background {
   constructor() {
     log("constructor");
 
+    this.observers = new Set();
+
+    this.connectivity = new Connectivity(this);
     this.fxa = new FxAUtils(this);
     this.net = new Network(this);
     this.survey = new Survey(this);
@@ -22,29 +25,9 @@ class Background {
 
     log("init");
 
-    // Survey configuration
-    this.survey.init();
-
-    // FxA configuration
-    this.fxa.init(prefs);
-
-    // Network configuration
-    this.net.init(prefs);
-
-    // UI configuration
-    this.ui.init();
-
-    // proxy setting change observer
-    browser.experiments.proxyutils.onChanged.addListener(async _ => {
-      let hasChanged = await this.computeProxyState();
-      if (hasChanged) {
-        this.ui.update();
-      }
-    });
-
-    // connectivity observer.
-    browser.experiments.proxyutils.onConnectionChanged.addListener(connectivity => {
-      this.onConnectivityChanged(connectivity);
+    // Let's initialize the observers.
+    this.observers.forEach(observer => {
+      observer.init(prefs);
     });
 
     // All good. Let's start.
@@ -68,10 +51,9 @@ class Background {
   setProxyState(proxyState) {
     this.proxyState = proxyState;
 
-    this.fxa.setProxyState(proxyState);
-    this.net.setProxyState(proxyState);
-    this.survey.setProxyState(proxyState);
-    this.ui.setProxyState(proxyState);
+    this.observers.forEach(observer => {
+      observer.setProxyState(proxyState);
+    });
   }
 
   setOfflineAndStartRecoveringTimer() {
@@ -132,8 +114,12 @@ class Background {
 
   async testProxyConnection() {
     try {
-      this.net.testProxyConnection();
-      this.connectionSucceeded();
+      await this.net.testProxyConnection();
+
+      this.setProxyState(PROXY_STATE_ACTIVE);
+
+      this.net.afterConnectionSteps();
+      this.ui.afterConnectionSteps();
     } catch (e) {
       this.setOfflineAndStartRecoveringTimer();
       this.ui.update();
@@ -205,13 +191,6 @@ class Background {
     return ["manual", "autoConfig", "autoDetect"].includes(proxySettings.value.proxyType);
   }
 
-  connectionSucceeded() {
-    this.setProxyState(PROXY_STATE_ACTIVE);
-
-    this.net.afterConnectionSteps();
-    this.ui.afterConnectionSteps();
-  }
-
   async proxyAuthenticationFailed() {
     if (this.proxyState !== PROXY_STATE_ACTIVE &&
         this.proxyState !== PROXY_STATE_CONNECTING) {
@@ -252,6 +231,13 @@ class Background {
     return false;
   }
 
+  async proxySettingsChanged() {
+    const hasChanged = await this.computeProxyState();
+    if (hasChanged) {
+      this.ui.update();
+    }
+  }
+
   handleEvent(type, data) {
     switch (type) {
       case "authenticationFailed":
@@ -259,6 +245,9 @@ class Background {
 
       case "authenticationRequired":
         return this.auth();
+
+      case "connectivityChanged":
+        return this.onConnectivityChanged(data.connectivity);
 
       case "enableProxy":
         return this.enableProxy(data.enabledState);
@@ -275,6 +264,9 @@ class Background {
       case "proxyGenericError":
         return this.proxyGenericError();
 
+      case "proxySettingsChanged":
+        return this.proxySettingsChanged();
+
       case "skipProxy":
         return this.skipProxy(data.requestInfo, data.url);
 
@@ -288,6 +280,10 @@ class Background {
         console.error("Invalid event: " + type);
         throw new Error("Invalid event: " + type);
     }
+  }
+
+  registerObserver(observer) {
+    this.observers.add(observer);
   }
 }
 

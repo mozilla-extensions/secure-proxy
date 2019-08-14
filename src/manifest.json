@@ -57,6 +57,7 @@
         "vendor/fxa-crypto-relier.js",
         "commons/utils.js",
         "background/component.js",
+        "background/connectivity.js",
         "background/fxa.js",
         "background/network.js",
         "background/survey.js",
