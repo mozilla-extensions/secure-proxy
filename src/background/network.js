@@ -34,7 +34,8 @@ class Network extends Component {
     }, {urls: ["<all_urls>"]});
 
     // Handle header errors before we render the response
-    browser.webRequest.onHeadersReceived.addListener(details => {
+    browser.webRequest.onHeadersReceived.addListener(async details => {
+      // eslint-disable-next-line verify-await/check
       let hasWarpError = !!details.responseHeaders.find((header) => {
         return header.name === "cf-warp-error" && header.value === "1";
       });
@@ -46,22 +47,23 @@ class Network extends Component {
       if (hasWarpError) {
         switch (details.statusCode) {
           case 407:
-            this.processNetworkError(details.url, "NS_ERROR_PROXY_AUTHENTICATION_FAILED");
+            await this.processNetworkError(details.url, "NS_ERROR_PROXY_AUTHENTICATION_FAILED");
             break;
 
           case 429:
-            this.processNetworkError(details.url, "NS_ERROR_TOO_MANY_REQUESTS");
+            await this.processNetworkError(details.url, "NS_ERROR_TOO_MANY_REQUESTS");
             break;
         }
       }
 
       // The proxy returns errors that are warped which we should show a real looking error page for
       // These only occur over http and we can't really handle sub resources
+      // eslint-disable-next-line verify-await/check
       if ([502, 407, 429].includes(details.statusCode) &&
           details.tabId &&
           details.type === "main_frame" &&
           hasWarpError) {
-        browser.experiments.proxyutils.loadNetError(details.statusCode, details.url, details.tabId);
+        await browser.experiments.proxyutils.loadNetError(details.statusCode, details.url, details.tabId);
         return {cancel: true};
       }
       return {};
@@ -77,7 +79,9 @@ class Network extends Component {
   }
 
   async proxyRequestCallback(requestInfo) {
+    // eslint-disable-next-line verify-await/check
     let shouldProxyRequest = this.shouldProxyRequest(requestInfo);
+    // eslint-disable-next-line verify-await/check
     let additionalConnectionIsolation = this.additionalConnectionIsolation(requestInfo);
 
     log("proxy request for " + requestInfo.url + " => " + shouldProxyRequest);
@@ -87,6 +91,7 @@ class Network extends Component {
     }
 
     // Let's see if we have to wait for token generation.
+    // eslint-disable-next-line verify-await/check
     let wftg = this.sendMessage("waitForTokenGeneration");
     if (wftg !== null) {
       await wftg;
@@ -199,6 +204,8 @@ class Network extends Component {
     }
 
     // Do we have to skip this request?
+    // skipProxy is sync
+    // eslint-disable-next-line verify-await/check
     if (this.sendMessage("skipProxy", { requestInfo, url, })) {
       return false;
     }
@@ -206,12 +213,14 @@ class Network extends Component {
     return true;
   }
 
-  afterConnectionSteps() {
+  syncAfterConnectionSteps() {
     // We need to exclude FxA endpoints in order to avoid a deadlock:
     // 1. a new request is processed, but the tokens are invalid. We start the
     //    generation of a new token.
     // 2. The generation of tokens starts a new network request which will be
     //    processed as the previous point. This is deadlock.
+    // excludedDomains is sync
+    // eslint-disable-next-line verify-await/check
     let excludedDomains = this.sendMessage("excludedDomains");
     excludedDomains.push(this.proxyHost);
 
@@ -219,6 +228,7 @@ class Network extends Component {
       value: {
         mode: DOH_MODE,
         bootstrapAddress: DOH_BOOTSTRAP_ADDRESS,
+        // eslint-disable-next-line verify-await/check
         excludedDomains: excludedDomains.join(","),
       }
     });
@@ -235,13 +245,13 @@ class Network extends Component {
     log(`processNetworkError: ${url}  ${errorStatus}`);
 
     if (errorStatus === "NS_ERROR_PROXY_AUTHENTICATION_FAILED") {
-      this.sendMessage("proxyAuthenticationFailed");
+      await this.sendMessage("proxyAuthenticationFailed");
       return;
     }
 
     if (errorStatus === "NS_ERROR_PROXY_CONNECTION_REFUSED" ||
         errorStatus === "NS_ERROR_TOO_MANY_REQUESTS") {
-      this.sendMessage("proxyGenericError");
+      await this.sendMessage("proxyGenericError");
       return;
     }
 
@@ -251,6 +261,7 @@ class Network extends Component {
         url === CONNECTING_HTTP_REQUEST &&
         (errorStatus === "NS_ERROR_UNKNOWN_PROXY_HOST" ||
          errorStatus === "NS_ERROR_ABORT")) {
+      // eslint-disable-next-line verify-await/check
       this.connectionTester.rejectCb();
     }
   }
@@ -265,6 +276,7 @@ class ConnectionTester {
   run() {
     browser.webRequest.onHeadersReceived.addListener(details => {
       if (details.statusCode === 200) {
+        // eslint-disable-next-line verify-await/check
         this.resolveCb();
       }
     }, {urls: [CONNECTING_HTTP_REQUEST]}, ["responseHeaders", "blocking"]);
@@ -273,6 +285,7 @@ class ConnectionTester {
       log("executing a fetch to check the connection");
 
       // We don't care about the result of this fetch.
+      // eslint-disable-next-line verify-await/check
       fetch(CONNECTING_HTTP_REQUEST, { cache: "no-cache"}).catch(_ => {});
 
       this.resolveCb = resolve;

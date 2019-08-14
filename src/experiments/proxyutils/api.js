@@ -57,6 +57,7 @@ let ConfirmationHint = {
     this._message.textContent = messageContent;
 
     this._description.hidden = true;
+    // eslint-disable-next-line verify-await/check
     this._panel.classList.remove("with-description");
 
     if (options.hideArrow) {
@@ -64,10 +65,14 @@ let ConfirmationHint = {
     }
 
     // Bug https://github.com/mozilla/secure-proxy/issues/252
+    // eslint-disable-next-line verify-await/check
     this.setCSS("#0060ED", "#fff");
+    // eslint-disable-next-line verify-await/check
     this.setIcon();
     if (options.isWarning) {
+      // eslint-disable-next-line verify-await/check
       this.setCSS("#fff36e", "#0c0c0d");
+      // eslint-disable-next-line verify-await/check
       this.setIcon("chrome://global/skin/icons/warning.svg");
     }
 
@@ -77,7 +82,9 @@ let ConfirmationHint = {
 
       setTimeout(() => {
         this._panel.hidePopup(true);
+        // eslint-disable-next-line verify-await/check
         this.setCSS();
+        // eslint-disable-next-line verify-await/check
         this.setIcon();
       }, DURATION + 120);
     }, {once: true});
@@ -262,7 +269,9 @@ this.proxyutils = class extends ExtensionAPI {
                 //   would be a deadlock.
                 // - a few localhost domains, because these cannot be resolved.
 
+                // eslint-disable-next-line verify-await/check
                 let domains = Services.prefs.getCharPref("network.trr.excluded-domains").split(",");
+                // eslint-disable-next-line verify-await/check
                 domains = domains.concat(details.value.excludedDomains.split(","));
 
                 [
@@ -282,6 +291,7 @@ this.proxyutils = class extends ExtensionAPI {
                 });
 
                 let localhostDomains = [ "localhost.localdomain", "localhost6.localdomain6", "localhost6"];
+                // eslint-disable-next-line verify-await/check
                 let excludedDomains = [...new Set(domains.concat(localhostDomains))].join(",");
 
                 return ExtensionPreferencesManager.setSetting(
@@ -365,11 +375,13 @@ this.proxyutils = class extends ExtensionAPI {
 
           async loadNetError(errorCode, url, tabId) {
             let nativeTab = getTabOrActive(tabId);
+            // eslint-disable-next-line verify-await/check
             let uri = Services.uriFixup.createExposableURI(Services.io.newURI(url));
             let errorEnum = "NS_ERROR_PROXY_BAD_GATEWAY";
             if (errorCode === 407 && errorCode === 429) {
               errorEnum = "NS_ERROR_UNKNOWN_PROXY_HOST";
-            }
+            } 
+            // eslint-disable-next-line verify-await/check
             const code = `let spec = "${uri.spec}"; let uri = Services.io.newURI(spec); docShell.displayLoadError(Cr.${errorEnum}, uri, docShell.failedChannel);`;
             const mm = nativeTab.linkedBrowser.messageManager;
             mm.loadFrameScript(`data:,${encodeURI(code)}`, false);

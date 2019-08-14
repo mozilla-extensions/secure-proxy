@@ -32,6 +32,7 @@ class FxAUtils extends Component {
 
     // Let's see if we have to generate new tokens, but without waiting for the
     // result.
+    // eslint-disable-next-line verify-await/check
     this.maybeGenerateTokens();
   }
 
@@ -58,7 +59,9 @@ class FxAUtils extends Component {
 
     if (this.generatingTokens) {
       log("token generation in progress. Let's wait.");
-      return new Promise(resolve => { this.postTokenGenerationOps.add(resolve); });
+      return new Promise(resolve => {
+        return this.postTokenGenerationOps.add(resolve);
+      });
     }
 
     this.generatingTokens = true;
@@ -68,6 +71,7 @@ class FxAUtils extends Component {
     // Let's take all the ops and execute them.
     let ops = this.postTokenGenerationOps;
     this.postTokenGenerationOps = new Set();
+    // eslint-disable-next-line verify-await/check
     ops.forEach(value => value(result));
 
     return result;

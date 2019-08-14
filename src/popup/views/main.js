@@ -43,6 +43,7 @@ class ViewMain extends View {
   }
 
   toggleButtonClicked(e) {
+    // eslint-disable-next-line verify-await/check
     View.sendMessage("setEnabledState", {enabledState: e.target.checked});
   }
 
@@ -50,11 +51,12 @@ class ViewMain extends View {
     this.proxyEnabled = !this.proxyEnabled;
     // Send a message to the background script to notify the proxyEnabled has chanded.
     // This prevents the background script from having to block on reading from the storage per request.
+    // eslint-disable-next-line verify-await/check
     await View.sendMessage("setEnabledState", {enabledState: this.proxyEnabled});
   }
 
-  stateButtonHandler() {
-    this.toggleProxy();
+  async stateButtonHandler() {
+    await this.toggleProxy();
   }
 }
 

@@ -31,7 +31,7 @@ class Main {
     });
 
     // All good. Let's start.
-    this.firstRun();
+    await this.firstRun();
   }
 
   async firstRun() {
@@ -40,7 +40,7 @@ class Main {
     let proxyState = await StorageUtils.getProxyState();
     if (proxyState === PROXY_STATE_ACTIVE) {
       this.setProxyState(PROXY_STATE_ACTIVE);
-      this.ui.update();
+      await this.ui.update();
       return;
     }
 
@@ -58,7 +58,7 @@ class Main {
     await this.computeProxyState();
 
     // UI
-    this.ui.update();
+    await this.ui.update();
   }
 
   setProxyState(proxyState) {
@@ -111,6 +111,7 @@ class Main {
         this.setProxyState(PROXY_STATE_CONNECTING);
 
         // Note that we are not waiting for this function. The code moves on.
+        // eslint-disable-next-line verify-await/check
         this.testProxyConnection();
       }
     }
@@ -132,11 +133,11 @@ class Main {
       await StorageUtils.setProxyState(PROXY_STATE_ACTIVE);
       this.setProxyState(PROXY_STATE_ACTIVE);
 
-      this.net.afterConnectionSteps();
-      this.ui.afterConnectionSteps();
+      this.net.syncAfterConnectionSteps();
+      await this.ui.afterConnectionSteps();
     } catch (e) {
       this.setOfflineAndStartRecoveringTimer();
-      this.ui.update();
+      await this.ui.update();
     }
   }
 
@@ -156,7 +157,7 @@ class Main {
     await StorageUtils.setProxyState(proxyState);
 
     if (await this.computeProxyState()) {
-      this.ui.update();
+      await this.ui.update();
     }
   }
 
@@ -210,18 +211,20 @@ class Main {
 
     await StorageUtils.resetDynamicTokenData();
 
-    this.ui.update();
-    await this.fxa.maybeGenerateTokens();
+    await Promise.all([
+      this.ui.update(),
+      this.fxa.maybeGenerateTokens(),
+    ]);
   }
 
-  proxyGenericError() {
+  async proxyGenericError() {
     if (this.proxyState !== PROXY_STATE_ACTIVE &&
         this.proxyState !== PROXY_STATE_CONNECTING) {
       return;
     }
 
     this.setProxyState(PROXY_STATE_PROXYERROR);
-    this.ui.update();
+    await this.ui.update();
   }
 
   skipProxy(requestInfo, url) {
@@ -229,6 +232,7 @@ class Main {
       return true;
     }
 
+    // eslint-disable-next-line verify-await/check
     if (this.fxa.isAuthUrl(url.origin)) {
       return true;
     }
@@ -239,7 +243,7 @@ class Main {
   async proxySettingsChanged() {
     const hasChanged = await this.computeProxyState();
     if (hasChanged) {
-      this.ui.update();
+      await this.ui.update();
     }
   }
 
@@ -248,6 +252,7 @@ class Main {
     this.fxa.prefetchWellKnwonData();
   }
 
+  // Provides an async response in most cases
   handleEvent(type, data) {
     switch (type) {
       case "authenticationFailed":

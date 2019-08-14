@@ -7,12 +7,12 @@ class Connectivity extends Component {
   init() {
     // proxy setting change observer
     browser.experiments.proxyutils.onChanged.addListener(async _ => {
-      this.sendMessage("proxySettingsChanged");
+      return this.sendMessage("proxySettingsChanged");
     });
 
     // connectivity observer.
-    browser.experiments.proxyutils.onConnectionChanged.addListener(connectivity => {
-      this.sendMessage("connectivityChanged", { connectivity });
+    browser.experiments.proxyutils.onConnectionChanged.addListener(async connectivity => {
+      return this.sendMessage("connectivityChanged", { connectivity });
     });
   }
 }

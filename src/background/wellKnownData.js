@@ -27,6 +27,14 @@ class WellKnownData {
     this.fxaEndpointsReceivedAt = 0;
   }
 
+  syncGetEndpoint(name) {
+    return this.fxaEndpoints.get(name);
+  }
+
+  syncSetEndpoint(name, value) {
+    return this.fxaEndpoints.set(name, value);
+  }
+
   hasWellKnownData() {
     return this.fxaEndpoints.size !== 0;
   }
@@ -61,9 +69,9 @@ class WellKnownData {
       return false;
     }
 
-    this.fxaEndpoints.set(FXA_ENDPOINT_PROFILE, json[FXA_ENDPOINT_PROFILE]);
-    this.fxaEndpoints.set(FXA_ENDPOINT_TOKEN, json[FXA_ENDPOINT_TOKEN]);
-    this.fxaEndpoints.set(FXA_ENDPOINT_ISSUER, json[FXA_ENDPOINT_ISSUER]);
+    this.syncSetEndpoint(FXA_ENDPOINT_PROFILE, json[FXA_ENDPOINT_PROFILE]);
+    this.syncSetEndpoint(FXA_ENDPOINT_TOKEN, json[FXA_ENDPOINT_TOKEN]);
+    this.syncSetEndpoint(FXA_ENDPOINT_ISSUER, json[FXA_ENDPOINT_ISSUER]);
 
     this.fxaEndpointsReceivedAt = nowInSecs;
     return true;
@@ -80,8 +88,8 @@ class WellKnownData {
 
     // If is part of oauth also ignore
     const authUrls = [
-      this.fxaEndpoints.get(FXA_ENDPOINT_PROFILE),
-      this.fxaEndpoints.get(FXA_ENDPOINT_TOKEN),
+      this.syncGetEndpoint(FXA_ENDPOINT_PROFILE),
+      this.syncGetEndpoint(FXA_ENDPOINT_TOKEN),
     ];
 
     return authUrls.some((item) => {
@@ -95,7 +103,8 @@ class WellKnownData {
     if (this.hasWellKnownData()) {
       [FXA_ENDPOINT_PROFILE, FXA_ENDPOINT_TOKEN, FXA_ENDPOINT_ISSUER].forEach(e => {
         try {
-          excludedDomains.push(new URL(this.fxaEndpoints.get(e)).hostname);
+          // eslint-disable-next-line verify-await/check
+          excludedDomains.push(new URL(this.syncGetEndpoint(e)).hostname);
         } catch (e) {}
       });
     }
@@ -117,6 +126,6 @@ class WellKnownData {
 
   async getGenericEndpoint(endpoint) {
     await this.fetch();
-    return this.fxaEndpoints.get(endpoint);
+    return this.syncGetEndpoint(endpoint);
   }
 }

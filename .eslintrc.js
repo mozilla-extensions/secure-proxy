@@ -40,10 +40,12 @@ module.exports = {
     sourceType: "module"
   },
   plugins: [
-    "mozilla"
+    "mozilla",
+    "verify-await"
   ],
   root: true,
   rules: {
+    "verify-await/check": "error",
     "prettier/prettier": "off",
 
     "comma-dangle": ["off", "never"],
