@@ -16,7 +16,8 @@ const FXA_PROXY_SCOPE = "https://identity.mozilla.com/apps/secure-proxy";
 const FXA_CLIENT_ID = "a8c528140153d1c6";
 
 // Token expiration time
-const FXA_EXP_TIME = 21600; // 6 hours
+const FXA_EXP_TOKEN_TIME = 21600; // 6 hours
+const FXA_EXP_WELLKNOWN_TIME = 3600 // 1 hour
 
 // How early we want to re-generate the tokens (in secs)
 const EXPIRE_DELTA = 3600;
@@ -27,6 +28,7 @@ class FxAUtils extends Component {
     super(receiver);
 
     this.fxaEndpoints = new Map();
+    this.fxaEndpointsReceivedAt = 0;
 
     // This is Set of pending operatations to do after a token generation.
     this.postTokenGenerationOps = new Set();
@@ -35,9 +37,17 @@ class FxAUtils extends Component {
     this.nextExpireTime = 0;
   }
 
-  init(prefs) {
+  async init(prefs) {
     this.fxaOpenID = prefs.value.fxaURL || FXA_OPENID;
     this.proxyURL = new URL(prefs.value.proxyURL || PROXY_URL);
+
+    let { fxaEndpointsReceivedAt } = await browser.storage.local.get(["fxaEndpointsReceivedAt"]);
+    if (fxaEndpointsReceivedAt) {
+      this.fxaEndpointsReceivedAt = fxaEndpointsReceivedAt;
+    }
+
+    // Let's start the fetching, but without waiting for the result.
+    this.fetchWellKnownData();
   }
 
   hasWellKnownData() {
@@ -47,9 +57,15 @@ class FxAUtils extends Component {
   async fetchWellKnownData() {
     log("Fetching well-known data");
 
-    if (this.hasWellKnownData()) {
+    let now = performance.timeOrigin + performance.now();
+    let nowInSecs = Math.round(now / 1000);
+
+    if ((this.fxaEndpointsReceivedAt + FXA_EXP_WELLKNOWN_TIME) > nowInSecs) {
+      log("Well-knonw data cache is good");
       return true;
     }
+
+    log("Fetching well-known data for real");
 
     // Let's fetch the data with a timeout of FETCH_TIMEOUT milliseconds.
     let json = await Promise.race([
@@ -67,10 +83,18 @@ class FxAUtils extends Component {
     this.fxaEndpoints.set(FXA_ENDPOINT_TOKEN, json[FXA_ENDPOINT_TOKEN]);
     this.fxaEndpoints.set(FXA_ENDPOINT_ISSUER, json[FXA_ENDPOINT_ISSUER]);
 
+    this.fxaEndpointsReceivedAt = nowInSecs;
+
+    await browser.storage.local.set({ fxaEndpointsReceivedAt: this.fxaEndpointsReceivedAt });
+
     return true;
   }
 
   async authenticate() {
+    if (!this.fetchWellKnownData()) {
+      throw new Error("Failure fetching well-known data");
+    }
+
     // Let's do the authentication. This will generate a token that is going to
     // be used just to obtain the other ones.
     let refreshTokenData = await this.generateRefreshToken();
@@ -197,6 +221,11 @@ class FxAUtils extends Component {
     }
 
     if (!tokenData) {
+      log("checking well-known data");
+      if (!this.fetchWellKnownData()) {
+        return false;
+      }
+
       log("generating token");
       tokenData = await this.generateToken(refreshTokenData, scope, resource);
       if (!tokenData) {
@@ -275,7 +304,7 @@ class FxAUtils extends Component {
         grant_type: "refresh_token",
         refresh_token: refreshTokenData.refresh_token,
         scope,
-        ttl: FXA_EXP_TIME,
+        ttl: FXA_EXP_TOKEN_TIME,
         ppid_seed,
         resource,
         /* eslint-enable camelcase*/
@@ -307,6 +336,10 @@ class FxAUtils extends Component {
   }
 
   isAuthUrl(origin) {
+    if (!this.hasWellKnownData()) {
+      return false;
+    }
+
     // If is part of oauth also ignore
     const authUrls = [
       this.fxaOpenID,
@@ -322,16 +355,22 @@ class FxAUtils extends Component {
   excludedDomains() {
     let excludedDomains = [];
 
-    [FXA_ENDPOINT_PROFILE, FXA_ENDPOINT_TOKEN, FXA_ENDPOINT_ISSUER].forEach(e => {
-      try {
-        excludedDomains.push(new URL(this.fxaEndpoints.get(e)).hostname);
-      } catch (e) {}
-    });
+    if (this.hasWellKnownData()) {
+      [FXA_ENDPOINT_PROFILE, FXA_ENDPOINT_TOKEN, FXA_ENDPOINT_ISSUER].forEach(e => {
+        try {
+          excludedDomains.push(new URL(this.fxaEndpoints.get(e)).hostname);
+        } catch (e) {}
+      });
+    }
 
     return excludedDomains;
   }
 
   async manageAccountURL() {
+    if (!this.hasWellKnownData()) {
+      throw new Error("We are not supposed to be here.");
+    }
+
     let contentServer = this.fxaEndpoints.get(FXA_ENDPOINT_ISSUER);
     let { profileData } = await browser.storage.local.get(["profileData"]);
     let url = new URL(contentServer + "/settings");
