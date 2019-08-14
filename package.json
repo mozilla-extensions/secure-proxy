@@ -12,7 +12,8 @@
     "md": "npm run md:lint && npm run md:spell",
     "md:lint": "npx markdownlint-cli '*.md' 'docs/*.md'",
     "md:spell": "npx markdown-spellcheck -a -n -x --en-us '*.md' 'docs/*.md'",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "prepare-test-env": "./tests/prepare-test-env.sh",
+    "test": "./tests/run.sh"
   },
   "repository": {
     "type": "git",
