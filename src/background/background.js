@@ -5,6 +5,8 @@ class Background {
   constructor() {
     log("constructor");
 
+    this.observers = new Set();
+
     this.fxa = new FxAUtils(this);
     this.net = new Network(this);
     this.survey = new Survey(this);
@@ -22,17 +24,10 @@ class Background {
 
     log("init");
 
-    // Survey configuration
-    this.survey.init();
-
-    // FxA configuration
-    this.fxa.init(prefs);
-
-    // Network configuration
-    this.net.init(prefs);
-
-    // UI configuration
-    this.ui.init();
+    // Let's initialize the observers.
+    this.observers.forEach(observer => {
+      observer.init(prefs);
+    });
 
     // proxy setting change observer
     browser.experiments.proxyutils.onChanged.addListener(async _ => {
@@ -92,10 +87,9 @@ class Background {
   setProxyState(proxyState) {
     this.proxyState = proxyState;
 
-    this.fxa.setProxyState(proxyState);
-    this.net.setProxyState(proxyState);
-    this.survey.setProxyState(proxyState);
-    this.ui.setProxyState(proxyState);
+    this.observers.forEach(observer => {
+      observer.setProxyState(proxyState);
+    });
   }
 
   setOfflineAndStartRecoveringTimer() {
@@ -317,6 +311,10 @@ class Background {
         console.error("Invalid event: " + type);
         throw new Error("Invalid event: " + type);
     }
+  }
+
+  registerObserver(observer) {
+    this.observers.add(observer);
   }
 }
 

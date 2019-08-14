@@ -3,6 +3,8 @@ class Component {
   constructor(receiver) {
     this.receiver = receiver;
     this.cachedProxyState = PROXY_STATE_LOADING;
+
+    receiver.registerObserver(this);
   }
 
   sendMessage(type, data = null) {
