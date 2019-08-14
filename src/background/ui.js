@@ -32,6 +32,7 @@ class UI extends Component {
       }
     });
 
+    // eslint-disable-next-line consistent-return
     browser.runtime.onMessage.addListener(async (message, sender) => {
       if (message.type === "getBaseDomainFromHost") {
         return browser.experiments.proxyutils.getBaseDomainFromHost(message.hostname);

@@ -17,7 +17,7 @@ const FXA_CLIENT_ID = "a8c528140153d1c6";
 
 // Token expiration time
 const FXA_EXP_TOKEN_TIME = 21600; // 6 hours
-const FXA_EXP_WELLKNOWN_TIME = 3600 // 1 hour
+const FXA_EXP_WELLKNOWN_TIME = 3600; // 1 hour
 
 // How early we want to re-generate the tokens (in secs)
 const EXPIRE_DELTA = 3600;
