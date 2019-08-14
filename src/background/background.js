@@ -31,7 +31,20 @@ class Background {
     });
 
     // All good. Let's start.
-    this.run();
+    this.firstRun();
+  }
+
+  async firstRun() {
+    log("first run!");
+
+    let { proxyState } = await browser.storage.local.get(["proxyState"]);
+    if (proxyState === PROXY_STATE_ACTIVE) {
+      this.setProxyState(PROXY_STATE_ACTIVE);
+      this.ui.update();
+      return;
+    }
+
+    await this.run();
   }
 
   // This method is executed multiple times: at startup time, and each time we
@@ -116,6 +129,7 @@ class Background {
     try {
       await this.net.testProxyConnection();
 
+      await browser.storage.local.set({proxyState: PROXY_STATE_ACTIVE});
       this.setProxyState(PROXY_STATE_ACTIVE);
 
       this.net.afterConnectionSteps();
