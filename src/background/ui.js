@@ -19,6 +19,7 @@ class UI extends Component {
 
   init() {
     browser.tabs.onRemoved.addListener((tabId) => {
+      // eslint-disable-next-line verify-await/check
       this.exemptTabStatus.delete(tabId);
     });
 
@@ -45,17 +46,29 @@ class UI extends Component {
 
     browser.runtime.onConnect.addListener(port => {
       if (port.name === "port-from-cs") {
+        // Is sync
+        // eslint-disable-next-line verify-await/check
         this.contentScriptConnected(port);
         return;
       }
 
       if (port.name === "panel") {
+        // is async but waiting for this is not important
+        // eslint-disable-next-line verify-await/check
         this.panelConnected(port);
         return;
       }
 
       log("Invalid port name!");
     });
+  }
+
+  syncGetExemptTabStatus(name) {
+    return this.exemptTabStatus.get(name);
+  }
+
+  syncSetExemptTabStatus(name, value) {
+    return this.exemptTabStatus.set(name, value);
   }
 
   async getCurrentTab() {
@@ -69,18 +82,18 @@ class UI extends Component {
   }
 
   isTabExempt(tabId) {
-    return this.exemptTabStatus.get(tabId) === "exemptTab";
+    return this.syncGetExemptTabStatus(tabId) === "exemptTab";
   }
 
   exemptTab(tabId, status) {
     log(`exemptTab ${tabId} ${status}`);
-    this.exemptTabStatus.set(tabId, status);
+    this.syncSetExemptTabStatus(tabId, status);
     this.setTabIcon(tabId);
   }
 
   removeExemptTab(tabId) {
     log(`removeExemptTab ${tabId}`);
-    this.exemptTabStatus.set(tabId, "ignoreTab");
+    this.syncSetExemptTabStatus(tabId, "ignoreTab");
     this.setTabIcon(tabId);
 
     // Re-enable the content script blocking on the tab
@@ -128,13 +141,13 @@ class UI extends Component {
     });
   }
 
-  afterConnectionSteps() {
+  async afterConnectionSteps() {
     this.informContentScripts();
-    this.update();
+    await this.update();
   }
 
   contentScriptNotify(p) {
-    const exempted = this.exemptTabStatus.get(p.sender.tab.id);
+    const exempted = this.syncGetExemptTabStatus(p.sender.tab.id);
     p.postMessage({type: "proxyState", enabled: this.cachedProxyState === PROXY_STATE_ACTIVE, exempted});
   }
 
@@ -153,7 +166,7 @@ class UI extends Component {
 
       switch (message.type) {
         case "setEnabledState":
-          this.sendMessage("enableProxy", { enabledState: message.data.enabledState });
+          await this.sendMessage("enableProxy", { enabledState: message.data.enabledState });
           break;
 
         case "removeExemptTab":
@@ -161,16 +174,16 @@ class UI extends Component {
           const currentTab = await this.getCurrentTab();
           if (currentTab) {
             this.removeExemptTab(currentTab.id);
-            this.update();
+            await this.update();
           }
           break;
 
         case "authenticate":
-          this.sendMessage("authenticationRequired");
+          await this.sendMessage("authenticationRequired");
           break;
 
         case "goBack":
-          this.update();
+          await this.update();
           break;
 
         case "manageAccount":
@@ -248,10 +261,10 @@ class UI extends Component {
     }
   }
 
-  update() {
+  async update() {
     this.updateIcon();
-    this.sendDataToCurrentPort();
     this.showStatusPrompt();
+    await this.sendDataToCurrentPort();
   }
 
   // This updates any tab that doesn't have an exemption

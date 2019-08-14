@@ -21,13 +21,14 @@ class ViewLogin extends View {
     </button>`;
   }
 
-  stateButtonHandler() {
-    View.sendMessage("authenticate");
-    close();
+  async stateButtonHandler() {
+    await View.sendMessage("authenticate");
+    View.close();
   }
 
   handleEvent(e) {
     if (e.target.id === "authButton") {
+      // eslint-disable-next-line verify-await/check
       View.sendMessage("authenticate");
     }
   }

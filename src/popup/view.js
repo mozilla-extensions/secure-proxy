@@ -7,12 +7,14 @@ let currentPort = null;
 export class View {
   // Static method to set the current view. The previous one will be dismissed.
   static async setView(name, data = null) {
+    // eslint-disable-next-line verify-await/check
     if (!views.has(name)) {
       let view = await import(`./views/${name}.js`);
       this.registerView(view.default, name);
     }
     let content = document.getElementById("content");
     let footer = document.querySelector("footer");
+    // eslint-disable-next-line verify-await/check
     let view = views.get(name);
     if (!(view instanceof View)) {
       console.error("Invalid view name: " + name);
@@ -92,6 +94,12 @@ export class View {
     }
   }
 
+  // Closes the popup
+  static close() {
+    // eslint-disable-next-line verify-await/check
+    close();
+  }
+
   // To be overwritten with a string for the header
   headingText() { return "introHeading"; }
 
@@ -102,12 +110,14 @@ export class View {
   stateButtonHandler() { return null; }
 
   static onStateButton() {
+    // eslint-disable-next-line verify-await/check
     currentView.stateButtonHandler();
   }
 
   // This method stores a view in the view map.
   static registerView(view, name) {
     console.log("Register view: " + name);
+    // eslint-disable-next-line verify-await/check
     views.set(name, view);
   }
 
@@ -158,7 +168,7 @@ export class View {
     });
   }
 
-  static setPort(port) {
+  static syncSetPort(port) {
     currentPort = port;
   }
 }
