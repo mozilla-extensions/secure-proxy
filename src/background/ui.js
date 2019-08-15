@@ -280,7 +280,7 @@ class UI extends Component {
     log("Update the panel: ", this.currentPort);
     if (this.currentPort) {
       let exempt = await this.isCurrentTabExempt();
-      let { profileData } = await browser.storage.local.get(["profileData"]);
+      let profileData = await StorageUtils.getProfileData();
 
       return this.currentPort.postMessage({
         userInfo: profileData,
