@@ -30,10 +30,10 @@ class Survey extends Component {
   async scheduleNextSurvey() {
     let now = performance.now() + performance.timeOrigin;
 
-    let { surveyInitTime } = await browser.storage.local.get(["surveyInitTime"]);
+    let surveyInitTime = await StorageUtils.getSurveyInitTime();
     if (!surveyInitTime) {
       surveyInitTime = Math.round(now / 1000);
-      await browser.storage.local.set({surveyInitTime});
+      await StorageUtils.setSurveyInitTime(surveyInitTime);
     }
 
     // Let's find the next survey to show.
@@ -51,8 +51,9 @@ class Survey extends Component {
 
   // Return the next available survey.
   async nextSurvey() {
-    let { lastSurvey } = await browser.storage.local.get(["lastSurvey"]);
     let nextSurvey = null;
+
+    let lastSurvey = await StorageUtils.getLastSurvey();
     if (!lastSurvey) {
       nextSurvey = SURVEYS[0];
     } else {
@@ -72,7 +73,7 @@ class Survey extends Component {
     let url = await this.formatUrl(survey.URL);
     await browser.tabs.create({url});
 
-    await browser.storage.local.set({lastSurvey: surveyName});
+    await StorageUtils.setLastSurvey(surveyName);
     await this.scheduleNextSurvey();
   }
 

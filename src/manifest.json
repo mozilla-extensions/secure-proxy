@@ -60,6 +60,7 @@
         "background/connectivity.js",
         "background/fxa.js",
         "background/network.js",
+        "background/storage.js",
         "background/survey.js",
         "background/ui.js",
         "background/main.js"

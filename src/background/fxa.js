@@ -17,7 +17,7 @@ const FXA_CLIENT_ID = "a8c528140153d1c6";
 
 // Token expiration time
 const FXA_EXP_TOKEN_TIME = 21600; // 6 hours
-const FXA_EXP_WELLKNOWN_TIME = 3600 // 1 hour
+const FXA_EXP_WELLKNOWN_TIME = 3600; // 1 hour
 
 // How early we want to re-generate the tokens (in secs)
 const EXPIRE_DELTA = 3600;
@@ -41,7 +41,7 @@ class FxAUtils extends Component {
     this.fxaOpenID = prefs.value.fxaURL || FXA_OPENID;
     this.proxyURL = new URL(prefs.value.proxyURL || PROXY_URL);
 
-    let { fxaEndpointsReceivedAt } = await browser.storage.local.get(["fxaEndpointsReceivedAt"]);
+    let fxaEndpointsReceivedAt = await StorageUtils.getFxaEndpointsReceivedAt();
     if (fxaEndpointsReceivedAt) {
       this.fxaEndpointsReceivedAt = fxaEndpointsReceivedAt;
     }
@@ -84,8 +84,7 @@ class FxAUtils extends Component {
     this.fxaEndpoints.set(FXA_ENDPOINT_ISSUER, json[FXA_ENDPOINT_ISSUER]);
 
     this.fxaEndpointsReceivedAt = nowInSecs;
-
-    await browser.storage.local.set({ fxaEndpointsReceivedAt: this.fxaEndpointsReceivedAt });
+    await StorageUtils.setFxaEndpointsReceivedAt(this.fxaEndpointsReceivedAt);
 
     return true;
   }
@@ -104,12 +103,7 @@ class FxAUtils extends Component {
 
     // Let's store the refresh token and let's invalidate all the other tokens
     // in order to regenerate them.
-    await browser.storage.local.set({
-      refreshTokenData,
-      proxyTokenData: null,
-      profileTokenData: null,
-      profileData: null,
-    });
+    await StorageUtils.setAllTokenData(refreshTokenData, null, null, null);
 
     // Let's obtain the proxy token data
     if (!await this.maybeGenerateTokens()) {
@@ -138,7 +132,7 @@ class FxAUtils extends Component {
   }
 
   async maybeGenerateTokensInternal() {
-    let { refreshTokenData } = await browser.storage.local.get(["refreshTokenData"]);
+    let refreshTokenData = await StorageUtils.getRefreshTokenData();
     if (!refreshTokenData) {
       return false;
     }
@@ -159,7 +153,7 @@ class FxAUtils extends Component {
       return false;
     }
 
-    let { profileData } = await browser.storage.local.get(["profileData"]);
+    let profileData = await StorageUtils.getProfileData();
     // Let's obtain the profile data for the user.
     if (!profileData || profileTokenData.tokenGenerated) {
       profileData = await this.generateProfileData(profileTokenData.tokenData);
@@ -168,11 +162,7 @@ class FxAUtils extends Component {
       }
     }
 
-    await browser.storage.local.set({
-      proxyTokenData: proxyTokenData.tokenData,
-      profileTokenData: profileTokenData.tokenData,
-      profileData,
-    });
+    await StorageUtils.setDynamicTokenData(proxyTokenData.tokenData, profileTokenData.tokenData, profileData);
 
     // Let's pick the min time diff.
     let minDiff = Math.min(proxyTokenData.minDiff, profileTokenData.minDiff);
@@ -205,8 +195,7 @@ class FxAUtils extends Component {
     let now = performance.timeOrigin + performance.now();
     let nowInSecs = Math.round(now / 1000);
 
-    let data = await browser.storage.local.get([tokenName]);
-    let tokenData = data[tokenName];
+    let tokenData = await StorageUtils.getStorageKey(tokenName);
     if (tokenData) {
       // If we are close to the expiration time, we have to generate the token.
       // We want to keep a big time margin: 1 hour seems good enough.
@@ -372,7 +361,7 @@ class FxAUtils extends Component {
     }
 
     let contentServer = this.fxaEndpoints.get(FXA_ENDPOINT_ISSUER);
-    let { profileData } = await browser.storage.local.get(["profileData"]);
+    let profileData = await StorageUtils.getProfileData();
     let url = new URL(contentServer + "/settings");
     url.searchParams.set("uid", profileData.uid);
     url.searchParams.set("email", profileData.email);

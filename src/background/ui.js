@@ -32,6 +32,7 @@ class UI extends Component {
       }
     });
 
+    /* eslint-disable-next-line consistent-return */
     browser.runtime.onMessage.addListener(async (message, sender) => {
       if (message.type === "getBaseDomainFromHost") {
         return browser.experiments.proxyutils.getBaseDomainFromHost(message.hostname);
@@ -279,7 +280,7 @@ class UI extends Component {
     log("Update the panel: ", this.currentPort);
     if (this.currentPort) {
       let exempt = await this.isCurrentTabExempt();
-      let { profileData } = await browser.storage.local.get(["profileData"]);
+      let profileData = await StorageUtils.getProfileData();
 
       return this.currentPort.postMessage({
         userInfo: profileData,

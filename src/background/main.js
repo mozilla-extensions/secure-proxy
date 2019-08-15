@@ -37,7 +37,7 @@ class Main {
   async firstRun() {
     log("first run!");
 
-    let { proxyState } = await browser.storage.local.get(["proxyState"]);
+    let proxyState = await StorageUtils.getProxyState();
     if (proxyState === PROXY_STATE_ACTIVE) {
       this.setProxyState(PROXY_STATE_ACTIVE);
       this.ui.update();
@@ -104,7 +104,7 @@ class Main {
 
     // All seems good. Let's see if the proxy should enabled.
     if (this.proxyState === PROXY_STATE_UNAUTHENTICATED) {
-      let { proxyState } = await browser.storage.local.get(["proxyState"]);
+      let proxyState = await StorageUtils.getProxyState();
       if (proxyState === PROXY_STATE_INACTIVE) {
         this.setProxyState(PROXY_STATE_INACTIVE);
       } else if ((await this.fxa.maybeGenerateTokens())) {
@@ -129,7 +129,7 @@ class Main {
     try {
       await this.net.testProxyConnection();
 
-      await browser.storage.local.set({proxyState: PROXY_STATE_ACTIVE});
+      await StorageUtils.setProxyState(PROXY_STATE_ACTIVE);
       this.setProxyState(PROXY_STATE_ACTIVE);
 
       this.net.afterConnectionSteps();
@@ -153,7 +153,7 @@ class Main {
 
     // Let's force a new proxy state, and then let's compute it again.
     let proxyState = value ? PROXY_STATE_CONNECTING : PROXY_STATE_INACTIVE;
-    await browser.storage.local.set({proxyState});
+    await StorageUtils.setProxyState(proxyState);
 
     if (await this.computeProxyState()) {
       this.ui.update();
@@ -181,13 +181,8 @@ class Main {
 
   async authFailure() {
     this.setProxyState(PROXY_STATE_AUTHFAILURE);
-    await browser.storage.local.set({
-      proxyState: this.proxyState,
-      refreshTokenData: null,
-      proxyTokenData: null,
-      profileTokenData: null,
-      profileData: null,
-    });
+    await StorageUtils.setProxyState(this.proxyState);
+    await StorageUtils.resetAllTokenData();
   }
 
   async onConnectivityChanged(connectivity) {
@@ -213,11 +208,7 @@ class Main {
 
     this.setProxyState(PROXY_STATE_PROXYAUTHFAILED);
 
-    await browser.storage.local.set({
-      proxyTokenData: null,
-      profileTokenData: null,
-      profileData: null,
-    });
+    await StorageUtils.resetDynamicTokenData();
 
     this.ui.update();
     await this.fxa.maybeGenerateTokens();
