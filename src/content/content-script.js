@@ -1,6 +1,7 @@
 /* global exportFunction */
 async function prettyHostname(hostname) {
   // Trim trailing period from hostname as is a separate origin.
+  // eslint-disable-next-line verify-await/check
   hostname = hostname.replace(/\.?$/, "");
   return browser.runtime.sendMessage({ type: "getBaseDomainFromHost", hostname });
 }
@@ -10,9 +11,9 @@ const ContentScript = {
   exempted: false,
   bannerShowing: false,
 
-  async init() {
-    this.createPort();
-    this.overwriteProperties();
+  syncInit() {
+    this.syncCreatePort();
+    this.syncOverwriteProperties();
   },
 
   async originIsExemptable() {
@@ -27,7 +28,8 @@ const ContentScript = {
     ].includes((await prettyHostname(window.location.hostname)));
   },
 
-  createPort() {
+  syncCreatePort() {
+    // eslint-disable-next-line verify-await/check
     this.port = browser.runtime.connect({ name: "port-from-cs" });
     this.port.onMessage.addListener(async message => {
       if (message.type === "proxyState") {
@@ -49,18 +51,18 @@ const ContentScript = {
     });
   },
 
-  potentiallyShowContextBanner() {
+  syncPotentiallyShowContextBanner() {
     if (this.exempted === undefined && this.bannerShowing === false) {
       this.bannerShowing = true;
       new ContentScriptBanner();
     }
   },
 
-  shouldOverload() {
+  syncShouldOverload() {
     return this.proxyEnabled && this.exempted !== "exemptTab";
   },
 
-  overwriteProperties() {
+  syncOverwriteProperties() {
     const overwrittenProperties = new Set([
       { originalMethod: null, parentObject: window.navigator.mediaDevices, methodName: "getSupportedConstraints", type: "method", potentiallyShowContextBanner: true },
       { originalMethod: null, parentObject: window.navigator.mediaDevices, methodName: "enumerateDevices", type: "method", potentiallyShowContextBanner: false },
@@ -74,6 +76,7 @@ const ContentScript = {
       { originalMethod: null, parentObject: window, methodName: "RTCSessionDescription", type: "object" },
     ]);
 
+    // eslint-disable-next-line verify-await/check
     overwrittenProperties.forEach(data => {
       if (!(data.methodName in data.parentObject.wrappedJSObject)) {
         return;
@@ -82,11 +85,11 @@ const ContentScript = {
       function overrideProp(object, property, original) {
         Object.defineProperty(object, property, {
          get: exportFunction(() => {
-          if (ContentScript.shouldOverload()) {
+          if (ContentScript.syncShouldOverload()) {
             if (data.type === "method") {
               return exportFunction(() => {
                 if (data.potentiallyShowContextBanner) {
-                  ContentScript.potentiallyShowContextBanner();
+                  ContentScript.syncPotentiallyShowContextBanner();
                 }
                 return window.wrappedJSObject.Promise.reject(new window.wrappedJSObject.Error("SecurityError"));
               }, window);
@@ -101,8 +104,8 @@ const ContentScript = {
          }, window),
 
          set: exportFunction(() => {
-           if (ContentScript.shouldOverload()) {
-             ContentScript.potentiallyShowContextBanner();
+           if (ContentScript.syncShouldOverload()) {
+             ContentScript.syncPotentiallyShowContextBanner();
            }
          }, window),
         });
@@ -117,21 +120,22 @@ const ContentScript = {
   }
 };
 
-ContentScript.init();
+ContentScript.syncInit();
 
 class ContentScriptBanner {
   constructor() {
+    // eslint-disable-next-line verify-await/check
     this.insertBannerOnDocumentLoad();
   }
 
-  insertBannerOnDocumentLoad() {
-    const run = () => {
-      this.insertBanner();
+  async insertBannerOnDocumentLoad() {
+    const run = async _ => {
+      await this.insertBanner();
     };
     if (document.readyState === "loading") {
       document.addEventListener("DOMContentLoaded", run);
     } else {
-      run();
+      await run();
     }
   }
 
@@ -165,7 +169,7 @@ class ContentScriptBanner {
     document.body.appendChild(this.modal);
   }
 
-  close() {
+  syncClose() {
     document.body.removeChild(this.modal);
     this.modal = null;
   }
@@ -179,14 +183,15 @@ class ContentScriptBanner {
     } else {
       return;
     }
-    this.close();
+    this.syncClose();
     await ContentScript.exempt(type);
     if (type === "exemptTab") {
+      // eslint-disable-next-line verify-await/check
       window.location.reload();
     }
   }
 
-  handleEvent(e) {
-    this.handleSiteEvent(e);
+  async handleEvent(e) {
+    await this.handleSiteEvent(e);
   }
 }

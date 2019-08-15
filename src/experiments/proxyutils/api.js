@@ -52,7 +52,7 @@ let ConfirmationHint = {
    *         - showDescription (boolean): show description text (confirmationHint.<messageId>.description)
    *
    */
-  show(selector, messageContent, options = {}) {
+  syncShow(selector, messageContent, options = {}) {
     const anchor = Services.wm.getMostRecentWindow("navigator:browser").document.querySelector(selector);
     this._message.textContent = messageContent;
 
@@ -205,8 +205,9 @@ this.proxyutils = class extends ExtensionAPI {
     } = ChromeUtils.import("resource://gre/modules/Extension.jsm", null);
 
     function getTabOrActive(tabId) {
-      let tab =
-        tabId !== null ? tabTracker.getTab(tabId) : tabTracker.activeTab;
+      // eslint-disable-next-line verify-await/check
+      let tab = tabId !== null ? tabTracker.getTab(tabId) : tabTracker.activeTab;
+      // eslint-disable-next-line verify-await/check
       if (!context.canAccessWindow(tab.ownerGlobal)) {
         throw new ExtensionError(
           tabId === null
@@ -283,6 +284,7 @@ this.proxyutils = class extends ExtensionAPI {
                     const cdu = getStringPrefValue(pref);
                     let hostname = new URL(cdu).hostname;
                     if (hostname) {
+                      // eslint-disable-next-line verify-await/check
                       domains.push(hostname);
                     }
                   } catch (err) {
@@ -330,6 +332,7 @@ this.proxyutils = class extends ExtensionAPI {
             }
           ),
 
+          // eslint-disable-next-line verify-await/check
           onChanged: new EventManager({
             context,
             name: "proxyutils.onChanged",
@@ -342,6 +345,7 @@ this.proxyutils = class extends ExtensionAPI {
             }
           }).api(),
 
+          // eslint-disable-next-line verify-await/check
           onConnectionChanged: new EventManager({
             context,
             name: "proxyutils.onConnectionChanged",
@@ -351,7 +355,10 @@ this.proxyutils = class extends ExtensionAPI {
                 if (gNetworkLinkService.linkStatusKnown) {
                   connectivity = gNetworkLinkService.isLinkUp;
                 }
+                /* eslint-disable verify-await/check */
+                // this method dispatches an async onConnectionChanged event - the name is unrelated to async/sync return value
                 fire.async(connectivity);
+                /* eslint-enable verify-await/check */
               };
               Services.obs.addObserver(observer, "network:link-status-changed");
               return () => {
@@ -362,7 +369,7 @@ this.proxyutils = class extends ExtensionAPI {
 
           async showPrompt(message, isWarning) {
             const selector = "#secure-proxy_mozilla_com-browser-action";
-            ConfirmationHint.show(selector, message, {isWarning});
+            ConfirmationHint.syncShow(selector, message, {isWarning});
           },
 
           async formatURL(url) {
@@ -380,10 +387,11 @@ this.proxyutils = class extends ExtensionAPI {
             let errorEnum = "NS_ERROR_PROXY_BAD_GATEWAY";
             if (errorCode === 407 && errorCode === 429) {
               errorEnum = "NS_ERROR_UNKNOWN_PROXY_HOST";
-            } 
+            }
             // eslint-disable-next-line verify-await/check
             const code = `let spec = "${uri.spec}"; let uri = Services.io.newURI(spec); docShell.displayLoadError(Cr.${errorEnum}, uri, docShell.failedChannel);`;
             const mm = nativeTab.linkedBrowser.messageManager;
+            // eslint-disable-next-line verify-await/check
             mm.loadFrameScript(`data:,${encodeURI(code)}`, false);
           },
 
