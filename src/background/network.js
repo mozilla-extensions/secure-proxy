@@ -218,8 +218,10 @@ class Network extends Component {
     // 2. The generation of tokens starts a new network request which will be
     //    processed as the previous point. This is deadlock.
     let excludedDomains = this.syncSendMessage("excludedDomains");
+    // eslint-disable-next-line verify-await/check
     excludedDomains.push(this.proxyHost);
 
+    // eslint-disable-next-line verify-await/check
     browser.experiments.proxyutils.DNSoverHTTP.set({
       value: {
         mode: DOH_MODE,
@@ -229,11 +231,14 @@ class Network extends Component {
       }
     });
 
+    // eslint-disable-next-line verify-await/check
     browser.experiments.proxyutils.FTPEnabled.set({value: false});
   }
 
   inactiveSteps() {
+    // eslint-disable-next-line verify-await/check
     browser.experiments.proxyutils.DNSoverHTTP.clear({});
+    // eslint-disable-next-line verify-await/check
     browser.experiments.proxyutils.FTPEnabled.clear({});
   }
 

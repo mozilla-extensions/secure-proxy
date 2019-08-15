@@ -25,11 +25,13 @@ class UI extends Component {
 
     browser.tabs.onUpdated.addListener((tabId) => {
       // Icon overrides are changes when the user navigates
+      // We don't care about the delay here for setting the icon and we can't block here
+      // eslint-disable-next-line verify-await/check
       this.setTabIcon(tabId);
     });
-    browser.tabs.onActivated.addListener((info) => {
-      if (this.isTabExempt(info.tabId)) {
-        this.showStatusPrompt();
+    browser.tabs.onActivated.addListener(async (info) => {
+      if (this.syncIsTabExempt(info.tabId)) {
+        await this.showStatusPrompt();
       }
     });
 
@@ -40,7 +42,7 @@ class UI extends Component {
       }
 
       if (message.type === "exempt") {
-        this.exemptTab(sender.tab.id, message.status);
+        this.syncExemptTab(sender.tab.id, message.status);
       }
     });
 
@@ -78,22 +80,24 @@ class UI extends Component {
 
   async isCurrentTabExempt() {
     let currentTab = await this.getCurrentTab();
-    return currentTab && this.isTabExempt(currentTab.id);
+    return currentTab && this.syncIsTabExempt(currentTab.id);
   }
 
-  isTabExempt(tabId) {
+  syncIsTabExempt(tabId) {
     return this.syncGetExemptTabStatus(tabId) === "exemptTab";
   }
 
-  exemptTab(tabId, status) {
+  syncExemptTab(tabId, status) {
     log(`exemptTab ${tabId} ${status}`);
     this.syncSetExemptTabStatus(tabId, status);
+    // We don't care about the delay here for setting the icon and we can't block here
     this.setTabIcon(tabId);
   }
 
-  removeExemptTab(tabId) {
+  syncRemoveExemptTab(tabId) {
     log(`removeExemptTab ${tabId}`);
     this.syncSetExemptTabStatus(tabId, "ignoreTab");
+    // We don't care about the delay here for setting the icon and we can't block here
     this.setTabIcon(tabId);
 
     // Re-enable the content script blocking on the tab
@@ -101,44 +105,48 @@ class UI extends Component {
   }
 
   // Used to set or remove tab exemption icons
-  setTabIcon(tabId) {
+  async setTabIcon(tabId) {
     log(`updating tab icon: ${tabId}`);
     // default value here is undefined which resets the icon back when it becomes non exempt again
     let path;
     // default title resets the tab title
     let title = null;
-    if (this.isTabExempt(tabId)) {
+    if (this.syncIsTabExempt(tabId)) {
       title = this.getTranslation("badgeWarningText");
       path = "img/badge_warning.svg";
     }
 
-    browser.browserAction.setIcon({
-      path,
-      tabId
-    });
-    browser.browserAction.setTitle({
-      tabId,
-      title
-    });
+    return Promise.all([
+      browser.browserAction.setIcon({
+        path,
+        tabId
+      }),
+      browser.browserAction.setTitle({
+        tabId,
+        title
+      }),
+    ]);
   }
 
   contentScriptConnected(port) {
     log("content-script connected");
 
+    // eslint-disable-next-line verify-await/check
     this.contentScriptPorts.set(port.sender.tab.id, port);
     // Let's inform the new port about the current state.
-    this.contentScriptNotify(port);
+    this.syncContentScriptNotify(port);
 
     port.onDisconnect.addListener(_ => {
       log("content-script port disconnected");
+      // eslint-disable-next-line verify-await/check
       this.contentScriptPorts.delete(port.sender.tab.id);
     });
   }
 
   informContentScripts() {
-    this.contentScriptPorts.forEach(p => {
-      this.contentScriptNotify(p);
-    });
+    for (const p of this.contentScriptPorts) {
+      this.syncContentScriptNotify(p);
+    }
   }
 
   async afterConnectionSteps() {
@@ -146,8 +154,10 @@ class UI extends Component {
     await this.update();
   }
 
-  contentScriptNotify(p) {
+  syncContentScriptNotify(p) {
     const exempted = this.syncGetExemptTabStatus(p.sender.tab.id);
+    // Post message explicitly is fire and forget
+    // eslint-disable-next-line verify-await/check
     p.postMessage({type: "proxyState", enabled: this.cachedProxyState === PROXY_STATE_ACTIVE, exempted});
   }
 
@@ -173,7 +183,7 @@ class UI extends Component {
           // port.sender.tab doesn't exist for browser actions
           const currentTab = await this.getCurrentTab();
           if (currentTab) {
-            this.removeExemptTab(currentTab.id);
+            this.syncRemoveExemptTab(currentTab.id);
             await this.update();
           }
           break;
@@ -187,27 +197,27 @@ class UI extends Component {
           break;
 
         case "manageAccount":
-          this.openUrl(await this.sendMessage("managerAccountURL"));
+          await this.openUrl(await this.sendMessage("managerAccountURL"));
           break;
 
         case "helpAndSupport":
-          this.formatAndOpenURL(HELP_AND_SUPPORT_URL);
+          await this.formatAndOpenURL(HELP_AND_SUPPORT_URL);
           break;
 
         case "learnMore":
-          this.formatAndOpenURL(LEARN_MORE_URL);
+          await this.formatAndOpenURL(LEARN_MORE_URL);
           break;
 
         case "privacyPolicy":
-          this.openUrl(PRIVACY_POLICY_URL);
+          await this.openUrl(PRIVACY_POLICY_URL);
           break;
 
         case "termsAndConditions":
-          this.openUrl(TERMS_AND_CONDITIONS_URL);
+          await this.openUrl(TERMS_AND_CONDITIONS_URL);
           break;
 
         case "openUrl":
-          this.openUrl(message.data.url);
+          await this.openUrl(message.data.url);
           break;
       }
     });
@@ -257,18 +267,20 @@ class UI extends Component {
     }
 
     if (promptNotice) {
-      browser.experiments.proxyutils.showPrompt(browser.i18n.getMessage(promptNotice), isWarning);
+      await browser.experiments.proxyutils.showPrompt(this.getTranslation(promptNotice), isWarning);
     }
   }
 
   async update() {
-    this.updateIcon();
-    this.showStatusPrompt();
-    await this.sendDataToCurrentPort();
+    await Promise.all([
+      this.updateIcon(),
+      this.showStatusPrompt(),
+      this.sendDataToCurrentPort(),
+    ]);
   }
 
   // This updates any tab that doesn't have an exemption
-  updateIcon() {
+  async updateIcon() {
     let icon;
     let text;
     if (this.cachedProxyState === PROXY_STATE_INACTIVE ||
@@ -284,12 +296,14 @@ class UI extends Component {
       text = "badgeWarningText";
     }
 
-    browser.browserAction.setIcon({
-      path: icon,
-    });
-    browser.browserAction.setTitle({
-      title: this.getTranslation(text),
-    });
+    return Promise.all([
+      browser.browserAction.setIcon({
+        path: icon,
+      }),
+      browser.browserAction.setTitle({
+        title: this.getTranslation(text),
+      }),
+    ]);
   }
 
   async sendDataToCurrentPort() {
@@ -315,10 +329,10 @@ class UI extends Component {
   }
 
   async formatAndOpenURL(url) {
-    this.openUrl(await browser.experiments.proxyutils.formatURL(url));
+    await this.openUrl(await browser.experiments.proxyutils.formatURL(url));
   }
 
-  openUrl(url) {
-    browser.tabs.create({url});
+  async openUrl(url) {
+    await browser.tabs.create({url});
   }
 }
