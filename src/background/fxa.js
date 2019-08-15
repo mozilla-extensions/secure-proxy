@@ -48,6 +48,10 @@ class FxAUtils extends Component {
 
     // Let's start the fetching, but without waiting for the result.
     this.fetchWellKnownData();
+
+    // Let's see if we have to generate new tokens, but without waiting for the
+    // result.
+    this.maybeGenerateTokens();
   }
 
   hasWellKnownData() {
@@ -68,12 +72,17 @@ class FxAUtils extends Component {
     log("Fetching well-known data for real");
 
     // Let's fetch the data with a timeout of FETCH_TIMEOUT milliseconds.
-    let json = await Promise.race([
-      fetch(this.fxaOpenID).then(r => r.json(), e => null),
-      new Promise(resolve => {
-        setTimeout(_ => resolve(null), FETCH_TIMEOUT);
-      }),
-    ]);
+    let json;
+    try {
+      json = await Promise.race([
+        fetch(this.fxaOpenID).then(r => r.json(), e => null),
+        new Promise(resolve => {
+          setTimeout(_ => resolve(null), FETCH_TIMEOUT);
+        }),
+      ]);
+    } catch (e) {
+      console.error("Failed to fetch the well-known resource", e);
+    }
 
     if (!json) {
       return false;
@@ -245,13 +254,18 @@ class FxAUtils extends Component {
       headers,
     });
 
-    const resp = await fetch(request);
-    if (resp.status !== 200) {
-      log("profile data generation failed: " + resp.status);
+    try {
+      const resp = await fetch(request);
+      if (resp.status !== 200) {
+        log("profile data generation failed: " + resp.status);
+        return null;
+      }
+
+      return resp.json();
+    } catch (e) {
+      console.error("Failed to fetch profile data", e);
       return null;
     }
-
-    return resp.json();
   }
 
   async generateRefreshToken() {
@@ -269,7 +283,7 @@ class FxAUtils extends Component {
         scopes: [FXA_PROFILE_SCOPE, FXA_PROXY_SCOPE],
       });
     } catch (e) {
-      log("refresh token generation failed: " + e);
+      console.error("Failed to fetch the arefresh token", e);
     }
 
     return refreshTokenData;
@@ -300,13 +314,19 @@ class FxAUtils extends Component {
       })
     });
 
-    const resp = await fetch(request);
-    if (resp.status !== 200) {
-      log("token generation failed: " + resp.status);
+    let token;
+    try {
+      const resp = await fetch(request);
+      if (resp.status !== 200) {
+        log("token generation failed: " + resp.status);
+        return null;
+      }
+
+      token = await resp.json();
+    } catch (e) {
+      console.error("Failed to fetch the token with scope: " + scope, e);
       return null;
     }
-
-    let token = await resp.json();
 
     // Let's store when this token has been received.
     token.received_at = Math.round((performance.timeOrigin + performance.now()) / 1000);
@@ -316,7 +336,8 @@ class FxAUtils extends Component {
 
   waitForTokenGeneration() {
     let nowInSecs = Math.round((performance.timeOrigin + performance.now()) / 1000);
-    if (this.nextExpireTime && nowInSecs >= this.nextExpireTime) {
+    if (this.generatingTokens ||
+        (this.nextExpireTime && nowInSecs >= this.nextExpireTime)) {
       log("Suspend detected!");
       return this.maybeGenerateTokens();
     }
