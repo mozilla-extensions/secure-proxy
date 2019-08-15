@@ -16,7 +16,7 @@ const FXA_EXP_WELLKNOWN_TIME = 3600; // 1 hour
 // data is expired. The TTL is 1 hour.
 
 /* eslint-disable-next-line no-unused-vars */
-class WellKnownData {
+export class WellKnownData {
   constructor() {
     this.fxaEndpoints = new Map();
     this.fxaEndpointsReceivedAt = 0;

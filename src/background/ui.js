@@ -1,3 +1,5 @@
+import {Component} from "./component.js";
+
 // These URLs must be formatted
 const LEARN_MORE_URL = "https://support.mozilla.org/1/firefox/%VERSION%/%OS%/%LOCALE%/cloudflare";
 const HELP_AND_SUPPORT_URL = "https://support.mozilla.org/1/firefox/%VERSION%/%OS%/%LOCALE%/firefox-private-network";
@@ -7,7 +9,7 @@ const PRIVACY_POLICY_URL = "https://www.mozilla.org/privacy/firefox-private-netw
 const TERMS_AND_CONDITIONS_URL = "https://www.mozilla.org/about/legal/terms/firefox-private-network";
 
 /* eslint-disable-next-line no-unused-vars */
-class UI extends Component {
+export class UI extends Component {
   constructor(receiver) {
     super(receiver);
 
@@ -113,7 +115,7 @@ class UI extends Component {
     let title = null;
     if (this.syncIsTabExempt(tabId)) {
       title = this.getTranslation("badgeWarningText");
-      path = "img/badge_warning.svg";
+      path = "/img/badge_warning.svg";
     }
 
     return Promise.all([
@@ -286,13 +288,13 @@ class UI extends Component {
     if (this.cachedProxyState === PROXY_STATE_INACTIVE ||
         this.cachedProxyState === PROXY_STATE_CONNECTING ||
         this.cachedProxyState === PROXY_STATE_OFFLINE) {
-      icon = "img/badge_off.svg";
+      icon = "/img/badge_off.svg";
       text = "badgeOffText";
     } else if (this.cachedProxyState === PROXY_STATE_ACTIVE) {
-      icon = "img/badge_on.svg";
+      icon = "/img/badge_on.svg";
       text = "badgeOnText";
     } else {
-      icon = "img/badge_warning.svg";
+      icon = "/img/badge_warning.svg";
       text = "badgeWarningText";
     }
 

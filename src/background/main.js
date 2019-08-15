@@ -1,3 +1,10 @@
+import {Connectivity} from "./connectivity.js";
+import {FxAUtils} from "./fxa.js";
+import {Network} from "./network.js";
+import {StorageUtils} from "./storage.js";
+import {Survey} from "./survey.js";
+import {UI} from "./ui.js";
+
 // If run() fails, it will be retriggered after this timeout (in milliseconds)
 const RUN_TIMEOUT = 5000; // 5 secs
 

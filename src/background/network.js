@@ -1,3 +1,5 @@
+import {Component} from "./component.js";
+
 // Testing URL. This request is sent with the proxy settings when we are in
 // connecting state. If this succeeds, we go to active state.
 const CONNECTING_HTTP_REQUEST = "http://test.factor11.cloudflareclient.com/";
@@ -7,7 +9,7 @@ const DOH_MODE = 3;
 const DOH_BOOTSTRAP_ADDRESS = "1.1.1.1";
 
 /* eslint-disable-next-line no-unused-vars */
-class Network extends Component {
+export class Network extends Component {
   constructor(receiver) {
     super(receiver);
 

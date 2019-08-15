@@ -1,3 +1,6 @@
+import {Component} from "./component.js";
+import {StorageUtils} from "./storage.js";
+
 const SURVEY_UNINSTALL = "https://qsurvey.mozilla.com/s3/fx-private-network-beta-exit-survey?sub=no";
 
 // Survey URLs can contain 'magic' words. These will be replaced with values.
@@ -17,7 +20,7 @@ const SURVEYS = [
 // This class controls the survey URLs and when they have to be shown.
 
 // eslint-disable-next-line
-class Survey extends Component {
+export class Survey extends Component {
   constructor(receiver) {
     super(receiver);
   }

@@ -9,14 +9,10 @@ module.exports = {
     "plugin:mozilla/recommended"
   ],
   globals: {
-    Component: false,
-    Connectivity: false,
     escapedTemplate: false,
     debuggingMode: true,
     fxaCryptoRelier: false,
-    FxAUtils: false,
     log: false,
-    Network: false,
     PROXY_STATE_ACTIVE: false,
     PROXY_STATE_AUTHFAILURE: false,
     PROXY_STATE_CONNECTING: false,
@@ -28,11 +24,7 @@ module.exports = {
     PROXY_STATE_PROXYERROR: false,
     PROXY_STATE_UNAUTHENTICATED: false,
     PROXY_URL: false,
-    StorageUtils: false,
-    Survey: false,
-    Template: false,
-    UI: false,
-    WellKnownData: false
+    Template: false
   },
   parser: "babel-eslint",
   parserOptions: {
