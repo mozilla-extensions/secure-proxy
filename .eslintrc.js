@@ -31,7 +31,8 @@ module.exports = {
     StorageUtils: false,
     Survey: false,
     Template: false,
-    UI: false
+    UI: false,
+    WellKnownData: false
   },
   parser: "babel-eslint",
   parserOptions: {

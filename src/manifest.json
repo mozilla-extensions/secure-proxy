@@ -63,6 +63,7 @@
         "background/storage.js",
         "background/survey.js",
         "background/ui.js",
+        "background/wellKnownData.js",
         "background/main.js"
       ]
   },
