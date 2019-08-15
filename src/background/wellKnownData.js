@@ -48,7 +48,10 @@ class WellKnownData {
     let json;
     try {
       json = await Promise.race([
-        fetch(this.fxaOpenID).then(r => r.json(), e => null),
+        fetch(this.fxaOpenID).then(r => r.json(), e => {
+          console.error("Failed to fetch the well-known resource", e);
+          return null;
+        }),
         new Promise(resolve => {
           setTimeout(_ => resolve(null), FETCH_TIMEOUT);
         }),
