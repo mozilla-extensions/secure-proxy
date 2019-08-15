@@ -45,14 +45,6 @@ const StorageUtils = {
     return this.getStorageKey("profileData");
   },
 
-  async getFxaEndpointsReceivedAt() {
-    return this.getStorageKey("fxaEndpointsReceivedAt");
-  },
-
-  async setFxaEndpointsReceivedAt(fxaEndpointsReceivedAt) {
-    await browser.storage.local.set({fxaEndpointsReceivedAt});
-  },
-
   async getSurveyInitTime() {
     return this.getStorageKey("surveyInitTime");
   },

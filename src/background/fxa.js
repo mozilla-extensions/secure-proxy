@@ -22,50 +22,33 @@ const FXA_EXP_WELLKNOWN_TIME = 3600; // 1 hour
 // How early we want to re-generate the tokens (in secs)
 const EXPIRE_DELTA = 3600;
 
-/* eslint-disable-next-line no-unused-vars */
-class FxAUtils extends Component {
-  constructor(receiver) {
-    super(receiver);
-
+// A class to fetch well-known data only when needed.
+class WellKnownData {
+  constructor() {
     this.fxaEndpoints = new Map();
     this.fxaEndpointsReceivedAt = 0;
-
-    // This is Set of pending operatations to do after a token generation.
-    this.postTokenGenerationOps = new Set();
-    this.generatingTokens = false;
-
-    this.nextExpireTime = 0;
   }
 
   async init(prefs) {
     this.fxaOpenID = prefs.value.fxaURL || FXA_OPENID;
-    this.proxyURL = new URL(prefs.value.proxyURL || PROXY_URL);
 
-    let fxaEndpointsReceivedAt = await StorageUtils.getFxaEndpointsReceivedAt();
-    if (fxaEndpointsReceivedAt) {
-      this.fxaEndpointsReceivedAt = fxaEndpointsReceivedAt;
-    }
+    this.fxaEndpointsReceivedAt = 0;
 
     // Let's start the fetching, but without waiting for the result.
-    this.fetchWellKnownData();
-
-    // Let's see if we have to generate new tokens, but without waiting for the
-    // result.
-    this.maybeGenerateTokens();
+    this.fetch();
   }
 
   hasWellKnownData() {
     return this.fxaEndpoints.size !== 0;
   }
 
-  async fetchWellKnownData() {
+  async fetch() {
     log("Fetching well-known data");
 
     let now = performance.timeOrigin + performance.now();
     let nowInSecs = Math.round(now / 1000);
 
-    if (this.hasWellKnownData() &&
-        (this.fxaEndpointsReceivedAt + FXA_EXP_WELLKNOWN_TIME) > nowInSecs) {
+    if ((this.fxaEndpointsReceivedAt + FXA_EXP_WELLKNOWN_TIME) > nowInSecs) {
       log("Well-knonw data cache is good");
       return true;
     }
@@ -94,16 +77,86 @@ class FxAUtils extends Component {
     this.fxaEndpoints.set(FXA_ENDPOINT_ISSUER, json[FXA_ENDPOINT_ISSUER]);
 
     this.fxaEndpointsReceivedAt = nowInSecs;
-    await StorageUtils.setFxaEndpointsReceivedAt(this.fxaEndpointsReceivedAt);
-
     return true;
   }
 
-  async authenticate() {
-    if (!await this.fetchWellKnownData()) {
-      throw new Error("Failure fetching well-known data");
+  isAuthUrl(origin) {
+    if (new URL(this.fxaOpenID).origin === origin) {
+      return true;
     }
 
+    if (!this.hasWellKnownData()) {
+      return false;
+    }
+
+    // If is part of oauth also ignore
+    const authUrls = [
+      this.fxaEndpoints.get(FXA_ENDPOINT_PROFILE),
+      this.fxaEndpoints.get(FXA_ENDPOINT_TOKEN),
+    ];
+
+    return authUrls.some((item) => {
+      return new URL(item).origin === origin;
+    });
+  }
+
+  excludedDomains() {
+    let excludedDomains = [];
+
+    if (this.hasWellKnownData()) {
+      [FXA_ENDPOINT_PROFILE, FXA_ENDPOINT_TOKEN, FXA_ENDPOINT_ISSUER].forEach(e => {
+        try {
+          excludedDomains.push(new URL(this.fxaEndpoints.get(e)).hostname);
+        } catch (e) {}
+      });
+    }
+
+    return excludedDomains;
+  }
+
+  async getIssuerEndpoint() {
+    return this.getGenericEndpoint(FXA_ENDPOINT_ISSUER);
+  }
+
+  async getProfileEndpoint() {
+    return this.getGenericEndpoint(FXA_ENDPOINT_PROFILE);
+  }
+
+  async getTokenEndpoint() {
+    return this.getGenericEndpoint(FXA_ENDPOINT_TOKEN);
+  }
+
+  async getGenericEndpoint(endpoint) {
+    await this.fetch();
+    return this.fxaEndpoints.get(endpoint);
+  }
+}
+
+/* eslint-disable-next-line no-unused-vars */
+class FxAUtils extends Component {
+  constructor(receiver) {
+    super(receiver);
+
+    this.wellKnownData = new WellKnownData();
+
+    // This is Set of pending operatations to do after a token generation.
+    this.postTokenGenerationOps = new Set();
+    this.generatingTokens = false;
+
+    this.nextExpireTime = 0;
+  }
+
+  async init(prefs) {
+    this.proxyURL = new URL(prefs.value.proxyURL || PROXY_URL);
+
+    await this.wellKnownData.init(prefs);
+
+    // Let's see if we have to generate new tokens, but without waiting for the
+    // result.
+    this.maybeGenerateTokens();
+  }
+
+  async authenticate() {
     // Let's do the authentication. This will generate a token that is going to
     // be used just to obtain the other ones.
     let refreshTokenData = await this.generateRefreshToken();
@@ -155,10 +208,12 @@ class FxAUtils extends Component {
       return false;
     }
 
+    const profileEndpoint = await this.wellKnownData.getProfileEndpoint();
+
     let profileTokenData = await this.maybeGenerateSingleToken("profileTokenData",
                                                                refreshTokenData,
                                                                FXA_PROFILE_SCOPE,
-                                                               this.fxaEndpoints.get(FXA_ENDPOINT_PROFILE));
+                                                               profileEndpoint);
     if (profileTokenData === false) {
       return false;
     }
@@ -220,11 +275,6 @@ class FxAUtils extends Component {
     }
 
     if (!tokenData) {
-      log("checking well-known data");
-      if (!await this.fetchWellKnownData()) {
-        return false;
-      }
-
       log("generating token");
       tokenData = await this.generateToken(refreshTokenData, scope, resource);
       if (!tokenData) {
@@ -250,7 +300,8 @@ class FxAUtils extends Component {
       "Authorization": `Bearer ${profileTokenData.access_token}`
     });
 
-    const request = new Request(this.fxaEndpoints.get(FXA_ENDPOINT_PROFILE), {
+    const profileEndpoint = await this.wellKnownData.getProfileEndpoint();
+    const request = new Request(profileEndpoint, {
       method: "GET",
       headers,
     });
@@ -272,9 +323,8 @@ class FxAUtils extends Component {
   async generateRefreshToken() {
     log("generate refresh token");
 
-    const fxaKeysUtil = new fxaCryptoRelier.OAuthUtils({
-      contentServer: this.fxaEndpoints.get(FXA_ENDPOINT_ISSUER),
-    });
+    const contentServer = await this.wellKnownData.getIssuerEndpoint();
+    const fxaKeysUtil = new fxaCryptoRelier.OAuthUtils({contentServer});
 
     let refreshTokenData;
     // This will trigger the authentication form.
@@ -299,7 +349,8 @@ class FxAUtils extends Component {
     const headers = new Headers();
     headers.append("Content-Type", "application/json");
 
-    const request = new Request(this.fxaEndpoints.get(FXA_ENDPOINT_TOKEN), {
+    const tokenEndpoint = await this.wellKnownData.getTokenEndpoint();
+    const request = new Request(tokenEndpoint, {
       method: "POST",
       headers,
       body: JSON.stringify({
@@ -347,45 +398,16 @@ class FxAUtils extends Component {
   }
 
   isAuthUrl(origin) {
-    if (new URL(this.fxaOpenID).origin === origin) {
-      return true;
-    }
-
-    if (!this.hasWellKnownData()) {
-      return false;
-    }
-
-    // If is part of oauth also ignore
-    const authUrls = [
-      this.fxaEndpoints.get(FXA_ENDPOINT_PROFILE),
-      this.fxaEndpoints.get(FXA_ENDPOINT_TOKEN),
-    ];
-
-    return authUrls.some((item) => {
-      return new URL(item).origin === origin;
-    });
+    return this.wellKnownData.isAuthUrl(origin);
   }
 
   excludedDomains() {
-    let excludedDomains = [];
-
-    if (this.hasWellKnownData()) {
-      [FXA_ENDPOINT_PROFILE, FXA_ENDPOINT_TOKEN, FXA_ENDPOINT_ISSUER].forEach(e => {
-        try {
-          excludedDomains.push(new URL(this.fxaEndpoints.get(e)).hostname);
-        } catch (e) {}
-      });
-    }
-
-    return excludedDomains;
+    return this.wellKnownData.excludedDomains();
   }
 
   async manageAccountURL() {
-    if (!this.hasWellKnownData()) {
-      throw new Error("We are not supposed to be here.");
-    }
+    let contentServer = await this.wellKnownData.getIssuerEndpoint();
 
-    let contentServer = this.fxaEndpoints.get(FXA_ENDPOINT_ISSUER);
     let profileData = await StorageUtils.getProfileData();
     let url = new URL(contentServer + "/settings");
     url.searchParams.set("uid", profileData.uid);

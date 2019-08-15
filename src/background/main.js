@@ -21,7 +21,7 @@ class Main {
 
   async init() {
     const prefs = await browser.experiments.proxyutils.settings.get({});
-    debuggingMode = prefs.value.debuggingEnabled;
+    debuggingMode = true || prefs.value.debuggingEnabled;
 
     log("init");
 
