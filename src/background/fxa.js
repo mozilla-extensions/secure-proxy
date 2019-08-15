@@ -64,7 +64,8 @@ class FxAUtils extends Component {
     let now = performance.timeOrigin + performance.now();
     let nowInSecs = Math.round(now / 1000);
 
-    if ((this.fxaEndpointsReceivedAt + FXA_EXP_WELLKNOWN_TIME) > nowInSecs) {
+    if (this.hasWellKnownData() &&
+        (this.fxaEndpointsReceivedAt + FXA_EXP_WELLKNOWN_TIME) > nowInSecs) {
       log("Well-knonw data cache is good");
       return true;
     }
@@ -99,7 +100,7 @@ class FxAUtils extends Component {
   }
 
   async authenticate() {
-    if (!this.fetchWellKnownData()) {
+    if (!await this.fetchWellKnownData()) {
       throw new Error("Failure fetching well-known data");
     }
 
@@ -210,17 +211,17 @@ class FxAUtils extends Component {
       // We want to keep a big time margin: 1 hour seems good enough.
       let diff = tokenData.received_at + tokenData.expires_in - nowInSecs - EXPIRE_DELTA;
       if (diff < EXPIRE_DELTA) {
-        log("token exists but it's expired.");
+        log(`Token exists but it is expired. Received at ${tokenData.received_at} and expires in ${tokenData.expires_in}`);
         tokenData = null;
       } else {
-        log(`token expires in ${minDiff}`);
+        log(`token expires in ${diff}`);
         minDiff = diff;
       }
     }
 
     if (!tokenData) {
       log("checking well-known data");
-      if (!this.fetchWellKnownData()) {
+      if (!await this.fetchWellKnownData()) {
         return false;
       }
 
@@ -283,7 +284,7 @@ class FxAUtils extends Component {
         scopes: [FXA_PROFILE_SCOPE, FXA_PROXY_SCOPE],
       });
     } catch (e) {
-      console.error("Failed to fetch the arefresh token", e);
+      console.error("Failed to fetch the refresh token", e);
     }
 
     return refreshTokenData;
@@ -346,13 +347,16 @@ class FxAUtils extends Component {
   }
 
   isAuthUrl(origin) {
+    if (new URL(this.fxaOpenID).origin === origin) {
+      return true;
+    }
+
     if (!this.hasWellKnownData()) {
       return false;
     }
 
     // If is part of oauth also ignore
     const authUrls = [
-      this.fxaOpenID,
       this.fxaEndpoints.get(FXA_ENDPOINT_PROFILE),
       this.fxaEndpoints.get(FXA_ENDPOINT_TOKEN),
     ];
