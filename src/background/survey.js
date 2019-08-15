@@ -42,9 +42,9 @@ class Survey extends Component {
       now = Math.round(now / 1000);
       let diff = surveyInitTime + nextSurvey.triggerAfterTime - now;
       if (diff < 0) {
-        this.runSurvey(nextSurvey.name);
+        await this.runSurvey(nextSurvey.name);
       } else {
-        setTimeout(_ => { this.runSurvey(nextSurvey.name); }, diff * 1000);
+        setTimeout(_ => this.runSurvey(nextSurvey.name), diff * 1000);
       }
     }
   }
@@ -58,6 +58,7 @@ class Survey extends Component {
       nextSurvey = SURVEYS[0];
     } else {
       // If the next one doesn't exist, nextSurvey will be undefined.
+      // eslint-disable-next-line verify-await/check
       nextSurvey = SURVEYS[SURVEYS.findIndex(a => lastSurvey === a.name) + 1];
     }
 
@@ -79,6 +80,7 @@ class Survey extends Component {
 
   async formatUrl(url, data) {
     let self = await browser.management.getSelf();
+    // eslint-disable-next-line verify-await/check
     return url.replace(/PROXYENABLED/g, this.cachedProxyState === PROXY_STATE_ACTIVE ? "true" : "false")
               .replace(/VERSION/g, self.version);
   }

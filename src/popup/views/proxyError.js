@@ -12,6 +12,7 @@ class ViewProxyError extends View {
   }
 
   toggleButtonClicked() {
+    // eslint-disable-next-line verify-await/check
     View.sendMessage("authenticate");
   }
 
