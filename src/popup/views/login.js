@@ -2,7 +2,7 @@ import {View} from "../view.js";
 
 // Login view.
 class ViewLogin extends View {
-  show(proxyState) {
+  syncShow(proxyState) {
     View.setState("login", {label: this.getTranslation("heroProxyLogin")});
 
     let text;

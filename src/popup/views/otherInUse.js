@@ -1,7 +1,7 @@
 import {View} from "../view.js";
 
 class ViewOtherInUse extends View {
-  show() {
+  syncShow() {
     View.setState("disabled", {text: this.getTranslation("heroProxyOff")});
     View.hideToggleButton();
 

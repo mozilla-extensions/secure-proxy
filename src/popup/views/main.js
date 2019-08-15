@@ -8,7 +8,7 @@ class ViewMain extends View {
     this.proxyEnabled = false;
   }
 
-  show(data) {
+  syncShow(data) {
     if (data.proxyState !== PROXY_STATE_INACTIVE &&
         data.proxyState !== PROXY_STATE_ACTIVE) {
       throw new Error("Invalid proxy state for ViewMain");
@@ -32,7 +32,7 @@ class ViewMain extends View {
     return userInfo;
   }
 
-  postShow(data) {
+  syncPostShow(data) {
     this.proxyEnabled = data.proxyState === PROXY_STATE_ACTIVE;
 
     if (this.proxyEnabled) {

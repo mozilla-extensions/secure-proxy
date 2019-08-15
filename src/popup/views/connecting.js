@@ -2,7 +2,7 @@ import {View} from "../view.js";
 
 // This is the first view to be shown.
 class ViewConnecting extends View {
-  show() {
+  syncShow() {
     View.setState("connecting", {label: this.getTranslation("heroProxyConnecting")});
     View.showToggleButton(true);
 

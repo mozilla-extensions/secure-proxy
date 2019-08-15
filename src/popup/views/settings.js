@@ -2,7 +2,7 @@ import {View} from "../view.js";
 
 // Settings view.
 class ViewSettings extends View {
-  show(data) {
+  syncShow(data) {
     View.showBack(true);
     View.showSettings(false);
     View.hideToggleButton();
@@ -34,9 +34,9 @@ class ViewSettings extends View {
     `;
   }
 
-  headingText() { return "introSettings"; }
+  syncHeadingText() { return "introSettings"; }
 
-  footer() {
+  syncFooter() {
     return escapedTemplate`
       <span>${this.getTranslation("popupPoweredBy")}</span>
       <a href="#" class="end" id="learnMore">${this.getTranslation("popupLearnMore")}</a>
