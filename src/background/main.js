@@ -26,9 +26,9 @@ class Main {
     log("init");
 
     // Let's initialize the observers.
-    this.observers.forEach(observer => {
-      observer.init(prefs);
-    });
+    for (let observer of this.observers) {
+      await observer.init(prefs);
+    }
 
     // All good. Let's start.
     await this.firstRun();
@@ -64,9 +64,9 @@ class Main {
   setProxyState(proxyState) {
     this.proxyState = proxyState;
 
-    this.observers.forEach(observer => {
+    for (let observer of this.observers) {
       observer.setProxyState(proxyState);
-    });
+    }
   }
 
   setOfflineAndStartRecoveringTimer() {
@@ -227,7 +227,7 @@ class Main {
     await this.ui.update();
   }
 
-  skipProxy(requestInfo, url) {
+  syncSkipProxy(requestInfo, url) {
     if (this.ui.isTabExempt(requestInfo.tabId)) {
       return true;
     }
@@ -247,9 +247,11 @@ class Main {
     }
   }
 
-  panelShown() {
+  syncPanelShown() {
     // This is done to make the authentication form appearing faster.
-    this.fxa.prefetchWellKnwonData();
+    // We ignore the response and just prefetch
+    // eslint-disable-next-line verify-await/check
+    this.fxa.prefetchWellKnownData();
   }
 
   // Provides an async response in most cases
@@ -267,14 +269,8 @@ class Main {
       case "enableProxy":
         return this.enableProxy(data.enabledState);
 
-      case "excludedDomains":
-        return this.fxa.excludedDomains();
-
       case "managerAccountURL":
         return this.fxa.manageAccountURL();
-
-      case "panelShown":
-        return this.panelShown();
 
       case "proxyAuthenticationFailed":
         return this.proxyAuthenticationFailed();
@@ -285,14 +281,28 @@ class Main {
       case "proxySettingsChanged":
         return this.proxySettingsChanged();
 
-      case "skipProxy":
-        return this.skipProxy(data.requestInfo, data.url);
-
       case "tokenGenerated":
         return this.net.tokenGenerated(data.tokenType, data.tokenValue);
 
+      default:
+        console.error("Invalid event: " + type);
+        throw new Error("Invalid event: " + type);
+    }
+  }
+
+  syncHandleEvent(type, data) {
+    switch (type) {
+      case "skipProxy":
+        return this.syncSkipProxy(data.requestInfo, data.url);
+
+      case "panelShown":
+        return this.syncPanelShown();
+
       case "waitForTokenGeneration":
         return this.fxa.waitForTokenGeneration();
+
+      case "excludedDomains":
+        return this.fxa.excludedDomains();
 
       default:
         console.error("Invalid event: " + type);
@@ -301,6 +311,7 @@ class Main {
   }
 
   registerObserver(observer) {
+    // eslint-disable-next-line verify-await/check
     this.observers.add(observer);
   }
 }

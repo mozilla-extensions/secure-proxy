@@ -126,7 +126,7 @@ class FxAUtils extends Component {
     this.nextExpireTime = Math.min(proxyTokenData.tokenData.received_at + proxyTokenData.tokenData.expires_in,
                                    profileTokenData.tokenData.received_at + profileTokenData.tokenData.expires_in);
 
-    this.sendMessage("tokenGenerated", {
+    this.syncSendMessage("tokenGenerated", {
       tokenType: proxyTokenData.tokenData.token_type,
       tokenValue: proxyTokenData.tokenData.access_token,
     });
@@ -213,6 +213,7 @@ class FxAUtils extends Component {
     // This will trigger the authentication form.
     try {
       refreshTokenData = await fxaKeysUtil.launchWebExtensionFlow(FXA_CLIENT_ID, {
+        // eslint-disable-next-line verify-await/check
         redirectUri: browser.identity.getRedirectURL(),
         scopes: [FXA_PROFILE_SCOPE, FXA_PROXY_SCOPE],
       });
@@ -230,6 +231,7 @@ class FxAUtils extends Component {
     const ppid_seed = Math.floor(Math.random() * 1024);
 
     const headers = new Headers();
+    // eslint-disable-next-line verify-await/check
     headers.append("Content-Type", "application/json");
 
     const tokenEndpoint = await this.wellKnownData.getTokenEndpoint();
@@ -293,12 +295,14 @@ class FxAUtils extends Component {
 
     let profileData = await StorageUtils.getProfileData();
     let url = new URL(contentServer + "/settings");
+    // eslint-disable-next-line verify-await/check
     url.searchParams.set("uid", profileData.uid);
+    // eslint-disable-next-line verify-await/check
     url.searchParams.set("email", profileData.email);
     return url.href;
   }
 
-  async prefetchWellKnwonData() {
+  async prefetchWellKnownData() {
     return this.wellKnownData.fetch();
   }
 }

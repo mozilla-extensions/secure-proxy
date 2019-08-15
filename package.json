@@ -7,7 +7,7 @@
     "doc": "docs"
   },
   "scripts": {
-    "build": "cp node_modules/fxa-crypto-relier/dist/fxa-crypto-relier/fxa-crypto-relier.js src/vendor/ && cd node_modules && rm -rf eslint-plugin-verify-await && git clone git@github.com:jonathanKingston/eslint-plugin-verify-await.git",
+    "build": "cp node_modules/fxa-crypto-relier/dist/fxa-crypto-relier/fxa-crypto-relier.js src/vendor/",
     "lint": "eslint src",
     "md": "npm run md:lint && npm run md:spell",
     "md:lint": "npx markdownlint-cli '*.md' 'docs/*.md'",
@@ -35,6 +35,7 @@
     "eslint-config-prettier": "^4.2.0",
     "eslint-plugin-no-unsanitized": "^3.0.2",
     "eslint-plugin-prettier": "^3.1.0",
+    "eslint-plugin-verify-await": "git@github.com:jonathanKingston/eslint-plugin-verify-await.git",
     "prettier": "^1.18.2"
   }
 }
