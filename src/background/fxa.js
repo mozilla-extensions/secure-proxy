@@ -23,6 +23,8 @@ const FXA_EXP_WELLKNOWN_TIME = 3600; // 1 hour
 const EXPIRE_DELTA = 3600;
 
 // A class to fetch well-known data only when needed.
+// Well-known data resource is fetched only when required and if the current
+// data is expired. The TTL is 1 hour.
 class WellKnownData {
   constructor() {
     this.fxaEndpoints = new Map();
@@ -31,11 +33,7 @@ class WellKnownData {
 
   async init(prefs) {
     this.fxaOpenID = prefs.value.fxaURL || FXA_OPENID;
-
     this.fxaEndpointsReceivedAt = 0;
-
-    // Let's start the fetching, but without waiting for the result.
-    this.fetch();
   }
 
   hasWellKnownData() {
@@ -413,5 +411,9 @@ class FxAUtils extends Component {
     url.searchParams.set("uid", profileData.uid);
     url.searchParams.set("email", profileData.email);
     return url.href;
+  }
+
+  async prefetchWellKnwonData() {
+    return this.wellKnownData.fetch();
   }
 }

@@ -243,6 +243,11 @@ class Main {
     }
   }
 
+  panelShown() {
+    // This is done to make the authentication form appearing faster.
+    this.fxa.prefetchWellKnwonData();
+  }
+
   handleEvent(type, data) {
     switch (type) {
       case "authenticationFailed":
@@ -262,6 +267,9 @@ class Main {
 
       case "managerAccountURL":
         return this.fxa.manageAccountURL();
+
+      case "panelShown":
+        return this.panelShown();
 
       case "proxyAuthenticationFailed":
         return this.proxyAuthenticationFailed();
