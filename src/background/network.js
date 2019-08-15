@@ -91,8 +91,7 @@ class Network extends Component {
     }
 
     // Let's see if we have to wait for token generation.
-    // eslint-disable-next-line verify-await/check
-    let wftg = this.sendMessage("waitForTokenGeneration");
+    let wftg = this.syncSendMessage("waitForTokenGeneration");
     if (wftg !== null) {
       await wftg;
     }
@@ -205,8 +204,7 @@ class Network extends Component {
 
     // Do we have to skip this request?
     // skipProxy is sync
-    // eslint-disable-next-line verify-await/check
-    if (this.sendMessage("skipProxy", { requestInfo, url, })) {
+    if (this.syncSendMessage("skipProxy", { requestInfo, url, })) {
       return false;
     }
 
@@ -219,9 +217,7 @@ class Network extends Component {
     //    generation of a new token.
     // 2. The generation of tokens starts a new network request which will be
     //    processed as the previous point. This is deadlock.
-    // excludedDomains is sync
-    // eslint-disable-next-line verify-await/check
-    let excludedDomains = this.sendMessage("excludedDomains");
+    let excludedDomains = this.syncSendMessage("excludedDomains");
     excludedDomains.push(this.proxyHost);
 
     browser.experiments.proxyutils.DNSoverHTTP.set({

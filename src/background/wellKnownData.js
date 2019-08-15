@@ -22,7 +22,7 @@ class WellKnownData {
     this.fxaEndpointsReceivedAt = 0;
   }
 
-  async init(prefs) {
+  init(prefs) {
     this.fxaOpenID = prefs.value.fxaURL || FXA_OPENID;
     this.fxaEndpointsReceivedAt = 0;
   }

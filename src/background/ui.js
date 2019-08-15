@@ -158,7 +158,7 @@ class UI extends Component {
     this.currentPort = port;
 
     // Let's inform the main component about this panel shown.
-    this.sendMessage("panelShown");
+    this.syncSendMessage("panelShown");
 
     // Let's send the initial data.
     port.onMessage.addListener(async message => {
