@@ -10,6 +10,7 @@ module.exports = {
   ],
   globals: {
     Component: false,
+    Connectivity: false,
     Template: false,
     escapedTemplate: false,
     debuggingMode: true,
@@ -31,6 +32,7 @@ module.exports = {
     PROXY_URL: false,
     Survey: false
   },
+  parser: "babel-eslint",
   parserOptions: {
     ecmaVersion: 2018,
     sourceType: "module"
