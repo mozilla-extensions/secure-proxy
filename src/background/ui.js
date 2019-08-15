@@ -144,6 +144,9 @@ class UI extends Component {
     // Overwrite any existing port. We want to talk with 1 single popup.
     this.currentPort = port;
 
+    // Let's inform the main component about this panel shown.
+    this.sendMessage("panelShown");
+
     // Let's send the initial data.
     port.onMessage.addListener(async message => {
       log("Message received from the panel", message);
