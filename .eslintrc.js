@@ -11,7 +11,6 @@ module.exports = {
   globals: {
     Component: false,
     Connectivity: false,
-    Template: false,
     escapedTemplate: false,
     debuggingMode: true,
     fxaCryptoRelier: false,
