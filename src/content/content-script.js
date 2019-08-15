@@ -161,7 +161,7 @@ class ContentScriptBanner {
       </div>
     `;
     this.modal.addEventListener("click", this);
-    template.renderTo(this.modal);
+    template.syncRenderTo(this.modal);
     document.body.appendChild(this.modal);
   }
 

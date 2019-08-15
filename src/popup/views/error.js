@@ -1,7 +1,7 @@
 import {View} from "../view.js";
 
 class ViewError extends View {
-  show(data) {
+  syncShow(data) {
     View.setState("disabled", {text: this.getTranslation("heroProxyOff")});
     return escapedTemplate`
     <p>

@@ -55,7 +55,7 @@ class Template {
     return result.join("");
   }
 
-  renderTo(el) {
+  syncRenderTo(el) {
     // eslint-disable-next-line no-unsanitized/property
     el.innerHTML = this;
   }

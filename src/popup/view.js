@@ -10,7 +10,7 @@ export class View {
     // eslint-disable-next-line verify-await/check
     if (!views.has(name)) {
       let view = await import(`./views/${name}.js`);
-      this.registerView(view.default, name);
+      this.syncRegisterView(view.default, name);
     }
     let content = document.getElementById("content");
     let footer = document.querySelector("footer");
@@ -25,7 +25,6 @@ export class View {
       footer.removeEventListener("click", currentView);
       content.removeEventListener("click", currentView);
       content.removeEventListener("submit", currentView);
-      currentView.dismiss();
     }
 
     currentView = view;
@@ -34,22 +33,24 @@ export class View {
     footer.toggleAttribute("hidden", true);
 
     let introHeading = document.getElementById("introHeading");
-    introHeading.textContent = currentView.getTranslation(currentView.headingText());
+    introHeading.textContent = currentView.getTranslation(currentView.syncHeadingText());
 
     console.log(`Show: ${name}`);
-    let template = currentView.show(data);
+    let template = currentView.syncShow(data);
     if (template && template instanceof Template) {
       footer.addEventListener("click", currentView);
       content.addEventListener("click", currentView);
       content.addEventListener("submit", currentView);
-      template.renderTo(content);
-      currentView.postShow(data, content);
+      template.syncRenderTo(content);
+      currentView.syncPostShow(data, content);
     }
-    let footerTemplate = currentView.footer(data);
+    let footerTemplate = currentView.syncFooter(data);
     if (footerTemplate && footerTemplate instanceof Template) {
-      footerTemplate.renderTo(footer);
+      footerTemplate.syncRenderTo(footer);
       footer.toggleAttribute("hidden", false);
     }
+
+    // eslint-disable-next-line verify-await/check
     document.body.classList.remove("loading");
   }
 
@@ -101,7 +102,7 @@ export class View {
   }
 
   // To be overwritten with a string for the header
-  headingText() { return "introHeading"; }
+  syncHeadingText() { return "introHeading"; }
 
   // To be overwritten to return an escaped template if the panel should have one
   state() { return null; }
@@ -115,7 +116,7 @@ export class View {
   }
 
   // This method stores a view in the view map.
-  static registerView(view, name) {
+  static syncRegisterView(view, name) {
     console.log("Register view: " + name);
     // eslint-disable-next-line verify-await/check
     views.set(name, view);
@@ -131,19 +132,16 @@ export class View {
   // Override if you want to handle events
   handleEvent() {}
 
-  // To be overwritten if needed.
-  dismiss() {}
-
   // This must be overwritten by views.
-  show() {
-    console.error("Each view should implement show() method!");
+  syncShow() {
+    console.error("Each view should implement syncShow() method!");
   }
 
   // To be overwritten if needed.
-  footer() {}
+  syncFooter() {}
 
   // To be overwritten if needed.
-  postShow() {}
+  syncPostShow() {}
 
   // To be overwritten if needed.
   toggleButtonClicked(e) {}
