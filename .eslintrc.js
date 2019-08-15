@@ -50,7 +50,6 @@ module.exports = {
         ["ChromeUtils", "import"],
         ["e", "preventDefault"],
         ["View", "close"],
-        ["ContentScript", "shouldOverload"],
       ],
       "syncFunctions": [
         "getStringPrefValue",
@@ -90,10 +89,7 @@ module.exports = {
         "inactiveSteps",
         "increaseConnectionIsolation",
         "potentiallyEscape",
-        "potentiallyShowContextBanner",
-        "insertBannerOnDocumentLoad",
         "setOfflineAndStartRecoveringTimer",
-        "overwriteProperties",
         "getTranslation",
       ],
     }],
