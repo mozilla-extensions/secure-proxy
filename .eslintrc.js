@@ -11,6 +11,7 @@ module.exports = {
   globals: {
     Component: false,
     Connectivity: false,
+    Template: false,
     escapedTemplate: false,
     debuggingMode: true,
     fxaCryptoRelier: false,
@@ -33,6 +34,7 @@ module.exports = {
     Template: false,
     UI: false
   },
+  parser: "babel-eslint",
   parserOptions: {
     ecmaVersion: 2018,
     sourceType: "module"

@@ -50,10 +50,10 @@
   },
 
   "popupLearnMore": {
-    "message": "Learn More"
+    "message": "Learn more"
   },
   "popupPoweredBy": {
-    "message": "Powered by Cloudflare®."
+    "message": "Powered by Cloudflare®"
   },
   "popupToggleButton": {
     "message": "Firefox Private Network"
@@ -112,7 +112,7 @@
     "message": "Firefox Account"
   },
   "viewSettings-giveUsFeedbackLink": {
-    "message": "Give us feedback"
+    "message": "Leave feedback"
   },
   "viewSettings-helpAndSupportLink": {
     "message": "Help & Support"
@@ -121,7 +121,7 @@
     "message": "Manage Account"
   },
   "viewSettings-manageAccountLink": {
-    "message": "Manage your Account"
+    "message": "Manage Account"
   },
   "viewSettings-privacyPolicyLink": {
     "message": "Privacy Policy"
