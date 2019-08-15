@@ -62,7 +62,7 @@
         "background/network.js",
         "background/survey.js",
         "background/ui.js",
-        "background/background.js"
+        "background/main.js"
       ]
   },
 

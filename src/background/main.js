@@ -1,7 +1,7 @@
 // If run() fails, it will be retriggered after this timeout (in milliseconds)
 const RUN_TIMEOUT = 5000; // 5 secs
 
-class Background {
+class Main {
   constructor() {
     log("constructor");
 
@@ -301,5 +301,5 @@ class Background {
   }
 }
 
-let background = new Background();
-background.init();
+let main = new Main();
+main.init();
