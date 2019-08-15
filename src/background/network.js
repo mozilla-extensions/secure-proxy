@@ -213,7 +213,7 @@ class Network extends Component {
     return true;
   }
 
-  afterConnectionSteps() {
+  syncAfterConnectionSteps() {
     // We need to exclude FxA endpoints in order to avoid a deadlock:
     // 1. a new request is processed, but the tokens are invalid. We start the
     //    generation of a new token.

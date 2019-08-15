@@ -133,7 +133,7 @@ class Main {
       await StorageUtils.setProxyState(PROXY_STATE_ACTIVE);
       this.setProxyState(PROXY_STATE_ACTIVE);
 
-      this.net.afterConnectionSteps();
+      this.net.syncAfterConnectionSteps();
       await this.ui.afterConnectionSteps();
     } catch (e) {
       this.setOfflineAndStartRecoveringTimer();
