@@ -1,6 +1,5 @@
 import {Component} from "./component.js";
 
-/* eslint-disable-next-line no-unused-vars */
 export class Connectivity extends Component {
   constructor(receiver) {
     super(receiver);

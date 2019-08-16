@@ -15,7 +15,6 @@ const FXA_EXP_TOKEN_TIME = 21600; // 6 hours
 // How early we want to re-generate the tokens (in secs)
 const EXPIRE_DELTA = 3600;
 
-/* eslint-disable-next-line no-unused-vars */
 export class FxAUtils extends Component {
   constructor(receiver) {
     super(receiver);

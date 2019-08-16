@@ -1,4 +1,5 @@
 import {Component} from "./component.js";
+import {StorageUtils} from "./storage.js";
 
 // These URLs must be formatted
 const LEARN_MORE_URL = "https://support.mozilla.org/1/firefox/%VERSION%/%OS%/%LOCALE%/cloudflare";
@@ -8,7 +9,6 @@ const HELP_AND_SUPPORT_URL = "https://support.mozilla.org/1/firefox/%VERSION%/%O
 const PRIVACY_POLICY_URL = "https://www.mozilla.org/privacy/firefox-private-network";
 const TERMS_AND_CONDITIONS_URL = "https://www.mozilla.org/about/legal/terms/firefox-private-network";
 
-/* eslint-disable-next-line no-unused-vars */
 export class UI extends Component {
   constructor(receiver) {
     super(receiver);

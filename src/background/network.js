@@ -8,7 +8,6 @@ const CONNECTING_HTTP_REQUEST = "http://test.factor11.cloudflareclient.com/";
 const DOH_MODE = 3;
 const DOH_BOOTSTRAP_ADDRESS = "1.1.1.1";
 
-/* eslint-disable-next-line no-unused-vars */
 export class Network extends Component {
   constructor(receiver) {
     super(receiver);
