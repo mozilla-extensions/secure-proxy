@@ -1,3 +1,7 @@
+import {Component} from "./component.js";
+import {StorageUtils} from "./storage.js";
+import {WellKnownData} from "./wellKnownData.js";
+
 // Token scopes
 const FXA_PROFILE_SCOPE = "profile";
 const FXA_PROXY_SCOPE = "https://identity.mozilla.com/apps/secure-proxy";
@@ -12,7 +16,7 @@ const FXA_EXP_TOKEN_TIME = 21600; // 6 hours
 const EXPIRE_DELTA = 3600;
 
 /* eslint-disable-next-line no-unused-vars */
-class FxAUtils extends Component {
+export class FxAUtils extends Component {
   constructor(receiver) {
     super(receiver);
 

@@ -1,5 +1,5 @@
 /* eslint-disable-next-line no-unused-vars */
-class Component {
+export class Component {
   constructor(receiver) {
     this.receiver = receiver;
     this.cachedProxyState = PROXY_STATE_LOADING;

@@ -1,5 +1,5 @@
 /* eslint-disable-next-line no-unused-vars */
-const StorageUtils = {
+export const StorageUtils = {
   async getProxyState() {
     return this.getStorageKey("proxyState");
   },

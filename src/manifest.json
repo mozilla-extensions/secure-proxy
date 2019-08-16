@@ -53,19 +53,7 @@
   "web_accessible_resources": ["fonts/*.woff2"],
 
   "background": {
-      "scripts": [
-        "vendor/fxa-crypto-relier.js",
-        "commons/utils.js",
-        "background/component.js",
-        "background/connectivity.js",
-        "background/fxa.js",
-        "background/network.js",
-        "background/storage.js",
-        "background/survey.js",
-        "background/ui.js",
-        "background/wellKnownData.js",
-        "background/main.js"
-      ]
+    "page": "background/page.html"
   },
 
   "content_scripts": [
