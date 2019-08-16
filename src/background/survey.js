@@ -19,7 +19,6 @@ const SURVEYS = [
 
 // This class controls the survey URLs and when they have to be shown.
 
-// eslint-disable-next-line
 export class Survey extends Component {
   constructor(receiver) {
     super(receiver);

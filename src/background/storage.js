@@ -1,4 +1,3 @@
-/* eslint-disable-next-line no-unused-vars */
 export const StorageUtils = {
   async getProxyState() {
     return this.getStorageKey("proxyState");

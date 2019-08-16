@@ -1,4 +1,3 @@
-/* eslint-disable-next-line no-unused-vars */
 export class Component {
   constructor(receiver) {
     this.receiver = receiver;
