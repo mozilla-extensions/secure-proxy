@@ -30,7 +30,7 @@ export class Network extends Component {
     }
 
     // Proxy configuration
-    browser.proxy.onRequest.addListener(async requestInfo => {
+    browser.proxy.onRequest.addListener(requestInfo => {
       return this.proxyRequestCallback(requestInfo);
     }, {urls: ["<all_urls>"]});
 

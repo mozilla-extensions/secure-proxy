@@ -31,14 +31,16 @@ export class UI extends Component {
       // eslint-disable-next-line verify-await/check
       this.setTabIcon(tabId);
     });
-    browser.tabs.onActivated.addListener(async (info) => {
+    browser.tabs.onActivated.addListener((info) => {
       if (this.syncIsTabExempt(info.tabId)) {
-        await this.showStatusPrompt();
+        // Is async but doesn't have side effects
+        // eslint-disable-next-line verify-await/check
+        this.showStatusPrompt();
       }
     });
 
     // eslint-disable-next-line consistent-return
-    browser.runtime.onMessage.addListener(async (message, sender) => {
+    browser.runtime.onMessage.addListener((message, sender) => {
       if (message.type === "getBaseDomainFromHost") {
         return browser.experiments.proxyutils.getBaseDomainFromHost(message.hostname);
       }
