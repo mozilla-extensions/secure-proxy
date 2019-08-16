@@ -16,7 +16,7 @@ const ContentScript = {
     this.syncOverwriteProperties();
   },
 
-  async originIsExemptable() {
+  async originIsExemptable(hostname) {
     return [
       "hangouts.google.com",
       "meet.google.com",
@@ -25,7 +25,7 @@ const ContentScript = {
       "jitsi.org",
       "talky.io",
       "webex.com",
-    ].includes((await prettyHostname(window.location.hostname)));
+    ].includes((await prettyHostname(hostname)));
   },
 
   syncCreatePort() {
@@ -39,7 +39,7 @@ const ContentScript = {
         // Check if we are a site that we show a banner for
         if (this.proxyEnabled &&
             this.bannerShowing === false &&
-            await this.originIsExemptable() &&
+            await this.originIsExemptable(window.location.hostname) &&
             this.exempted === undefined) {
           this.bannerShowing = true;
           new ContentScriptBanner();
