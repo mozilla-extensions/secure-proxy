@@ -271,10 +271,13 @@ class UI extends Component {
     }
   }
 
-  async update() {
+  async update(showToast = true) {
+    if (showToast) {
+      await this.showStatusPrompt();
+    }
+
     await Promise.all([
       this.updateIcon(),
-      this.showStatusPrompt(),
       this.sendDataToCurrentPort(),
     ]);
   }

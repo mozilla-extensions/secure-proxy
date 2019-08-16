@@ -43,7 +43,7 @@ class Main {
     let proxyState = await StorageUtils.getProxyState();
     if (proxyState === PROXY_STATE_ACTIVE) {
       this.setProxyState(PROXY_STATE_ACTIVE);
-      await this.ui.update();
+      await this.ui.update(false /* no toast here */);
       return;
     }
 
@@ -61,7 +61,10 @@ class Main {
     await this.computeProxyState();
 
     // UI
-    await this.ui.update();
+    const showToast =
+       this.proxyState !== PROXY_STATE_ACTIVE &&
+       this.proxyState !== PROXY_STATE_INACTIVE;
+    await this.ui.update(showToast);
   }
 
   setProxyState(proxyState) {
