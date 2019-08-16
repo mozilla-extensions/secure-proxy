@@ -157,10 +157,12 @@ export class UI extends Component {
   }
 
   syncContentScriptNotify(p) {
-    const exempted = this.syncGetExemptTabStatus(p.sender.tab.id);
-    // Post message explicitly is fire and forget
-    // eslint-disable-next-line verify-await/check
-    p.postMessage({type: "proxyState", enabled: this.cachedProxyState === PROXY_STATE_ACTIVE, exempted});
+    try {
+      const exempted = this.syncGetExemptTabStatus(p.sender.tab.id);
+      // Post message explicitly is fire and forget
+      // eslint-disable-next-line verify-await/check
+      p.postMessage({type: "proxyState", enabled: this.cachedProxyState === PROXY_STATE_ACTIVE, exempted});
+    } catch (e) {}
   }
 
   async panelConnected(port) {

@@ -76,7 +76,7 @@ export class Network extends Component {
     }, {urls: ["<all_urls>"]});
   }
 
-  tokenGenerated(tokenType, tokenValue) {
+  syncTokenGenerated(tokenType, tokenValue) {
     this.proxyAuthorizationHeader = tokenType + " " + tokenValue;
   }
 

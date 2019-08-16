@@ -31,7 +31,7 @@ class Main {
 
   async init() {
     const prefs = await browser.experiments.proxyutils.settings.get({});
-    debuggingMode = true || prefs.value.debuggingEnabled;
+    debuggingMode = prefs.value.debuggingEnabled;
 
     log("init");
 
@@ -94,12 +94,6 @@ class Main {
   // Set this.proxyState based on the current settings.
   async computeProxyState() {
     log("computing status - currently: " + this.proxyState);
-
-    // This method will schedule the token generation, if needed.
-    if (this.tokenGenerationTimeout) {
-      clearTimeout(this.tokenGenerationTimeout);
-      this.tokenGenerationTimeout = 0;
-    }
 
     // We want to keep these states.
     let currentState = this.proxyState;
@@ -181,12 +175,7 @@ class Main {
     try {
       await this.fxa.authenticate();
       log("Authentication completed");
-
-      // We are in an inactive state at this point.
-      this.setProxyState(PROXY_STATE_INACTIVE);
-
-      // Let's enable the proxy.
-      return this.enableProxy(true);
+      return true;
     } catch (error) {
       log(`Authentication failed: ${error.message}`);
       return this.authFailure();
@@ -267,6 +256,26 @@ class Main {
     this.fxa.prefetchWellKnownData();
   }
 
+  async tokenGenerated(tokenType, tokenValue) {
+    // If the proxy is off, we should not go back online.
+    if (this.proxyState === PROXY_STATE_INACTIVE) {
+      return;
+    }
+
+    // Let's inform the network component.
+    this.net.syncTokenGenerated(tokenType, tokenValue);
+
+    // We want to update the UI only if we were not already active, because, if
+    // we are here, in ACTIVE state, it's because we just rotating the tokens.
+    if (this.proxyState !== PROXY_STATE_ACTIVE) {
+      // We are in an inactive state at this point.
+      this.setProxyState(PROXY_STATE_INACTIVE);
+
+      // Let's enable the proxy.
+      await this.enableProxy(true);
+    }
+  }
+
   // Provides an async response in most cases
   async handleEvent(type, data) {
     log(`handling event ${type}`);
@@ -291,6 +300,7 @@ class Main {
 
     if (this.pendingEvents.length) {
       log(`Processing the first of ${this.pendingEvents.length} events`);
+      // eslint-disable-next-line verify-await/check
       setTimeout(_ => { this.pendingEvents.shift()(); }, 0);
     }
 
@@ -323,6 +333,9 @@ class Main {
       case "proxySettingsChanged":
         return this.proxySettingsChanged();
 
+      case "tokenGenerated":
+        return this.tokenGenerated(data.tokenType, data.tokenValue);
+
       default:
         console.error("Invalid event: " + type);
         throw new Error("Invalid event: " + type);
@@ -342,9 +355,6 @@ class Main {
 
       case "excludedDomains":
         return this.fxa.excludedDomains();
-
-      case "tokenGenerated":
-        return this.net.tokenGenerated(data.tokenType, data.tokenValue);
 
       default:
         console.error("Invalid event: " + type);

@@ -52,7 +52,8 @@ export class FxAUtils extends Component {
     // in order to regenerate them.
     await StorageUtils.setAllTokenData(refreshTokenData, null, null, null);
 
-    // Let's obtain the proxy token data
+    // Let's obtain the proxy token data. This method will dispatch a
+    // "tokenGenerated" event.
     if (!await this.maybeGenerateTokens()) {
       throw new Error("Token generation failed");
     }
@@ -63,9 +64,7 @@ export class FxAUtils extends Component {
 
     if (this.generatingTokens) {
       log("token generation in progress. Let's wait.");
-      return new Promise(resolve => {
-        return this.postTokenGenerationOps.add(resolve);
-      });
+      return new Promise(resolve => this.postTokenGenerationOps.add(resolve));
     }
 
     this.generatingTokens = true;
@@ -120,7 +119,7 @@ export class FxAUtils extends Component {
     let minDiff = Math.min(proxyTokenData.minDiff, profileTokenData.minDiff);
 
     // Let's schedule the token rotation.
-    this.tokenGenerationTimeout = setTimeout(async _ => {
+    setTimeout(async _ => {
       if (!await this.maybeGenerateTokens()) {
         log("token generation failed");
         await this.sendMessage("authenticationFailed");
@@ -130,10 +129,17 @@ export class FxAUtils extends Component {
     this.nextExpireTime = Math.min(proxyTokenData.tokenData.received_at + proxyTokenData.tokenData.expires_in,
                                    profileTokenData.tokenData.received_at + profileTokenData.tokenData.expires_in);
 
-    this.syncSendMessage("tokenGenerated", {
-      tokenType: proxyTokenData.tokenData.token_type,
-      tokenValue: proxyTokenData.tokenData.access_token,
-    });
+    if (proxyTokenData.tokenGenerated) {
+      // We cannot wait for this message because otherwise we create a bad
+      // deadlock between the authentication process and the token generation
+      // event.
+
+      // eslint-disable-next-line verify-await/check
+      this.sendMessage("tokenGenerated", {
+        tokenType: proxyTokenData.tokenData.token_type,
+        tokenValue: proxyTokenData.tokenData.access_token,
+      });
+    }
 
     return true;
   }
