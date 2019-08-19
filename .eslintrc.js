@@ -11,6 +11,9 @@ module.exports = {
   globals: {
     escapedTemplate: false,
     debuggingMode: true,
+    FXA_ERR_AUTH: false,
+    FXA_ERR_NETWORK: false,
+    FXA_OK: false,
     fxaCryptoRelier: false,
     log: false,
     PROXY_STATE_ACTIVE: false,

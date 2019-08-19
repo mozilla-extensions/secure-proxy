@@ -53,7 +53,8 @@ export class FxAUtils extends Component {
 
     // Let's obtain the proxy token data. This method will dispatch a
     // "tokenGenerated" event.
-    if (!await this.maybeGenerateTokens()) {
+    const result = await this.maybeGenerateTokens();
+    if (this.syncStateError(result)) {
       throw new Error("Token generation failed");
     }
   }
@@ -82,15 +83,15 @@ export class FxAUtils extends Component {
   async maybeGenerateTokensInternal() {
     let refreshTokenData = await StorageUtils.getRefreshTokenData();
     if (!refreshTokenData) {
-      return false;
+      return { state: FXA_ERR_AUTH };
     }
 
     let proxyTokenData = await this.maybeGenerateSingleToken("proxyTokenData",
                                                              refreshTokenData,
                                                              FXA_PROXY_SCOPE,
                                                              this.proxyURL.href);
-    if (proxyTokenData === false) {
-      return false;
+    if (this.syncStateError(proxyTokenData)) {
+      return proxyTokenData;
     }
 
     const profileEndpoint = await this.wellKnownData.getProfileEndpoint();
@@ -99,48 +100,55 @@ export class FxAUtils extends Component {
                                                                refreshTokenData,
                                                                FXA_PROFILE_SCOPE,
                                                                profileEndpoint);
-    if (profileTokenData === false) {
-      return false;
+    if (this.syncStateError(profileTokenData)) {
+      return profileTokenData;
     }
 
     let profileData = await StorageUtils.getProfileData();
     // Let's obtain the profile data for the user.
-    if (!profileData || profileTokenData.tokenGenerated) {
-      profileData = await this.generateProfileData(profileTokenData.tokenData);
-      if (!profileData) {
-        return false;
+    if (!profileData || profileTokenData.value.tokenGenerated) {
+      const data = await this.generateProfileData(profileTokenData.value.tokenData);
+      if (this.syncStateError(data)) {
+        return data;
       }
+
+      profileData = data.value;
     }
 
-    await StorageUtils.setDynamicTokenData(proxyTokenData.tokenData, profileTokenData.tokenData, profileData);
+    await StorageUtils.setDynamicTokenData(proxyTokenData.value.tokenData,
+                                           profileTokenData.value.tokenData,
+                                           profileData);
 
     // Let's pick the min time diff.
-    let minDiff = Math.min(proxyTokenData.minDiff, profileTokenData.minDiff);
+    let minDiff = Math.min(proxyTokenData.value.minDiff,
+                           profileTokenData.value.minDiff);
 
     // Let's schedule the token rotation.
     setTimeout(async _ => {
-      if (!await this.maybeGenerateTokens()) {
+      const result = await this.maybeGenerateTokens();
+      if (this.syncStateError(result)) {
         log("token generation failed");
-        await this.sendMessage("authenticationFailed");
+        await this.sendMessage("authenticationFailed", result.state);
       }
     }, minDiff * 1000);
 
-    this.nextExpireTime = Math.min(proxyTokenData.tokenData.received_at + proxyTokenData.tokenData.expires_in,
-                                   profileTokenData.tokenData.received_at + profileTokenData.tokenData.expires_in);
+    this.nextExpireTime = Math.min(proxyTokenData.value.tokenData.received_at + proxyTokenData.value.tokenData.expires_in,
+                                   profileTokenData.value.tokenData.received_at + profileTokenData.value.tokenData.expires_in);
 
-    if (proxyTokenData.tokenGenerated) {
+    if (proxyTokenData.value.tokenGenerated) {
       // We cannot wait for this message because otherwise we create a bad
       // deadlock between the authentication process and the token generation
       // event.
 
       // eslint-disable-next-line verify-await/check
       this.sendMessage("tokenGenerated", {
-        tokenType: proxyTokenData.tokenData.token_type,
-        tokenValue: proxyTokenData.tokenData.access_token,
+        tokenType: proxyTokenData.value.tokenData.token_type,
+        tokenValue: proxyTokenData.value.tokenData.access_token,
       });
     }
 
-    return true;
+    // All good!
+    return { state: FXA_OK };
   }
 
   async maybeGenerateSingleToken(tokenName, refreshTokenData, scope, resource) {
@@ -168,10 +176,12 @@ export class FxAUtils extends Component {
 
     if (!tokenData) {
       log("generating token");
-      tokenData = await this.generateToken(refreshTokenData, scope, resource);
-      if (!tokenData) {
-        return false;
+      const data = await this.generateToken(refreshTokenData, scope, resource);
+      if (this.syncStateError(data)) {
+        return data;
       }
+
+      tokenData = data.token;
 
       minDiff = tokenData.received_at + tokenData.expires_in - nowInSecs - EXPIRE_DELTA;
       log(`token expires in ${minDiff}`);
@@ -179,10 +189,23 @@ export class FxAUtils extends Component {
     }
 
     return {
-      minDiff,
-      tokenData,
-      tokenGenerated,
+      state: FXA_OK,
+      value: {
+        minDiff,
+        tokenData,
+        tokenGenerated,
+      }
     };
+  }
+
+  syncStateError(data) {
+    if (!data || !data.state) {
+      // eslint-disable-next-line verify-await/check
+      console.trace();
+      throw new Error("Internal error!");
+    }
+
+    return data.state !== FXA_OK;
   }
 
   async generateProfileData(profileTokenData) {
@@ -202,13 +225,14 @@ export class FxAUtils extends Component {
       const resp = await fetch(request);
       if (resp.status !== 200) {
         log("profile data generation failed: " + resp.status);
-        return null;
+        return { state: FXA_ERR_AUTH };
       }
 
-      return resp.json();
+      const value = await resp.json();
+      return { state: FXA_OK, value };
     } catch (e) {
       console.error("Failed to fetch profile data", e);
-      return null;
+      return { state: FXA_ERR_NETWORK };
     }
   }
 
@@ -265,25 +289,26 @@ export class FxAUtils extends Component {
       const resp = await fetch(request);
       if (resp.status !== 200) {
         log("token generation failed: " + resp.status);
-        return null;
+        return { state: FXA_ERR_AUTH };
       }
 
       token = await resp.json();
     } catch (e) {
       console.error("Failed to fetch the token with scope: " + scope, e);
-      return null;
+      return { state: FXA_ERR_NETWORK };
     }
 
     // Let's store when this token has been received.
     token.received_at = Math.round((performance.timeOrigin + performance.now()) / 1000);
 
-    return token;
+    return { state: FXA_OK, token };
   }
 
   waitForTokenGeneration() {
     let nowInSecs = Math.round((performance.timeOrigin + performance.now()) / 1000);
     if (this.generatingTokens ||
-        (this.nextExpireTime && nowInSecs >= this.nextExpireTime)) {
+        !this.nextExpireTime ||
+        nowInSecs >= this.nextExpireTime) {
       log("Suspend detected!");
       return this.maybeGenerateTokens();
     }

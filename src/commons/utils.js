@@ -33,6 +33,15 @@ const PROXY_STATE_PROXYAUTHFAILED = "proxyAuthFailed";
 // Authentication failed
 const PROXY_STATE_AUTHFAILURE = "authFailure";
 
+// FXA network error code.
+const FXA_ERR_NETWORK = "networkError";
+
+// FXA authentication failed error code.
+const FXA_ERR_AUTH = "authFailed";
+
+// FXA all good!
+const FXA_OK = "ok";
+
 // Enable debugging
 let debuggingMode = false;
 function log(msg, ...rest) {

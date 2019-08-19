@@ -114,12 +114,15 @@ class Main {
       let proxyState = await StorageUtils.getProxyState();
       if (proxyState === PROXY_STATE_INACTIVE) {
         this.setProxyState(PROXY_STATE_INACTIVE);
-      } else if ((await this.fxa.maybeGenerateTokens())) {
-        this.setProxyState(PROXY_STATE_CONNECTING);
+      } else {
+        let data = await this.fxa.maybeGenerateTokens();
+        if (data.state === FXA_OK) {
+          this.setProxyState(PROXY_STATE_CONNECTING);
 
-        // Note that we are not waiting for this function. The code moves on.
-        // eslint-disable-next-line verify-await/check
-        this.testProxyConnection();
+          // Note that we are not waiting for this function. The code moves on.
+          // eslint-disable-next-line verify-await/check
+          this.testProxyConnection();
+        }
       }
     }
 
@@ -178,14 +181,37 @@ class Main {
       return true;
     } catch (error) {
       log(`Authentication failed: ${error.message}`);
-      return this.authFailure();
+      // This can be a different error type, but we don't care. We need to
+      // report authentication error because there was user interaction.
+      return this.authFailure(FXA_ERR_AUTH);
     }
   }
 
-  async authFailure() {
-    this.setProxyState(PROXY_STATE_AUTHFAILURE);
-    await StorageUtils.setProxyState(this.proxyState);
-    await StorageUtils.resetAllTokenData();
+  async authFailure(data) {
+    switch (data) {
+      case FXA_ERR_AUTH:
+        log("authentication failed");
+        this.setProxyState(PROXY_STATE_AUTHFAILURE);
+        await StorageUtils.setProxyState(this.proxyState);
+        await StorageUtils.resetAllTokenData();
+        break;
+
+      case FXA_ERR_NETWORK:
+        // This is interesting. We are not able to fetch new tokens because
+        // the network is probably down. There is not much we can do:
+        // - we don't want to show a toast because it would be confusing for
+        //   the user.
+        // - we don't want to change the proxy state because maybe we will be
+        //   able to generate new tokens during the processing of the next
+        //   request.
+        // So, the current strategy is to ignore this authFailure and wait
+        // until the network component complains...
+        log("authentication failed by network - ignore");
+        break;
+
+      default:
+        throw new Error("Invalid FXA error code!", data);
+    }
   }
 
   async onConnectivityChanged(connectivity) {
@@ -310,7 +336,7 @@ class Main {
   async handleEventInternal(type, data) {
     switch (type) {
       case "authenticationFailed":
-        return this.authFailure();
+        return this.authFailure(data);
 
       case "authenticationRequired":
         return this.auth();
