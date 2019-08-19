@@ -26,6 +26,13 @@ export class FxAUtils extends Component {
     this.generatingTokens = false;
 
     this.nextExpireTime = 0;
+
+    // The cached token will be populated as soon as the token is retrieved
+    // from the storage or generated.
+    this.cachedProxyTokenValue = {
+      tokenType: "bearer",
+      tokenValue: "invalid-token",
+    }
   }
 
   async init(prefs) {
@@ -135,16 +142,17 @@ export class FxAUtils extends Component {
     this.nextExpireTime = Math.min(proxyTokenData.value.tokenData.received_at + proxyTokenData.value.tokenData.expires_in,
                                    profileTokenData.value.tokenData.received_at + profileTokenData.value.tokenData.expires_in);
 
+    // Let's update the proxy token cache with the new values.
+    this.cachedProxyTokenValue.tokenType = proxyTokenData.value.tokenData.token_type;
+    this.cachedProxyTokenValue.tokenValue = proxyTokenData.value.tokenData.access_token;
+
     if (proxyTokenData.value.tokenGenerated) {
       // We cannot wait for this message because otherwise we create a bad
       // deadlock between the authentication process and the token generation
       // event.
 
       // eslint-disable-next-line verify-await/check
-      this.sendMessage("tokenGenerated", {
-        tokenType: proxyTokenData.value.tokenData.token_type,
-        tokenValue: proxyTokenData.value.tokenData.access_token,
-      });
+      this.sendMessage("tokenGenerated", this.cachedProxyTokenValue);
     }
 
     // All good!
@@ -304,16 +312,20 @@ export class FxAUtils extends Component {
     return { state: FXA_OK, token };
   }
 
-  waitForTokenGeneration() {
+  // This method returns a token or a Promise.
+  askForProxyToken() {
     let nowInSecs = Math.round((performance.timeOrigin + performance.now()) / 1000);
     if (this.generatingTokens ||
         !this.nextExpireTime ||
         nowInSecs >= this.nextExpireTime) {
-      log("Suspend detected!");
-      return this.maybeGenerateTokens();
+      return new Promise(async resolve => {
+        // We don't care about the cached
+        await this.maybeGenerateTokens();
+        resolve(this.cachedProxyTokenValue);
+      });
     }
 
-    return null;
+    return this.cachedProxyTokenValue;
   }
 
   isAuthUrl(origin) {

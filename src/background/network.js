@@ -75,10 +75,6 @@ export class Network extends Component {
     }, {urls: ["<all_urls>"]});
   }
 
-  syncTokenGenerated(tokenType, tokenValue) {
-    this.proxyAuthorizationHeader = tokenType + " " + tokenValue;
-  }
-
   async proxyRequestCallback(requestInfo) {
     // eslint-disable-next-line verify-await/check
     let shouldProxyRequest = this.shouldProxyRequest(requestInfo);
@@ -91,18 +87,25 @@ export class Network extends Component {
       return {type: "direct"};
     }
 
-    // Let's see if we have to wait for token generation.
-    let wftg = this.syncSendMessage("waitForTokenGeneration");
-    if (wftg !== null) {
-      await wftg;
+    // The token is "owned" by the FxA component. Let's ask for it. We can
+    // obtain the token or a Promise which will be resolved with the token,
+    // eventually.
+    let token = this.syncSendMessage("askForProxyToken");
+    if (token instanceof Promise) {
+      token = await token;
+    }
+
+    let proxyAuthorizationHeader = "";
+    if (token) {
+      proxyAuthorizationHeader = token.tokenType + " " + token.tokenValue;
     }
 
     return [{
       type: this.proxyType,
       host: this.proxyHost,
       port: this.proxyPort,
-      proxyAuthorizationHeader: this.proxyAuthorizationHeader,
-      connectionIsolationKey: this.proxyAuthorizationHeader + additionalConnectionIsolation + this.connectionId,
+      proxyAuthorizationHeader,
+      connectionIsolationKey: proxyAuthorizationHeader + additionalConnectionIsolation + this.connectionId,
     }];
   }
 
