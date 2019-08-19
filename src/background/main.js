@@ -42,6 +42,12 @@ class Main {
 
     // All good. Let's start.
     await this.firstRun();
+
+    // Let's start the testing, if we have to.
+    if (prefs.value.testingEnabled) {
+      let {Tester} = await import("./tester.js");
+      Tester.run(this);
+    }
   }
 
   async firstRun() {

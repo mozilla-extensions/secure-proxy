@@ -321,6 +321,7 @@ this.proxyutils = class extends ExtensionAPI {
                   captiveDetect: getStringPrefValue("captivedetect.canonicalURL"),
                   fxaURL: env.get("SECURE_PROXY_FXAURL"),
                   proxyURL: env.get("SECURE_PROXY_PROXYURL"),
+                  testingEnabled: (env.get("SECURE_PROXY_TESTING") === "1"),
                 };
               },
               undefined,
