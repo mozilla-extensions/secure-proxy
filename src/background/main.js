@@ -288,9 +288,6 @@ class Main {
       return;
     }
 
-    // Let's inform the network component.
-    this.net.syncTokenGenerated(tokenType, tokenValue);
-
     // We want to update the UI only if we were not already active, because, if
     // we are here, in ACTIVE state, it's because we just rotating the tokens.
     if (this.proxyState !== PROXY_STATE_ACTIVE) {
@@ -376,8 +373,8 @@ class Main {
       case "panelShown":
         return this.syncPanelShown();
 
-      case "waitForTokenGeneration":
-        return this.fxa.waitForTokenGeneration();
+      case "askForProxyToken":
+        return this.fxa.askForProxyToken();
 
       case "excludedDomains":
         return this.fxa.excludedDomains();
