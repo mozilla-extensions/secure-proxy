@@ -314,11 +314,13 @@ this.proxyutils = class extends ExtensionAPI {
               context.extension.id,
               "proxyutils.settings",
               () => {
+                const env = Cc["@mozilla.org/process/environment;1"].getService(Ci.nsIEnvironment);
+
                 return {
-                  debuggingEnabled: false,
+                  debuggingEnabled: (env.get("SECURE_PROXY_DEBUG") === "1"),
                   captiveDetect: getStringPrefValue("captivedetect.canonicalURL"),
-                  fxaURL: null,
-                  proxyURL: null,
+                  fxaURL: env.get("SECURE_PROXY_FXAURL"),
+                  proxyURL: env.get("SECURE_PROXY_PROXYURL"),
                 };
               },
               undefined,
