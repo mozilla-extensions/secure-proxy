@@ -273,28 +273,45 @@ export class Network extends Component {
 
   testProxyConnection() {
     this.connectionTester = new ConnectionTester();
-    return this.connectionTester.run();
+    return this.connectionTester.run(this);
   }
 }
 
 class ConnectionTester {
-  run() {
-    browser.webRequest.onHeadersReceived.addListener(details => {
-      if (details.statusCode === 200) {
-        // eslint-disable-next-line verify-await/check
-        this.resolveCb();
-      }
-    }, {urls: [CONNECTING_HTTP_REQUEST]}, ["responseHeaders", "blocking"]);
-
+  run(parent) {
     return new Promise((resolve, reject) => {
       log("executing a fetch to check the connection");
+
+      function cleanup() {
+        // eslint-disable-next-line verify-await/check
+        browser.webRequest.onHeadersReceived.removeListener(headersReceivedCb);
+        parent.connectionTester = null;
+      }
+
+      function headersReceivedCb(details) {
+        if (details.statusCode === 200) {
+          // eslint-disable-next-line verify-await/check
+          cleanup();
+          // eslint-disable-next-line verify-await/check
+          resolve();
+        }
+      }
+
+      browser.webRequest.onHeadersReceived.addListener(
+        headersReceivedCb,
+        {urls: [CONNECTING_HTTP_REQUEST]},
+        ["responseHeaders", "blocking"]);
 
       // We don't care about the result of this fetch.
       // eslint-disable-next-line verify-await/check
       fetch(CONNECTING_HTTP_REQUEST, { cache: "no-cache"}).catch(_ => {});
 
-      this.resolveCb = resolve;
-      this.rejectCb = reject;
+      this.rejectCb = _ => {
+        // eslint-disable-next-line verify-await/check
+        cleanup();
+        // eslint-disable-next-line verify-await/check
+        reject();
+      };
     });
   }
 }
