@@ -230,7 +230,7 @@ class Main {
   }
 
   syncSkipProxy(requestInfo, url) {
-    if (this.ui.isTabExempt(requestInfo.tabId)) {
+    if (this.ui.syncIsTabExempt(requestInfo.tabId)) {
       return true;
     }
 
