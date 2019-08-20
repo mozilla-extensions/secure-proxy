@@ -1,5 +1,6 @@
 /* eslint-disable verify-await/check */
 
+import {ConnectionTester} from "./connection.js";
 import {StorageUtils} from "./storage.js";
 import {Survey} from "./survey.js";
 import {WellKnownData} from "./wellKnownData.js";
@@ -13,6 +14,11 @@ const tests = [
   {
     name: "Survey",
     run: testSurvey,
+    disabled: false,
+  },
+  {
+    name: "ConnectionTester",
+    run: testConnectionTester,
     disabled: false,
   },
   {
@@ -51,7 +57,7 @@ async function testSurvey() {
   let self = await browser.management.getSelf();
   let loadingTest1Promise = new Promise(resolve => {
     browser.webRequest.onBeforeRequest.addListener(function listener(details) {
-      if (details.url == "http://example1.com/false/" + self.version) {
+      if (details.url === "http://example1.com/false/" + self.version) {
         Tester.is(true, true, "Correct URL opened by survey!");
         browser.webRequest.onBeforeRequest.removeListener(listener);
         resolve();
@@ -61,7 +67,7 @@ async function testSurvey() {
 
   let loadingTest2Promise = new Promise(resolve => {
     browser.webRequest.onBeforeRequest.addListener(function listener(details) {
-      if (details.url == "http://example2.com/false/" + self.version) {
+      if (details.url === "http://example2.com/false/" + self.version) {
         Tester.is(true, true, "Correct URL opened by survey!");
         browser.webRequest.onBeforeRequest.removeListener(listener);
         resolve();
@@ -82,6 +88,15 @@ async function testSurvey() {
 
   await loadingTest2Promise;
   Tester.is(await StorageUtils.getLastSurvey(), "test 2", "Test survey has been executed");
+}
+
+async function testConnectionTester() {
+  try {
+    await ConnectionTester.run();
+    Tester.is(false, false, "This should not be resolved!");
+  } catch (e) {
+    Tester.is(true, true, "ConnectionTester rejects the operation if the proxy is down");
+  }
 }
 
 async function testFirstStart(m) {

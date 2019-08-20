@@ -1,3 +1,4 @@
+import {ConnectionTester} from "./connection.js";
 import {Connectivity} from "./connectivity.js";
 import {FxAUtils} from "./fxa.js";
 import {Network} from "./network.js";
@@ -9,7 +10,7 @@ import {UI} from "./ui.js";
 const RUN_TIMEOUT = 5000; // 5 secs
 
 // If set to true, it imports tester.js and it execs the tests.
-const RUN_TESTS = true;
+const RUN_TESTS = false;
 
 class Main {
   constructor() {
@@ -152,7 +153,7 @@ class Main {
 
   async testProxyConnection() {
     try {
-      await this.net.testProxyConnection();
+      await ConnectionTester.run();
 
       await StorageUtils.setProxyState(PROXY_STATE_ACTIVE);
       this.setProxyState(PROXY_STATE_ACTIVE);

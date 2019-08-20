@@ -9,6 +9,7 @@ module.exports = {
     "plugin:mozilla/recommended"
   ],
   globals: {
+    CONNECTING_HTTP_REQUEST: false,
     escapedTemplate: false,
     debuggingMode: true,
     FXA_ERR_AUTH: false,
