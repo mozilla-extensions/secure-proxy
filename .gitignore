@@ -3,3 +3,4 @@
 src/vendor/*
 node_modules/*
 dist/*
+management-src/web-ext-artifacts/*

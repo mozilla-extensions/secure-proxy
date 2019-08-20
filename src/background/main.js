@@ -1,5 +1,6 @@
 import {ConnectionTester} from "./connection.js";
 import {Connectivity} from "./connectivity.js";
+import {ExternalHandler} from "./external.js";
 import {FxAUtils} from "./fxa.js";
 import {Network} from "./network.js";
 import {StorageUtils} from "./storage.js";
@@ -19,6 +20,7 @@ class Main {
     this.observers = new Set();
 
     this.connectivity = new Connectivity(this);
+    this.externalHandler = new ExternalHandler(this);
     this.fxa = new FxAUtils(this);
     this.net = new Network(this);
     this.survey = new Survey(this);
@@ -35,8 +37,6 @@ class Main {
 
   async init() {
     const prefs = await browser.experiments.proxyutils.settings.get({});
-    debuggingMode = prefs.value.debuggingEnabled;
-
     log("init");
 
     // Let's initialize the observers.
