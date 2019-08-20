@@ -231,6 +231,12 @@ export class FxAUtils extends Component {
 
     try {
       const resp = await fetch(request);
+      // Let's treat 5xx as a network error.
+      if (resp.status >= 500 && resp.status <= 599) {
+        log("profile data generation failed: " + resp.status);
+        return { state: FXA_ERR_NETWORK };
+      }
+
       if (resp.status !== 200) {
         log("profile data generation failed: " + resp.status);
         return { state: FXA_ERR_AUTH };
@@ -297,6 +303,12 @@ export class FxAUtils extends Component {
     let token;
     try {
       const resp = await fetch(request);
+      // Let's treat 5xx as a network error.
+      if (resp.status >= 500 && resp.status <= 599) {
+        log("token generation failed: " + resp.status);
+        return { state: FXA_ERR_NETWORK };
+      }
+
       if (resp.status !== 200) {
         log("token generation failed: " + resp.status);
         return { state: FXA_ERR_AUTH };
