@@ -55,7 +55,7 @@ export class WellKnownData {
     let json;
     try {
       json = await Promise.race([
-        fetch(this.fxaOpenID).then(r => r.json(), e => {
+        fetch(this.fxaOpenID, {cache: "no-cache"}).then(r => r.json(), e => {
           console.error("Failed to fetch the well-known resource", e);
           return null;
         }),
