@@ -74,6 +74,7 @@ export class View {
 
   static showBack(shouldShow) {
     let backElement = document.getElementById("backButton");
+    backElement.setAttribute("aria-label", currentView.getTranslation("popupBackButtonLabel"));
     backElement.toggleAttribute("hidden", !shouldShow);
   }
 
