@@ -95,36 +95,10 @@ class Main {
   async computeProxyState() {
     log("computing status - currently: " + this.proxyState);
 
-    // We want to keep these states.
     let currentState = this.proxyState;
-    if (currentState !== PROXY_STATE_AUTHFAILURE &&
-        currentState !== PROXY_STATE_PROXYERROR &&
-        currentState !== PROXY_STATE_PROXYAUTHFAILED) {
-      this.setProxyState(PROXY_STATE_UNAUTHENTICATED);
-    }
 
-    // Something else is in use.
-    let otherProxyInUse = await this.hasProxyInUse();
-    if (otherProxyInUse) {
-      this.setProxyState(PROXY_STATE_OTHERINUSE);
-    }
-
-    // All seems good. Let's see if the proxy should enabled.
-    if (this.proxyState === PROXY_STATE_UNAUTHENTICATED) {
-      let proxyState = await StorageUtils.getProxyState();
-      if (proxyState === PROXY_STATE_INACTIVE) {
-        this.setProxyState(PROXY_STATE_INACTIVE);
-      } else {
-        let data = await this.fxa.maybeGenerateTokens();
-        if (data.state === FXA_OK) {
-          this.setProxyState(PROXY_STATE_CONNECTING);
-
-          // Note that we are not waiting for this function. The code moves on.
-          // eslint-disable-next-line verify-await/check
-          this.testProxyConnection();
-        }
-      }
-    }
+    // Let's compute the state.
+    await this.computeProxyStateInternal();
 
     // If we are here we are not active yet. At least we are connecting.
     // Restore default settings.
@@ -134,6 +108,40 @@ class Main {
 
     log("computing status - final: " + this.proxyState);
     return currentState !== this.proxyState;
+  }
+
+  async computeProxyStateInternal() {
+    // If all is disabled, we are inactive.
+    let proxyState = await StorageUtils.getProxyState();
+    if (proxyState === PROXY_STATE_INACTIVE) {
+      this.setProxyState(PROXY_STATE_INACTIVE);
+      return;
+    }
+
+    // Something else is in use.
+    if (await this.hasProxyInUse()) {
+      this.setProxyState(PROXY_STATE_OTHERINUSE);
+      return;
+    }
+
+    // We want to keep these states.
+    if (this.proxyState === PROXY_STATE_AUTHFAILURE ||
+        this.proxyState === PROXY_STATE_PROXYERROR ||
+        this.proxyState === PROXY_STATE_PROXYAUTHFAILED) {
+      return;
+    }
+
+    this.setProxyState(PROXY_STATE_UNAUTHENTICATED);
+
+    // All seems good. Let's see if the proxy should enabled.
+    let data = await this.fxa.maybeGenerateTokens();
+    if (data.state === FXA_OK) {
+      this.setProxyState(PROXY_STATE_CONNECTING);
+
+      // Note that we are not waiting for this function. The code moves on.
+      // eslint-disable-next-line verify-await/check
+      this.testProxyConnection();
+    }
   }
 
   async testProxyConnection() {
@@ -158,6 +166,8 @@ class Main {
     if (this.proxyState !== PROXY_STATE_UNAUTHENTICATED &&
         this.proxyState !== PROXY_STATE_ACTIVE &&
         this.proxyState !== PROXY_STATE_INACTIVE &&
+        this.proxyState !== PROXY_STATE_PROXYERROR &&
+        this.proxyState !== PROXY_STATE_PROXYAUTHFAILED &&
         this.proxyState !== PROXY_STATE_CONNECTING) {
       return;
     }
@@ -230,29 +240,29 @@ class Main {
   }
 
   async proxyAuthenticationFailed() {
+    await this.proxyGenericErrorInternal(PROXY_STATE_PROXYAUTHFAILED);
+  }
+
+  async proxyGenericError() {
+    await this.proxyGenericErrorInternal(PROXY_STATE_PROXYERROR);
+  }
+
+  async proxyGenericErrorInternal(state) {
     if (this.proxyState !== PROXY_STATE_ACTIVE &&
         this.proxyState !== PROXY_STATE_CONNECTING) {
       return;
     }
 
-    this.setProxyState(PROXY_STATE_PROXYAUTHFAILED);
+    this.setProxyState(state);
 
+    // Let's reset the tokens before udating the UI and before generating new
+    // ones.
     await StorageUtils.resetDynamicTokenData();
 
     await Promise.all([
       this.ui.update(),
       this.fxa.maybeGenerateTokens(),
     ]);
-  }
-
-  async proxyGenericError() {
-    if (this.proxyState !== PROXY_STATE_ACTIVE &&
-        this.proxyState !== PROXY_STATE_CONNECTING) {
-      return;
-    }
-
-    this.setProxyState(PROXY_STATE_PROXYERROR);
-    await this.ui.update();
   }
 
   syncSkipProxy(requestInfo, url) {
