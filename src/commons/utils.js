@@ -1,7 +1,7 @@
 /* eslint-disable no-unused-vars */
 
 // Proxy configuration
-const PROXY_URL = "https://proxy-staging.cloudflareclient.com:8001";
+const PROXY_URL = "https://firefox.factor11.cloudflareclient.com:2486";
 
 // We are loading resources
 const PROXY_STATE_LOADING = "loading";
