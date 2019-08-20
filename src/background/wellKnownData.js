@@ -19,11 +19,11 @@ export class WellKnownData {
   constructor() {
     this.fxaEndpoints = new Map();
     this.fxaEndpointsReceivedAt = 0;
+    this.openIDJSON = {};
   }
 
   init(prefs) {
     this.fxaOpenID = prefs.value.fxaURL || FXA_OPENID;
-    this.fxaEndpointsReceivedAt = 0;
   }
 
   syncGetEndpoint(name) {
@@ -76,7 +76,14 @@ export class WellKnownData {
     this.syncSetEndpoint(FXA_ENDPOINT_ISSUER, json[FXA_ENDPOINT_ISSUER]);
 
     this.fxaEndpointsReceivedAt = nowInSecs;
+
+    this.openIDJSON = json;
     return true;
+  }
+
+  async openID() {
+    await this.fetch();
+    return this.openIDJSON;
   }
 
   isAuthUrl(origin) {

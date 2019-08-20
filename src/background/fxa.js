@@ -257,6 +257,8 @@ export class FxAUtils extends Component {
         // eslint-disable-next-line verify-await/check
         redirectUri: browser.identity.getRedirectURL(),
         scopes: [FXA_PROFILE_SCOPE, FXA_PROXY_SCOPE],
+        // We have our well-known-data cache, let's use it.
+        ensureOpenIDConfiguration: _ => this.wellKnownData.openID(),
       });
     } catch (e) {
       console.error("Failed to fetch the refresh token", e);
