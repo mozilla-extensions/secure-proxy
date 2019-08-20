@@ -135,9 +135,12 @@ async function testAuthenticationFlow(m) {
   };
 
   await StorageUtils.setAllTokenData("REFRESH", token, token, "PROFILE DATA");
+
+  /* eslint-disable require-atomic-updates */
   m.fxa.cachedProxyTokenValue.tokenType = "bearer";
   m.fxa.cachedProxyTokenValue.tokenValue = "PROXY";
   m.fxa.nextExpirerTime = 1234;
+  /* eslint-enable require-atomic-updates */
 
   await m.handleEvent("tokenGenerated", { tokenType: "bearer", tokenValue: "PROXY" });
   Tester.is(m.proxyState, PROXY_STATE_CONNECTING, "Connecting state expected");
