@@ -1,11 +1,20 @@
 /* eslint-disable verify-await/check */
 
+import {StorageUtils} from "./storage.js";
 import {WellKnownData} from "./wellKnownData.js";
 
 const tests = [
   {
     name: "WellKnownData",
     run: testWellKnownData,
+  },
+  {
+    name: "Initial state",
+    run: testFirstStart,
+  },
+  {
+    name: "Authentication flow",
+    run: testAuthenticationFlow,
   },
 ];
 
@@ -25,6 +34,59 @@ async function testWellKnownData() {
   Tester.is(wkd.excludedDomains().length, 3, "ExcludedDomains returns something");
   Tester.is(wkd.isAuthUrl("https://profile.accounts.firefox.com"), true, "IsAuthUrl works better with data");
   Tester.is(wkd.isAuthUrl("https://oauth.accounts.firefox.com"), true, "IsAuthUrl works better with data");
+}
+
+async function testFirstStart(m) {
+  await browser.storage.local.clear();
+
+  Tester.is(m.proxyState, PROXY_STATE_UNAUTHENTICATED, "Unauthenticated state expected");
+  Tester.is(await browser.browserAction.getTitle({}), "Firefox Private Network is inactive", "Title is inactive");
+}
+
+async function testAuthenticationFlow(m) {
+  await browser.storage.local.clear();
+
+  Tester.is(m.proxyState, PROXY_STATE_UNAUTHENTICATED, "Unauthenticated state expected");
+  Tester.is(await browser.browserAction.getTitle({}), "Firefox Private Network is inactive", "Title is inactive");
+
+  log("Authenticating and aborting the process...");
+  await new Promise(resolve => {
+    const authPromise = m.handleEvent("authenticationRequired");
+
+    log("Listener");
+    browser.tabs.onUpdated.addListener(function listener(tabId, changeInfo, tabInfo) {
+      if (changeInfo.url && changeInfo.url.startsWith("https://accounts.firefox.com/authorization")) {
+        browser.tabs.onUpdated.removeListener(listener);
+        browser.tabs.remove(tabId);
+        resolve(authPromise);
+      }
+    });
+  });
+
+  Tester.is(m.proxyState, PROXY_STATE_AUTHFAILURE, "Authentication failure state expected");
+
+  log("Simulating a token generation");
+  const token = {
+    received_at: Math.round((performance.timeOrigin + performance.now()) / 1000),
+    expires_in: 3600 * 3,
+  };
+
+  await StorageUtils.setAllTokenData("REFRESH", token, token, "PROFILE DATA");
+  m.fxa.cachedProxyTokenValue.tokenType = "bearer";
+  m.fxa.cachedProxyTokenValue.tokenValue = "PROXY";
+  m.fxa.nextExpirerTime = 1234;
+
+  await m.handleEvent("tokenGenerated", { tokenType: "bearer", tokenValue: "PROXY" });
+  Tester.is(m.proxyState, PROXY_STATE_CONNECTING, "Connecting state expected");
+
+  await new Promise(resolve => {
+    browser.webRequest.onHeadersReceived.addListener(function listener(details) {
+      browser.webRequest.onHeadersReceived.removeListener(listener);
+      resolve();
+    }, {urls: ["http://test.factor11.cloudflareclient.com/"]});
+  });
+
+  Tester.is(m.proxyState, PROXY_STATE_PROXYAUTHFAILED, "Authentication failure state expected");
 }
 
 export class Tester {
