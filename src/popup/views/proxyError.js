@@ -2,8 +2,8 @@ import {View} from "../view.js";
 
 class ViewProxyError extends View {
   syncShow(proxyState) {
-    View.setState("disabled", {text: this.getTranslation("heroProxyOff")});
-    View.showToggleButton(false);
+    View.setState("disabled", {text: this.getTranslation("heroProxyOn")});
+    View.showToggleButton(true);
 
     return escapedTemplate`
     <p class="warning">
@@ -13,7 +13,7 @@ class ViewProxyError extends View {
 
   toggleButtonClicked() {
     // eslint-disable-next-line verify-await/check
-    View.sendMessage("authenticate");
+    View.sendMessage("setEnabledState", {enabledState: false});
   }
 
   stateButtonHandler() {
