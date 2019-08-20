@@ -4,7 +4,7 @@ const defaultConfig = {
   // Global options:
   sourceDir: "./src/",
   artifactsDir: "./dist/",
-  ignoreFiles: [".DS_Store", "./background/tester.js"],
+  ignoreFiles: [".DS_Store", "./tests"],
   // Command options:
   build: {
     overwriteDest: true,

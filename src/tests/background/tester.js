@@ -1,9 +1,9 @@
 /* eslint-disable verify-await/check */
 
-import {ConnectionTester} from "./connection.js";
-import {StorageUtils} from "./storage.js";
-import {Survey} from "./survey.js";
-import {WellKnownData} from "./wellKnownData.js";
+import {ConnectionTester} from "../../background/connection.js";
+import {StorageUtils} from "../../background/storage.js";
+import {Survey} from "../../background/survey.js";
+import {WellKnownData} from "../../background/wellKnownData.js";
 
 const tests = [
   {

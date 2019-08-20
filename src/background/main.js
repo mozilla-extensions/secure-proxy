@@ -50,7 +50,7 @@ class Main {
     // Let's start the testing, if we have to.
     if (RUN_TESTS) {
       try {
-        let {Tester} = await import("./tester.js");
+        let {Tester} = await import("../tests/background/tester.js");
         // eslint-disable-next-line verify-await/check
         await Tester.run(this);
       } catch (e) {
