@@ -32,7 +32,7 @@ export class FxAUtils extends Component {
     this.cachedProxyTokenValue = {
       tokenType: "bearer",
       tokenValue: "invalid-token",
-    }
+    };
   }
 
   async init(prefs) {
@@ -332,11 +332,8 @@ export class FxAUtils extends Component {
     if (this.generatingTokens ||
         !this.nextExpireTime ||
         nowInSecs >= this.nextExpireTime) {
-      return new Promise(async resolve => {
-        // We don't care about the cached
-        await this.maybeGenerateTokens();
-        resolve(this.cachedProxyTokenValue);
-      });
+      // We don't care about the cached values. Maybe they are the old ones.
+      return this.maybeGenerateTokens().then(_ => this.cachedProxyTokenValue);
     }
 
     return this.cachedProxyTokenValue;
