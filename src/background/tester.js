@@ -1,12 +1,17 @@
 /* eslint-disable verify-await/check */
 
 import {StorageUtils} from "./storage.js";
+import {Survey} from "./survey.js";
 import {WellKnownData} from "./wellKnownData.js";
 
 const tests = [
   {
     name: "WellKnownData",
     run: testWellKnownData,
+  },
+  {
+    name: "Survey",
+    run: testSurvey,
   },
   {
     name: "Initial state",
@@ -34,6 +39,45 @@ async function testWellKnownData() {
   Tester.is(wkd.excludedDomains().length, 3, "ExcludedDomains returns something");
   Tester.is(wkd.isAuthUrl("https://profile.accounts.firefox.com"), true, "IsAuthUrl works better with data");
   Tester.is(wkd.isAuthUrl("https://oauth.accounts.firefox.com"), true, "IsAuthUrl works better with data");
+}
+
+async function testSurvey() {
+  await browser.storage.local.clear();
+
+  let self = await browser.management.getSelf();
+  let loadingTest1Promise = new Promise(resolve => {
+    browser.webRequest.onBeforeRequest.addListener(function listener(details) {
+      if (details.url == "http://example1.com/false/" + self.version) {
+        Tester.is(true, true, "Correct URL opened by survey!");
+        browser.webRequest.onBeforeRequest.removeListener(listener);
+        resolve();
+      }
+    }, {urls: ["<all_urls>"]});
+  });
+
+  let loadingTest2Promise = new Promise(resolve => {
+    browser.webRequest.onBeforeRequest.addListener(function listener(details) {
+      if (details.url == "http://example2.com/false/" + self.version) {
+        Tester.is(true, true, "Correct URL opened by survey!");
+        browser.webRequest.onBeforeRequest.removeListener(listener);
+        resolve();
+      }
+    }, {urls: ["<all_urls>"]});
+  });
+
+  let s = new Survey({ registerObserver: _ => {}});
+  await s.initInternal([
+    { name: "test 1", triggerAfterTime: 0, URL: "http://example1.com/PROXYENABLED/VERSION" },
+    { name: "test 2", triggerAfterTime: 5, URL: "http://example2.com/PROXYENABLED/VERSION" },
+  ]);
+
+  await loadingTest1Promise;
+  Tester.is(await StorageUtils.getLastSurvey(), "test 1", "Test survey has been executed");
+
+  log("Wait a few seconds...");
+
+  await loadingTest2Promise;
+  Tester.is(await StorageUtils.getLastSurvey(), "test 2", "Test survey has been executed");
 }
 
 async function testFirstStart(m) {
