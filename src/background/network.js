@@ -1,9 +1,5 @@
 import {Component} from "./component.js";
 
-// Testing URL. This request is sent with the proxy settings when we are in
-// connecting state. If this succeeds, we go to active state.
-const CONNECTING_HTTP_REQUEST = "http://test.factor11.cloudflareclient.com/";
-
 // Parameters for DNS over HTTP
 const DOH_MODE = 3;
 const DOH_BOOTSTRAP_ADDRESS = "1.1.1.1";
@@ -257,44 +253,6 @@ export class Network extends Component {
     if (errorStatus === "NS_ERROR_PROXY_CONNECTION_REFUSED" ||
         errorStatus === "NS_ERROR_TOO_MANY_REQUESTS") {
       await this.sendMessage("proxyGenericError");
-      return;
     }
-
-    if (this.connectionTester &&
-        (this.cachedProxyState === PROXY_STATE_CONNECTING ||
-         this.cachedProxyState === PROXY_STATE_OFFLINE) &&
-        url === CONNECTING_HTTP_REQUEST &&
-        (errorStatus === "NS_ERROR_UNKNOWN_PROXY_HOST" ||
-         errorStatus === "NS_ERROR_ABORT")) {
-      // eslint-disable-next-line verify-await/check
-      this.connectionTester.rejectCb();
-    }
-  }
-
-  testProxyConnection() {
-    this.connectionTester = new ConnectionTester();
-    return this.connectionTester.run();
-  }
-}
-
-class ConnectionTester {
-  run() {
-    browser.webRequest.onHeadersReceived.addListener(details => {
-      if (details.statusCode === 200) {
-        // eslint-disable-next-line verify-await/check
-        this.resolveCb();
-      }
-    }, {urls: [CONNECTING_HTTP_REQUEST]}, ["responseHeaders", "blocking"]);
-
-    return new Promise((resolve, reject) => {
-      log("executing a fetch to check the connection");
-
-      // We don't care about the result of this fetch.
-      // eslint-disable-next-line verify-await/check
-      fetch(CONNECTING_HTTP_REQUEST, { cache: "no-cache"}).catch(_ => {});
-
-      this.resolveCb = resolve;
-      this.rejectCb = reject;
-    });
   }
 }

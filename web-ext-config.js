@@ -4,7 +4,7 @@ const defaultConfig = {
   // Global options:
   sourceDir: "./src/",
   artifactsDir: "./dist/",
-  ignoreFiles: [".DS_Store"],
+  ignoreFiles: [".DS_Store", "./tests"],
   // Command options:
   build: {
     overwriteDest: true,
@@ -13,7 +13,6 @@ const defaultConfig = {
     firefox: "nightly",
     browserConsole: true,
     startUrl: ["about:debugging"],
-    pref: ["secureProxy.debugging.enabled=true"],
   },
 };
 

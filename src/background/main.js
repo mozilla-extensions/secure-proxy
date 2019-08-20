@@ -1,3 +1,4 @@
+import {ConnectionTester} from "./connection.js";
 import {Connectivity} from "./connectivity.js";
 import {FxAUtils} from "./fxa.js";
 import {Network} from "./network.js";
@@ -7,6 +8,9 @@ import {UI} from "./ui.js";
 
 // If run() fails, it will be retriggered after this timeout (in milliseconds)
 const RUN_TIMEOUT = 5000; // 5 secs
+
+// If set to true, it imports tester.js and it execs the tests.
+const RUN_TESTS = false;
 
 class Main {
   constructor() {
@@ -42,6 +46,17 @@ class Main {
 
     // All good. Let's start.
     await this.firstRun();
+
+    // Let's start the testing, if we have to.
+    if (RUN_TESTS) {
+      try {
+        let {Tester} = await import("../tests/background/tester.js");
+        // eslint-disable-next-line verify-await/check
+        await Tester.run(this);
+      } catch (e) {
+        console.error("RUN_TESTS is true, but no tester.js included!");
+      }
+    }
   }
 
   async firstRun() {
@@ -146,7 +161,7 @@ class Main {
 
   async testProxyConnection() {
     try {
-      await this.net.testProxyConnection();
+      await ConnectionTester.run();
 
       await StorageUtils.setProxyState(PROXY_STATE_ACTIVE);
       this.setProxyState(PROXY_STATE_ACTIVE);

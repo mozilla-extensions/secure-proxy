@@ -22,9 +22,17 @@ const SURVEYS = [
 export class Survey extends Component {
   constructor(receiver) {
     super(receiver);
+
+    this.surveys = [];
   }
 
   async init() {
+    await this.initInternal(SURVEYS);
+  }
+
+  async initInternal(surveys) {
+    this.surveys = surveys;
+
     await browser.runtime.setUninstallURL(SURVEY_UNINSTALL);
     await this.scheduleNextSurvey();
   }
@@ -44,10 +52,11 @@ export class Survey extends Component {
       now = Math.round(now / 1000);
       let diff = surveyInitTime + nextSurvey.triggerAfterTime - now;
       if (diff < 0) {
-        await this.runSurvey(nextSurvey.name);
-      } else {
-        setTimeout(_ => this.runSurvey(nextSurvey.name), diff * 1000);
+        diff = 0;
       }
+
+      // Let's continue async.
+      setTimeout(_ => this.runSurvey(nextSurvey.name), diff * 1000);
     }
   }
 
@@ -57,11 +66,11 @@ export class Survey extends Component {
 
     let lastSurvey = await StorageUtils.getLastSurvey();
     if (!lastSurvey) {
-      nextSurvey = SURVEYS[0];
+      nextSurvey = this.surveys[0];
     } else {
       // If the next one doesn't exist, nextSurvey will be undefined.
       // eslint-disable-next-line verify-await/check
-      nextSurvey = SURVEYS[SURVEYS.findIndex(a => lastSurvey === a.name) + 1];
+      nextSurvey = this.surveys[this.surveys.findIndex(a => lastSurvey === a.name) + 1];
     }
 
     return nextSurvey;

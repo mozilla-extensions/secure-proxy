@@ -42,6 +42,10 @@ const FXA_ERR_AUTH = "authFailed";
 // FXA all good!
 const FXA_OK = "ok";
 
+// Testing URL. This request is sent with the proxy settings when we are in
+// connecting state. If this succeeds, we go to active state.
+const CONNECTING_HTTP_REQUEST = "http://test.factor11.cloudflareclient.com/";
+
 // Enable debugging
 let debuggingMode = false;
 function log(msg, ...rest) {
