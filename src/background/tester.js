@@ -8,18 +8,22 @@ const tests = [
   {
     name: "WellKnownData",
     run: testWellKnownData,
+    disabled: false,
   },
   {
     name: "Survey",
     run: testSurvey,
+    disabled: false,
   },
   {
     name: "Initial state",
     run: testFirstStart,
+    disabled: false,
   },
   {
     name: "Authentication flow",
     run: testAuthenticationFlow,
+    disabled: false,
   },
 ];
 
@@ -139,23 +143,29 @@ export class Tester {
     setTimeout(async _ => {
       debuggingMode = true;
 
-      log("TEST STARTING!");
+      dump("\x1b[34mTEST STARTING\x1b[0m\n");
 
       for (let i = 0; i < tests.length; ++i) {
         log(`TEST ${tests[i].name}`);
+
+        if (tests[i].disabled) {
+          dump("\x1b[34mTEST DISABLED!\x1b[0m\n");
+          continue;
+        }
+
         await tests[i].run(main);
       }
 
-      log("TEST COMPLETED!");
+      dump("\x1b[34mTEST COMPLETED!\x1b[0m\n");
     });
   }
 
   static is(a, b, msg) {
     if (a !== b) {
-      log(`TEST ERROR!!! ${a} !== ${b}: ${msg}`);
+      dump(`\x1b[31mTEST ERROR!!! ${a} !== ${b}: ${msg}\x1b[0m\n`);
       console.trace();
     } else {
-      log(`TEST OK ${a} === ${b}: ${msg}`);
+      dump(`\x1b[32mTEST OK ${a} === ${b}: ${msg}\x1b[0m\n`);
     }
   }
 }
