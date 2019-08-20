@@ -230,7 +230,7 @@ export class FxAUtils extends Component {
     });
 
     try {
-      const resp = await fetch(request);
+      const resp = await fetch(request, {cache: "no-cache"});
       // Let's treat 5xx as a network error.
       if (resp.status >= 500 && resp.status <= 599) {
         log("profile data generation failed: " + resp.status);
@@ -302,7 +302,7 @@ export class FxAUtils extends Component {
 
     let token;
     try {
-      const resp = await fetch(request);
+      const resp = await fetch(request, {cache: "no-cache"});
       // Let's treat 5xx as a network error.
       if (resp.status >= 500 && resp.status <= 599) {
         log("token generation failed: " + resp.status);
@@ -361,5 +361,30 @@ export class FxAUtils extends Component {
 
   async prefetchWellKnownData() {
     return this.wellKnownData.fetch();
+  }
+
+  async resetAllTokens() {
+    let refreshTokenData = await StorageUtils.getRefreshTokenData();
+
+    await StorageUtils.resetAllTokenData();
+
+    if (refreshTokenData) {
+      const tokenEndpoint = await this.wellKnownData.getTokenEndpoint();
+      const destroyEndpoint = tokenEndpoint.replace("token", "destroy");
+
+      const headers = new Headers();
+      // eslint-disable-next-line verify-await/check
+      headers.append("Content-Type", "application/json");
+
+      const request = new Request(destroyEndpoint, {
+        method: "POST",
+        headers,
+        body: JSON.stringify({
+          refresh_token: refreshTokenData.refresh_token,
+        }),
+      });
+
+      await fetch(request, {cache: "no-cache"});
+    }
   }
 }
