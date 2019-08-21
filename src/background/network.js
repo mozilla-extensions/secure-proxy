@@ -208,6 +208,7 @@ export class Network extends Component {
     }
 
     // Whitelisted.
+    // eslint-disable-next-line verify-await/check
     if (this.proxyPassthrough.has(url.hostname)) {
       return false;
     }
@@ -271,8 +272,11 @@ export class Network extends Component {
     log("Check proxy passthrough");
     const proxySettings = await browser.proxy.settings.get({});
 
+    // eslint-disable-next-line verify-await/check
     this.proxyPassthrough.clear();
+    // eslint-disable-next-line verify-await/check
     proxySettings.value.passthrough.split(",").forEach(host => {
+      // eslint-disable-next-line verify-await/check
       this.proxyPassthrough.add(host.trim());
     });
   }
