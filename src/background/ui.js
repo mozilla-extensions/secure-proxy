@@ -2,7 +2,7 @@ import {Component} from "./component.js";
 import {StorageUtils} from "./storage.js";
 
 // These URLs must be formatted
-const CLOUDFLARE_URL = "https://www.cloudflare.com/"
+const CLOUDFLARE_URL = "https://www.cloudflare.com/";
 const HELP_AND_SUPPORT_URL = "https://support.mozilla.org/1/firefox/%VERSION%/%OS%/%LOCALE%/firefox-private-network";
 
 // These URLs do not need to be formatted

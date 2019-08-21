@@ -124,6 +124,7 @@ export class Survey extends Component {
     const options = { year: "numeric", month: "2-digit", day: "2-digit" };
     const dateTimeFormat = new Intl.DateTimeFormat("en-US", options).format;
 
+    // eslint-disable-next-line verify-await/check
     let now = dateTimeFormat(Date.now());
     if (this.lastUsageDays.date === now) {
       return;
@@ -133,6 +134,7 @@ export class Survey extends Component {
     this.lastUsageDays.date = now;
     this.lastUsageDays.count += 1;
 
+    // eslint-disable-next-line verify-await/check
     StorageUtils.setLastUsageDays(this.lastUsageDays).
       then(_ => { this.lastUsageDaysPending = false; });
   }

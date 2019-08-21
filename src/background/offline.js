@@ -1,3 +1,4 @@
+import {ConnectionTester} from "./connection.js";
 import {Component} from "./component.js";
 
 const OFFLINE_TIMEOUT = 5000; // 5 secs
@@ -23,14 +24,15 @@ export class OfflineManager extends Component {
       return;
     }
 
-    this.scheduleProxyConnection();
+    // eslint-disable-next-line verify-await/check
+    this.syncScheduleProxyConnection();
   }
 
-  scheduleProxyConnection() {
+  syncScheduleProxyConnection() {
     log("Scheduling the proxy connection");
 
     // Let's try to recover from a offline state.
-    this.timeoutId = setTimeout(async _ => await this.testProxyConnection(), OFFLINE_TIMEOUT);
+    this.timeoutId = setTimeout(async _ => this.testProxyConnection(), OFFLINE_TIMEOUT);
   }
 
   async testProxyConnection() {
@@ -43,7 +45,7 @@ export class OfflineManager extends Component {
       await this.sendMessage("onlineDetected");
     } catch (e) {
       log("We are still offline");
-      this.scheduleProxyConnection();
+      this.syncScheduleProxyConnection();
     }
   }
 }

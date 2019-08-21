@@ -370,6 +370,7 @@ export class FxAUtils extends Component {
 
     if (refreshTokenData) {
       const tokenEndpoint = await this.wellKnownData.getTokenEndpoint();
+      // eslint-disable-next-line verify-await/check
       const destroyEndpoint = tokenEndpoint.replace("token", "destroy");
 
       const headers = new Headers();

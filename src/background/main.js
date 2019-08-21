@@ -223,7 +223,7 @@ class Main {
         log("authentication failed");
         this.setProxyState(PROXY_STATE_AUTHFAILURE);
         await StorageUtils.setProxyState(this.proxyState);
-        this.fxa.resetAllTokens();
+        await this.fxa.resetAllTokens();
         break;
 
       case FXA_ERR_NETWORK:
