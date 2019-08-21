@@ -106,10 +106,10 @@
     "message": "You cannot use Firefox Private Network because you are using a custom proxy setting."
   },
   "viewProxyError-proxyAuthFailed": {
-    "message": "Your connection was dropped. Try turning Firefox Private Network on again."
+    "message": "Firefox Private Network encountered an unknown issue. Try turning it off, then on again."
   },
   "viewProxyError-proxyError": {
-    "message": "Your connection was dropped. Try turning Firefox Private Network on again."
+    "message": "Firefox Private Network encountered an unknown issue. Try turning it off, then on again."
   },
   "viewSettings-accountLabel": {
     "message": "Firefox Account"
