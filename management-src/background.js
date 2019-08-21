@@ -9,5 +9,6 @@ async function init() {
   let result = await sendMessage("getCurrentConfig");
   console.log(result);
   sendMessage("setDebuggingEnabled", true);
+  sendMessage("setProxyURL", "https://proxy-staging.cloudflareclient.com:8001");
 }
 init();
