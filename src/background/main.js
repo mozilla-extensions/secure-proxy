@@ -17,22 +17,28 @@ class Main {
   constructor() {
     log("constructor");
 
-    this.observers = new Set();
-
-    this.connectivity = new Connectivity(this);
-    this.externalHandler = new ExternalHandler(this);
-    this.fxa = new FxAUtils(this);
-    this.net = new Network(this);
-    this.survey = new Survey(this);
-    this.ui = new UI(this);
+    // We want to avoid the processing of events during the initialization.
+    // Setting handlingEvent to true, we simulate the processing of an event
+    // and, because of this, any new incoming event will be stored in a queue
+    // and processed only at the end of the initialization, when
+    // this.syncProcessPendingEvents() is called.
+    this.handlingEvent = true;
+    this.pendingEvents = [];
 
     this.proxyState = PROXY_STATE_LOADING;
 
     // Timeout for run() when offline is detected.
     this.runTimeoutId = 0;
 
-    this.handlingEvent = false;
-    this.pendingEvents = [];
+    this.observers = new Set();
+
+    // All the modules, at the end.
+    this.connectivity = new Connectivity(this);
+    this.externalHandler = new ExternalHandler(this);
+    this.fxa = new FxAUtils(this);
+    this.net = new Network(this);
+    this.survey = new Survey(this);
+    this.ui = new UI(this);
   }
 
   async init() {
@@ -57,6 +63,11 @@ class Main {
         console.error("RUN_TESTS is true, but no tester.js included!");
       }
     }
+
+    // Inititialization completed. Let's process any pending event received in
+    // the meantime.
+    this.handlingEvent = false;
+    this.syncProcessPendingEvents();
   }
 
   async firstRun() {
@@ -345,14 +356,17 @@ class Main {
     } catch (e) {}
 
     this.handlingEvent = false;
+    this.syncProcessPendingEvents();
 
+    return returnValue;
+  }
+
+  syncProcessPendingEvents() {
     if (this.pendingEvents.length) {
       log(`Processing the first of ${this.pendingEvents.length} events`);
       // eslint-disable-next-line verify-await/check
       setTimeout(_ => { this.pendingEvents.shift()(); }, 0);
     }
-
-    return returnValue;
   }
 
   async handleEventInternal(type, data) {

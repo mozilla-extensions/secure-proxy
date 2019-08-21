@@ -17,9 +17,7 @@ export class UI extends Component {
 
     // A map of content-script ports. The key is the tabId.
     this.contentScriptPorts = new Map();
-  }
 
-  init() {
     browser.tabs.onRemoved.addListener((tabId) => {
       // eslint-disable-next-line verify-await/check
       this.exemptTabStatus.delete(tabId);
@@ -67,6 +65,10 @@ export class UI extends Component {
 
       log("Invalid port name!");
     });
+  }
+
+  init() {
+    // Nothing to do here.
   }
 
   syncGetExemptTabStatus(name) {

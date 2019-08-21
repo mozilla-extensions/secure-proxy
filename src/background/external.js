@@ -6,7 +6,7 @@ export class ExternalHandler extends Component {
   constructor(receiver) {
     super(receiver);
 
-    browser.runtime.onMessageExternal.addListener(this.handleExternalMessage);
+    browser.runtime.onMessageExternal.addListener(message => this.handleExternalMessage(message));
   }
 
   async init() {

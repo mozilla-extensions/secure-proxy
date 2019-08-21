@@ -10,20 +10,6 @@ export class Network extends Component {
 
     this.connectionId = 0;
     this.webSocketConnectionIsolationCounter = 0;
-  }
-
-  async init(prefs) {
-    const proxyURL = await ConfigUtils.getProxyURL();
-    this.proxyType = proxyURL.protocol === "https:" ? "https" : "http";
-    this.proxyPort = proxyURL.port || (proxyURL.protocol === "https:" ? 443 : 80);
-    this.proxyHost = proxyURL.hostname;
-
-    try {
-      const capitivePortalUrl = new URL(prefs.value.captiveDetect);
-      this.captivePortalOrigin = capitivePortalUrl.origin;
-    } catch (e) {
-      // ignore
-    }
 
     // Proxy configuration
     browser.proxy.onRequest.addListener(requestInfo => {
@@ -69,6 +55,20 @@ export class Network extends Component {
     browser.webRequest.onErrorOccurred.addListener(async details => {
       await this.processNetworkError(details.url, details.error);
     }, {urls: ["<all_urls>"]});
+  }
+
+  async init(prefs) {
+    const proxyURL = await ConfigUtils.getProxyURL();
+    this.proxyType = proxyURL.protocol === "https:" ? "https" : "http";
+    this.proxyPort = proxyURL.port || (proxyURL.protocol === "https:" ? 443 : 80);
+    this.proxyHost = proxyURL.hostname;
+
+    try {
+      const capitivePortalUrl = new URL(prefs.value.captiveDetect);
+      this.captivePortalOrigin = capitivePortalUrl.origin;
+    } catch (e) {
+      // ignore
+    }
   }
 
   async proxyRequestCallback(requestInfo) {
