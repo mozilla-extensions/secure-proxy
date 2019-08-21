@@ -481,3 +481,7 @@ footer {
 #toggleButton:checked::before {
   background-color: white;
 }
+
+#poweredBy {
+  white-space:pre;
+}
