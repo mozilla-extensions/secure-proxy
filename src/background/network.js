@@ -171,16 +171,16 @@ export class Network extends Component {
     // receive errors, in order to avoid exposing the IP when something goes
     // wrong.
     if (this.cachedProxyState !== PROXY_STATE_ACTIVE &&
+        this.cachedProxyState !== PROXY_STATE_OFFLINE &&
         this.cachedProxyState !== PROXY_STATE_PROXYERROR &&
         this.cachedProxyState !== PROXY_STATE_PROXYAUTHFAILED &&
         this.cachedProxyState !== PROXY_STATE_CONNECTING) {
       return false;
     }
 
-    // If we are 'connecting' or 'offline' state, we want to allow just the
+    // If we are 'connecting' state, we want to allow just the
     // CONNECTING_HTTP_REQUEST.
-    if (this.cachedProxyState === PROXY_STATE_CONNECTING ||
-        this.cachedProxyState === PROXY_STATE_OFFLINE) {
+    if (this.cachedProxyState === PROXY_STATE_CONNECTING) {
       return requestInfo.url === CONNECTING_HTTP_REQUEST;
     }
 

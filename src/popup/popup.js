@@ -54,7 +54,9 @@ async function init() {
       case PROXY_STATE_PROXYERROR:
         // fall through
       case PROXY_STATE_PROXYAUTHFAILED:
-        await View.setView("proxyError", proxyState);
+        // fall through
+      case PROXY_STATE_OFFLINE:
+        await View.setView("proxyError");
         return;
 
       case PROXY_STATE_OTHERINUSE:
@@ -73,10 +75,6 @@ async function init() {
 
       case PROXY_STATE_CONNECTING:
         await View.setView("connecting");
-        return;
-
-      case PROXY_STATE_OFFLINE:
-        await View.setView("offline");
         return;
 
       default:
