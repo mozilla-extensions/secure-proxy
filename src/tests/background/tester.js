@@ -57,7 +57,7 @@ async function testSurvey() {
   let self = await browser.management.getSelf();
   let loadingTest1Promise = new Promise(resolve => {
     browser.webRequest.onBeforeRequest.addListener(function listener(details) {
-      if (details.url === "http://example1.com/false/" + self.version) {
+      if (details.url === "http://example1.com/false/" + self.version + "/0") {
         Tester.is(true, true, "Correct URL opened by survey!");
         browser.webRequest.onBeforeRequest.removeListener(listener);
         resolve();
@@ -67,7 +67,7 @@ async function testSurvey() {
 
   let loadingTest2Promise = new Promise(resolve => {
     browser.webRequest.onBeforeRequest.addListener(function listener(details) {
-      if (details.url === "http://example2.com/false/" + self.version) {
+      if (details.url === "http://example2.com/false/" + self.version + "/1") {
         Tester.is(true, true, "Correct URL opened by survey!");
         browser.webRequest.onBeforeRequest.removeListener(listener);
         resolve();
@@ -77,17 +77,24 @@ async function testSurvey() {
 
   let s = new Survey({ registerObserver: _ => {}});
   await s.initInternal([
-    { name: "test 1", triggerAfterTime: 0, URL: "http://example1.com/PROXYENABLED/VERSION" },
-    { name: "test 2", triggerAfterTime: 5, URL: "http://example2.com/PROXYENABLED/VERSION" },
+    { name: "test 1", triggerAfterTime: 0, URL: "http://example1.com/PROXYENABLED/VERSION/USAGEDAYS" },
+    { name: "test 2", triggerAfterTime: 5, URL: "http://example2.com/PROXYENABLED/VERSION/USAGEDAYS" },
   ]);
 
   await loadingTest1Promise;
   Tester.is(await StorageUtils.getLastSurvey(), "test 1", "Test survey has been executed");
 
+  // Let's simulate different proxy state changes.
+  s.setProxyState(PROXY_STATE_ACTIVE);
+  s.setProxyState(PROXY_STATE_INACTIVE);
+  s.setProxyState(PROXY_STATE_ACTIVE);
+  s.setProxyState(PROXY_STATE_INACTIVE);
+
   log("Wait a few seconds...");
 
   await loadingTest2Promise;
   Tester.is(await StorageUtils.getLastSurvey(), "test 2", "Test survey has been executed");
+  Tester.is((await StorageUtils.getLastUsageDays()).count, 1, "Last usage days: 1");
 }
 
 async function testConnectionTester() {
