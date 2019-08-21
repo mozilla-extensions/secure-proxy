@@ -60,8 +60,16 @@ export const StorageUtils = {
     await browser.storage.local.set({lastSurvey});
   },
 
+  async getLastUsageDays() {
+    return this.getStorageKey("lastUsageDays");
+  },
+
+  async setLastUsageDays(lastUsageDays) {
+    await browser.storage.local.set({lastUsageDays});
+  },
+
   async getStorageKey(key) {
     let data = await browser.storage.local.get([key]);
     return data[key];
-  }
+  },
 };

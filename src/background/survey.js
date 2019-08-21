@@ -7,13 +7,14 @@ const SURVEY_UNINSTALL = "https://qsurvey.mozilla.com/s3/fx-private-network-beta
 // Here the list of the supported keywords and their meanings:
 // - PROXYENABLED - replaced with 'true' or 'false', based on the proxy state.
 // - VERSION - the extension version.
+// - USAGEDAYS - number of days with the proxy enabled (at least for 1 request)
 
 const SURVEYS = [
   // Onboarding/welcome page
   { name: "onboarding", triggerAfterTime: 0, URL: "https://private-network.firefox.com/welcome" },
 
   // 14 days
-  { name: "14-day", triggerAfterTime: 1209600, URL: "https://qsurvey.mozilla.com/s3/fx-private-network-beta-survey?type=14-day&enabled=PROXYENABLED&v=VERSION" },
+  { name: "14-day", triggerAfterTime: 1209600, URL: "https://qsurvey.mozilla.com/s3/fx-private-network-beta-survey?type=14-day&enabled=PROXYENABLED&v=VERSION&days=USAGEDAYS" },
 
 ];
 
@@ -24,6 +25,8 @@ export class Survey extends Component {
     super(receiver);
 
     this.surveys = [];
+
+    this.lastUsageDaysPending = false;
   }
 
   async init() {
@@ -32,6 +35,16 @@ export class Survey extends Component {
 
   async initInternal(surveys) {
     this.surveys = surveys;
+
+    // Let's take the last date of usage.
+    let lastUsageDays = await StorageUtils.getLastUsageDays();
+    if (!lastUsageDays) {
+       lastUsageDays = {
+         date: null,
+         count: 0,
+       };
+    }
+    this.lastUsageDays = lastUsageDays;
 
     await browser.runtime.setUninstallURL(SURVEY_UNINSTALL);
     await this.scheduleNextSurvey();
@@ -93,6 +106,34 @@ export class Survey extends Component {
     let self = await browser.management.getSelf();
     // eslint-disable-next-line verify-await/check
     return url.replace(/PROXYENABLED/g, this.cachedProxyState === PROXY_STATE_ACTIVE ? "true" : "false")
-              .replace(/VERSION/g, self.version);
+              .replace(/VERSION/g, self.version)
+              .replace(/USAGEDAYS/g, this.lastUsageDays.count);
+  }
+
+  setProxyState(proxyState) {
+    super.setProxyState(proxyState);
+
+    if (this.cachedProxyState !== PROXY_STATE_ACTIVE) {
+      return;
+    }
+
+    if (this.lastUsageDaysPending) {
+      return;
+    }
+
+    const options = { year: "numeric", month: "2-digit", day: "2-digit" };
+    const dateTimeFormat = new Intl.DateTimeFormat("en-US", options).format;
+
+    let now = dateTimeFormat(Date.now());
+    if (this.lastUsageDays.date === now) {
+      return;
+    }
+
+    this.lastUsageDaysPending = true;
+    this.lastUsageDays.date = now;
+    this.lastUsageDays.count += 1;
+
+    StorageUtils.setLastUsageDays(this.lastUsageDays).
+      then(_ => { this.lastUsageDaysPending = false; });
   }
 }
