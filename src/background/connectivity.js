@@ -3,9 +3,7 @@ import {Component} from "./component.js";
 export class Connectivity extends Component {
   constructor(receiver) {
     super(receiver);
-  }
 
-  init() {
     // proxy setting change observer
     browser.experiments.proxyutils.onChanged.addListener(async _ => {
       return this.sendMessage("proxySettingsChanged");
@@ -15,5 +13,9 @@ export class Connectivity extends Component {
     browser.experiments.proxyutils.onConnectionChanged.addListener(async connectivity => {
       return this.sendMessage("connectivityChanged", { connectivity });
     });
+  }
+
+  init() {
+    // Nothing to do here.
   }
 }
