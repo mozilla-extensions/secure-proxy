@@ -3,6 +3,7 @@ import {Component} from "./component.js";
 // Parameters for DNS over HTTP
 const DOH_MODE = 3;
 const DOH_BOOTSTRAP_ADDRESS = "1.1.1.1";
+const DOH_SKIP_CONFIRMATION_NS = "skip";
 
 export class Network extends Component {
   constructor(receiver) {
@@ -237,6 +238,7 @@ export class Network extends Component {
         bootstrapAddress: DOH_BOOTSTRAP_ADDRESS,
         // eslint-disable-next-line verify-await/check
         excludedDomains: excludedDomains.join(","),
+        confirmationNS: DOH_SKIP_CONFIRMATION_NS,
       }
     });
 
