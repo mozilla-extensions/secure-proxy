@@ -157,7 +157,7 @@ class ContentScriptBanner {
           <button id="close"></button>
         </header>
         <h1>${this.getTranslation("injectedModalHeading")}</h1>
-        <p>To protect your connection to <strong>${domainName}</strong>, Private Network disabled parts of this page. Turning off Private Network will enable all functionality, but makes your connection to this site less secure.</p>
+        <p>To protect your connection to <strong>${domainName}</strong>, Private Network disabled parts of this page. Turning off Private Network will enable all functionality, but makes your connection to sites in this tab less secure.</p>
         <footer>
           <button id="notNow">${this.getTranslation("injectedModalDismissButton")}</button>
           <button id="exempt">${this.getTranslation("injectedModalAcceptButton")}</button>

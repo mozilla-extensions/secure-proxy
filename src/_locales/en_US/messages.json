@@ -33,10 +33,10 @@
     "message": "Firefox Private Network"
   },
   "injectedModalDismissButton": {
-    "message": "Not Now"
+    "message": "Keep On"
   },
   "injectedModalAcceptButton": {
-    "message": "Turn Off for This Tab"
+    "message": "Turn Off in This Tab"
   },
   "viewExemptTab": {
     "message": "Firefox Private Network is off for this tab. Your connection to this site is not secure."
