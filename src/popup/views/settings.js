@@ -38,14 +38,14 @@ class ViewSettings extends View {
 
   syncFooter() {
     return escapedTemplate`
-      <span>${this.getTranslation("popupPoweredBy")}</span>
-      <a href="#" class="end" id="learnMore">${this.getTranslation("popupLearnMore")}</a>
+      <span id="poweredBy">${this.getTranslation("popupPoweredBy")}</span>
+      <a href="#" id="cloudflare">${this.getTranslation("popupCloudflare")}</a>
     `;
   }
 
   async handleEvent(e) {
     // eslint-disable-next-line verify-await/check
-    if (["learnMore", "helpAndSupport", "privacyPolicy", "termsAndConditions"].includes(e.target.id)) {
+    if (["cloudflare", "helpAndSupport", "privacyPolicy", "termsAndConditions"].includes(e.target.id)) {
       await View.sendMessage(e.target.id);
       View.close();
     }

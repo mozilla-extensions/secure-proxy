@@ -2,7 +2,7 @@ import {Component} from "./component.js";
 import {StorageUtils} from "./storage.js";
 
 // These URLs must be formatted
-const LEARN_MORE_URL = "https://support.mozilla.org/1/firefox/%VERSION%/%OS%/%LOCALE%/cloudflare";
+const CLOUDFLARE_URL = "https://www.cloudflare.com/"
 const HELP_AND_SUPPORT_URL = "https://support.mozilla.org/1/firefox/%VERSION%/%OS%/%LOCALE%/firefox-private-network";
 
 // These URLs do not need to be formatted
@@ -210,8 +210,8 @@ export class UI extends Component {
           await this.formatAndOpenURL(HELP_AND_SUPPORT_URL);
           break;
 
-        case "learnMore":
-          await this.formatAndOpenURL(LEARN_MORE_URL);
+        case "cloudflare":
+          await this.formatAndOpenURL(CLOUDFLARE_URL);
           break;
 
         case "privacyPolicy":

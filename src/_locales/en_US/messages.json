@@ -49,11 +49,11 @@
     "message": "Settings"
   },
 
-  "popupLearnMore": {
-    "message": "Learn more"
-  },
   "popupPoweredBy": {
-    "message": "Powered by Cloudflare®"
+    "message": "Powered by "
+  },
+  "popupCloudflare": {
+    "message": "Cloudflare®"
   },
   "popupToggleButton": {
     "message": "Firefox Private Network"
