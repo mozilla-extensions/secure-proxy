@@ -3,12 +3,10 @@ import {Connectivity} from "./connectivity.js";
 import {ExternalHandler} from "./external.js";
 import {FxAUtils} from "./fxa.js";
 import {Network} from "./network.js";
+import {OfflineManager} from "./offline.js";
 import {StorageUtils} from "./storage.js";
 import {Survey} from "./survey.js";
 import {UI} from "./ui.js";
-
-// If run() fails, it will be retriggered after this timeout (in milliseconds)
-const RUN_TIMEOUT = 5000; // 5 secs
 
 // If set to true, it imports tester.js and it execs the tests.
 const RUN_TESTS = false;
@@ -39,6 +37,7 @@ class Main {
     this.net = new Network(this);
     this.survey = new Survey(this);
     this.ui = new UI(this);
+    this.offlineManager = new OfflineManager(this);
   }
 
   async init() {
@@ -88,8 +87,6 @@ class Main {
   async run() {
     log("run!");
 
-    clearTimeout(this.runTimeoutId);
-
     // Here we generate the current proxy state.
     await this.computeProxyState();
 
@@ -110,11 +107,7 @@ class Main {
 
   setOfflineAndStartRecoveringTimer() {
     log("set offline state and start the timer");
-
     this.setProxyState(PROXY_STATE_OFFLINE);
-
-    clearTimeout(this.runTimeoutId);
-    this.runTimeoutId = setTimeout(_ => this.run(), RUN_TIMEOUT);
   }
 
   // Set this.proxyState based on the current settings.
@@ -192,6 +185,7 @@ class Main {
     if (this.proxyState !== PROXY_STATE_UNAUTHENTICATED &&
         this.proxyState !== PROXY_STATE_ACTIVE &&
         this.proxyState !== PROXY_STATE_INACTIVE &&
+        this.proxyState !== PROXY_STATE_OFFLINE &&
         this.proxyState !== PROXY_STATE_PROXYERROR &&
         this.proxyState !== PROXY_STATE_PROXYAUTHFAILED &&
         this.proxyState !== PROXY_STATE_CONNECTING) {
@@ -399,6 +393,9 @@ class Main {
 
       case "tokenGenerated":
         return this.tokenGenerated(data.tokenType, data.tokenValue);
+
+      case "onlineDetected":
+        return this.run();
 
       default:
         console.error("Invalid event: " + type);
