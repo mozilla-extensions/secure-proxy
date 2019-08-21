@@ -336,8 +336,10 @@ this.proxyutils = class extends ExtensionAPI {
             register: fire => {
               let observer = _ => fire.async();
               Services.prefs.addObserver("network.proxy.type", observer);
+              Services.prefs.addObserver("network.proxy.no_proxies_on", observer);
               return () => {
                 Services.prefs.removeObserver("network.proxy.type", observer);
+                Services.prefs.removeObserver("network.proxy.no_proxies_on", observer);
               };
             }
           }).api(),

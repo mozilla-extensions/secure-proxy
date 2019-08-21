@@ -309,6 +309,8 @@ class Main {
     if (hasChanged) {
       await this.ui.update();
     }
+
+    await this.net.checkProxyPassthrough();
   }
 
   syncPanelShown() {
