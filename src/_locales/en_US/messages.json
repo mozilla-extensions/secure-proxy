@@ -39,7 +39,7 @@
     "message": "Turn Off in This Tab"
   },
   "viewExemptTab": {
-    "message": "Firefox Private Network is off for this tab. Your connection to this site is not secure."
+    "message": "This tab is not protected by the Private Network proxy service. Your location is visible to ad trackers and websites you visit in this tab."
   },
 
   "introHeading": {
