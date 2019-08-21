@@ -11,6 +11,8 @@ export class Network extends Component {
     this.connectionId = 0;
     this.webSocketConnectionIsolationCounter = 0;
 
+    this.proxyPassthrough = new Set();
+
     // Proxy configuration
     browser.proxy.onRequest.addListener(requestInfo => {
       return this.proxyRequestCallback(requestInfo);
@@ -69,6 +71,8 @@ export class Network extends Component {
     } catch (e) {
       // ignore
     }
+
+    await this.checkProxyPassthrough();
   }
 
   async proxyRequestCallback(requestInfo) {
@@ -202,6 +206,11 @@ export class Network extends Component {
       return false;
     }
 
+    // Whitelisted.
+    if (this.proxyPassthrough.has(url.hostname)) {
+      return false;
+    }
+
     // Do we have to skip this request?
     // skipProxy is sync
     if (this.syncSendMessage("skipProxy", { requestInfo, url, })) {
@@ -254,5 +263,15 @@ export class Network extends Component {
         errorStatus === "NS_ERROR_TOO_MANY_REQUESTS") {
       await this.sendMessage("proxyGenericError");
     }
+  }
+
+  async checkProxyPassthrough() {
+    log("Check proxy passthrough");
+    const proxySettings = await browser.proxy.settings.get({});
+
+    this.proxyPassthrough.clear();
+    proxySettings.value.passthrough.split(",").forEach(host => {
+      this.proxyPassthrough.add(host.trim());
+    });
   }
 }
