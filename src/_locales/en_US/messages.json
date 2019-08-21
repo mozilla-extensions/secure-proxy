@@ -61,6 +61,9 @@
   "popupSettingsButtonLabel": {
     "message": "Settings"
   },
+  "popupBackButtonLabel": {
+    "message": "Back"
+  },
   "popupToggleButtonLabel": {
     "message": "Toggle proxy state"
   },
