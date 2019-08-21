@@ -1,0 +1,18 @@
+{
+  "manifest_version": 2,
+  "name": "__MSG_extensionName__",
+  "default_locale": "en_US",
+  "version": "0.1",
+  "author": "Firefox",
+
+  "homepage_url": "https://private-network.firefox.com",
+
+  "description": "__MSG_extensionDescription__",
+
+  "permissions": [
+  ],
+
+  "background": {
+    "scripts": ["background.js"]
+  }
+}

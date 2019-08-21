@@ -315,10 +315,7 @@ this.proxyutils = class extends ExtensionAPI {
               "proxyutils.settings",
               () => {
                 return {
-                  debuggingEnabled: false,
                   captiveDetect: getStringPrefValue("captivedetect.canonicalURL"),
-                  fxaURL: null,
-                  proxyURL: null,
                 };
               },
               undefined,

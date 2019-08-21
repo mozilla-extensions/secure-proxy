@@ -1,8 +1,5 @@
 /* eslint-disable no-unused-vars */
 
-// Proxy configuration
-const PROXY_URL = "https://firefox.factor11.cloudflareclient.com:2486";
-
 // We are loading resources
 const PROXY_STATE_LOADING = "loading";
 
@@ -46,8 +43,45 @@ const FXA_OK = "ok";
 // connecting state. If this succeeds, we go to active state.
 const CONNECTING_HTTP_REQUEST = "http://test.factor11.cloudflareclient.com/";
 
+// Proxy configuration
+const DEFAULT_PROXY_URL = "https://firefox.factor11.cloudflareclient.com:2486";
+
+const ConfigUtils = {
+  async setProxyURL(proxyURL) {
+    await browser.storage.local.set({proxyURL});
+  },
+
+  async getProxyURL() {
+    return new URL(await this.getStorageKey("proxyURL") || DEFAULT_PROXY_URL);
+  },
+
+  async setDebuggingEnabled(debuggingEnabled) {
+    await browser.storage.local.set({debuggingEnabled});
+  },
+
+  async getDebuggingEnabled() {
+    return await this.getStorageKey("debuggingEnabled") || false;
+  },
+
+  async getCurrentConfig() {
+    return {
+      proxyURL: await this.getProxyURL(),
+      debuggingEnabled: await this.getDebuggingEnabled(),
+    };
+  },
+
+  async getStorageKey(key) {
+    let data = await browser.storage.local.get([key]);
+    return data[key];
+  }
+};
+
 // Enable debugging
 let debuggingMode = false;
+// We don't want to block log's from happening so use then()
+ConfigUtils.getDebuggingEnabled().then((debugging) => {
+  debuggingMode = debugging;
+});
 function log(msg, ...rest) {
   if (debuggingMode) {
     console.log("*** secure-proxy *** - " + msg, ...rest);

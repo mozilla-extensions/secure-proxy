@@ -36,7 +36,7 @@ export class FxAUtils extends Component {
   }
 
   async init(prefs) {
-    this.proxyURL = new URL(prefs.value.proxyURL || PROXY_URL);
+    this.proxyURL = await ConfigUtils.getProxyURL();
 
     await this.wellKnownData.init(prefs);
 

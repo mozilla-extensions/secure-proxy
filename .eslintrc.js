@@ -27,8 +27,8 @@ module.exports = {
     PROXY_STATE_PROXYAUTHFAILED: false,
     PROXY_STATE_PROXYERROR: false,
     PROXY_STATE_UNAUTHENTICATED: false,
-    PROXY_URL: false,
-    Template: false
+    Template: false,
+    ConfigUtils: false
   },
   parser: "babel-eslint",
   parserOptions: {

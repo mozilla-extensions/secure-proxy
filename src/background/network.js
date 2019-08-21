@@ -13,7 +13,7 @@ export class Network extends Component {
   }
 
   async init(prefs) {
-    const proxyURL = new URL(prefs.value.proxyURL || PROXY_URL);
+    const proxyURL = await ConfigUtils.getProxyURL();
     this.proxyType = proxyURL.protocol === "https:" ? "https" : "http";
     this.proxyPort = proxyURL.port || (proxyURL.protocol === "https:" ? 443 : 80);
     this.proxyHost = proxyURL.hostname;
