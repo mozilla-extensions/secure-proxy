@@ -260,6 +260,8 @@ export class UI extends Component {
       case PROXY_STATE_PROXYERROR:
         // Fall through
       case PROXY_STATE_PROXYAUTHFAILED:
+        // Fall through
+      case PROXY_STATE_OFFLINE:
         promptNotice = "toastWarning";
         isWarning = true;
         break;
