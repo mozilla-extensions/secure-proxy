@@ -6,6 +6,7 @@ import {Network} from "./network.js";
 import {OfflineManager} from "./offline.js";
 import {StorageUtils} from "./storage.js";
 import {Survey} from "./survey.js";
+import {Telemetry} from "./telemetry.js";
 import {UI} from "./ui.js";
 
 // If set to true, it imports tester.js and it execs the tests.
@@ -34,10 +35,11 @@ class Main {
     this.connectivity = new Connectivity(this);
     this.externalHandler = new ExternalHandler(this);
     this.fxa = new FxAUtils(this);
+    this.offlineManager = new OfflineManager(this);
     this.net = new Network(this);
     this.survey = new Survey(this);
+    this.telemetry = new Telemetry(this);
     this.ui = new UI(this);
-    this.offlineManager = new OfflineManager(this);
   }
 
   async init() {
@@ -140,6 +142,7 @@ class Main {
     // Something else is in use.
     if (await this.hasProxyInUse()) {
       this.setProxyState(PROXY_STATE_OTHERINUSE);
+      await this.telemetry.syncAddEvent("general", "otherProxyInUse");
       return;
     }
 
@@ -178,8 +181,8 @@ class Main {
     }
   }
 
-  async enableProxy(value) {
-    log("enabling proxy: " + value);
+  async enableProxy(value, telemetryReason) {
+    log(`enabling proxy:  ${value} - ${telemetryReason}`);
 
     // We support the changing of proxy state only from some states.
     if (this.proxyState !== PROXY_STATE_UNAUTHENTICATED &&
@@ -192,8 +195,16 @@ class Main {
       return;
     }
 
+    let proxyState;
+    if (value) {
+      this.telemetry.syncAddEvent("general", "proxyEnabled", telemetryReason);
+      proxyState = PROXY_STATE_CONNECTING;
+    } else {
+      this.telemetry.syncAddEvent("general", "proxyDisabled", telemetryReason);
+      proxyState = PROXY_STATE_INACTIVE;
+    }
+
     // Let's force a new proxy state, and then let's compute it again.
-    let proxyState = value ? PROXY_STATE_CONNECTING : PROXY_STATE_INACTIVE;
     await StorageUtils.setProxyState(proxyState);
 
     if (await this.computeProxyState()) {
@@ -202,14 +213,19 @@ class Main {
   }
 
   async auth() {
+    this.telemetry.syncAddEvent("fxa", "authStarted");
+
     // non authenticate state.
     this.setProxyState(PROXY_STATE_UNAUTHENTICATED);
 
     try {
       await this.fxa.authenticate();
+
+      this.telemetry.syncAddEvent("fxa", "authCompleted");
       log("Authentication completed");
       return true;
     } catch (error) {
+      this.telemetry.syncAddEvent("fxa", "authFailed", { error: error.message });
       log(`Authentication failed: ${error.message}`);
       // This can be a different error type, but we don't care. We need to
       // report authentication error because there was user interaction.
@@ -327,7 +343,7 @@ class Main {
       this.setProxyState(PROXY_STATE_INACTIVE);
 
       // Let's enable the proxy.
-      await this.enableProxy(true);
+      await this.enableProxy(true, "tokenGenerated");
     }
   }
 
@@ -377,7 +393,7 @@ class Main {
         return this.onConnectivityChanged(data.connectivity);
 
       case "enableProxy":
-        return this.enableProxy(data.enabledState);
+        return this.enableProxy(data.enabledState, data.reason);
 
       case "managerAccountURL":
         return this.fxa.manageAccountURL();
@@ -416,6 +432,9 @@ class Main {
 
       case "excludedDomains":
         return this.fxa.excludedDomains();
+
+      case "telemetry":
+        return this.telemetry.syncAddEvent(data.category, data.event);
 
       default:
         console.error("Invalid event: " + type);

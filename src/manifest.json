@@ -35,6 +35,7 @@
       "proxy",
       "storage",
       "tabs",
+      "telemetry",
       "webRequest",
       "webRequestBlocking"
   ],

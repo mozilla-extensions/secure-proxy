@@ -14,7 +14,10 @@ class ViewConnecting extends View {
 
   toggleButtonClicked() {
     // eslint-disable-next-line verify-await/check
-    View.sendMessage("setEnabledState", {enabledState: true});
+    View.sendMessage("setEnabledState", {
+      enabledState: true,
+      reason: "toggleButton",
+    });
   }
 }
 
