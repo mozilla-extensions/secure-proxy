@@ -4,6 +4,7 @@ import {Component} from "./component.js";
 const DOH_MODE = 3;
 const DOH_BOOTSTRAP_ADDRESS = "1.1.1.1";
 const DOH_SKIP_CONFIRMATION_NS = "skip";
+const DOH_REQUEST_TIMEOUT = 30000; // 30 secs
 
 export class Network extends Component {
   constructor(receiver) {
@@ -240,6 +241,7 @@ export class Network extends Component {
         // eslint-disable-next-line verify-await/check
         excludedDomains: excludedDomains.join(","),
         confirmationNS: DOH_SKIP_CONFIRMATION_NS,
+        requestTimeout: DOH_REQUEST_TIMEOUT,
       }
     });
 

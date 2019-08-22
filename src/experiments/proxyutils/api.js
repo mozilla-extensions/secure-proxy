@@ -180,6 +180,7 @@ ExtensionPreferencesManager.addSetting("secureProxy.DNSoverHTTP", {
     "network.trr.bootstrapAddress",
     "network.trr.excluded-domains",
     "network.trr.confirmationNS",
+    "network.trr.request-timeout",
   ],
 
   setCallback(value) {
@@ -188,6 +189,7 @@ ExtensionPreferencesManager.addSetting("secureProxy.DNSoverHTTP", {
       "network.trr.bootstrapAddress": value.bootstrapAddress,
       "network.trr.excluded-domains": value.excludedDomains,
       "network.trr.confirmationNS": value.confirmationNS,
+      "network.trr.request-timeout": value.requestTimeout,
     };
   },
 });
@@ -256,6 +258,7 @@ this.proxyutils = class extends ExtensionAPI {
                   bootstrapAddress: Services.prefs.getCharPref("network.trr.bootstrapAddress"),
                   excludedDomains: Services.prefs.getCharPref("network.trr.excluded-domains"),
                   confirmationNS: Services.prefs.getCharPref("network.trr.confirmationNS"),
+                  requestTimeout: Services.prefs.getIntPref("nnetwork.trr.request-timeout"),
                 };
               },
               undefined,
@@ -307,6 +310,7 @@ this.proxyutils = class extends ExtensionAPI {
                     bootstrapAddress: details.value.bootstrapAddress,
                     excludedDomains,
                     confirmationNS: details.value.confirmationNS,
+                    requestTimeout: details.value.requestTimeout,
                   }
                 );
               },
