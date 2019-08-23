@@ -178,6 +178,7 @@ class Main {
     } catch (e) {
       this.setOfflineAndStartRecoveringTimer();
       await this.ui.update();
+      this.telemetry.syncAddEvent("networking", "connecting");
     }
   }
 
