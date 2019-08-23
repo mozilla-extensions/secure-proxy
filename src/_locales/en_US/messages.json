@@ -53,7 +53,10 @@
     "message": "Powered by "
   },
   "popupCloudflare": {
-    "message": "Cloudflare®"
+    "message": "Cloudflare"
+  },
+  "popupCloudflareRT": {
+    "message": "®"
   },
   "popupToggleButton": {
     "message": "Firefox Private Network"
