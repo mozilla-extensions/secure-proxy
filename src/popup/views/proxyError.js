@@ -11,13 +11,16 @@ class ViewProxyError extends View {
     </p>`;
   }
 
-  toggleButtonClicked() {
+  toggleButtonClicked(e) {
     // eslint-disable-next-line verify-await/check
-    View.sendMessage("setEnabledState", {enabledState: false});
+    View.sendMessage("setEnabledState", {
+      enabledState: false,
+      reason: (typeof e === "string") ? e : "toggleButton",
+    });
   }
 
   stateButtonHandler() {
-    this.toggleButtonClicked();
+    this.toggleButtonClicked("stateButton");
   }
 }
 

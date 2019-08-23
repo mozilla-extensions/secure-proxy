@@ -9,7 +9,11 @@ async function init() {
   let port = browser.runtime.connect({name: "panel"});
   View.syncSetPort(port);
 
-  let timeoutId = setTimeout(_ => View.setView("error", "loadingError"), loadingTimeout);
+  let timeoutId = setTimeout(async _ => {
+    await View.setView("error", "loadingError");
+    // eslint-disable-next-line verify-await/check
+    View.sendMessage("telemetry", { category: "general", event: "loadingError"});
+  }, loadingTimeout);
 
   let userInfo;
   let proxyState;
@@ -18,6 +22,8 @@ async function init() {
   settingsButton.addEventListener("click", async () => {
     if (userInfo) {
       await View.setView("settings", {userInfo, proxyState});
+      // eslint-disable-next-line verify-await/check
+      View.sendMessage("telemetry", { category: "general", event: "settingsShown"});
     }
   });
 

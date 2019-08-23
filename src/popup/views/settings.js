@@ -45,17 +45,12 @@ class ViewSettings extends View {
 
   async handleEvent(e) {
     // eslint-disable-next-line verify-await/check
-    if (["cloudflare", "helpAndSupport", "privacyPolicy", "termsAndConditions"].includes(e.target.id)) {
+    if (["cloudflare", "helpAndSupport", "privacyPolicy", "termsAndConditions", "giveUsFeedback"].includes(e.target.id)) {
       await View.sendMessage(e.target.id);
       View.close();
     }
     if (e.target.closest("#manageAccount")) {
       await View.sendMessage("manageAccount");
-      View.close();
-    }
-
-    if (e.target.id === "giveUsFeedback") {
-      await View.sendMessage("openUrl", {url: "https://qsurvey.mozilla.com/s3/fx-private-network-beta-feedback"});
       View.close();
     }
 

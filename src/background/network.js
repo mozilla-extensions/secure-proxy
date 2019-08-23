@@ -261,11 +261,17 @@ export class Network extends Component {
 
     if (errorStatus === "NS_ERROR_PROXY_AUTHENTICATION_FAILED") {
       await this.sendMessage("proxyAuthenticationFailed");
+      this.syncSendMessage("telemetry", { category: "networking", event: "407" });
       return;
     }
 
-    if (errorStatus === "NS_ERROR_PROXY_CONNECTION_REFUSED" ||
-        errorStatus === "NS_ERROR_TOO_MANY_REQUESTS") {
+    if (errorStatus === "NS_ERROR_TOO_MANY_REQUESTS") {
+      await this.sendMessage("proxyGenericError");
+      this.syncSendMessage("telemetry", { category: "networking", event: "429" });
+      return;
+    }
+
+    if (errorStatus === "NS_ERROR_PROXY_CONNECTION_REFUSED") {
       await this.sendMessage("proxyGenericError");
     }
   }

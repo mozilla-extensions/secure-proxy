@@ -2,12 +2,13 @@ import {Component} from "./component.js";
 import {StorageUtils} from "./storage.js";
 
 // These URLs must be formatted
-const CLOUDFLARE_URL = "https://www.cloudflare.com/";
 const HELP_AND_SUPPORT_URL = "https://support.mozilla.org/1/firefox/%VERSION%/%OS%/%LOCALE%/firefox-private-network";
 
 // These URLs do not need to be formatted
+const CLOUDFLARE_URL = "https://www.cloudflare.com/";
 const PRIVACY_POLICY_URL = "https://www.mozilla.org/privacy/firefox-private-network";
 const TERMS_AND_CONDITIONS_URL = "https://www.mozilla.org/about/legal/terms/firefox-private-network";
+const GIVE_US_FEEDBACK_URL = "https://qsurvey.mozilla.com/s3/fx-private-network-beta-feedback";
 
 export class UI extends Component {
   constructor(receiver) {
@@ -94,6 +95,9 @@ export class UI extends Component {
   }
 
   syncExemptTab(tabId, status) {
+    // We don't care about the return value here.
+    this.syncSendMessage("telemetry", { category: "webRTC", event: status });
+
     log(`exemptTab ${tabId} ${status}`);
     this.syncSetExemptTabStatus(tabId, status);
     // We don't care about the delay here for setting the icon and we can't block here
@@ -184,7 +188,10 @@ export class UI extends Component {
 
       switch (message.type) {
         case "setEnabledState":
-          await this.sendMessage("enableProxy", { enabledState: message.data.enabledState });
+          await this.sendMessage("enableProxy", {
+            enabledState: message.data.enabledState,
+            reason: message.data.reason,
+          });
           break;
 
         case "removeExemptTab":
@@ -206,26 +213,36 @@ export class UI extends Component {
 
         case "manageAccount":
           await this.openUrl(await this.sendMessage("managerAccountURL"));
+          this.syncSendMessage("telemetry", { category: "settings_url_clicks", event: message.type });
           break;
 
         case "helpAndSupport":
           await this.formatAndOpenURL(HELP_AND_SUPPORT_URL);
+          this.syncSendMessage("telemetry", { category: "settings_url_clicks", event: message.type });
           break;
 
         case "cloudflare":
           await this.formatAndOpenURL(CLOUDFLARE_URL);
+          this.syncSendMessage("telemetry", { category: "settings_url_clicks", event: message.type });
           break;
 
         case "privacyPolicy":
           await this.openUrl(PRIVACY_POLICY_URL);
+          this.syncSendMessage("telemetry", { category: "settings_url_clicks", event: message.type });
           break;
 
         case "termsAndConditions":
           await this.openUrl(TERMS_AND_CONDITIONS_URL);
+          this.syncSendMessage("telemetry", { category: "settings_url_clicks", event: message.type });
           break;
 
-        case "openUrl":
-          await this.openUrl(message.data.url);
+        case "giveUsFeedback":
+          await this.openUrl(GIVE_US_FEEDBACK_URL);
+          this.syncSendMessage("telemetry", { category: "settings_url_clicks", event: message.type });
+          break;
+
+        case "telemetry":
+          this.syncSendMessage("telemetry", message.data);
           break;
       }
     });
