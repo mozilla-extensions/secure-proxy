@@ -178,6 +178,7 @@ class Main {
     } catch (e) {
       this.setOfflineAndStartRecoveringTimer();
       await this.ui.update();
+      this.telemetry.syncAddEvent("networking", "connecting");
     }
   }
 
@@ -225,7 +226,7 @@ class Main {
       log("Authentication completed");
       return true;
     } catch (error) {
-      this.telemetry.syncAddEvent("fxa", "authFailed", { error: error.message });
+      this.telemetry.syncAddEvent("fxa", "authFailed");
       log(`Authentication failed: ${error.message}`);
       // This can be a different error type, but we don't care. We need to
       // report authentication error because there was user interaction.
