@@ -37,6 +37,7 @@ export class FxAUtils extends Component {
 
   async init(prefs) {
     this.proxyURL = await ConfigUtils.getProxyURL();
+    this.fxaFlowParams = await StorageUtils.getFxaFlowParams();
 
     await this.wellKnownData.init(prefs);
 
@@ -263,6 +264,8 @@ export class FxAUtils extends Component {
         // eslint-disable-next-line verify-await/check
         redirectUri: browser.identity.getRedirectURL(),
         scopes: [FXA_PROFILE_SCOPE, FXA_PROXY_SCOPE],
+        // Spread in FxA flow metrics if we have them
+        ...this.fxaFlowParams,
         // We have our well-known-data cache, let's use it.
         ensureOpenIDConfiguration: _ => this.wellKnownData.openID(),
       });

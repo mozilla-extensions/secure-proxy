@@ -68,6 +68,10 @@ export const StorageUtils = {
     await browser.storage.local.set({lastUsageDays});
   },
 
+  async getFxaFlowParams() {
+    return this.getStorageKey("fxaFlowParams");
+  },
+
   async getStorageKey(key) {
     let data = await browser.storage.local.get([key]);
     return data[key];
