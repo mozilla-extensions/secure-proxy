@@ -40,6 +40,7 @@ class ViewSettings extends View {
     return escapedTemplate`
       <span id="poweredBy">${this.getTranslation("popupPoweredBy")}</span>
       <a href="#" id="cloudflare">${this.getTranslation("popupCloudflare")}</a>
+      <span>${this.getTranslation("popupCloudflareRT")}</span>
     `;
   }
 

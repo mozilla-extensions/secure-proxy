@@ -485,3 +485,11 @@ footer {
 #poweredBy {
   white-space:pre;
 }
+
+#cloudflare:link {
+  text-decoration:none;
+}
+
+#cloudflare:visited {
+  color: var(--link-link);
+}
