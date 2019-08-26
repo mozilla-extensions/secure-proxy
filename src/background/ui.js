@@ -1,5 +1,5 @@
 import {Component} from "./component.js";
-import {StorageUtils} from "./storage.js";
+import {StorageUtils} from "./storageUtils.js";
 
 // These URLs must be formatted
 const HELP_AND_SUPPORT_URL = "https://support.mozilla.org/1/firefox/%VERSION%/%OS%/%LOCALE%/firefox-private-network";
@@ -66,10 +66,6 @@ export class UI extends Component {
 
       log("Invalid port name!");
     });
-  }
-
-  init() {
-    // Nothing to do here.
   }
 
   syncGetExemptTabStatus(name) {

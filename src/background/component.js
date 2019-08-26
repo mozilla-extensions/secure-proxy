@@ -7,6 +7,9 @@ export class Component {
     receiver.registerObserver(this);
   }
 
+  // To overwrite, if needed.
+  init(prefs) {}
+
   // Returns an async response from the main
   sendMessage(type, data = null) {
     return this.receiver.handleEvent(type, data);

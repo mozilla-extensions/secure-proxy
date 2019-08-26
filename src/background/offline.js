@@ -10,10 +10,6 @@ export class OfflineManager extends Component {
     this.timeoutId = 0;
   }
 
-  async init() {
-    // Nothing here.
-  }
-
   setProxyState(proxyState) {
     super.setProxyState(proxyState);
 

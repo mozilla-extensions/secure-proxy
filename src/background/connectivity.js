@@ -14,8 +14,4 @@ export class Connectivity extends Component {
       return this.sendMessage("connectivityChanged", { connectivity });
     });
   }
-
-  init() {
-    // Nothing to do here.
-  }
 }

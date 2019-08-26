@@ -9,10 +9,6 @@ export class ExternalHandler extends Component {
     browser.runtime.onMessageExternal.addListener(message => this.handleExternalMessage(message));
   }
 
-  async init() {
-    // Nothing to do here
-  }
-
   // eslint-disable-next-line consistent-return
   async handleExternalMessage(message) {
     log("Got external message", message);
