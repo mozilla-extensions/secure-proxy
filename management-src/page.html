@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title data-l10n="extensionName"></title>
+  <script src="page.js" type="module"></script>
+  <link rel="stylesheet" href="page.css" />
+</head>
+<body id="body" class="wide-container">
+  <h1 data-l10n="extensionName"></h1>
+
+  <table id="table">
+    <tbody>
+      <tr>
+        <th class="column" data-l10n="pageDebuggingTitle"></th>
+        <td>
+          <input type="checkbox" id="debuggingEnabled" />
+          <label for="debuggingEnabled" data-l10n="pageDebuggingValue"></label>
+        </td>
+      </tr>
+      <tr>
+        <th class="column" data-l10n="pageProxyURLTitle"></th>
+        <td>
+          <input type="text" id="proxyURL" />
+          <ul>
+            <li><a href="#" id="debuggingProxyURL" data-l10n="debuggingProxyURL"></a></li>
+            <li><a href="#" id="productionProxyURL" data-l10n="productionProxyURL"></a></li>
+          </ul>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+  <button data-l10n="pageReload" id="reload"></button>
+</body>
+</html>

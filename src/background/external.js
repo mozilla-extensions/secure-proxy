@@ -23,6 +23,8 @@ export class ExternalHandler extends Component {
         return ConfigUtils.setDebuggingEnabled(message.value);
       case "setProxyURL":
         return ConfigUtils.setProxyURL(message.value);
+      case "reload":
+        return browser.runtime.reload();
       default:
         console.error("unhandled message from external extension");
     }

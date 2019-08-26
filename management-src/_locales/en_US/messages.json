@@ -4,5 +4,23 @@
   },
   "extensionDescription": {
     "message": "Manage the Firefox Private Network Extension"
+  },
+  "pageReload": {
+    "message": "Reload Extension"
+  },
+  "pageDebuggingTitle": {
+    "message": "Debugging enabled"
+  },
+  "pageDebuggingValue": {
+    "message": "enabled"
+  },
+  "pageProxyURLTitle": {
+    "message": "Proxy URL"
+  },
+  "debuggingProxyURL": {
+    "message": "Debugging proxy URL"
+  },
+  "productionProxyURL": {
+    "message": "Production proxy URL"
   }
 }

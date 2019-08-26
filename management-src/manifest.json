@@ -9,8 +9,18 @@
 
   "description": "__MSG_extensionDescription__",
 
-  "permissions": [
-  ],
+  "icons": {
+    "48": "icon.svg",
+    "96": "icon.svg"
+  },
+
+  "browser_action": {
+    "browser_style": true,
+    "default_icon": "icon.svg",
+    "default_title": "__MSG_extensionName__"
+  },
+
+  "permissions": [],
 
   "background": {
     "scripts": ["background.js"]
