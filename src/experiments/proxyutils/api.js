@@ -258,7 +258,7 @@ this.proxyutils = class extends ExtensionAPI {
                   bootstrapAddress: Services.prefs.getCharPref("network.trr.bootstrapAddress"),
                   excludedDomains: Services.prefs.getCharPref("network.trr.excluded-domains"),
                   confirmationNS: Services.prefs.getCharPref("network.trr.confirmationNS"),
-                  requestTimeout: Services.prefs.getIntPref("nnetwork.trr.request-timeout"),
+                  requestTimeout: Services.prefs.getIntPref("network.trr.request-timeout"),
                 };
               },
               undefined,
