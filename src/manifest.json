@@ -32,6 +32,7 @@
   "permissions": [
       "<all_urls>",
       "identity",
+      "idle",
       "proxy",
       "storage",
       "tabs",

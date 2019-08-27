@@ -3,6 +3,9 @@ import {StorageUtils} from "./storage.js";
 
 const SURVEY_UNINSTALL = "https://qsurvey.mozilla.com/s3/fx-private-network-beta-exit-survey?sub=no";
 
+// 15 is the min interval we are allowed to ask.
+const IDLE_INTERVAL = 15;
+
 // Survey URLs can contain 'magic' words. These will be replaced with values.
 // Here the list of the supported keywords and their meanings:
 // - PROXYENABLED - replaced with 'true' or 'false', based on the proxy state.
@@ -11,10 +14,17 @@ const SURVEY_UNINSTALL = "https://qsurvey.mozilla.com/s3/fx-private-network-beta
 
 const SURVEYS = [
   // Onboarding/welcome page
-  { name: "onboarding", triggerAfterTime: 0, URL: "https://private-network.firefox.com/welcome" },
+  { name: "onboarding",
+    triggerAfterTime: 0,
+    URL: "https://private-network.firefox.com/welcome",
+    onIdle: false,
+  },
 
   // 14 days
-  { name: "14-day", triggerAfterTime: 1209600, URL: "https://qsurvey.mozilla.com/s3/fx-private-network-beta-survey?type=14-day&enabled=PROXYENABLED&v=VERSION&days=USAGEDAYS" },
+  { name: "14-day",
+    triggerAfterTime: 1209600,
+    URL: "https://qsurvey.mozilla.com/s3/fx-private-network-beta-survey?type=14-day&enabled=PROXYENABLED&v=VERSION&days=USAGEDAYS",
+    onIdle: true, },
 
 ];
 
@@ -95,10 +105,20 @@ export class Survey extends Component {
       return;
     }
 
+    if (!survey.onIdle) {
+      this.runSurveyInternal(survey);
+    } else {
+      await this.whenIdle(_ => {
+        this.runSurveyInternal(survey);
+      });
+    }
+  }
+
+  async runSurveyInternal(survey) {
     let url = await this.formatUrl(survey.URL);
     await browser.tabs.create({url});
 
-    await StorageUtils.setLastSurvey(surveyName);
+    await StorageUtils.setLastSurvey(survey.name);
     await this.scheduleNextSurvey();
   }
 
@@ -137,5 +157,21 @@ export class Survey extends Component {
     // eslint-disable-next-line verify-await/check
     StorageUtils.setLastUsageDays(this.lastUsageDays).
       then(_ => { this.lastUsageDaysPending = false; });
+  }
+
+  async whenIdle(cb) {
+    const state = await browser.idle.queryState(IDLE_INTERVAL);
+    if (state === 'idle') {
+      cb();
+      return;
+    }
+
+    browser.idle.setDetectionInterval(IDLE_INTERVAL);
+    browser.idle.onStateChanged.addListener(function listener(state) {
+      if (state === 'idle') {
+        browser.idle.onStateChanged.removeListener(listener);
+        cb();
+      }
+    });
   }
 }
