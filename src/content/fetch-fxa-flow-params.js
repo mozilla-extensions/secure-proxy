@@ -9,13 +9,10 @@ async function getFxaFlowFromSite() {
 }
 
 // set params to storage if valid
-// if not just set an empty object
 async function setFxaFlowParams(data) {
   const fxaFlowParams = await parse(data);
-  if (await validate(data)) {
+  if (await validate(fxaFlowParams)) {
     await browser.storage.local.set({fxaFlowParams});
-  } else {
-    await browser.storage.local.set({fxaFlowParams: {}});
   }
 }
 

@@ -37,7 +37,6 @@ export class FxAUtils extends Component {
 
   async init(prefs) {
     this.proxyURL = await ConfigUtils.getProxyURL();
-    this.fxaFlowParams = await StorageUtils.getFxaFlowParams();
 
     await this.wellKnownData.init(prefs);
 
@@ -257,6 +256,9 @@ export class FxAUtils extends Component {
     const contentServer = await this.wellKnownData.getIssuerEndpoint();
     const fxaKeysUtil = new fxaCryptoRelier.OAuthUtils({contentServer});
 
+    // get optional flow params for fxa metrics
+    await this.maybeFetchFxaFlowParams();
+
     let refreshTokenData;
     // This will trigger the authentication form.
     try {
@@ -389,6 +391,14 @@ export class FxAUtils extends Component {
       });
 
       await fetch(request, {cache: "no-cache"});
+    }
+  }
+
+  // check storage for optional flow params
+  // if they don't exist just use an empty object
+  async maybeFetchFxaFlowParams() {
+    if (this.fxaFlowParams === undefined) {
+      this.fxaFlowParams = await StorageUtils.getFxaFlowParams() || {};
     }
   }
 }
