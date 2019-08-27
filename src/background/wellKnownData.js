@@ -24,6 +24,11 @@ export class WellKnownData {
 
   init(prefs) {
     this.fxaOpenID = prefs.value.fxaURL || FXA_OPENID;
+
+    // Let's see if we can fetch data now. But let's ignore the async return
+    // value.
+    // eslint-disable-next-line verify-await/check
+    this.fetch();
   }
 
   syncGetEndpoint(name) {
