@@ -64,7 +64,7 @@ export class Telemetry extends Component {
     log(`Sending telemetry: ${category} - ${event} - ${value}`);
 
     // eslint-disable-next-line verify-await/check
-    browser.telemetry.recordEvent(TELEMETRY_CATEGORY, category, event, value).then(e => {
+    browser.telemetry.recordEvent(TELEMETRY_CATEGORY, category, event, value).catch(e => {
       console.error("Telemetry.recordEvent failed", e);
     });
   }
