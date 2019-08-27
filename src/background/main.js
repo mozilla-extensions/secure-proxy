@@ -4,7 +4,8 @@ import {ExternalHandler} from "./external.js";
 import {FxAUtils} from "./fxa.js";
 import {Network} from "./network.js";
 import {OfflineManager} from "./offline.js";
-import {StorageUtils} from "./storage.js";
+import {ProxyStateObserver} from "./proxyStateObserver.js";
+import {StorageUtils} from "./storageUtils.js";
 import {Survey} from "./survey.js";
 import {Telemetry} from "./telemetry.js";
 import {UI} from "./ui.js";
@@ -37,6 +38,7 @@ class Main {
     this.fxa = new FxAUtils(this);
     this.offlineManager = new OfflineManager(this);
     this.net = new Network(this);
+    this.proxyStateObserver = new ProxyStateObserver(this);
     this.survey = new Survey(this);
     this.telemetry = new Telemetry(this);
     this.ui = new UI(this);
@@ -107,11 +109,6 @@ class Main {
     }
   }
 
-  setOfflineAndStartRecoveringTimer() {
-    log("set offline state and start the timer");
-    this.setProxyState(PROXY_STATE_OFFLINE);
-  }
-
   // Set this.proxyState based on the current settings.
   async computeProxyState() {
     log("computing status - currently: " + this.proxyState);
@@ -170,13 +167,13 @@ class Main {
     try {
       await ConnectionTester.run();
 
-      await StorageUtils.setProxyState(PROXY_STATE_ACTIVE);
       this.setProxyState(PROXY_STATE_ACTIVE);
 
       this.net.syncAfterConnectionSteps();
       await this.ui.afterConnectionSteps();
     } catch (e) {
-      this.setOfflineAndStartRecoveringTimer();
+      log("set offline state. This will activate the offline component");
+      this.setProxyState(PROXY_STATE_OFFLINE);
       await this.ui.update();
       this.telemetry.syncAddEvent("networking", "connecting");
     }
@@ -239,8 +236,9 @@ class Main {
       case FXA_ERR_AUTH:
         log("authentication failed");
         this.setProxyState(PROXY_STATE_AUTHFAILURE);
-        await StorageUtils.setProxyState(this.proxyState);
+
         await this.fxa.resetAllTokens();
+        await this.ui.update();
         break;
 
       case FXA_ERR_NETWORK:

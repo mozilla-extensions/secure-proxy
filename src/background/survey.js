@@ -1,5 +1,5 @@
 import {Component} from "./component.js";
-import {StorageUtils} from "./storage.js";
+import {StorageUtils} from "./storageUtils.js";
 
 const SURVEY_UNINSTALL = "https://qsurvey.mozilla.com/s3/fx-private-network-beta-exit-survey?sub=no";
 

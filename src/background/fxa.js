@@ -1,5 +1,5 @@
 import {Component} from "./component.js";
-import {StorageUtils} from "./storage.js";
+import {StorageUtils} from "./storageUtils.js";
 import {WellKnownData} from "./wellKnownData.js";
 
 // Token scopes

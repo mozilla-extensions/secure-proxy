@@ -45,10 +45,6 @@ export class Telemetry extends Component {
     });
   }
 
-  async init() {
-    // Nothing here.
-  }
-
   async onInstalled(details) {
     if (details.reason === "install" || details.reason === "update") {
       let version;
