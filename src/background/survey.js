@@ -3,8 +3,8 @@ import {StorageUtils} from "./storageUtils.js";
 
 const SURVEY_UNINSTALL = "https://qsurvey.mozilla.com/s3/fx-private-network-beta-exit-survey?sub=no";
 
-// 15 is the min interval we are allowed to ask.
-const IDLE_INTERVAL = 15;
+const IDLE_INTERVAL = 60; // seconds
+const FULLSCREEN_TIMEOUT = 3600; // seconds
 
 // Survey URLs can contain 'magic' words. These will be replaced with values.
 // Here the list of the supported keywords and their meanings:
@@ -106,12 +106,21 @@ export class Survey extends Component {
     }
 
     if (!survey.onIdle) {
-      this.runSurveyInternal(survey);
-    } else {
-      await this.whenIdle(_ => {
-        this.runSurveyInternal(survey);
-      });
+      await this.runSurveyInternal(survey);
+      return;
     }
+
+    // The current window is in fullscreen. Let's wait.
+    let w = await browser.windows.getLastFocused();
+    if (!w || w.type.state === "fullscreen") {
+      setTimeout(_ => this.scheduleNextSurvey(), FULLSCREEN_TIMEOUT * 1000);
+      return;
+    }
+
+    // As soon as in idle...
+    await this.whenIdle(_ => {
+      return this.runSurveyInternal(survey);
+    });
   }
 
   async runSurveyInternal(survey) {
@@ -161,15 +170,19 @@ export class Survey extends Component {
 
   async whenIdle(cb) {
     const state = await browser.idle.queryState(IDLE_INTERVAL);
-    if (state === 'idle') {
+    if (state === "idle") {
+      // eslint-disable-next-line verify-await/check
       cb();
       return;
     }
 
+    // eslint-disable-next-line verify-await/check
     browser.idle.setDetectionInterval(IDLE_INTERVAL);
     browser.idle.onStateChanged.addListener(function listener(state) {
-      if (state === 'idle') {
+      if (state === "idle") {
+        // eslint-disable-next-line verify-await/check
         browser.idle.onStateChanged.removeListener(listener);
+        // eslint-disable-next-line verify-await/check
         cb();
       }
     });
