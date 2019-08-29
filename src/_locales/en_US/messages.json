@@ -80,6 +80,9 @@
   "toastWarning": {
     "message": "Firefox Private Network needs your attention!"
   },
+  "toastTabExempt": {
+    "message": "Firefox Private Network is temporarily disabled."
+  },
 
   "viewAuthFailure": {
     "message": "Sign in failed. Try again."

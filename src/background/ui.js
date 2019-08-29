@@ -285,7 +285,7 @@ export class UI extends Component {
     }
 
     if (await this.isCurrentTabExempt()) {
-      promptNotice = "toastWarning";
+      promptNotice = "toastTabExempt";
       isWarning = true;
     }
 
