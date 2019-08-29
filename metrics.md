@@ -94,7 +94,8 @@ The **methods** are:
 1. `networking` fires when there is a proxy network error. **objects**:
    1. `407`: a 407 error code has been received. This error is received when the proxy receives an invalid/expired token.
    1. `429`: the proxy returns 429 when the user is abusing of the service. The concept of "abuse" has not been defined yet.
-   1. `connecting`: the proxy is unreachable.
+   1. `connecting`: the proxy is unreachable during the connecting phase.
+   1. `proxyDown`: the proxy seems unreachable.
 1. `settings_url_clicks` fires when the user interacts with the settings view. **objects**:
    1. `manageAccount`: the user clicks on the manage account URL.
    1. `helpAndSupport`: the user clicks on the help & support URL.

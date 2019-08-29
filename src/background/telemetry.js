@@ -15,7 +15,7 @@ const TELEMETRY_EVENTS = {
   },
   "networkingEvents": {
     methods: [ "networking" ],
-    objects: [ "407", "429", "connecting" ],
+    objects: [ "407", "429", "connecting", "proxyDown" ],
     extra_keys: [],
   },
   "settingsUrlClicks": {
