@@ -19,6 +19,10 @@ export class ExternalHandler extends Component {
         return ConfigUtils.setDebuggingEnabled(message.value);
       case "setProxyURL":
         return ConfigUtils.setProxyURL(message.value);
+      case "setFxaExpirationTime":
+        return ConfigUtils.setFxaExpirationTime(parseInt(message.value, 10));
+      case "setFxaExpirationDelta":
+        return ConfigUtils.setFxaExpirationDelta(parseInt(message.value, 10));
       case "reload":
         return browser.runtime.reload();
       default:
