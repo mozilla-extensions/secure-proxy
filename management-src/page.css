@@ -1,1 +1,6 @@
 @import url("chrome://global/skin/in-content/info-pages.css");
+
+textarea {
+  width: -moz-available;
+  height: 10em;
+}

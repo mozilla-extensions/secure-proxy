@@ -183,7 +183,7 @@ export class FxAUtils extends Component {
       // If we are close to the expiration time, we have to generate the token.
       // We want to keep a big time margin: 1 hour seems good enough.
       let diff = tokenData.received_at + tokenData.expires_in - nowInSecs - this.fxaExpirationDelta;
-      if (diff < this.fxaExpirationDelta) {
+      if (!diff || diff < this.fxaExpirationDelta) {
         log(`Token exists but it is expired. Received at ${tokenData.received_at} and expires in ${tokenData.expires_in}`);
         tokenData = null;
       } else {
@@ -352,6 +352,13 @@ export class FxAUtils extends Component {
     }
 
     return this.cachedProxyTokenValue;
+  }
+
+  async forceToken(data) {
+    await StorageUtils.setDynamicTokenData(data.proxy || await StorageUtils.getStorageKey("proxyTokenData"),
+                                           data.profile || await StorageUtils.getStorageKey("profileTokenData"),
+                                           await StorageUtils.getStorageKey("profileData"));
+    this.nextExpireTime = 0;
   }
 
   isAuthUrl(origin) {

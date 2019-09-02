@@ -53,6 +53,34 @@ class Page {
     fxaExpirationDelta.onchange = _ => {
       browser.runtime.sendMessage({ type: "setFxaExpirationDelta", value: fxaExpirationDelta.value });
     }
+
+    const tokens = await browser.runtime.sendMessage({ type: "getTokens" });
+
+    const proxyToken = document.getElementById("proxyToken");
+    proxyToken.value = JSON.stringify(tokens.proxy);
+
+    const proxySubmitButton = document.getElementById("proxySubmit");
+    proxySubmitButton.onclick = _ => {
+      try {
+        const value = JSON.parse(proxyToken.value);
+        browser.runtime.sendMessage({ type: "setProxyToken", value });
+      } catch (e) {
+        alert("Syntax invalid: " + e);
+      }
+    }
+
+    const profileToken = document.getElementById("profileToken");
+    profileToken.value = JSON.stringify(tokens.profile);
+
+    const profileSubmitButton = document.getElementById("profileSubmit");
+    profileSubmitButton.onclick = _ => {
+      try {
+        const value = JSON.parse(profileToken.value);
+        browser.runtime.sendMessage({ type: "setProfileToken", value });
+      } catch (e) {
+        alert("Syntax invalid: " + e);
+      }
+    }
   }
 
   getTranslation(stringName, ...args) {

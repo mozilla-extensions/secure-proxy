@@ -31,5 +31,14 @@
   },
   "pageFxaExpirationWarning": {
     "message": "This value is in seconds. Be careful!"
+  },
+  "pageProxyToken": {
+    "message": "Proxy Token"
+  },
+  "pageProfileToken": {
+    "message": "Profile Token"
+  },
+  "pageTokenSubmit": {
+    "message": "Submit"
   }
 }
