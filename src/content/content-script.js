@@ -64,16 +64,16 @@ const ContentScript = {
 
   syncOverwriteProperties() {
     const overwrittenProperties = new Set([
-      { originalMethod: null, parentObject: window.navigator.mediaDevices, methodName: "getSupportedConstraints", type: "method", potentiallyShowContextBanner: true },
-      { originalMethod: null, parentObject: window.navigator.mediaDevices, methodName: "enumerateDevices", type: "method", potentiallyShowContextBanner: false },
-      { originalMethod: null, parentObject: window.navigator.mediaDevices, methodName: "getUserMedia", type: "method", potentiallyShowContextBanner: true },
-      { originalMethod: null, parentObject: window.navigator.mediaDevices, methodName: "getDisplayMedia", type: "method", potentiallyShowContextBanner: true },
-      { originalMethod: null, parentObject: window.navigator, methodName: "mozGetUserMedia", type: "method", potentiallyShowContextBanner: true },
-      { originalMethod: null, parentObject: window.navigator, methodName: "mozGetUserMediaDevices", type: "method", potentiallyShowContextBanner: true },
-      { originalMethod: null, parentObject: window, methodName: "RTCPeerConnection", type: "object" },
-      { originalMethod: null, parentObject: window, methodName: "RTCIceCandidate", type: "object" },
-      { originalMethod: null, parentObject: window, methodName: "RTCPeerConnectionStatic", type: "object" },
-      { originalMethod: null, parentObject: window, methodName: "RTCSessionDescription", type: "object" },
+      { originalMethod: null, parentObject: window.navigator.mediaDevices, methodName: "getSupportedConstraints", potentiallyShowContextBanner: true },
+      { originalMethod: null, parentObject: window.navigator.mediaDevices, methodName: "enumerateDevices", potentiallyShowContextBanner: false },
+      { originalMethod: null, parentObject: window.navigator.mediaDevices, methodName: "getUserMedia", potentiallyShowContextBanner: true },
+      { originalMethod: null, parentObject: window.navigator.mediaDevices, methodName: "getDisplayMedia", potentiallyShowContextBanner: true },
+      { originalMethod: null, parentObject: window.navigator, methodName: "mozGetUserMedia", potentiallyShowContextBanner: true },
+      { originalMethod: null, parentObject: window.navigator, methodName: "mozGetUserMediaDevices", potentiallyShowContextBanner: true },
+      { originalMethod: null, parentObject: window, methodName: "RTCPeerConnection" },
+      { originalMethod: null, parentObject: window, methodName: "RTCIceCandidate" },
+      { originalMethod: null, parentObject: window, methodName: "RTCPeerConnectionStatic" },
+      { originalMethod: null, parentObject: window, methodName: "RTCSessionDescription" },
     ]);
 
     // eslint-disable-next-line verify-await/check
@@ -83,33 +83,31 @@ const ContentScript = {
       }
 
       function overrideProp(object, property, original) {
-        Object.defineProperty(object, property, {
-         get: exportFunction(() => {
+        let handler = new window.wrappedJSObject.Object();
+
+        handler.construct = exportFunction(function(target, thisArg, args) {
           if (ContentScript.syncShouldOverload()) {
-            if (data.type === "method") {
-              return exportFunction(() => {
-                if (data.potentiallyShowContextBanner) {
-                  ContentScript.syncPotentiallyShowContextBanner();
-                }
-                return window.wrappedJSObject.Promise.reject(new window.wrappedJSObject.Error("SecurityError"));
-              }, window);
+            if (data.potentiallyShowContextBanner) {
+              ContentScript.syncPotentiallyShowContextBanner();
             }
-
-            if (data.type === "object") {
-              throw new window.wrappedJSObject.Error("SecurityError");
-            }
+            return window.wrappedJSObject.Promise.reject(new window.wrappedJSObject.Error("SecurityError"));
           }
+          return window.wrappedJSObject.Reflect.construct(target, thisArg, args);
+        }, window);
 
-          return original;
-         }, window),
+        handler.apply = exportFunction(function(target, thisArg, args) {
+          if (ContentScript.syncShouldOverload()) {
+            if (data.potentiallyShowContextBanner) {
+              ContentScript.syncPotentiallyShowContextBanner();
+            }
+            return window.wrappedJSObject.Promise.reject(new window.wrappedJSObject.Error("SecurityError"));
+          }
+          return window.wrappedJSObject.Reflect.apply(target, thisArg, args);
+        }, window);
 
-         set: exportFunction(() => {
-           if (ContentScript.syncShouldOverload()) {
-             ContentScript.syncPotentiallyShowContextBanner();
-           }
-         }, window),
-        });
+        object[property] = new window.wrappedJSObject.Proxy(original, handler);
       }
+
       data.originalMethod = data.parentObject.wrappedJSObject[data.methodName];
       overrideProp(data.parentObject.wrappedJSObject, data.methodName, data.originalMethod);
     });
