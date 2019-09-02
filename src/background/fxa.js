@@ -15,6 +15,14 @@ const FXA_EXP_TOKEN_TIME = 21600; // 6 hours
 // How early we want to re-generate the tokens (in secs)
 const EXPIRE_DELTA = 3600;
 
+// FxA CDNs
+const FXA_CDN_DOMAINS = [
+  "firefoxusercontent.com",
+  "mozillausercontent.com",
+  "accounts-static.cdn.mozilla.net",
+  "accounts-static-2.stage.mozaws.net",
+];
+
 export class FxAUtils extends Component {
   constructor(receiver) {
     super(receiver);
@@ -349,7 +357,8 @@ export class FxAUtils extends Component {
   }
 
   excludedDomains() {
-    return this.wellKnownData.excludedDomains();
+    const excludedDomains = this.wellKnownData.excludedDomains();
+    return excludedDomains.concat(FXA_CDN_DOMAINS);
   }
 
   async manageAccountURL() {
