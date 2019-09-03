@@ -22,5 +22,23 @@
   },
   "productionProxyURL": {
     "message": "Production proxy URL"
+  },
+  "pageFxaExpirationTime": {
+    "message": "FxA token expiration time"
+  },
+  "pageFxaExpirationDelta": {
+    "message": "FxA token expiration delta"
+  },
+  "pageFxaExpirationWarning": {
+    "message": "This value is in seconds. Be careful!"
+  },
+  "pageProxyToken": {
+    "message": "Proxy Token"
+  },
+  "pageProfileToken": {
+    "message": "Profile Token"
+  },
+  "pageTokenSubmit": {
+    "message": "Submit"
   }
 }

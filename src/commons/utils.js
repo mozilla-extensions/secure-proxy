@@ -46,6 +46,13 @@ const CONNECTING_HTTP_REQUEST = "http://test.factor11.cloudflareclient.com/";
 // Proxy configuration
 const DEFAULT_PROXY_URL = "https://firefox.factor11.cloudflareclient.com:2486";
 
+// Token expiration time
+const DEFAULT_FXA_EXPIRATION_TIME = 21600; // 6 hours
+
+// How early we want to re-generate the tokens (in secs)
+const DEFAULT_FXA_EXPIRATION_DELTA = 3600; // 1 hour
+
+
 const ConfigUtils = {
   async setProxyURL(proxyURL) {
     await browser.storage.local.set({proxyURL});
@@ -63,10 +70,28 @@ const ConfigUtils = {
     return await this.getStorageKey("debuggingEnabled") || false;
   },
 
+  async setFxaExpirationTime(fxaExpirationTime) {
+    await browser.storage.local.set({fxaExpirationTime});
+  },
+
+  async getFxaExpirationTime() {
+    return parseInt(await this.getStorageKey("fxaExpirationTime"), 10) || DEFAULT_FXA_EXPIRATION_TIME;
+  },
+
+  async setFxaExpirationDelta(fxaExpirationDelta) {
+    await browser.storage.local.set({fxaExpirationDelta});
+  },
+
+  async getFxaExpirationDelta() {
+    return parseInt(await this.getStorageKey("fxaExpirationDelta"), 10) || DEFAULT_FXA_EXPIRATION_DELTA;
+  },
+
   async getCurrentConfig() {
     return {
       proxyURL: await this.getProxyURL(),
       debuggingEnabled: await this.getDebuggingEnabled(),
+      fxaExpirationTime: await this.getFxaExpirationTime(),
+      fxaExpirationDelta: await this.getFxaExpirationDelta(),
     };
   },
 

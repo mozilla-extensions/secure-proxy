@@ -422,6 +422,9 @@ class Main {
       case "onlineDetected":
         return this.run();
 
+      case "forceToken":
+        return this.fxa.forceToken(data);
+
       default:
         console.error("Invalid event: " + type);
         throw new Error("Invalid event: " + type);

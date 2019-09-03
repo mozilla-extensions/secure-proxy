@@ -45,6 +45,8 @@ export class FxAUtils extends Component {
 
   async init(prefs) {
     this.proxyURL = await ConfigUtils.getProxyURL();
+    this.fxaExpirationTime = await ConfigUtils.getFxaExpirationTime();
+    this.fxaExpirationDelta = await ConfigUtils.getFxaExpirationDelta();
 
     await this.wellKnownData.init(prefs);
 
@@ -180,8 +182,8 @@ export class FxAUtils extends Component {
     if (tokenData) {
       // If we are close to the expiration time, we have to generate the token.
       // We want to keep a big time margin: 1 hour seems good enough.
-      let diff = tokenData.received_at + tokenData.expires_in - nowInSecs - EXPIRE_DELTA;
-      if (diff < EXPIRE_DELTA) {
+      let diff = tokenData.received_at + tokenData.expires_in - nowInSecs - this.fxaExpirationDelta;
+      if (!diff || diff < this.fxaExpirationDelta) {
         log(`Token exists but it is expired. Received at ${tokenData.received_at} and expires in ${tokenData.expires_in}`);
         tokenData = null;
       } else {
@@ -199,7 +201,7 @@ export class FxAUtils extends Component {
 
       tokenData = data.token;
 
-      minDiff = tokenData.received_at + tokenData.expires_in - nowInSecs - EXPIRE_DELTA;
+      minDiff = tokenData.received_at + tokenData.expires_in - nowInSecs - this.fxaExpirationDelta;
       log(`token expires in ${minDiff}`);
       tokenGenerated = true;
     }
@@ -306,7 +308,7 @@ export class FxAUtils extends Component {
         grant_type: "refresh_token",
         refresh_token: refreshTokenData.refresh_token,
         scope,
-        ttl: FXA_EXP_TOKEN_TIME,
+        ttl: this.fxaExpirationTime,
         ppid_seed,
         resource,
         /* eslint-enable camelcase*/
@@ -350,6 +352,13 @@ export class FxAUtils extends Component {
     }
 
     return this.cachedProxyTokenValue;
+  }
+
+  async forceToken(data) {
+    await StorageUtils.setDynamicTokenData(data.proxy || await StorageUtils.getStorageKey("proxyTokenData"),
+                                           data.profile || await StorageUtils.getStorageKey("profileTokenData"),
+                                           await StorageUtils.getStorageKey("profileData"));
+    this.nextExpireTime = 0;
   }
 
   isAuthUrl(origin) {

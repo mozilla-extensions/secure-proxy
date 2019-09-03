@@ -1,4 +1,5 @@
 import {Component} from "./component.js";
+import {StorageUtils} from "./storageUtils.js";
 
 // This component handles message from external extensions
 // It's current use is to accept configuration of the addon
@@ -19,6 +20,19 @@ export class ExternalHandler extends Component {
         return ConfigUtils.setDebuggingEnabled(message.value);
       case "setProxyURL":
         return ConfigUtils.setProxyURL(message.value);
+      case "setFxaExpirationTime":
+        return ConfigUtils.setFxaExpirationTime(parseInt(message.value, 10));
+      case "setFxaExpirationDelta":
+        return ConfigUtils.setFxaExpirationDelta(parseInt(message.value, 10));
+      case "getTokens":
+        return {
+          proxy: await StorageUtils.getStorageKey("proxyTokenData"),
+          profile: await StorageUtils.getStorageKey("profileTokenData"),
+        }
+      case "setProxyToken":
+        return this.sendMessage("forceToken", { proxy: message.value });
+      case "setProfileToken":
+        return this.sendMessage("forceToken", { profile: message.value });
       case "reload":
         return browser.runtime.reload();
       default:
