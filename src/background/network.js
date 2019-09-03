@@ -173,21 +173,29 @@ export class Network extends Component {
         /\[[0:]+1\]/.test(hostname));
     }
 
+    // This is our special testing connection, sent through the proxy, always.
+    if (requestInfo.url === CONNECTING_HTTP_REQUEST) {
+      return true;
+    }
+
     // We want to continue the sending of requests to the proxy even if we
     // receive errors, in order to avoid exposing the IP when something goes
     // wrong.
-    if (this.cachedProxyState !== PROXY_STATE_ACTIVE &&
-        this.cachedProxyState !== PROXY_STATE_OFFLINE &&
-        this.cachedProxyState !== PROXY_STATE_PROXYERROR &&
-        this.cachedProxyState !== PROXY_STATE_PROXYAUTHFAILED &&
-        this.cachedProxyState !== PROXY_STATE_CONNECTING) {
+    if (this.cachedProxyState === PROXY_STATE_LOADING ||
+        this.cachedProxyState === PROXY_STATE_UNAUTHENTICATED ||
+        this.cachedProxyState === PROXY_STATE_AUTHFAILURE ||
+        this.cachedProxyState === PROXY_STATE_INACTIVE ||
+        this.cachedProxyState === PROXY_STATE_CONNECTING ||
+        this.cachedProxyState === PROXY_STATE_OTHERINUSE) {
       return false;
     }
 
-    // If we are 'connecting' state, we want to allow just the
-    // CONNECTING_HTTP_REQUEST.
-    if (this.cachedProxyState === PROXY_STATE_CONNECTING) {
-      return requestInfo.url === CONNECTING_HTTP_REQUEST;
+    // Just a check...
+    if (this.cachedProxyState !== PROXY_STATE_ACTIVE &&
+        this.cachedProxyState !== PROXY_STATE_OFFLINE &&
+        this.cachedProxyState !== PROXY_STATE_PROXYERROR &&
+        this.cachedProxyState !== PROXY_STATE_PROXYAUTHFAILED) {
+      console.error("In which state are we?!?");
     }
 
     // Just to avoid recreating the URL several times, let's cache it.
@@ -266,14 +274,20 @@ export class Network extends Component {
     }
 
     if (errorStatus === "NS_ERROR_TOO_MANY_REQUESTS") {
-      await this.sendMessage("proxyGenericError");
+      await this.sendMessage("proxyTooManyRequests");
       this.syncSendMessage("telemetry", { category: "networking", event: "429" });
       return;
     }
 
-    if (errorStatus === "NS_ERROR_PROXY_CONNECTION_REFUSED") {
+    if (errorStatus === "NS_ERROR_PROXY_CONNECTION_REFUSED" ||
+        errorStatus === "NS_ERROR_UNKNOWN_PROXY_HOST" ||
+        errorStatus === "NS_ERROR_PROXY_BAD_GATEWAY" ||
+        errorStatus === "NS_ERROR_PROXY_GATEWAY_TIMEOUT") {
       await this.sendMessage("proxyGenericError");
+      return;
     }
+
+    log("Ignored network error: " + errorStatus);
   }
 
   async checkProxyPassthrough() {

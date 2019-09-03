@@ -4,6 +4,7 @@ import {ExternalHandler} from "./external.js";
 import {FxAUtils} from "./fxa.js";
 import {Network} from "./network.js";
 import {OfflineManager} from "./offline.js";
+import {ProxyDownChecker} from "./proxyDownChecker.js";
 import {ProxyStateObserver} from "./proxyStateObserver.js";
 import {StorageUtils} from "./storageUtils.js";
 import {Survey} from "./survey.js";
@@ -38,6 +39,7 @@ class Main {
     this.fxa = new FxAUtils(this);
     this.offlineManager = new OfflineManager(this);
     this.net = new Network(this);
+    this.proxyDownChecker = new ProxyDownChecker(this);
     this.proxyStateObserver = new ProxyStateObserver(this);
     this.survey = new Survey(this);
     this.telemetry = new Telemetry(this);
@@ -176,6 +178,7 @@ class Main {
       this.setProxyState(PROXY_STATE_OFFLINE);
       await this.ui.update();
       this.telemetry.syncAddEvent("networking", "connecting");
+      this.proxyDownChecker.syncRun();
     }
   }
 
@@ -278,8 +281,12 @@ class Main {
     await this.proxyGenericErrorInternal(PROXY_STATE_PROXYAUTHFAILED);
   }
 
-  async proxyGenericError() {
+  async proxyGenericError(maybeProxyDown) {
     await this.proxyGenericErrorInternal(PROXY_STATE_PROXYERROR);
+
+    if (maybeProxyDown) {
+      this.proxyDownChecker.syncRun();
+    }
   }
 
   async proxyGenericErrorInternal(state) {
@@ -400,8 +407,11 @@ class Main {
       case "proxyAuthenticationFailed":
         return this.proxyAuthenticationFailed();
 
+      case "proxyTooManyRequests":
+        return this.proxyGenericError(false /* maybe proxy down */);
+
       case "proxyGenericError":
-        return this.proxyGenericError();
+        return this.proxyGenericError(true /* maybe proxy down */);
 
       case "proxySettingsChanged":
         return this.proxySettingsChanged();
