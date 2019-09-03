@@ -10,7 +10,7 @@ class ViewSettings extends View {
     return escapedTemplate`
       <ul class="settingsMenu">
         <li class="manage">
-          <a href="#" id="manageAccount">
+          <a class="link" id="manageAccount">
             <img src="${data.userInfo.avatar}" />
             <div class="details">
               <span id="email">${data.userInfo.email}</span>
@@ -20,14 +20,14 @@ class ViewSettings extends View {
         </li>
         <li>
           <ul>
-            <li><a href="#" id="helpAndSupport">${this.getTranslation("viewSettings-helpAndSupportLink")}</a></li>
-            <li><a href="#" id="giveUsFeedback">${this.getTranslation("viewSettings-giveUsFeedbackLink")}</a></li>
+            <li><a class="link" id="helpAndSupport">${this.getTranslation("viewSettings-helpAndSupportLink")}</a></li>
+            <li><a class="link" id="giveUsFeedback">${this.getTranslation("viewSettings-giveUsFeedbackLink")}</a></li>
           </ul>
         </li>
         <li>
           <ul>
-            <li><a href="#" id="privacyPolicy">${this.getTranslation("viewSettings-privacyPolicyLink")}</a></li>
-            <li><a href="#" id="termsAndConditions">${this.getTranslation("viewSettings-termsAndConditionsLink")}</a></li>
+            <li><a class="link" id="privacyPolicy">${this.getTranslation("viewSettings-privacyPolicyLink")}</a></li>
+            <li><a class="link" id="termsAndConditions">${this.getTranslation("viewSettings-termsAndConditionsLink")}</a></li>
           </ul>
         </li>
       </ul>
@@ -39,7 +39,7 @@ class ViewSettings extends View {
   syncFooter() {
     return escapedTemplate`
       <span id="poweredBy">${this.getTranslation("popupPoweredBy")}</span>
-      <a href="#" id="cloudflare">${this.getTranslation("popupCloudflare")}</a>
+      <a class="link" id="cloudflare">${this.getTranslation("popupCloudflare")}</a>
       <span>${this.getTranslation("popupCloudflareRT")}</span>
     `;
   }

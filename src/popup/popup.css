@@ -486,10 +486,18 @@ footer {
   white-space:pre;
 }
 
+#cloudflare {
+  color: var(--link-link);
+}
+
 #cloudflare:link {
   text-decoration:none;
 }
 
 #cloudflare:visited {
   color: var(--link-link);
+}
+
+.link {
+  cursor: pointer;
 }
