@@ -17,7 +17,7 @@ const ContentScript = {
   },
 
   async originIsExemptable(hostname) {
-    return [
+    const domains = [
       "hangouts.google.com",
       "meet.google.com",
       "messenger.com",
@@ -25,7 +25,10 @@ const ContentScript = {
       "jitsi.org",
       "talky.io",
       "webex.com",
-    ].includes((await prettyHostname(hostname)));
+    ];
+
+    return domains.includes(hostname) ||
+           domains.includes((await prettyHostname(hostname)));
   },
 
   syncCreatePort() {
