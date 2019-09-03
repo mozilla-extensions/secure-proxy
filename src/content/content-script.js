@@ -78,7 +78,7 @@ const ContentScript = {
 
     // eslint-disable-next-line verify-await/check
     overwrittenProperties.forEach(data => {
-      if (!(data.methodName in data.parentObject.wrappedJSObject)) {
+      if (!data.parentObject || !(data.methodName in data.parentObject.wrappedJSObject)) {
         return;
       }
 
