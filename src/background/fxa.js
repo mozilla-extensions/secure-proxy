@@ -23,6 +23,9 @@ const FXA_CDN_DOMAINS = [
   "accounts-static-2.stage.mozaws.net",
 ];
 
+// If the token generation fails for network errors, when should we try again?
+const NEXT_TRY_TIME = 300; // 5 minutes in secs.
+
 export class FxAUtils extends Component {
   constructor(receiver) {
     super(receiver);
@@ -141,13 +144,7 @@ export class FxAUtils extends Component {
                            profileTokenData.value.minDiff);
 
     // Let's schedule the token rotation.
-    setTimeout(async _ => {
-      const result = await this.maybeGenerateTokens();
-      if (this.syncStateError(result)) {
-        log("token generation failed");
-        await this.sendMessage("authenticationFailed", result.state);
-      }
-    }, minDiff * 1000);
+    setTimeout(async _ => this.scheduledTokenGeneration(), minDiff * 1000);
 
     this.nextExpireTime = Math.min(proxyTokenData.value.tokenData.received_at + proxyTokenData.value.tokenData.expires_in,
                                    profileTokenData.value.tokenData.received_at + profileTokenData.value.tokenData.expires_in);
@@ -214,6 +211,21 @@ export class FxAUtils extends Component {
         tokenGenerated,
       }
     };
+  }
+
+  async scheduledTokenGeneration() {
+    log("Token generation scheduled");
+
+    const result = await this.maybeGenerateTokens();
+    if (this.syncStateError(result)) {
+      log("token generation failed");
+      await this.sendMessage("authenticationFailed", result.state);
+
+      if (result.state === FXA_ERR_NETWORK) {
+        log("Network error. Let's wait a bit before trying again.");
+        setTimeout(async _ => this.scheduledTokenGeneration(), NEXT_TRY_TIME *1000);
+      }
+    }
   }
 
   syncStateError(data) {
