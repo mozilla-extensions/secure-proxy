@@ -33,7 +33,7 @@ export class ProxyDownChecker extends Component {
       return;
     }
 
-    let now = performance.timeOrigin + performance.now();
+    let now = Date.now();
     let nowInSecs = Math.round(now / 1000);
     if ((this.lastCheckTime + PDC_TIME) > nowInSecs) {
       // We can wait a bit more before running another check.
@@ -66,7 +66,7 @@ export class ProxyDownChecker extends Component {
       log("All up or all down. We don't want to report this.");
     } finally {
       this.checking = false;
-      this.lastCheckTime = performance.timeOrigin + performance.now();
+      this.lastCheckTime = Date.now();
     }
   }
 
