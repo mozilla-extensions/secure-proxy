@@ -7,27 +7,32 @@ const TELEMETRY_EVENTS = {
     objects: [ "otherProxyInUse", "settingsShown", "loadingError", "install",
                "update", "proxyEnabled", "proxyDisabled" ],
     extra_keys: [],
+    record_on_release: true,
   },
   "authentication": {
     methods: [ "fxa" ],
     objects: [ "authStarted", "authCompleted", "authFailed", ],
     extra_keys: [],
+    record_on_release: true,
   },
   "networkingEvents": {
     methods: [ "networking" ],
     objects: [ "407", "429", "connecting", "proxyDown" ],
     extra_keys: [],
+    record_on_release: true,
   },
   "settingsUrlClicks": {
     methods: [ "settings_url_clicks" ],
     objects: [ "manageAccount", "helpAndSupport", "cloudflare", "privacyPolicy",
                "termsAndConditions", "giveUsFeedback" ],
     extra_keys: [],
+    record_on_release: true,
   },
   "webRTC": {
     methods: [ "webRTC" ],
     objects: [ "ignoreTab", "exemptTab" ],
     extra_keys: [],
+    record_on_release: true,
   },
 };
 
