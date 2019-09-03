@@ -124,6 +124,7 @@
   margin-block-end: 4px;
   transition: all 0.15s ease;
   --in-content-button-background: var(--grey-90-a10);
+  cursor:pointer;
 }
 
 #injectedModal button:hover {
