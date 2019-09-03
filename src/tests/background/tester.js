@@ -137,7 +137,7 @@ async function testAuthenticationFlow(m) {
 
   log("Simulating a token generation");
   const token = {
-    received_at: Math.round((performance.timeOrigin + performance.now()) / 1000),
+    received_at: Math.round(Date.now() / 1000),
     expires_in: 3600 * 3,
   };
 

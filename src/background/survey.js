@@ -51,19 +51,19 @@ export class Survey extends Component {
   }
 
   async scheduleNextSurvey() {
-    let now = performance.now() + performance.timeOrigin;
+    let now = Date.now();
 
-    let surveyInitTime = await StorageUtils.getSurveyInitTime();
-    if (!surveyInitTime) {
-      surveyInitTime = Math.round(now / 1000);
-      await StorageUtils.setSurveyInitTime(surveyInitTime);
+    let surveyInitialTime = await StorageUtils.getSurveyInitialTime();
+    if (!surveyInitialTime) {
+      surveyInitialTime = Math.round(now / 1000);
+      await StorageUtils.setSurveyInitialTime(surveyInitialTime);
     }
 
     // Let's find the next survey to show.
     let nextSurvey = await this.nextSurvey();
     if (nextSurvey) {
       now = Math.round(now / 1000);
-      let diff = surveyInitTime + nextSurvey.triggerAfterTime - now;
+      let diff = surveyInitialTime + nextSurvey.triggerAfterTime - now;
       if (diff < 0) {
         diff = 0;
       }

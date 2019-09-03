@@ -44,12 +44,12 @@ export const StorageUtils = {
     return this.getStorageKey("profileData");
   },
 
-  async getSurveyInitTime() {
-    return this.getStorageKey("surveyInitTime");
+  async getSurveyInitialTime() {
+    return this.getStorageKey("surveyInitialTime");
   },
 
-  async setSurveyInitTime(surveyInitTime) {
-    await browser.storage.local.set({surveyInitTime});
+  async setSurveyInitialTime(surveyInitialTime) {
+    await browser.storage.local.set({surveyInitialTime});
   },
 
   async getLastSurvey() {

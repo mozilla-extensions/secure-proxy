@@ -41,7 +41,7 @@ export class WellKnownData {
   async fetch() {
     log("Fetching well-known data");
 
-    let now = performance.timeOrigin + performance.now();
+    let now = Date.now();
     let nowInSecs = Math.round(now / 1000);
 
     if ((this.fxaEndpointsReceivedAt + FXA_EXP_WELLKNOWN_TIME) > nowInSecs) {

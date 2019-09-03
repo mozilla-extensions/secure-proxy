@@ -165,7 +165,7 @@ export class FxAUtils extends Component {
     let minDiff = 0;
     let tokenGenerated = false;
 
-    let now = performance.timeOrigin + performance.now();
+    let now = Date.now();
     let nowInSecs = Math.round(now / 1000);
 
     let tokenData = await StorageUtils.getStorageKey(tokenName);
@@ -321,17 +321,17 @@ export class FxAUtils extends Component {
     }
 
     // Let's store when this token has been received.
-    token.received_at = Math.round((performance.timeOrigin + performance.now()) / 1000);
+    token.received_at = Math.round(Date.now() / 1000);
 
     return { state: FXA_OK, token };
   }
 
   // This method returns a token or a Promise.
   askForProxyToken() {
-    let nowInSecs = Math.round((performance.timeOrigin + performance.now()) / 1000);
+    let nowInSecs = Math.round(Date.now() / 1000);
     if (this.generatingTokens ||
         !this.nextExpireTime ||
-        nowInSecs >= this.nextExpireTime) {
+        nowInSecs >= (this.nextExpireTime - EXPIRE_DELTA)) {
       // We don't care about the cached values. Maybe they are the old ones.
       return this.maybeGenerateTokens().then(_ => this.cachedProxyTokenValue);
     }
