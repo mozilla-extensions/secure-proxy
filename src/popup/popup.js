@@ -5,6 +5,9 @@ async function init() {
   // Let's start showing something...
   await View.setView("loading");
 
+  // Disable context menu.
+  window.addEventListener("contextmenu", e => e.preventDefault());
+
   // eslint-disable-next-line verify-await/check
   let port = browser.runtime.connect({name: "panel"});
   View.syncSetPort(port);
