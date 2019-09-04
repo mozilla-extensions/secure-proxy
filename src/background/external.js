@@ -20,6 +20,8 @@ export class ExternalHandler extends Component {
         return ConfigUtils.setDebuggingEnabled(message.value);
       case "setProxyURL":
         return ConfigUtils.setProxyURL(message.value);
+      case "setFxaOpenID":
+        return ConfigUtils.setFxaOpenID(message.value);
       case "setFxaExpirationTime":
         return ConfigUtils.setFxaExpirationTime(parseInt(message.value, 10));
       case "setFxaExpirationDelta":

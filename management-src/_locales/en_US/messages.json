@@ -26,6 +26,15 @@
   "productionProxyURL": {
     "message": "Production proxy URL"
   },
+  "pageFxaOpenIDTitle": {
+    "message": "FxA OpenID URL"
+  },
+  "debuggingFxaOpenID": {
+    "message": "Debugging FxA OpenID URL"
+  },
+  "productionFxaOpenID": {
+    "message": "Production FxA OpenID URL"
+  },
   "pageFxaExpirationTime": {
     "message": "FxA token expiration time"
   },

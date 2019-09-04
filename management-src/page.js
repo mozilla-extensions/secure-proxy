@@ -1,6 +1,9 @@
 const DEBUGGING_PROXY_URL = "https://proxy-staging.cloudflareclient.com:8001";
 const PRODUCTION_PROXY_URL = "https://firefox.factor11.cloudflareclient.com:2486";
 
+const DEBUGGING_FXA_OPENID = "https://stable.dev.lcip.org/.well-known/openid-configuration";
+const PRODUCTION_FXA_OPENID = "https://accounts.firefox.com/.well-known/openid-configuration";
+
 class Page {
   constructor() {
     const els = [...document.querySelectorAll("[data-l10n]")];
@@ -40,6 +43,9 @@ class Page {
     proxyURL.onchange = _ => {
       browser.runtime.sendMessage({ type: "setProxyURL", value: proxyURL.value });
     }
+    if (config.version < 10) {
+      proxyURL.disabled = true;
+    }
 
     const debuggingProxyURL = document.getElementById("debuggingProxyURL");
     debuggingProxyURL.onclick = _ => {
@@ -51,6 +57,27 @@ class Page {
     productionProxyURL.onclick = _ => {
       proxyURL.value = PRODUCTION_PROXY_URL;
       browser.runtime.sendMessage({ type: "setProxyURL", value: PRODUCTION_PROXY_URL });
+    }
+
+    const fxaOpenID = document.getElementById("fxaOpenID");
+    fxaOpenID.value = config.fxaOpenID || "";
+    fxaOpenID.onchange = _ => {
+      browser.runtime.sendMessage({ type: "setFxaOpenID", value: fxaOpenID.value });
+    }
+    if (config.version < 10) {
+      fxaOpenID.disabled = true;
+    }
+
+    const debuggingFxaOpenID = document.getElementById("debuggingFxaOpenID");
+    debuggingFxaOpenID.onclick = _ => {
+      fxaOpenID.value = DEBUGGING_FXA_OPENID;
+      browser.runtime.sendMessage({ type: "setFxaOpenID", value: DEBUGGING_FXA_OPENID });
+    }
+
+    const productionFxaOpenID = document.getElementById("productionFxaOpenID");
+    productionFxaOpenID.onclick = _ => {
+      fxaOpenID.value = PRODUCTION_FXA_OPENID;
+      browser.runtime.sendMessage({ type: "setFxaOpenID", value: PRODUCTION_FXA_OPENID });
     }
 
     const fxaExpirationTime = document.getElementById("fxaExpirationTime");

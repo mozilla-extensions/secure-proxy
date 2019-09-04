@@ -52,6 +52,9 @@ const DEFAULT_FXA_EXPIRATION_TIME = 21600; // 6 hours
 // How early we want to re-generate the tokens (in secs)
 const DEFAULT_FXA_EXPIRATION_DELTA = 3600; // 1 hour
 
+// FxA openID configuration
+const DEFAULT_FXA_OPENID = "https://accounts.firefox.com/.well-known/openid-configuration";
+
 
 const ConfigUtils = {
   async setProxyURL(proxyURL) {
@@ -60,6 +63,14 @@ const ConfigUtils = {
 
   async getProxyURL() {
     return new URL(await this.getStorageKey("proxyURL") || DEFAULT_PROXY_URL);
+  },
+
+  async setFxaOpenID(fxaOpenID) {
+    await browser.storage.local.set({fxaOpenID});
+  },
+
+  async getFxaOpenID() {
+    return new URL(await this.getStorageKey("fxaOpenID") || DEFAULT_FXA_OPENID);
   },
 
   async setDebuggingEnabled(debuggingEnabled) {
@@ -91,6 +102,7 @@ const ConfigUtils = {
 
     return {
       version: self.version,
+      fxaOpenID: await this.getFxaOpenID(),
       proxyURL: await this.getProxyURL(),
       debuggingEnabled: await this.getDebuggingEnabled(),
       fxaExpirationTime: await this.getFxaExpirationTime(),

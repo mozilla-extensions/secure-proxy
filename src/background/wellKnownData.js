@@ -1,6 +1,3 @@
-// FxA openID configuration
-const FXA_OPENID = "https://accounts.firefox.com/.well-known/openid-configuration";
-
 // List of attributes for the openID configuration
 const FXA_ENDPOINT_PROFILE = "userinfo_endpoint";
 const FXA_ENDPOINT_TOKEN = "token_endpoint";
@@ -22,8 +19,8 @@ export class WellKnownData {
     this.openIDJSON = {};
   }
 
-  init(prefs) {
-    this.fxaOpenID = prefs.value.fxaURL || FXA_OPENID;
+  async init() {
+    this.fxaOpenID = await ConfigUtils.getFxaOpenID();
 
     // Let's see if we can fetch data now. But let's ignore the async return
     // value.
@@ -112,7 +109,7 @@ export class WellKnownData {
   }
 
   excludedDomains() {
-    let excludedDomains = [];
+    let excludedDomains = [new URL(this.fxaOpenID).hostname];
 
     if (this.hasWellKnownData()) {
       [FXA_ENDPOINT_PROFILE, FXA_ENDPOINT_TOKEN, FXA_ENDPOINT_ISSUER].forEach(e => {
