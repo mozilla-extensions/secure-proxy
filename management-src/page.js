@@ -13,9 +13,20 @@ class Page {
     let config = await browser.runtime.sendMessage({ type: "getCurrentConfig" });
     if (!config) config = {};
 
+    const version = document.getElementById("version");
+    if (config.version) {
+      version.innerText = config.version;
+    } else {
+      version.innerText = this.getTranslation("olderThanV10");
+      config.version = 0;
+    }
+
     const reloadButton = document.getElementById("reload");
     reloadButton.onclick = _ => {
       browser.runtime.sendMessage({ type: "reload" });
+    }
+    if (config.version < 10) {
+      reloadButton.disabled = true;
     }
 
     const debuggingEnabled = document.getElementById("debuggingEnabled");
@@ -47,17 +58,26 @@ class Page {
     fxaExpirationTime.onchange = _ => {
       browser.runtime.sendMessage({ type: "setFxaExpirationTime", value: fxaExpirationTime.value });
     }
+    if (config.version < 10) {
+      fxaExpirationTime.disabled = true;
+    }
 
     const fxaExpirationDelta = document.getElementById("fxaExpirationDelta");
     fxaExpirationDelta.value = config.fxaExpirationDelta || 10;
     fxaExpirationDelta.onchange = _ => {
       browser.runtime.sendMessage({ type: "setFxaExpirationDelta", value: fxaExpirationDelta.value });
     }
+    if (config.version < 10) {
+      fxaExpirationDelta.disabled = true;
+    }
 
     const tokens = await browser.runtime.sendMessage({ type: "getTokens" });
 
     const proxyToken = document.getElementById("proxyToken");
     proxyToken.value = JSON.stringify(tokens.proxy);
+    if (config.version < 10) {
+      proxyToken.disabled = true;
+    }
 
     const proxySubmitButton = document.getElementById("proxySubmit");
     proxySubmitButton.onclick = _ => {
@@ -68,9 +88,15 @@ class Page {
         alert("Syntax invalid: " + e);
       }
     }
+    if (config.version < 10) {
+      proxySubmitButton.disabled = true;
+    }
 
     const profileToken = document.getElementById("profileToken");
     profileToken.value = JSON.stringify(tokens.profile);
+    if (config.version < 10) {
+      profileToken.disabled = true;
+    }
 
     const profileSubmitButton = document.getElementById("profileSubmit");
     profileSubmitButton.onclick = _ => {
@@ -80,6 +106,9 @@ class Page {
       } catch (e) {
         alert("Syntax invalid: " + e);
       }
+    }
+    if (config.version < 10) {
+      profileSubmitButton.disabled = true;
     }
   }
 

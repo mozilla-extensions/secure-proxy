@@ -8,6 +8,9 @@
   "pageReload": {
     "message": "Reload Extension"
   },
+  "pageVersion": {
+    "message": "FPN version"
+  },
   "pageDebuggingTitle": {
     "message": "Debugging enabled"
   },
@@ -40,5 +43,8 @@
   },
   "pageTokenSubmit": {
     "message": "Submit"
+  },
+  "olderThanV10": {
+    "message": "Older than v10"
   }
 }

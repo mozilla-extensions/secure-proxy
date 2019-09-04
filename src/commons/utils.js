@@ -87,7 +87,10 @@ const ConfigUtils = {
   },
 
   async getCurrentConfig() {
+    let self = await browser.management.getSelf();
+
     return {
+      version: self.version,
       proxyURL: await this.getProxyURL(),
       debuggingEnabled: await this.getDebuggingEnabled(),
       fxaExpirationTime: await this.getFxaExpirationTime(),
