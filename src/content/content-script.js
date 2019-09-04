@@ -18,13 +18,14 @@ const ContentScript = {
 
   async originIsExemptable(hostname) {
     const domains = [
+      "appear.in",
       "hangouts.google.com",
+      "jitsi.org",
       "meet.google.com",
       "messenger.com",
-      "appear.in",
-      "jitsi.org",
       "talky.io",
       "webex.com",
+      "whereby.com",
     ];
 
     return domains.includes(hostname) ||
