@@ -11,6 +11,10 @@
   <table id="table">
     <tbody>
       <tr>
+        <th class="column" data-l10n="pageVersion"></th>
+        <td id="version"></td>
+      </tr>
+      <tr>
         <th class="column" data-l10n="pageDebuggingTitle"></th>
         <td>
           <input type="checkbox" id="debuggingEnabled" />
@@ -24,6 +28,16 @@
           <ul>
             <li><a href="#" id="debuggingProxyURL" data-l10n="debuggingProxyURL"></a></li>
             <li><a href="#" id="productionProxyURL" data-l10n="productionProxyURL"></a></li>
+          </ul>
+        </td>
+      </tr>
+      <tr>
+        <th class="column" data-l10n="pageFxaOpenIDTitle"></th>
+        <td>
+          <input type="text" id="fxaOpenID" />
+          <ul>
+            <li><a href="#" id="debuggingFxaOpenID" data-l10n="debuggingFxaOpenID"></a></li>
+            <li><a href="#" id="productionFxaOpenID" data-l10n="productionFxaOpenID"></a></li>
           </ul>
         </td>
       </tr>

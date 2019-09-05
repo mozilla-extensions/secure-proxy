@@ -1,6 +1,9 @@
 const DEBUGGING_PROXY_URL = "https://proxy-staging.cloudflareclient.com:8001";
 const PRODUCTION_PROXY_URL = "https://firefox.factor11.cloudflareclient.com:2486";
 
+const DEBUGGING_FXA_OPENID = "https://stable.dev.lcip.org/.well-known/openid-configuration";
+const PRODUCTION_FXA_OPENID = "https://accounts.firefox.com/.well-known/openid-configuration";
+
 class Page {
   constructor() {
     const els = [...document.querySelectorAll("[data-l10n]")];
@@ -13,9 +16,20 @@ class Page {
     let config = await browser.runtime.sendMessage({ type: "getCurrentConfig" });
     if (!config) config = {};
 
+    const version = document.getElementById("version");
+    if (config.version) {
+      version.innerText = config.version;
+    } else {
+      version.innerText = this.getTranslation("olderThanV10");
+      config.version = 0;
+    }
+
     const reloadButton = document.getElementById("reload");
     reloadButton.onclick = _ => {
       browser.runtime.sendMessage({ type: "reload" });
+    }
+    if (config.version < 10) {
+      reloadButton.disabled = true;
     }
 
     const debuggingEnabled = document.getElementById("debuggingEnabled");
@@ -28,6 +42,9 @@ class Page {
     proxyURL.value = config.proxyURL || "";
     proxyURL.onchange = _ => {
       browser.runtime.sendMessage({ type: "setProxyURL", value: proxyURL.value });
+    }
+    if (config.version < 10) {
+      proxyURL.disabled = true;
     }
 
     const debuggingProxyURL = document.getElementById("debuggingProxyURL");
@@ -42,10 +59,34 @@ class Page {
       browser.runtime.sendMessage({ type: "setProxyURL", value: PRODUCTION_PROXY_URL });
     }
 
+    const fxaOpenID = document.getElementById("fxaOpenID");
+    fxaOpenID.value = config.fxaOpenID || "";
+    fxaOpenID.onchange = _ => {
+      browser.runtime.sendMessage({ type: "setFxaOpenID", value: fxaOpenID.value });
+    }
+    if (config.version < 10) {
+      fxaOpenID.disabled = true;
+    }
+
+    const debuggingFxaOpenID = document.getElementById("debuggingFxaOpenID");
+    debuggingFxaOpenID.onclick = _ => {
+      fxaOpenID.value = DEBUGGING_FXA_OPENID;
+      browser.runtime.sendMessage({ type: "setFxaOpenID", value: DEBUGGING_FXA_OPENID });
+    }
+
+    const productionFxaOpenID = document.getElementById("productionFxaOpenID");
+    productionFxaOpenID.onclick = _ => {
+      fxaOpenID.value = PRODUCTION_FXA_OPENID;
+      browser.runtime.sendMessage({ type: "setFxaOpenID", value: PRODUCTION_FXA_OPENID });
+    }
+
     const fxaExpirationTime = document.getElementById("fxaExpirationTime");
     fxaExpirationTime.value = config.fxaExpirationTime || 60;
     fxaExpirationTime.onchange = _ => {
       browser.runtime.sendMessage({ type: "setFxaExpirationTime", value: fxaExpirationTime.value });
+    }
+    if (config.version < 10) {
+      fxaExpirationTime.disabled = true;
     }
 
     const fxaExpirationDelta = document.getElementById("fxaExpirationDelta");
@@ -53,11 +94,17 @@ class Page {
     fxaExpirationDelta.onchange = _ => {
       browser.runtime.sendMessage({ type: "setFxaExpirationDelta", value: fxaExpirationDelta.value });
     }
+    if (config.version < 10) {
+      fxaExpirationDelta.disabled = true;
+    }
 
     const tokens = await browser.runtime.sendMessage({ type: "getTokens" });
 
     const proxyToken = document.getElementById("proxyToken");
     proxyToken.value = JSON.stringify(tokens.proxy);
+    if (config.version < 10) {
+      proxyToken.disabled = true;
+    }
 
     const proxySubmitButton = document.getElementById("proxySubmit");
     proxySubmitButton.onclick = _ => {
@@ -68,9 +115,15 @@ class Page {
         alert("Syntax invalid: " + e);
       }
     }
+    if (config.version < 10) {
+      proxySubmitButton.disabled = true;
+    }
 
     const profileToken = document.getElementById("profileToken");
     profileToken.value = JSON.stringify(tokens.profile);
+    if (config.version < 10) {
+      profileToken.disabled = true;
+    }
 
     const profileSubmitButton = document.getElementById("profileSubmit");
     profileSubmitButton.onclick = _ => {
@@ -80,6 +133,9 @@ class Page {
       } catch (e) {
         alert("Syntax invalid: " + e);
       }
+    }
+    if (config.version < 10) {
+      profileSubmitButton.disabled = true;
     }
   }
 

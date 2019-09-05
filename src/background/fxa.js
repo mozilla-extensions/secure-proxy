@@ -51,7 +51,7 @@ export class FxAUtils extends Component {
     this.fxaExpirationTime = await ConfigUtils.getFxaExpirationTime();
     this.fxaExpirationDelta = await ConfigUtils.getFxaExpirationDelta();
 
-    await this.wellKnownData.init(prefs);
+    await this.wellKnownData.init();
 
     // Let's see if we have to generate new tokens, but without waiting for the
     // result.
