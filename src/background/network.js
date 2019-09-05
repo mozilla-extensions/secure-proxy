@@ -6,6 +6,9 @@ const DOH_BOOTSTRAP_ADDRESS = "1.1.1.1";
 const DOH_SKIP_CONFIRMATION_NS = "skip";
 const DOH_REQUEST_TIMEOUT = 30000; // 30 secs
 
+// Telemetry host
+const TELEMETRY_HOST = "https://incoming.telemetry.mozilla.org";
+
 export class Network extends Component {
   constructor(receiver) {
     super(receiver);
@@ -213,6 +216,14 @@ export class Network extends Component {
 
     // If the request is local, ignore
     if (isLocal(url)) {
+      return false;
+    }
+
+    // Telemetry pings should always being delivered. Because of this, we try
+    // to send them through the proxy when we know the proxy is active, but if
+    // an error has been detected, we send them directly.
+    if (this.cachedProxyState !== PROXY_STATE_ACTIVE &&
+        url.origin === TELEMETRY_HOST) {
       return false;
     }
 
