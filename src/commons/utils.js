@@ -122,8 +122,21 @@ let debuggingMode = false;
 ConfigUtils.getDebuggingEnabled().then((debugging) => {
   debuggingMode = debugging;
 });
+
 function log(msg, ...rest) {
   if (debuggingMode) {
-    console.log("*** secure-proxy *** - " + msg, ...rest);
+    const options = {
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+      hour: "numeric",
+      minute: "numeric",
+      second: "numeric",
+      hour12: false,
+    };
+    const dateTimeFormat = new Intl.DateTimeFormat("en-US", options).format;
+
+    let now = dateTimeFormat(Date.now());
+    console.log("*** secure-proxy *** [" + now + "] - " + msg, ...rest);
   }
 }
