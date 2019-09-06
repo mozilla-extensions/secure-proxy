@@ -35,7 +35,7 @@ const tests = [
 
 async function testWellKnownData() {
   const wkd = new WellKnownData();
-  wkd.init({value: {}});
+  await wkd.init({value: {}});
 
   Tester.is(wkd.hasWellKnownData(), false, "No data initially");
   Tester.is(wkd.isAuthUrl("wow"), false, "IsAuthUrl works also without data");
@@ -97,9 +97,9 @@ async function testSurvey() {
   Tester.is((await StorageUtils.getLastUsageDays()).count, 1, "Last usage days: 1");
 }
 
-async function testConnectionTester() {
+async function testConnectionTester(m) {
   try {
-    await ConnectionTester.run();
+    await ConnectionTester.run(m);
     Tester.is(false, false, "This should not be resolved!");
   } catch (e) {
     Tester.is(true, true, "ConnectionTester rejects the operation if the proxy is down");
