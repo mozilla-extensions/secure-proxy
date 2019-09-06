@@ -18,10 +18,11 @@ export class Network extends Component {
 
     this.proxyPassthrough = new Set();
 
-    // Proxy configuration
-    browser.proxy.onRequest.addListener(requestInfo => {
-      return this.proxyRequestCallback(requestInfo);
-    }, {urls: ["<all_urls>"]});
+    // Proxy configuration is activated only when setProxyState callback 
+    // indicates a state we would allow proxying for content requests.
+    this.requestListner = null;
+    // Call now, early at the startup stage, to not cause any hypotetical leaks.
+    this.reconfigureProxyRequestCallback();
 
     // Handle header errors before we render the response
     browser.webRequest.onHeadersReceived.addListener(async details => {
@@ -80,6 +81,51 @@ export class Network extends Component {
     await this.checkProxyPassthrough();
   }
 
+  setProxyState(proxyState) {
+    super.setProxyState(proxyState);
+    this.reconfigureProxyRequestCallback();
+  }
+
+  /**
+   * Reflect changes to states affecting the decision 
+   * whether proxy.onRequest should be set or not.
+   */
+  reconfigureProxyRequestCallback() {
+    log(`proxy.onRequest reconfiguration, state=${this.cachedProxyState}`);
+    
+    if (this.shouldProxyInCurrentState()) {
+      this.activateProxyRequestCallback();
+    } else { 
+      this.deactivateProxyRequestCallback();
+    }
+  }
+
+  newProxyRequestCallback() {
+    return requestInfo => {
+      return this.proxyRequestCallback(requestInfo);
+    };
+  }
+
+  activateProxyRequestCallback() {
+    if (!this.requestListner) {
+      this.requestListner = this.newProxyRequestCallback();
+      browser.proxy.onRequest.addListener(this.requestListner, { urls: ["<all_urls>"] });
+      log("proxy.onRequest listener has been added");
+    } else {
+      log("proxy.onRequest listener remains added");
+    }
+  }
+
+  deactivateProxyRequestCallback() {
+    if (this.requestListner) {
+      browser.proxy.onRequest.removeListener(this.requestListner);
+      this.requestListner = null;
+      log("proxy.onRequest listener has been removed");
+    } else {
+      log("proxy.onRequest listener remains not-added");
+    }
+  }
+
   async proxyRequestCallback(requestInfo) {
     // eslint-disable-next-line verify-await/check
     let shouldProxyRequest = this.shouldProxyRequest(requestInfo);
@@ -134,6 +180,26 @@ export class Network extends Component {
   }
 
   /**
+   * We want to continue the sending of requests to the proxy even if we
+   * receive errors, in order to avoid exposing the IP when something goes
+   * wrong.
+   *
+   * This also affects whether we set or not the proxy.onRequest callback.
+   */
+  shouldProxyInCurrentState() {
+    if (this.cachedProxyState === PROXY_STATE_LOADING ||
+        this.cachedProxyState === PROXY_STATE_UNAUTHENTICATED ||
+        this.cachedProxyState === PROXY_STATE_AUTHFAILURE ||
+        this.cachedProxyState === PROXY_STATE_INACTIVE ||
+        this.cachedProxyState === PROXY_STATE_CONNECTING ||
+        this.cachedProxyState === PROXY_STATE_OTHERINUSE) {
+      return false;
+    }
+
+    return true;
+  }
+
+  /**
    * Decides if we should be proxying the request.
    * Returns true if the request should be proxied
    * Returns null if the request is internal and shouldn't count.
@@ -181,15 +247,7 @@ export class Network extends Component {
       return true;
     }
 
-    // We want to continue the sending of requests to the proxy even if we
-    // receive errors, in order to avoid exposing the IP when something goes
-    // wrong.
-    if (this.cachedProxyState === PROXY_STATE_LOADING ||
-        this.cachedProxyState === PROXY_STATE_UNAUTHENTICATED ||
-        this.cachedProxyState === PROXY_STATE_AUTHFAILURE ||
-        this.cachedProxyState === PROXY_STATE_INACTIVE ||
-        this.cachedProxyState === PROXY_STATE_CONNECTING ||
-        this.cachedProxyState === PROXY_STATE_OTHERINUSE) {
+    if (!this.shouldProxyInCurrentState()) {
       return false;
     }
 

@@ -37,7 +37,7 @@ export class OfflineManager extends Component {
     this.timeoutId = 0;
 
     try {
-      await ConnectionTester.run();
+      await ConnectionTester.run(this.receiver);
       await this.sendMessage("onlineDetected");
     } catch (e) {
       log("We are still offline");

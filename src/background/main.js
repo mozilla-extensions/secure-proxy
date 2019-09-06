@@ -167,7 +167,7 @@ class Main {
 
   async testProxyConnection() {
     try {
-      await ConnectionTester.run();
+      await ConnectionTester.run(this);
 
       this.setProxyState(PROXY_STATE_ACTIVE);
 
