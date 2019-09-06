@@ -167,7 +167,7 @@ class Main {
 
   async testProxyConnection() {
     try {
-      await ConnectionTester.run();
+      await ConnectionTester.run(this);
 
       this.setProxyState(PROXY_STATE_ACTIVE);
 
@@ -447,6 +447,9 @@ class Main {
 
       case "telemetry":
         return this.telemetry.syncAddEvent(data.category, data.event);
+      
+      case "proxyRequestCallback":
+        return this.net.newProxyRequestCallback();
 
       default:
         console.error("Invalid event: " + type);
