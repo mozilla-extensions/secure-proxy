@@ -23,4 +23,12 @@ export class Component {
   setProxyState(proxyState) {
     this.cachedProxyState = proxyState;
   }
+
+  pushProxyRequestCallback() {
+    this.receiver.pushProxyRequestCallback();
+  }
+
+  popProxyRequestCallback() {
+    this.receiver.popProxyRequestCallback();
+  }
 }

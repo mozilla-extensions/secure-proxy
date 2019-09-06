@@ -77,7 +77,7 @@ export class ProxyDownChecker extends Component {
       new Promise((resolve, reject) => {
         // We want to resolve in case of failure!
         // eslint-disable-next-line verify-await/check
-        ConnectionTester.run().then(reject, resolve);
+        ConnectionTester.run(this).then(reject, resolve);
       }),
 
       // Here a request that doesn't go through the proxy.

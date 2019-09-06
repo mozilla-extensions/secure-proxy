@@ -167,7 +167,7 @@ class Main {
 
   async testProxyConnection() {
     try {
-      await ConnectionTester.run();
+      await ConnectionTester.run(this);
 
       this.setProxyState(PROXY_STATE_ACTIVE);
 
@@ -457,6 +457,14 @@ class Main {
   registerObserver(observer) {
     // eslint-disable-next-line verify-await/check
     this.observers.add(observer);
+  }
+
+  pushProxyRequestCallback() {
+    this.net.pushProxyRequestCallback();
+  }
+
+  popProxyRequestCallback() {
+    this.net.popProxyRequestCallback();
   }
 }
 
