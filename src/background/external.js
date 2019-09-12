@@ -23,14 +23,16 @@ export class ExternalHandler extends Component {
       case "setFxaOpenID":
         return ConfigUtils.setFxaOpenID(message.value);
       case "setFxaExpirationTime":
+        // eslint-disable-next-line verify-await/check
         return ConfigUtils.setFxaExpirationTime(parseInt(message.value, 10));
       case "setFxaExpirationDelta":
+        // eslint-disable-next-line verify-await/check
         return ConfigUtils.setFxaExpirationDelta(parseInt(message.value, 10));
       case "getTokens":
         return {
           proxy: await StorageUtils.getStorageKey("proxyTokenData"),
           profile: await StorageUtils.getStorageKey("profileTokenData"),
-        }
+        };
       case "setProxyToken":
         return this.sendMessage("forceToken", { proxy: message.value });
       case "setProfileToken":

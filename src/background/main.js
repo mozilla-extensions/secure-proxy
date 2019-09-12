@@ -168,18 +168,19 @@ class Main {
   async testProxyConnection() {
     try {
       await ConnectionTester.run(this);
-
-      this.setProxyState(PROXY_STATE_ACTIVE);
-
-      this.net.syncAfterConnectionSteps();
-      await this.ui.afterConnectionSteps();
     } catch (e) {
       log("set offline state. This will activate the offline component");
       this.setProxyState(PROXY_STATE_OFFLINE);
       await this.ui.update();
       this.telemetry.syncAddEvent("networking", "connecting");
       this.proxyDownChecker.syncRun();
+      return;
     }
+
+    this.setProxyState(PROXY_STATE_ACTIVE);
+
+    this.net.syncAfterConnectionSteps();
+    await this.ui.afterConnectionSteps();
   }
 
   async enableProxy(value, telemetryReason) {
@@ -383,7 +384,7 @@ class Main {
     if (this.pendingEvents.length) {
       log(`Processing the first of ${this.pendingEvents.length} events`);
       // eslint-disable-next-line verify-await/check
-      setTimeout(_ => { this.pendingEvents.shift()(); }, 0);
+      this.pendingEvents.shift()();
     }
   }
 
@@ -447,9 +448,9 @@ class Main {
 
       case "telemetry":
         return this.telemetry.syncAddEvent(data.category, data.event);
-      
+
       case "proxyRequestCallback":
-        return this.net.newProxyRequestCallback();
+        return this.net.syncNewProxyRequestCallback();
 
       default:
         console.error("Invalid event: " + type);

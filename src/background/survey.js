@@ -61,6 +61,7 @@ export class Survey extends Component {
   }
 
   async scheduleNextSurvey() {
+    // eslint-disable-next-line verify-await/check
     let now = Date.now();
 
     let surveyInitialTime = await StorageUtils.getSurveyInitialTime();

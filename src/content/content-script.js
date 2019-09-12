@@ -28,8 +28,8 @@ const ContentScript = {
       "whereby.com",
     ];
 
-    return domains.includes(hostname) ||
-           domains.includes((await prettyHostname(hostname)));
+    // eslint-disable-next-line verify-await/check
+    return domains.includes(hostname) || domains.includes((await prettyHostname(hostname)));
   },
 
   syncCreatePort() {

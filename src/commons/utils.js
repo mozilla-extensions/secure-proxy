@@ -86,6 +86,7 @@ const ConfigUtils = {
   },
 
   async getFxaExpirationTime() {
+    // eslint-disable-next-line verify-await/check
     return parseInt(await this.getStorageKey("fxaExpirationTime"), 10) || DEFAULT_FXA_EXPIRATION_TIME;
   },
 
@@ -94,6 +95,7 @@ const ConfigUtils = {
   },
 
   async getFxaExpirationDelta() {
+    // eslint-disable-next-line verify-await/check
     return parseInt(await this.getStorageKey("fxaExpirationDelta"), 10) || DEFAULT_FXA_EXPIRATION_DELTA;
   },
 
@@ -136,6 +138,7 @@ function log(msg, ...rest) {
     };
     const dateTimeFormat = new Intl.DateTimeFormat("en-US", options).format;
 
+    // eslint-disable-next-line verify-await/check
     let now = dateTimeFormat(Date.now());
     console.log("*** secure-proxy *** [" + now + "] - " + msg, ...rest);
   }

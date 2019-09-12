@@ -34,7 +34,10 @@ export class ConnectionTester {
     });
 
     // Make sure we remove the proxy listener either the promise resolves or rejects
+
+    // eslint-disable-next-line verify-await/check
     promise.catch(_ => { }).then(_ => {
+      // eslint-disable-next-line verify-await/check
       browser.proxy.onRequest.removeListener(proxyListener);
       log("removed proxy.onRequest listener for", CONNECTING_HTTP_REQUEST);
     });
