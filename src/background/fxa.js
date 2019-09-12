@@ -180,7 +180,7 @@ export class FxAUtils extends Component {
       // If we are close to the expiration time, we have to generate the token.
       // We want to keep a big time margin: 1 hour seems good enough.
       let diff = tokenData.received_at + tokenData.expires_in - nowInSecs - this.fxaExpirationDelta;
-      if (!diff || diff < this.fxaExpirationDelta) {
+      if (!diff || diff < 0) {
         log(`Token exists but it is expired. Received at ${tokenData.received_at} and expires in ${tokenData.expires_in}`);
         tokenData = null;
       } else {
