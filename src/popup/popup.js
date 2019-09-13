@@ -68,6 +68,10 @@ async function init() {
         await View.setView("proxyError");
         return;
 
+      case PROXY_STATE_CAPTIVE:
+        await View.setView("captive");
+        return;
+
       case PROXY_STATE_OTHERINUSE:
         await View.setView("otherInUse", proxyState);
         return;

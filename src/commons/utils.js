@@ -6,6 +6,9 @@ const PROXY_STATE_LOADING = "loading";
 // We are offline.
 const PROXY_STATE_OFFLINE = "offline";
 
+// Captive portal detected.
+const PROXY_STATE_CAPTIVE = "captive";
+
 // The user is not authenticated, the proxy is not configured.
 const PROXY_STATE_UNAUTHENTICATED = "unauthenticated";
 

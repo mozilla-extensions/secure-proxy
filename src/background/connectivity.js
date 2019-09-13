@@ -13,5 +13,21 @@ export class Connectivity extends Component {
     browser.experiments.proxyutils.onConnectionChanged.addListener(async connectivity => {
       return this.sendMessage("connectivityChanged", { connectivity });
     });
+
+    // captive portal observer.
+    browser.captivePortal.onStateChanged.addListener(data => {
+      return this.sendMessage("captivePortalStateChanged", data);
+    });
+  }
+
+  async init() {
+    if (await this.inCaptivePortal()) {
+      this.sendMessage("captivePortalStateChanged", {state: "locked_portal" });
+    }
+  }
+
+  async inCaptivePortal() {
+    let state = await browser.captivePortal.getState();
+    return state === "locked_portal";
   }
 }

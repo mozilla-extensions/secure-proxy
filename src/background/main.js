@@ -145,6 +145,12 @@ class Main {
       return;
     }
 
+    // Captive portal?
+    if (await this.connectivity.inCaptivePortal()) {
+      this.setProxyState(PROXY_STATE_CAPTIVE);
+      return;
+    }
+
     // We want to keep these states.
     if (this.proxyState === PROXY_STATE_AUTHFAILURE ||
         this.proxyState === PROXY_STATE_PROXYERROR ||
@@ -281,6 +287,17 @@ class Main {
     }
   }
 
+  async onCaptivePortalStateChanged(state) {
+    log(`captive portal status: ${state}`);
+
+    if (state === "locked_portal") {
+      await this.run();
+      return;
+    }
+
+    await this.maybeActivate("captivePortal");
+  }
+
   async hasProxyInUse() {
     let proxySettings = await browser.proxy.settings.get({});
     return ["manual", "autoConfig", "autoDetect"].includes(proxySettings.value.proxyType);
@@ -345,7 +362,7 @@ class Main {
     this.fxa.prefetchWellKnownData();
   }
 
-  async tokenGenerated(tokenType, tokenValue) {
+  async maybeActivate(reason) {
     // If the proxy is off, we should not go back online.
     if (this.proxyState === PROXY_STATE_INACTIVE) {
       return;
@@ -358,7 +375,7 @@ class Main {
       this.setProxyState(PROXY_STATE_INACTIVE);
 
       // Let's enable the proxy.
-      await this.enableProxy(true, "tokenGenerated");
+      await this.enableProxy(true, reason);
     }
   }
 
@@ -404,14 +421,23 @@ class Main {
       case "authenticationRequired":
         return this.auth();
 
+      case "captivePortalStateChanged":
+        return this.onCaptivePortalStateChanged(data.state);
+
       case "connectivityChanged":
         return this.onConnectivityChanged(data.connectivity);
 
       case "enableProxy":
         return this.enableProxy(data.enabledState, data.reason);
 
+      case "forceToken":
+        return this.fxa.forceToken(data);
+
       case "managerAccountURL":
         return this.fxa.manageAccountURL();
+
+      case "onlineDetected":
+        return this.run();
 
       case "proxyAuthenticationFailed":
         return this.proxyAuthenticationFailed();
@@ -426,13 +452,7 @@ class Main {
         return this.proxySettingsChanged();
 
       case "tokenGenerated":
-        return this.tokenGenerated(data.tokenType, data.tokenValue);
-
-      case "onlineDetected":
-        return this.run();
-
-      case "forceToken":
-        return this.fxa.forceToken(data);
+        return this.maybeActivate("tokenGenerated");
 
       default:
         console.error("Invalid event: " + type);
