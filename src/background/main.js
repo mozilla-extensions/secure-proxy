@@ -147,7 +147,6 @@ class Main {
 
     // We want to keep these states.
     if (this.proxyState === PROXY_STATE_AUTHFAILURE ||
-        this.proxyState === PROXY_STATE_PROXYERROR ||
         this.proxyState === PROXY_STATE_PROXYAUTHFAILED) {
       return;
     }
