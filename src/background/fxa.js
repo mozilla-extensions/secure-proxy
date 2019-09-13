@@ -9,9 +9,6 @@ const FXA_PROXY_SCOPE = "https://identity.mozilla.com/apps/secure-proxy";
 // The client ID for this extension
 const FXA_CLIENT_ID = "a8c528140153d1c6";
 
-// Token expiration time
-const FXA_EXP_TOKEN_TIME = 21600; // 6 hours
-
 // How early we want to re-generate the tokens (in secs)
 const EXPIRE_DELTA = 3600;
 
@@ -172,6 +169,7 @@ export class FxAUtils extends Component {
     let minDiff = 0;
     let tokenGenerated = false;
 
+    // eslint-disable-next-line verify-await/check
     let now = Date.now();
     let nowInSecs = Math.round(now / 1000);
 
@@ -223,7 +221,7 @@ export class FxAUtils extends Component {
 
       if (result.state === FXA_ERR_NETWORK) {
         log("Network error. Let's wait a bit before trying again.");
-        setTimeout(async _ => this.scheduledTokenGeneration(), NEXT_TRY_TIME *1000);
+        setTimeout(async _ => this.scheduledTokenGeneration(), NEXT_TRY_TIME * 1000);
       }
     }
   }
@@ -348,6 +346,7 @@ export class FxAUtils extends Component {
     }
 
     // Let's store when this token has been received.
+    // eslint-disable-next-line verify-await/check
     token.received_at = Math.round(Date.now() / 1000);
 
     return { state: FXA_OK, token };
@@ -355,6 +354,7 @@ export class FxAUtils extends Component {
 
   // This method returns a token or a Promise.
   askForProxyToken() {
+    // eslint-disable-next-line verify-await/check
     let nowInSecs = Math.round(Date.now() / 1000);
     if (this.generatingTokens ||
         !this.nextExpireTime ||
@@ -378,6 +378,7 @@ export class FxAUtils extends Component {
   }
 
   excludedDomains() {
+    // eslint-disable-next-line verify-await/check
     const excludedDomains = this.wellKnownData.excludedDomains();
     return excludedDomains.concat(FXA_CDN_DOMAINS);
   }

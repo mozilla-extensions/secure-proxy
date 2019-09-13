@@ -6,6 +6,9 @@ const DOH_BOOTSTRAP_ADDRESS = "1.1.1.1";
 const DOH_SKIP_CONFIRMATION_NS = "skip";
 const DOH_REQUEST_TIMEOUT = 30000; // 30 secs
 
+// Timeout between 1 network error and the next one.
+const NET_ERROR_TIMEOUT = 5000; // 5 seconds.
+
 // Telemetry host
 const TELEMETRY_HOST = "https://incoming.telemetry.mozilla.org";
 
@@ -18,11 +21,13 @@ export class Network extends Component {
 
     this.proxyPassthrough = new Set();
 
-    // Proxy configuration is activated only when setProxyState callback 
+    // Proxy configuration is activated only when setProxyState callback
     // indicates a state we would allow proxying for content requests.
     this.requestListener = null;
     // Call now, early at the startup stage, to not cause any hypotetical leaks.
-    this.reconfigureProxyRequestCallback();
+    this.syncReconfigureProxyRequestCallback();
+
+    this.processingNetworkError = false;
 
     // Handle header errors before we render the response
     browser.webRequest.onHeadersReceived.addListener(async details => {
@@ -83,32 +88,32 @@ export class Network extends Component {
 
   setProxyState(proxyState) {
     super.setProxyState(proxyState);
-    this.reconfigureProxyRequestCallback();
+    this.syncReconfigureProxyRequestCallback();
   }
 
   /**
-   * Reflect changes to states affecting the decision 
+   * Reflect changes to states affecting the decision
    * whether proxy.onRequest should be set or not.
    */
-  reconfigureProxyRequestCallback() {
+  syncReconfigureProxyRequestCallback() {
     log(`proxy.onRequest reconfiguration, state=${this.cachedProxyState}`);
-    
-    if (this.shouldProxyInCurrentState()) {
-      this.activateProxyRequestCallback();
-    } else { 
-      this.deactivateProxyRequestCallback();
+
+    if (this.syncShouldProxyInCurrentState()) {
+      this.syncActivateProxyRequestCallback();
+    } else {
+      this.syncDeactivateProxyRequestCallback();
     }
   }
 
-  newProxyRequestCallback() {
+  syncNewProxyRequestCallback() {
     return requestInfo => {
       return this.proxyRequestCallback(requestInfo);
     };
   }
 
-  activateProxyRequestCallback() {
+  syncActivateProxyRequestCallback() {
     if (!this.requestListener) {
-      this.requestListener = this.newProxyRequestCallback();
+      this.requestListener = this.syncNewProxyRequestCallback();
       browser.proxy.onRequest.addListener(this.requestListener, { urls: ["<all_urls>"] });
       log("proxy.onRequest listener has been added");
     } else {
@@ -116,8 +121,9 @@ export class Network extends Component {
     }
   }
 
-  deactivateProxyRequestCallback() {
+  syncDeactivateProxyRequestCallback() {
     if (this.requestListener) {
+      // eslint-disable-next-line verify-await/check
       browser.proxy.onRequest.removeListener(this.requestListener);
       this.requestListener = null;
       log("proxy.onRequest listener has been removed");
@@ -186,7 +192,7 @@ export class Network extends Component {
    *
    * This also affects whether we set or not the proxy.onRequest callback.
    */
-  shouldProxyInCurrentState() {
+  syncShouldProxyInCurrentState() {
     if (this.cachedProxyState === PROXY_STATE_LOADING ||
         this.cachedProxyState === PROXY_STATE_UNAUTHENTICATED ||
         this.cachedProxyState === PROXY_STATE_AUTHFAILURE ||
@@ -247,7 +253,7 @@ export class Network extends Component {
       return true;
     }
 
-    if (!this.shouldProxyInCurrentState()) {
+    if (!this.syncShouldProxyInCurrentState()) {
       return false;
     }
 
@@ -336,16 +342,36 @@ export class Network extends Component {
   async processNetworkError(url, errorStatus) {
     log(`processNetworkError: ${url}  ${errorStatus}`);
 
+    // Network errors are sent as events to the Main component which processes
+    // them 1 by 1. Some of them trigger token rotations and connection tests.
+    // Because of that, we want to avoid flooding the Main component with
+    // network error events in a short time frame. Let's send 1 event only any
+    // NET_ERROR_TIMEOUT milliseconds.
+
+    if (this.processingNetworkError) {
+      return;
+    }
+
+    this.processingNetworkError = true;
+
+    // If the error has been propaged as event to the Main component, we wait a
+    // bit before processing the next one.
+    if (await this.processNetworkErrorInternal(errorStatus)) {
+      setTimeout(_ => { this.processingNetworkError = false; }, NET_ERROR_TIMEOUT);
+    }
+  }
+
+  async processNetworkErrorInternal(errorStatus) {
     if (errorStatus === "NS_ERROR_PROXY_AUTHENTICATION_FAILED") {
       await this.sendMessage("proxyAuthenticationFailed");
       this.syncSendMessage("telemetry", { category: "networking", event: "407" });
-      return;
+      return true;
     }
 
     if (errorStatus === "NS_ERROR_TOO_MANY_REQUESTS") {
       await this.sendMessage("proxyTooManyRequests");
       this.syncSendMessage("telemetry", { category: "networking", event: "429" });
-      return;
+      return true;
     }
 
     if (errorStatus === "NS_ERROR_PROXY_CONNECTION_REFUSED" ||
@@ -353,10 +379,11 @@ export class Network extends Component {
         errorStatus === "NS_ERROR_PROXY_BAD_GATEWAY" ||
         errorStatus === "NS_ERROR_PROXY_GATEWAY_TIMEOUT") {
       await this.sendMessage("proxyGenericError");
-      return;
+      return true;
     }
 
     log("Ignored network error: " + errorStatus);
+    return false;
   }
 
   async checkProxyPassthrough() {

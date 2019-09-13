@@ -43,6 +43,7 @@ export class WellKnownData {
   async fetch() {
     log("Fetching well-known data");
 
+    // eslint-disable-next-line verify-await/check
     let now = Date.now();
     let nowInSecs = Math.round(now / 1000);
 

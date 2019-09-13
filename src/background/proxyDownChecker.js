@@ -33,6 +33,7 @@ export class ProxyDownChecker extends Component {
       return;
     }
 
+    // eslint-disable-next-line verify-await/check
     let now = Date.now();
     let nowInSecs = Math.round(now / 1000);
     if ((this.lastCheckTime + PDC_TIME) > nowInSecs) {
@@ -66,6 +67,7 @@ export class ProxyDownChecker extends Component {
       log("All up or all down. We don't want to report this.");
     } finally {
       this.checking = false;
+      // eslint-disable-next-line verify-await/check
       this.lastCheckTime = Date.now();
     }
   }
