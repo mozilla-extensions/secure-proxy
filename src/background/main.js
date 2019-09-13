@@ -152,16 +152,24 @@ class Main {
       return;
     }
 
-    this.setProxyState(PROXY_STATE_UNAUTHENTICATED);
-
     // All seems good. Let's see if the proxy should enabled.
     let data = await this.fxa.maybeGenerateTokens();
-    if (data.state === FXA_OK) {
-      this.setProxyState(PROXY_STATE_CONNECTING);
+    switch (data.state) {
+      case FXA_OK:
+        this.setProxyState(PROXY_STATE_CONNECTING);
 
-      // Note that we are not waiting for this function. The code moves on.
-      // eslint-disable-next-line verify-await/check
-      this.testProxyConnection();
+        // Note that we are not waiting for this function. The code moves on.
+        // eslint-disable-next-line verify-await/check
+        this.testProxyConnection();
+        return;
+
+      case FXA_ERR_AUTH:
+        this.setProxyState(PROXY_STATE_UNAUTHENTICATED);
+        return;
+
+      case FXA_ERR_NETWORK:
+        this.setProxyState(PROXY_STATE_OFFLINE);
+        return;
     }
   }
 
