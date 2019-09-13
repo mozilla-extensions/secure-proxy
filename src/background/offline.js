@@ -1,8 +1,6 @@
 import {ConnectionTester} from "./connection.js";
 import {Component} from "./component.js";
 
-const OFFLINE_TIMEOUT = 5000; // 5 secs
-
 export class OfflineManager extends Component {
   constructor(receiver) {
     super(receiver);
@@ -16,6 +14,8 @@ export class OfflineManager extends Component {
     clearTimeout(this.timeoutId);
     this.timeoutId = 0;
 
+    this.syncResetTimeout();
+
     if (this.cachedProxyState !== PROXY_STATE_OFFLINE) {
       return;
     }
@@ -28,7 +28,7 @@ export class OfflineManager extends Component {
     log("Scheduling the proxy connection");
 
     // Let's try to recover from a offline state.
-    this.timeoutId = setTimeout(async _ => this.testProxyConnection(), OFFLINE_TIMEOUT);
+    this.timeoutId = setTimeout(async _ => this.testProxyConnection(), this.timeout * 1000);
   }
 
   async testProxyConnection() {
@@ -38,10 +38,23 @@ export class OfflineManager extends Component {
 
     try {
       await ConnectionTester.run(this.receiver);
+
+      // Duplicate the timeout for the next round.
+      this.syncResetTimeout();
+
       await this.sendMessage("onlineDetected");
     } catch (e) {
       log("We are still offline");
+
+      // Duplicate the timeout for the next round.
+      this.timeout *= 2;
+
       this.syncScheduleProxyConnection();
     }
+  }
+
+  syncResetTimeout() {
+    // Reset the timeout (in secs).
+    this.timeout = 1;
   }
 }
