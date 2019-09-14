@@ -302,12 +302,18 @@ this.proxyutils = class extends ExtensionAPI {
                 // eslint-disable-next-line verify-await/check
                 let excludedDomains = [...new Set(domains.concat(localhostDomains))].join(",");
 
+                // We don't overwrite custom bootstrap address pref.
+                let bootstrapAddress = Services.prefs.getCharPref("network.trr.bootstrapAddress");
+                if (!bootstrapAddress) {
+                   bootstrapAddress = details.value.bootstrapAddress;
+                }
+
                 return ExtensionPreferencesManager.setSetting(
                   context.extension.id,
                   "secureProxy.DNSoverHTTP",
                   {
                     mode: details.value.mode,
-                    bootstrapAddress: details.value.bootstrapAddress,
+                    bootstrapAddress,
                     excludedDomains,
                     confirmationNS: details.value.confirmationNS,
                     requestTimeout: details.value.requestTimeout,
