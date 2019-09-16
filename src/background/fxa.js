@@ -156,7 +156,7 @@ export class FxAUtils extends Component {
       // event.
 
       // eslint-disable-next-line verify-await/check
-      this.sendMessage("tokenGenerated", this.cachedProxyTokenValue);
+      this.sendMessage("tokenGenerated");
     }
 
     // All good!

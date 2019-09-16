@@ -276,6 +276,8 @@ export class UI extends Component {
         // Fall through
       case PROXY_STATE_OFFLINE:
         // Fall through
+      case PROXY_STATE_CAPTIVE:
+        // Fall through
       case PROXY_STATE_AUTHFAILURE:
         promptNotice = "toastWarning";
         isWarning = true;
@@ -313,7 +315,8 @@ export class UI extends Component {
     let text;
     if (this.cachedProxyState === PROXY_STATE_INACTIVE ||
         this.cachedProxyState === PROXY_STATE_CONNECTING ||
-        this.cachedProxyState === PROXY_STATE_OFFLINE) {
+        this.cachedProxyState === PROXY_STATE_OFFLINE ||
+        this.cachedProxyState === PROXY_STATE_CAPTIVE) {
       icon = "/img/badge_off.svg";
       text = "badgeOffText";
     } else if (this.cachedProxyState === PROXY_STATE_ACTIVE) {
