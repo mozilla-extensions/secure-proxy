@@ -16,7 +16,8 @@ export class OfflineManager extends Component {
 
     this.syncResetTimeout();
 
-    if (this.cachedProxyState !== PROXY_STATE_OFFLINE) {
+    if (this.cachedProxyState !== PROXY_STATE_OFFLINE &&
+        this.cachedProxyState !== PROXY_STATE_PROXYERROR) {
       return;
     }
 
