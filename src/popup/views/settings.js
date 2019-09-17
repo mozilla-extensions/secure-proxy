@@ -10,7 +10,7 @@ class ViewSettings extends View {
     return escapedTemplate`
       <ul class="settingsMenu">
         <li class="manage">
-          <a class="link" id="manageAccount">
+          <a href="#" class="link" id="manageAccount">
             <img src="${data.userInfo.avatar}" />
             <div class="details">
               <span id="email">${data.userInfo.email}</span>
@@ -20,14 +20,14 @@ class ViewSettings extends View {
         </li>
         <li>
           <ul>
-            <li><a class="link" id="helpAndSupport">${this.getTranslation("viewSettings-helpAndSupportLink")}</a></li>
-            <li><a class="link" id="giveUsFeedback">${this.getTranslation("viewSettings-giveUsFeedbackLink")}</a></li>
+            <li><a href="#" class="link" id="helpAndSupport">${this.getTranslation("viewSettings-helpAndSupportLink")}</a></li>
+            <li><a href="#" class="link" id="giveUsFeedback">${this.getTranslation("viewSettings-giveUsFeedbackLink")}</a></li>
           </ul>
         </li>
         <li>
           <ul>
-            <li><a class="link" id="privacyPolicy">${this.getTranslation("viewSettings-privacyPolicyLink")}</a></li>
-            <li><a class="link" id="termsAndConditions">${this.getTranslation("viewSettings-termsAndConditionsLink")}</a></li>
+            <li><a href="#" class="link" id="privacyPolicy">${this.getTranslation("viewSettings-privacyPolicyLink")}</a></li>
+            <li><a href="#" class="link" id="termsAndConditions">${this.getTranslation("viewSettings-termsAndConditionsLink")}</a></li>
           </ul>
         </li>
       </ul>
@@ -39,12 +39,12 @@ class ViewSettings extends View {
   syncFooter() {
     return escapedTemplate`
       <span id="poweredBy">${this.getTranslation("popupPoweredBy")}</span>
-      <a class="link" id="cloudflare">${this.getTranslation("popupCloudflare")}</a>
+      <a href="#" class="link" id="cloudflare">${this.getTranslation("popupCloudflare")}</a>
       <span>${this.getTranslation("popupCloudflareRT")}</span>
     `;
   }
 
-  async handleEvent(e) {
+  async handleClickEvent(e) {
     // eslint-disable-next-line verify-await/check
     if (["cloudflare", "helpAndSupport", "privacyPolicy", "termsAndConditions", "giveUsFeedback"].includes(e.target.id)) {
       await View.sendMessage(e.target.id);

@@ -26,7 +26,7 @@ class ViewLogin extends View {
     View.close();
   }
 
-  handleEvent(e) {
+  handleClickEvent(e) {
     if (e.target.id === "authButton") {
       // eslint-disable-next-line verify-await/check
       View.sendMessage("authenticate");
