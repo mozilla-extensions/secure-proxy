@@ -16,7 +16,7 @@ const SURVEYS = [
   // Onboarding/welcome page
   { name: "onboarding",
     triggerAfterTime: 0,
-    URL: "https://private-network.firefox.com/welcome",
+    URL: "pages/welcome.html",
     onIdle: false,
   },
 
@@ -135,9 +135,15 @@ export class Survey extends Component {
   async formatUrl(url, data) {
     let self = await browser.management.getSelf();
     // eslint-disable-next-line verify-await/check
-    return url.replace(/PROXYENABLED/g, this.cachedProxyState === PROXY_STATE_ACTIVE ? "true" : "false")
-              .replace(/VERSION/g, self.version)
-              .replace(/USAGEDAYS/g, this.lastUsageDays.count);
+    url = url.replace(/PROXYENABLED/g, this.cachedProxyState === PROXY_STATE_ACTIVE ? "true" : "false")
+             .replace(/VERSION/g, self.version)
+             .replace(/USAGEDAYS/g, this.lastUsageDays.count);
+
+    if (url.startsWith("http://") || url.startsWith("https://")) {
+      return url;
+    }
+
+    return browser.runtime.getURL(url);
   }
 
   setProxyState(proxyState) {
