@@ -19,6 +19,7 @@ module.exports = {
     log: false,
     PROXY_STATE_ACTIVE: false,
     PROXY_STATE_AUTHFAILURE: false,
+    PROXY_STATE_CAPTIVE: false,
     PROXY_STATE_CONNECTING: false,
     PROXY_STATE_INACTIVE: false,
     PROXY_STATE_LOADING: false,

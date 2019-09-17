@@ -180,6 +180,9 @@ class Main {
       case FXA_ERR_NETWORK:
         this.setProxyState(PROXY_STATE_OFFLINE);
         return;
+
+      default:
+        throw new Error("Invalid FXA error value!");
     }
   }
 
