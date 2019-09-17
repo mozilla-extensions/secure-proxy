@@ -81,6 +81,11 @@ class Main {
     let proxyState = await StorageUtils.getProxyState();
     if (proxyState === PROXY_STATE_ACTIVE) {
       this.setProxyState(PROXY_STATE_ACTIVE);
+
+      // We want to inform only the network component which needs to reset a
+      // few preferences.
+      this.net.syncAfterConnectionSteps();
+
       await this.ui.update(false /* no toast here */);
       return;
     }
