@@ -39,11 +39,15 @@ export class View {
     let template = currentView.syncShow(data);
     if (template && template instanceof Template) {
       footer.addEventListener("click", currentView);
+      footer.addEventListener("dragstart", currentView);
+
       content.addEventListener("click", currentView);
       content.addEventListener("submit", currentView);
+      content.addEventListener("dragstart", currentView);
       template.syncRenderTo(content);
       currentView.syncPostShow(data, content);
     }
+
     let footerTemplate = currentView.syncFooter(data);
     if (footerTemplate && footerTemplate instanceof Template) {
       footerTemplate.syncRenderTo(footer);
@@ -130,8 +134,17 @@ export class View {
     }
   }
 
+  handleEvent(e) {
+    if (e instanceof DragEvent) {
+      e.preventDefault();
+      return;
+    }
+
+    this.handleClickEvent(e);
+  }
+
   // Override if you want to handle events
-  handleEvent() {}
+  handleClickEvent() {}
 
   // This must be overwritten by views.
   syncShow() {
