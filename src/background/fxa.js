@@ -40,6 +40,7 @@ export class FxAUtils extends Component {
     this.cachedProxyTokenValue = {
       tokenType: "bearer",
       tokenValue: "invalid-token",
+      tokenHash: "",
     };
   }
 
@@ -149,6 +150,7 @@ export class FxAUtils extends Component {
     // Let's update the proxy token cache with the new values.
     this.cachedProxyTokenValue.tokenType = proxyTokenData.value.tokenData.token_type;
     this.cachedProxyTokenValue.tokenValue = proxyTokenData.value.tokenData.access_token;
+    this.cachedProxyTokenValue.tokenHash = await this.digestTokenValue(proxyTokenData.value.tokenData.access_token);
 
     if (proxyTokenData.value.tokenGenerated) {
       // We cannot wait for this message because otherwise we create a bad
@@ -431,5 +433,17 @@ export class FxAUtils extends Component {
     if (this.fxaFlowParams === undefined) {
       this.fxaFlowParams = await StorageUtils.getFxaFlowParams() || {};
     }
+  }
+
+  async digestTokenValue(tokenValue) {
+    // eslint-disable-next-line verify-await/check
+    const tokenValueUint8 = new TextEncoder().encode(tokenValue);
+    const hashBuffer = await crypto.subtle.digest("SHA-256", tokenValueUint8);
+    // eslint-disable-next-line verify-await/check
+    const hashArray = Array.from(new Uint8Array(hashBuffer));
+    // eslint-disable-next-line verify-await/check
+    const hashHex = hashArray.map(b => b.toString(16).padStart(2, "0")).join("");
+    // eslint-disable-next-line verify-await/check
+    return hashHex.substr(0, 16);
   }
 }

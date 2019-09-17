@@ -153,8 +153,10 @@ export class Network extends Component {
     }
 
     let proxyAuthorizationHeader = "";
+    let proxyAuthorizationHash = "";
     if (token) {
       proxyAuthorizationHeader = token.tokenType + " " + token.tokenValue;
+      proxyAuthorizationHash = token.tokenHash;
     }
 
     return [{
@@ -162,7 +164,7 @@ export class Network extends Component {
       host: this.proxyHost,
       port: this.proxyPort,
       proxyAuthorizationHeader,
-      connectionIsolationKey: proxyAuthorizationHeader + additionalConnectionIsolation + this.connectionId,
+      connectionIsolationKey: proxyAuthorizationHash + additionalConnectionIsolation + this.connectionId,
     }];
   }
 
