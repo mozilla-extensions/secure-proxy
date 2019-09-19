@@ -394,3 +394,24 @@ h1,
     background-position: top;
   }
 }
+
+span .menu , span .button, li em, .wiki-image {
+    background: #e8e8e8;
+    color: #303030;
+    padding: 2px 4px;
+    font-style: normal;
+}
+.wiki-image {
+    border: 2px solid #e8e8e8;
+    padding-top: 4px;
+    padding-bottom: 4px;
+    vertical-align: middle;
+}
+
+#instruction {
+  background: #f4f1fa;
+  border-color: #f4f1fa;
+  border-style: solid;
+  border-width: 1px 28px;
+  border-radius: 28px;
+}
