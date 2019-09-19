@@ -23,7 +23,21 @@
           <p class="lead">Thanks for participating in this limited-time, free beta of Firefox Private Network. Firefox Private Network lets you use public Wi-Fi more safely and securely. It does this by encrypting the web addresses you visit and the data you send to most websites. This helps protect your web browsing from hackers, websites, and trackers.</p>
 
           <h2 class="ff-Met document-subhead">Your privacy</h2>
-          <p>Firefox cares about your privacy. Firefox Private Network doesn’t collect information about your browsing. We do collect generic information about how you use the extension, such as data about how you interact with it, when you turn it off, and technical information about how it functions. Our <a href="https://www.mozilla.org/privacy/firefox-private-network" target="_blank" rel="noopener noreferrer">privacy policy</a> describes how we handle this data. You may <a href="https://support.mozilla.org/kb/share-data-mozilla-help-improve-firefox?redirectslug=send-performance-data-improve-firefox" target="_blank" rel="noopener noreferrer">opt out</a> of sharing this data with us at anytime.</p>
+          <p>Firefox cares about your privacy. Firefox Private Network doesn’t collect information about your browsing. We do collect generic information about how you use the extension, such as data about how you interact with it, when you turn it off, and technical information about how it functions. Our <a href="https://www.mozilla.org/privacy/firefox-private-network" target="_blank" rel="noopener noreferrer">privacy policy</a> describes how we handle this data. You may <a href="#instruction" id="instruction_link">opt out</a> of sharing this data with us at anytime.</p>
+
+          <article class="wiki-doc" id="instruction" hidden>
+            <h3 id="w_how-do-i-opt-in-or-opt-out-of-sending-performance-data">How to opt out of sending technical data</h3>
+            <ol>
+              <li>
+                <p>Click the menu button <img alt="Fx57Menu" class="wiki-image frameless" src="./img/menu.svg" title="">
+                and choose <span id="for-win"><span class="button">Options</span></span><span id="for-other" hidden><span class="button">Preferences</span></span></p>
+              </li>
+              <li><p>Select <span><span class="menu">Privacy &amp; Security</span></span> on the left</p></li>
+              <li><p>Scroll down to <em>Firefox Data Collection and Use</em></p></li>
+              <li><p>Uncheck <em>Allow Firefox to send technical and interaction data to Mozilla</em></p></li>
+            </ol>
+          </article>
+
           
           <h2 class="ff-Met document-subhead">Using Private Network</h2>
           <p>Look for the Private Network icon in your Firefox toolbar.</p>
@@ -84,4 +98,5 @@
       </nav>
     </footer>
   </body>
+  <script type="text/javascript" src="welcome.js"></script>
 </html>
