@@ -76,4 +76,12 @@ export const StorageUtils = {
     let data = await browser.storage.local.get([key]);
     return data[key];
   },
+
+  async getMigrationData() {
+    return this.getStorageKey("migrationData");
+  },
+
+  async setMigrationData(migrationData) {
+    await browser.storage.local.set({migrationData});
+  },
 };

@@ -22,6 +22,8 @@ export class ExternalHandler extends Component {
         return ConfigUtils.setProxyURL(message.value);
       case "setFxaOpenID":
         return ConfigUtils.setFxaOpenID(message.value);
+      case "setMigrationURL":
+        return ConfigUtils.setMigrationURL(message.value);
       case "setFxaExpirationTime":
         // eslint-disable-next-line verify-await/check
         return ConfigUtils.setFxaExpirationTime(parseInt(message.value, 10));
@@ -37,6 +39,8 @@ export class ExternalHandler extends Component {
         return this.sendMessage("forceToken", { proxy: message.value });
       case "setProfileToken":
         return this.sendMessage("forceToken", { profile: message.value });
+      case "setMigrationData":
+        return this.sendMessage("forceMigrationData", { data: message.value });
       case "reload":
         return browser.runtime.reload();
       default:

@@ -4,6 +4,9 @@ const PRODUCTION_PROXY_URL = "https://firefox.factor11.cloudflareclient.com:2486
 const DEBUGGING_FXA_OPENID = "https://stable.dev.lcip.org/.well-known/openid-configuration";
 const PRODUCTION_FXA_OPENID = "https://accounts.firefox.com/.well-known/openid-configuration";
 
+const DEBUGGING_MIGRATION_URL = "https://private-network-beta-landing-test.stage.mozaws.net/files/migration.json";
+const PRODUCTION_MIGRATION_URL = "https://private-network.firefox.com/files/migration.json";
+
 class Page {
   constructor() {
     const els = [...document.querySelectorAll("[data-l10n]")];
@@ -57,6 +60,43 @@ class Page {
     productionProxyURL.onclick = _ => {
       proxyURL.value = PRODUCTION_PROXY_URL;
       browser.runtime.sendMessage({ type: "setProxyURL", value: PRODUCTION_PROXY_URL });
+    }
+
+    const migrationURL = document.getElementById("migrationURL");
+    migrationURL.value = config.migrationURL || "";
+    migrationURL.onchange = _ => {
+      browser.runtime.sendMessage({ type: "setMigrationURL", value: migrationURL.value });
+    }
+    if (config.version < 12) {
+      migrationURL.disabled = true;
+    }
+
+    const debuggingMigrationURL = document.getElementById("debuggingMigrationURL");
+    debuggingMigrationURL.onclick = _ => {
+      migrationURL.value = DEBUGGING_MIGRATION_URL;
+      browser.runtime.sendMessage({ type: "setMigrationURL", value: DEBUGGING_MIGRATION_URL });
+    }
+
+    const productionMigrationURL = document.getElementById("productionMigrationURL");
+    productionMigrationURL.onclick = _ => {
+      migrationURL.value = PRODUCTION_MIGRATION_URL;
+      browser.runtime.sendMessage({ type: "setMigrationURL", value: PRODUCTION_MIGRATION_URL });
+    }
+
+    const migrationData = document.getElementById("migrationData");
+    migrationData.value = JSON.stringify(config.migrationData);
+    if (config.version < 12) {
+      migrationData.disabled = true;
+    }
+
+    const migrationSubmitButton = document.getElementById("migrationDataSubmit");
+    migrationSubmitButton.onclick = _ => {
+      try {
+        const value = JSON.parse(migrationData.value);
+        browser.runtime.sendMessage({ type: "setMigrationData", value });
+      } catch (e) {
+        alert("Syntax invalid: " + e);
+      }
     }
 
     const fxaOpenID = document.getElementById("fxaOpenID");

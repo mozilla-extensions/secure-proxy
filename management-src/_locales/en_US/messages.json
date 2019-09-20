@@ -35,6 +35,18 @@
   "productionFxaOpenID": {
     "message": "Production FxA OpenID URL"
   },
+  "pageMigrationURLTitle": {
+    "message": "Migration (beta->paid) URL"
+  },
+  "pageMigrationData": {
+    "message": "Migration JSON resource"
+  },
+  "debuggingMigrationURL": {
+    "message": "Debugging Migration URL"
+  },
+  "productionMigrationURL": {
+    "message": "Production Migration URL"
+  },
   "pageFxaExpirationTime": {
     "message": "FxA token expiration time"
   },
@@ -50,7 +62,7 @@
   "pageProfileToken": {
     "message": "Profile Token"
   },
-  "pageTokenSubmit": {
+  "pageSubmit": {
     "message": "Submit"
   },
   "olderThanV10": {

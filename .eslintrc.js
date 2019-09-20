@@ -9,6 +9,7 @@ module.exports = {
     "plugin:mozilla/recommended"
   ],
   globals: {
+    ConfigUtils: false,
     CONNECTING_HTTP_REQUEST: false,
     escapedTemplate: false,
     debuggingMode: true,
@@ -17,10 +18,12 @@ module.exports = {
     FXA_OK: false,
     fxaCryptoRelier: false,
     log: false,
+    MIGRATION_URL_TIME: false,
     PROXY_STATE_ACTIVE: false,
     PROXY_STATE_AUTHFAILURE: false,
     PROXY_STATE_CAPTIVE: false,
     PROXY_STATE_CONNECTING: false,
+    PROXY_STATE_DECISION: false,
     PROXY_STATE_INACTIVE: false,
     PROXY_STATE_LOADING: false,
     PROXY_STATE_OFFLINE: false,
@@ -29,7 +32,9 @@ module.exports = {
     PROXY_STATE_PROXYERROR: false,
     PROXY_STATE_UNAUTHENTICATED: false,
     Template: false,
-    ConfigUtils: false
+    TIER_FREE: false,
+    TIER_PAID: false,
+    TIER_UNKNOWN: false
   },
   parser: "babel-eslint",
   parserOptions: {

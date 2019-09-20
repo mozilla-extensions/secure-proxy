@@ -1,5 +1,7 @@
 import {Component} from "./component.js";
+import {migrationData} from "./migrationData.js";
 import {StorageUtils} from "./storageUtils.js";
+import {Tier} from "./tier.js";
 
 // These URLs must be formatted
 const HELP_AND_SUPPORT_URL = "https://support.mozilla.org/1/firefox/%VERSION%/%OS%/%LOCALE%/firefox-private-network";
@@ -9,6 +11,8 @@ const CLOUDFLARE_URL = "https://www.cloudflare.com/";
 const PRIVACY_POLICY_URL = "https://www.mozilla.org/privacy/firefox-private-network";
 const TERMS_AND_CONDITIONS_URL = "https://www.mozilla.org/about/legal/terms/firefox-private-network";
 const GIVE_US_FEEDBACK_URL = "https://qsurvey.mozilla.com/s3/fx-private-network-beta-feedback";
+const BETA_LEARNMORE_URL = "https://TODO.TODO";
+const BETA_URL = "https://TODO.TODO";
 
 export class UI extends Component {
   constructor(receiver) {
@@ -237,6 +241,18 @@ export class UI extends Component {
           this.syncSendMessage("telemetry", { category: "settings_url_clicks", event: message.type });
           break;
 
+        case "betaLearnMore":
+          await this.openUrl(BETA_LEARNMORE_URL);
+          break;
+
+        case "betaDecision":
+          await this.openUrl(BETA_URL);
+          break;
+
+        case "betaDecisionAlreadyMade":
+          await this.sendMessage("betaDecisionMade");
+          break;
+
         case "telemetry":
           this.syncSendMessage("telemetry", message.data);
           break;
@@ -275,6 +291,8 @@ export class UI extends Component {
       case PROXY_STATE_PROXYAUTHFAILED:
         // Fall through
       case PROXY_STATE_OFFLINE:
+        // Fall through
+      case PROXY_STATE_DECISION:
         // Fall through
       case PROXY_STATE_CAPTIVE:
         // Fall through
@@ -347,6 +365,8 @@ export class UI extends Component {
         userInfo: profileData,
         proxyState: this.cachedProxyState,
         exempt,
+        migrationData: await migrationData.fetch(),
+        tier: await Tier.userTier(),
       });
     }
     return null;

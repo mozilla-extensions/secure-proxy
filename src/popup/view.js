@@ -33,7 +33,7 @@ export class View {
     footer.toggleAttribute("hidden", true);
 
     let introHeading = document.getElementById("introHeading");
-    introHeading.textContent = currentView.getTranslation(currentView.syncHeadingText());
+    introHeading.textContent = currentView.getTranslation(currentView.syncHeadingText(data));
 
     log(`Show: ${name}`);
     let template = currentView.syncShow(data);
@@ -107,7 +107,22 @@ export class View {
   }
 
   // To be overwritten with a string for the header
-  syncHeadingText() { return "introHeading"; }
+  syncHeadingText(data) {
+    if (!data || !data.tier) {
+      return "introHeading";
+    }
+
+    switch (data.tier) {
+      case TIER_FREE:
+        return "introHeadingLimited";
+
+      case TIER_PAID:
+        return "introHeadingUnlimited";
+
+      default:
+        return "introHeading";
+    }
+  }
 
   // To be overwritten to return an escaped template if the panel should have one
   state() { return null; }
@@ -140,6 +155,13 @@ export class View {
       return;
     }
 
+    if (e.target.id === "betaLearnMore") {
+      // eslint-disable-next-line verify-await/check
+      View.sendMessage(e.target.id);
+      View.close();
+      return;
+    }
+
     // eslint-disable-next-line verify-await/check
     this.handleClickEvent(e);
   }
@@ -153,7 +175,23 @@ export class View {
   }
 
   // To be overwritten if needed.
-  syncFooter() {}
+  syncFooter(data) {
+    if (!data || !data.migrationData) {
+      return null;
+    }
+
+    const nowInSecs = Math.round(Date.now() / 1000);
+    const diff = data.migrationData.expirationTime - nowInSecs;
+
+    if (diff > BETA_ENDING_SOON_TIME) {
+      return null;
+    }
+
+    return escapedTemplate`
+      <span id="popupBeta">${this.getTranslation("popupBetaEndingSoon")}</span>
+      <a href="#" class="link" id="betaLearnMore">${this.getTranslation("popupBetaLearnMore")}</a>
+    `;
+  }
 
   // To be overwritten if needed.
   syncPostShow() {}

@@ -44,6 +44,7 @@ async function init() {
       clearTimeout(timeoutId);
       timeoutId = 0;
     }
+
     userInfo = msg.userInfo;
     proxyState = msg.proxyState;
 
@@ -57,7 +58,7 @@ async function init() {
       case PROXY_STATE_UNAUTHENTICATED:
         // fall through
       case PROXY_STATE_AUTHFAILURE:
-        await View.setView("login", proxyState);
+        await View.setView("login", msg);
         return;
 
       case PROXY_STATE_PROXYERROR:
@@ -65,29 +66,33 @@ async function init() {
       case PROXY_STATE_PROXYAUTHFAILED:
         // fall through
       case PROXY_STATE_OFFLINE:
-        await View.setView("proxyError");
+        await View.setView("proxyError", msg);
         return;
 
       case PROXY_STATE_CAPTIVE:
-        await View.setView("captive");
+        await View.setView("captive", msg);
+        return;
+
+      case PROXY_STATE_DECISION:
+        await View.setView("betaDecision", msg);
         return;
 
       case PROXY_STATE_OTHERINUSE:
-        await View.setView("otherInUse", proxyState);
+        await View.setView("otherInUse", msg);
         return;
 
       case PROXY_STATE_INACTIVE:
         // fall through
       case PROXY_STATE_ACTIVE:
         if (msg.exempt && proxyState === PROXY_STATE_ACTIVE) {
-          await View.setView("exempt", proxyState);
+          await View.setView("exempt", msg);
         } else {
-          await View.setView("main", {userInfo, proxyState});
+          await View.setView("main", msg);
         }
         return;
 
       case PROXY_STATE_CONNECTING:
-        await View.setView("connecting");
+        await View.setView("connecting", msg);
         return;
 
       default:

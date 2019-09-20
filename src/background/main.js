@@ -2,6 +2,7 @@ import {ConnectionTester} from "./connection.js";
 import {Connectivity} from "./connectivity.js";
 import {ExternalHandler} from "./external.js";
 import {FxAUtils} from "./fxa.js";
+import {Migration} from "./migration.js";
 import {Network} from "./network.js";
 import {OfflineManager} from "./offline.js";
 import {ProxyDownChecker} from "./proxyDownChecker.js";
@@ -38,6 +39,7 @@ class Main {
     this.externalHandler = new ExternalHandler(this);
     this.fxa = new FxAUtils(this);
     this.offlineManager = new OfflineManager(this);
+    this.migration = new Migration(this);
     this.net = new Network(this);
     this.proxyDownChecker = new ProxyDownChecker(this);
     this.proxyStateObserver = new ProxyStateObserver(this);
@@ -153,6 +155,12 @@ class Main {
     // Captive portal?
     if (await this.connectivity.inCaptivePortal()) {
       this.setProxyState(PROXY_STATE_CAPTIVE);
+      return;
+    }
+
+    // Beta decision?
+    if (await this.migration.betaDecisionRequired()) {
+      this.setProxyState(PROXY_STATE_DECISION);
       return;
     }
 
@@ -386,6 +394,22 @@ class Main {
     }
   }
 
+  async betaDecisionUpdate(refreshProfileNeeded) {
+    if (refreshProfileNeeded) {
+      await this.fxa.refreshProfileData();
+    }
+
+    // Compute proxy state does the magic.
+    if (await this.computeProxyState()) {
+      await this.ui.update();
+    }
+  }
+
+  async forceMigrationData(data) {
+    await this.migration.forceMigrationData(data);
+    await this.betaDecisionUpdate(true);
+  }
+
   // Provides an async response in most cases
   async handleEvent(type, data) {
     log(`handling event ${type}`);
@@ -428,6 +452,12 @@ class Main {
       case "authenticationRequired":
         return this.auth();
 
+      case "betaDecisionRequired":
+        return this.betaDecisionUpdate(false);
+
+      case "betaDecisionMade":
+        return this.betaDecisionUpdate(true);
+
       case "captivePortalStateChanged":
         return this.onCaptivePortalStateChanged(data.state);
 
@@ -439,6 +469,9 @@ class Main {
 
       case "forceToken":
         return this.fxa.forceToken(data);
+
+      case "forceMigrationData":
+        return this.forceMigrationData(data.data);
 
       case "managerAccountURL":
         return this.fxa.manageAccountURL();

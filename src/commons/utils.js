@@ -18,6 +18,9 @@ const PROXY_STATE_INACTIVE = "inactive";
 // The user is registered, the proxy is active.
 const PROXY_STATE_ACTIVE = "active";
 
+// The beta user has to make a decision.
+const PROXY_STATE_DECISION = "beta-decision";
+
 // The proxy has been configured. We want to check if it works correctly.
 const PROXY_STATE_CONNECTING = "connecting";
 
@@ -58,6 +61,23 @@ const DEFAULT_FXA_EXPIRATION_DELTA = 3600; // 1 hour
 // FxA openID configuration
 const DEFAULT_FXA_OPENID = "https://accounts.firefox.com/.well-known/openid-configuration";
 
+// Migration beta to paid URL
+const DEFAULT_MIGRATION_URL = "https://private-network.firefox.com/files/migration.json";
+
+// Migration data expiration time
+const MIGRATION_URL_TIME = 86400; // 1 day
+
+// The user is paying for the service.
+const TIER_PAID = "paid-tier";
+
+// Free tier path.
+const TIER_FREE = "free-tier";
+
+// The user has not made a decision yet.
+const TIER_UNKNOWN = "unknown-tier";
+
+// Ending soon message shown X secs in advance.
+const BETA_ENDING_SOON_TIME = 604800; // 1 week in secs
 
 const ConfigUtils = {
   async setProxyURL(proxyURL) {
@@ -74,6 +94,22 @@ const ConfigUtils = {
 
   async getFxaOpenID() {
     return new URL(await this.getStorageKey("fxaOpenID") || DEFAULT_FXA_OPENID);
+  },
+
+  async setMigrationURL(migrationURL) {
+    await browser.storage.local.set({migrationURL});
+  },
+
+  async getMigrationURL() {
+    return new URL(await this.getStorageKey("migrationURL") || DEFAULT_MIGRATION_URL);
+  },
+
+  async setMigrationData(migrationData) {
+    await browser.storage.local.set({migrationData});
+  },
+
+  async getMigrationData() {
+    return await this.getStorageKey("migrationData");
   },
 
   async setDebuggingEnabled(debuggingEnabled) {
@@ -108,6 +144,8 @@ const ConfigUtils = {
     return {
       version: self.version,
       fxaOpenID: await this.getFxaOpenID(),
+      migrationURL: await this.getMigrationURL(),
+      migrationData: await this.getMigrationData(),
       proxyURL: await this.getProxyURL(),
       debuggingEnabled: await this.getDebuggingEnabled(),
       fxaExpirationTime: await this.getFxaExpirationTime(),

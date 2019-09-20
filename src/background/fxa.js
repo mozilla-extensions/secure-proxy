@@ -446,4 +446,21 @@ export class FxAUtils extends Component {
     // eslint-disable-next-line verify-await/check
     return hashHex.substr(0, 16);
   }
+
+  async refreshProfileData() {
+    log("Refresh profile data");
+    const profileTokenData = await StorageUtils.getStorageKey("profileTokenData");
+    if (!profileTokenData) {
+      return;
+    }
+
+    const data = await this.generateProfileData(profileTokenData);
+    if (this.syncStateError(data)) {
+      return;
+    }
+
+    await StorageUtils.setDynamicTokenData(await StorageUtils.getStorageKey("proxyTokenData"),
+                                           profileTokenData,
+                                           data.value);
+  }
 }

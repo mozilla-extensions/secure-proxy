@@ -501,3 +501,12 @@ footer {
 .link {
   cursor: pointer;
 }
+
+#popupBeta {
+  flex: max-content;
+}
+
+#betaLearnMore {
+  font-weight: bold;
+  text-decoration:none;
+}
