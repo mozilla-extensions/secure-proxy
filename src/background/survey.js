@@ -139,6 +139,7 @@ export class Survey extends Component {
              .replace(/VERSION/g, self.version)
              .replace(/USAGEDAYS/g, this.lastUsageDays.count);
 
+    // eslint-disable-next-line verify-await/check
     if (url.startsWith("http://") || url.startsWith("https://")) {
       return url;
     }

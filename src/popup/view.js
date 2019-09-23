@@ -140,6 +140,7 @@ export class View {
       return;
     }
 
+    // eslint-disable-next-line verify-await/check
     this.handleClickEvent(e);
   }
 
