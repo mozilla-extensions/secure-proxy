@@ -4,6 +4,9 @@ const PRODUCTION_PROXY_URL = "https://firefox.factor11.cloudflareclient.com:2486
 const DEBUGGING_FXA_OPENID = "https://stable.dev.lcip.org/.well-known/openid-configuration";
 const PRODUCTION_FXA_OPENID = "https://accounts.firefox.com/.well-known/openid-configuration";
 
+const DEBUGGING_SPS = "http://localhost:8000";
+const PRODUCTION_SPS = "https://private-network.firefox.com";
+
 class Page {
   constructor() {
     const els = [...document.querySelectorAll("[data-l10n]")];
@@ -57,6 +60,27 @@ class Page {
     productionProxyURL.onclick = _ => {
       proxyURL.value = PRODUCTION_PROXY_URL;
       browser.runtime.sendMessage({ type: "setProxyURL", value: PRODUCTION_PROXY_URL });
+    }
+
+    const sps = document.getElementById("sps");
+    sps.value = config.sps || "";
+    sps.onchange = _ => {
+      browser.runtime.sendMessage({ type: "setSPService", value: sps.value });
+    }
+    if (config.version < 10) {
+      sps.disabled = true;
+    }
+
+    const debuggingSPService = document.getElementById("debuggingSPService");
+    debuggingSPService.onclick = _ => {
+      sps.value = DEBUGGING_SPS;
+      browser.runtime.sendMessage({ type: "setSPService", value: DEBUGGING_SPS });
+    }
+
+    const productionSPService = document.getElementById("productionSPService");
+    productionSPService.onclick = _ => {
+      sps.value = PRODUCTION_SPS;
+      browser.runtime.sendMessage({ type: "setSPService", value: PRODUCTION_SPS });
     }
 
     const fxaOpenID = document.getElementById("fxaOpenID");
