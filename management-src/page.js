@@ -122,10 +122,9 @@ class Page {
       fxaExpirationDelta.disabled = true;
     }
 
-    const tokens = await browser.runtime.sendMessage({ type: "getTokens" });
-
+    const token = await browser.runtime.sendMessage({ type: "getProxyToken" });
     const proxyToken = document.getElementById("proxyToken");
-    proxyToken.value = JSON.stringify(tokens.proxy);
+    proxyToken.value = JSON.stringify(token);
     if (config.version < 10) {
       proxyToken.disabled = true;
     }
@@ -141,25 +140,6 @@ class Page {
     }
     if (config.version < 10) {
       proxySubmitButton.disabled = true;
-    }
-
-    const profileToken = document.getElementById("profileToken");
-    profileToken.value = JSON.stringify(tokens.profile);
-    if (config.version < 10) {
-      profileToken.disabled = true;
-    }
-
-    const profileSubmitButton = document.getElementById("profileSubmit");
-    profileSubmitButton.onclick = _ => {
-      try {
-        const value = JSON.parse(profileToken.value);
-        browser.runtime.sendMessage({ type: "setProfileToken", value });
-      } catch (e) {
-        alert("Syntax invalid: " + e);
-      }
-    }
-    if (config.version < 10) {
-      profileSubmitButton.disabled = true;
     }
   }
 

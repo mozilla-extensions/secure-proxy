@@ -56,9 +56,6 @@
   "pageProxyToken": {
     "message": "Proxy Token"
   },
-  "pageProfileToken": {
-    "message": "Profile Token"
-  },
   "pageTokenSubmit": {
     "message": "Submit"
   },

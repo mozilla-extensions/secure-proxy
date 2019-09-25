@@ -7,37 +7,31 @@ export const StorageUtils = {
     await browser.storage.local.set({proxyState});
   },
 
-  async setAllTokenData(refreshTokenData, proxyTokenData, profileTokenData, profileData) {
-    await browser.storage.local.set({
-      refreshTokenData,
-      proxyTokenData,
-      profileTokenData,
-      profileData,
-    });
+  async getStateTokenData() {
+    return this.getStorageKey("stateTokenData");
   },
 
-  async resetAllTokenData() {
-    await StorageUtils.setAllTokenData(null, null, null, null);
-  },
-
-  async setDynamicTokenData(proxyTokenData, profileTokenData, profileData) {
+  async setStateToken(stateTokenData) {
     await browser.storage.local.set({
-      proxyTokenData,
-      profileTokenData,
-      profileData,
-    });
-  },
-
-  async resetDynamicTokenData() {
-    await browser.storage.local.set({
+      stateTokenData,
       proxyTokenData: null,
-      profileTokenData: null,
       profileData: null,
     });
   },
 
-  async getRefreshTokenData() {
-    return this.getStorageKey("refreshTokenData");
+  async getProxyTokenData() {
+    return this.getStorageKey("proxyTokenData");
+  },
+
+  async setProxyTokenData(proxyTokenData) {
+    await browser.storage.local.set({proxyTokenData});
+  },
+
+  async setProxyTokenAndProfileData(proxyTokenData, profileData) {
+    await browser.storage.local.set({
+      proxyTokenData,
+      profileData,
+    });
   },
 
   async getProfileData() {
