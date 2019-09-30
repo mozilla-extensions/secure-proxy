@@ -166,6 +166,7 @@ export class FxAUtils extends Component {
     log("Obtain state token");
 
     const headers = new Headers();
+    // eslint-disable-next-line verify-await/check
     headers.append("Content-Type", "application/json");
 
     const request = new Request(this.service + "oauth/start", {
@@ -208,6 +209,7 @@ export class FxAUtils extends Component {
     }
 
     const headers = new Headers();
+    // eslint-disable-next-line verify-await/check
     headers.append("Content-Type", "application/json");
 
     const request = new Request(this.service + "oauth/token", {
@@ -230,7 +232,7 @@ export class FxAUtils extends Component {
       }
 
       const json = await resp.json();
-      
+
       // Let's store when this token has been received.
       // eslint-disable-next-line verify-await/check
       json.proxy_token.received_at = Math.round(Date.now() / 1000);
@@ -297,7 +299,7 @@ export class FxAUtils extends Component {
     return {
       stateToken,
       fxaCode,
-    }
+    };
   }
 
   // This method returns a token or a Promise.
@@ -349,6 +351,7 @@ export class FxAUtils extends Component {
     let stateTokenData = await StorageUtils.getStateTokenData();
     if (stateTokenData) {
       const headers = new Headers();
+      // eslint-disable-next-line verify-await/check
       headers.append("Content-Type", "application/json");
 
       const request = new Request(this.service + "oauth/forget", {
