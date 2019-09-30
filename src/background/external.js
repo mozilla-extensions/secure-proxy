@@ -31,7 +31,7 @@ export class ExternalHandler extends Component {
         // eslint-disable-next-line verify-await/check
         return ConfigUtils.setFxaExpirationDelta(parseInt(message.value, 10));
       case "getProxyToken":
-        return await StorageUtils.getProxyTokenData();
+        return StorageUtils.getProxyTokenData();
       case "setProxyToken":
         return this.sendMessage("forceToken", message.value);
       case "reload":
