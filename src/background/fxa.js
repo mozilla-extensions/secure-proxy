@@ -7,7 +7,7 @@ const FXA_PROFILE_SCOPE = "profile";
 const FXA_PROXY_SCOPE = "https://identity.mozilla.com/apps/secure-proxy";
 
 // The client ID for this extension
-const FXA_CLIENT_ID = "a8c528140153d1c6";
+const FXA_CLIENT_ID = "565585c1745a144d";
 
 // How early we want to re-generate the tokens (in secs)
 const EXPIRE_DELTA = 3600;
@@ -29,14 +29,14 @@ export class FxAUtils extends Component {
 
     this.wellKnownData = new WellKnownData();
 
-    // This is Set of pending operatations to do after a token generation.
-    this.postTokenGenerationOps = new Set();
-    this.generatingTokens = false;
+    // This is Set of pending operations to do after a token request.
+    this.postTokenRequestOps = new Set();
+    this.requestingToken = false;
 
     this.nextExpireTime = 0;
 
     // The cached token will be populated as soon as the token is retrieved
-    // from the storage or generated.
+    // from the storage or requested.
     this.cachedProxyTokenValue = {
       tokenType: "bearer",
       tokenValue: "invalid-token",
@@ -45,114 +45,111 @@ export class FxAUtils extends Component {
   }
 
   async init(prefs) {
+    this.service = await ConfigUtils.getSPService();
     this.proxyURL = await ConfigUtils.getProxyURL();
     this.fxaExpirationTime = await ConfigUtils.getFxaExpirationTime();
     this.fxaExpirationDelta = await ConfigUtils.getFxaExpirationDelta();
 
     await this.wellKnownData.init();
 
-    // Let's see if we have to generate new tokens, but without waiting for the
+    // Let's see if we have to request a new token, but without waiting for the
     // result.
     // eslint-disable-next-line verify-await/check
-    this.maybeGenerateTokens();
+    this.maybeObtainToken();
   }
 
   async authenticate() {
-    // Let's do the authentication. This will generate a token that is going to
-    // be used just to obtain the other ones.
-    let refreshTokenData = await this.generateRefreshToken();
-    if (!refreshTokenData) {
-      throw new Error("No refresh token");
+    // Let's do the authentication. This will generate a fxa code that is going
+    // to be sent to the secure-proxy service to obtain the other ones.
+    let data = await this.authenticateInternal();
+    if (!data) {
+      throw new Error("authentication failed");
     }
 
-    // Let's store the refresh token and let's invalidate all the other tokens
+    // Let's store the state token and let's invalidate all the other tokens
     // in order to regenerate them.
-    await StorageUtils.setAllTokenData(refreshTokenData, null, null, null);
+    await StorageUtils.setStateToken(data.stateToken);
 
     // Let's obtain the proxy token data. This method will dispatch a
     // "tokenGenerated" event.
-    const result = await this.maybeGenerateTokens();
+    const result = await this.maybeObtainToken(data.fxaCode);
     if (this.syncStateError(result)) {
       throw new Error("Token generation failed");
     }
   }
 
-  async maybeGenerateTokens() {
-    log("maybe generate tokens");
+  async maybeObtainToken(fxaCode = null) {
+    log("maybe request a token and profile data");
 
-    if (this.generatingTokens) {
-      log("token generation in progress. Let's wait.");
-      return new Promise(resolve => this.postTokenGenerationOps.add(resolve));
+    if (this.requestingToken) {
+      log("token request in progress. Let's wait.");
+      return new Promise(resolve => this.postTokenRequestOps.add(resolve));
     }
 
-    this.generatingTokens = true;
-    const result = await this.maybeGenerateTokensInternal();
-    this.generatingTokens = false;
+    this.requestingToken = true;
+    const result = await this.maybeObtainTokenInternal(fxaCode);
+    this.requestingToken = false;
 
     // Let's take all the ops and execute them.
-    let ops = this.postTokenGenerationOps;
-    this.postTokenGenerationOps = new Set();
+    let ops = this.postTokenRequestOps;
+    this.postTokenRequestOps = new Set();
     // eslint-disable-next-line verify-await/check
     ops.forEach(value => value(result));
 
     return result;
   }
 
-  async maybeGenerateTokensInternal() {
-    let refreshTokenData = await StorageUtils.getRefreshTokenData();
-    if (!refreshTokenData) {
-      return { state: FXA_ERR_AUTH };
+  async maybeObtainTokenInternal(fxaCode) {
+    log("maybe generate proxy token");
+
+    let tokenGenerated = false;
+
+    // eslint-disable-next-line verify-await/check
+    let now = Date.now();
+    let nowInSecs = Math.round(now / 1000);
+
+    let tokenData = await StorageUtils.getProxyTokenData();
+    if (tokenData) {
+      // If we are close to the expiration time, we have to generate the token.
+      // We want to keep a big time margin: 1 hour seems good enough.
+      let diff = tokenData.received_at + tokenData.expires_in - nowInSecs - this.fxaExpirationDelta;
+      if (!diff || diff < 0) {
+        log(`Token exists but it is expired. Received at ${tokenData.received_at} and expires in ${tokenData.expires_in}`);
+        tokenData = null;
+      } else {
+        log(`token expires in ${diff}`);
+      }
     }
 
-    let proxyTokenData = await this.maybeGenerateSingleToken("proxyTokenData",
-                                                             refreshTokenData,
-                                                             FXA_PROXY_SCOPE,
-                                                             this.proxyURL.href);
-    if (this.syncStateError(proxyTokenData)) {
-      return proxyTokenData;
-    }
-
-    const profileEndpoint = await this.wellKnownData.getProfileEndpoint();
-
-    let profileTokenData = await this.maybeGenerateSingleToken("profileTokenData",
-                                                               refreshTokenData,
-                                                               FXA_PROFILE_SCOPE,
-                                                               profileEndpoint);
-    if (this.syncStateError(profileTokenData)) {
-      return profileTokenData;
-    }
-
-    let profileData = await StorageUtils.getProfileData();
-    // Let's obtain the profile data for the user.
-    if (!profileData || profileTokenData.value.tokenGenerated) {
-      const data = await this.generateProfileData(profileTokenData.value.tokenData);
+    if (!tokenData) {
+      log("generating token");
+      const data = await this.generateToken(fxaCode);
       if (this.syncStateError(data)) {
         return data;
       }
 
-      profileData = data.value;
+      tokenData = data.proxy_token;
+
+      tokenGenerated = true;
+
+      await StorageUtils.setProxyTokenAndProfileData(data.proxy_token,
+                                                     data.profile_data);
     }
 
-    await StorageUtils.setDynamicTokenData(proxyTokenData.value.tokenData,
-                                           profileTokenData.value.tokenData,
-                                           profileData);
-
-    // Let's pick the min time diff.
-    let minDiff = Math.min(proxyTokenData.value.minDiff,
-                           profileTokenData.value.minDiff);
+    let minDiff = tokenData.received_at + tokenData.expires_in - nowInSecs - this.fxaExpirationDelta;
+    log(`token expires in ${minDiff}`);
 
     // Let's schedule the token rotation.
     setTimeout(async _ => this.scheduledTokenGeneration(), minDiff * 1000);
 
-    this.nextExpireTime = Math.min(proxyTokenData.value.tokenData.received_at + proxyTokenData.value.tokenData.expires_in,
-                                   profileTokenData.value.tokenData.received_at + profileTokenData.value.tokenData.expires_in);
+    this.nextExpireTime = tokenData.received_at + tokenData.expires_in;
 
     // Let's update the proxy token cache with the new values.
-    this.cachedProxyTokenValue.tokenType = proxyTokenData.value.tokenData.token_type;
-    this.cachedProxyTokenValue.tokenValue = proxyTokenData.value.tokenData.access_token;
-    this.cachedProxyTokenValue.tokenHash = await this.digestTokenValue(proxyTokenData.value.tokenData.access_token);
+    this.cachedProxyTokenValue.tokenType = tokenData.token_type;
+    this.cachedProxyTokenValue.tokenValue = tokenData.access_token;
+    this.cachedProxyTokenValue.tokenHash = await this.digestTokenValue(tokenData.access_token);
 
-    if (proxyTokenData.value.tokenGenerated) {
+    if (tokenGenerated) {
       // We cannot wait for this message because otherwise we create a bad
       // deadlock between the authentication process and the token generation
       // event.
@@ -165,58 +162,34 @@ export class FxAUtils extends Component {
     return { state: FXA_OK };
   }
 
-  async maybeGenerateSingleToken(tokenName, refreshTokenData, scope, resource) {
-    log(`maybe generate token:  ${tokenName}`);
+  async obtainStateToken() {
+    log("Obtain state token");
 
-    let minDiff = 0;
-    let tokenGenerated = false;
+    const headers = new Headers();
+    headers.append("Content-Type", "application/json");
 
-    // eslint-disable-next-line verify-await/check
-    let now = Date.now();
-    let nowInSecs = Math.round(now / 1000);
+    const request = new Request(this.service + "oauth/start", {
+      method: "GET",
+      headers,
+    });
 
-    let tokenData = await StorageUtils.getStorageKey(tokenName);
-    if (tokenData) {
-      // If we are close to the expiration time, we have to generate the token.
-      // We want to keep a big time margin: 1 hour seems good enough.
-      let diff = tokenData.received_at + tokenData.expires_in - nowInSecs - this.fxaExpirationDelta;
-      if (!diff || diff < 0) {
-        log(`Token exists but it is expired. Received at ${tokenData.received_at} and expires in ${tokenData.expires_in}`);
-        tokenData = null;
-      } else {
-        log(`token expires in ${diff}`);
-        minDiff = diff;
+    try {
+      let resp = await fetch(request, {cache: "no-cache"});
+      if (resp.status !== 201) {
+        return null;
       }
+
+      const json = await resp.json();
+      return json.state_token;
+    } catch (e) {
+      return null;
     }
-
-    if (!tokenData) {
-      log("generating token");
-      const data = await this.generateToken(refreshTokenData, scope, resource);
-      if (this.syncStateError(data)) {
-        return data;
-      }
-
-      tokenData = data.token;
-
-      minDiff = tokenData.received_at + tokenData.expires_in - nowInSecs - this.fxaExpirationDelta;
-      log(`token expires in ${minDiff}`);
-      tokenGenerated = true;
-    }
-
-    return {
-      state: FXA_OK,
-      value: {
-        minDiff,
-        tokenData,
-        tokenGenerated,
-      }
-    };
   }
 
   async scheduledTokenGeneration() {
     log("Token generation scheduled");
 
-    const result = await this.maybeGenerateTokens();
+    const result = await this.maybeObtainToken();
     if (this.syncStateError(result)) {
       log("token generation failed");
       await this.sendMessage("authenticationFailed", result.state);
@@ -225,6 +198,50 @@ export class FxAUtils extends Component {
         log("Network error. Let's wait a bit before trying again.");
         setTimeout(async _ => this.scheduledTokenGeneration(), NEXT_TRY_TIME * 1000);
       }
+    }
+  }
+
+  async generateToken(fxaCode) {
+    let stateTokenData = await StorageUtils.getStateTokenData();
+    if (!stateTokenData) {
+      return { state: FXA_ERR_AUTH };
+    }
+
+    const headers = new Headers();
+    headers.append("Content-Type", "application/json");
+
+    const request = new Request(this.service + "oauth/token", {
+      method: "POST",
+      headers,
+      body: JSON.stringify({
+        state_token: stateTokenData,
+        fxa_code: fxaCode,
+      }),
+    });
+
+    try {
+      let resp = await fetch(request, {cache: "no-cache"});
+      if (resp.status >= 500 && resp.status <= 599) {
+        return { state: FXA_ERR_NETWORK };
+      }
+
+      if (resp.status !== 201) {
+        return { state: FXA_ERR_AUTH };
+      }
+
+      const json = await resp.json();
+      
+      // Let's store when this token has been received.
+      // eslint-disable-next-line verify-await/check
+      json.proxy_token.received_at = Math.round(Date.now() / 1000);
+
+      return {
+        state: FXA_OK,
+        proxy_token: json.proxy_token,
+        profile_data: json.profile_data,
+      };
+    } catch (e) {
+      return { state: FXA_ERR_NETWORK };
     }
   }
 
@@ -238,42 +255,8 @@ export class FxAUtils extends Component {
     return data.state !== FXA_OK;
   }
 
-  async generateProfileData(profileTokenData) {
-    log("generate profile data");
-
-    const headers = new Headers({
-      "Authorization": `Bearer ${profileTokenData.access_token}`
-    });
-
-    const profileEndpoint = await this.wellKnownData.getProfileEndpoint();
-    const request = new Request(profileEndpoint, {
-      method: "GET",
-      headers,
-    });
-
-    try {
-      const resp = await fetch(request, {cache: "no-cache"});
-      // Let's treat 5xx as a network error.
-      if (resp.status >= 500 && resp.status <= 599) {
-        log("profile data generation failed: " + resp.status);
-        return { state: FXA_ERR_NETWORK };
-      }
-
-      if (resp.status !== 200) {
-        log("profile data generation failed: " + resp.status);
-        return { state: FXA_ERR_AUTH };
-      }
-
-      const value = await resp.json();
-      return { state: FXA_OK, value };
-    } catch (e) {
-      console.error("Failed to fetch profile data", e);
-      return { state: FXA_ERR_NETWORK };
-    }
-  }
-
-  async generateRefreshToken() {
-    log("generate refresh token");
+  async authenticateInternal() {
+    log("generate state token and the fxa code");
 
     const contentServer = await this.wellKnownData.getIssuerEndpoint();
     const fxaKeysUtil = new fxaCryptoRelier.OAuthUtils({contentServer});
@@ -281,10 +264,14 @@ export class FxAUtils extends Component {
     // get optional flow params for fxa metrics
     await this.maybeFetchFxaFlowParams();
 
-    let refreshTokenData;
-    // This will trigger the authentication form.
+    const stateToken = await this.obtainStateToken();
+    if (!stateToken) {
+      return null;
+    }
+
+    let fxaCode;
     try {
-      refreshTokenData = await fxaKeysUtil.launchWebExtensionFlow(FXA_CLIENT_ID, {
+      let data = await fxaKeysUtil.launchWebExtensionCodeFlow(FXA_CLIENT_ID, stateToken, {
         // eslint-disable-next-line verify-await/check
         redirectUri: browser.identity.getRedirectURL(),
         scopes: [FXA_PROFILE_SCOPE, FXA_PROXY_SCOPE],
@@ -293,85 +280,42 @@ export class FxAUtils extends Component {
         // We have our well-known-data cache, let's use it.
         ensureOpenIDConfiguration: _ => this.wellKnownData.openID(),
       });
+
+      if (data.state !== stateToken) {
+        throw new Error("Invalid state code received!");
+      }
+
+      fxaCode = data.code;
     } catch (e) {
       console.error("Failed to fetch the refresh token", e);
     }
 
-    return refreshTokenData;
-  }
-
-  async generateToken(refreshTokenData, scope, resource) {
-    log("generate token - scope: " + scope);
-
-    // See https://github.com/mozilla/fxa/blob/0ed71f677637ee5f817fa17c265191e952f5500e/packages/fxa-auth-server/fxa-oauth-server/docs/pairwise-pseudonymous-identifiers.md
-    const ppid_seed = Math.floor(Math.random() * 1024);
-
-    const headers = new Headers();
-    // eslint-disable-next-line verify-await/check
-    headers.append("Content-Type", "application/json");
-
-    const tokenEndpoint = await this.wellKnownData.getTokenEndpoint();
-    const request = new Request(tokenEndpoint, {
-      method: "POST",
-      headers,
-      body: JSON.stringify({
-        /* eslint-disable camelcase*/
-        client_id: FXA_CLIENT_ID,
-        grant_type: "refresh_token",
-        refresh_token: refreshTokenData.refresh_token,
-        scope,
-        ttl: this.fxaExpirationTime,
-        ppid_seed,
-        resource,
-        /* eslint-enable camelcase*/
-      })
-    });
-
-    let token;
-    try {
-      const resp = await fetch(request, {cache: "no-cache"});
-      // Let's treat 5xx as a network error.
-      if (resp.status >= 500 && resp.status <= 599) {
-        log("token generation failed: " + resp.status);
-        return { state: FXA_ERR_NETWORK };
-      }
-
-      if (resp.status !== 200) {
-        log("token generation failed: " + resp.status);
-        return { state: FXA_ERR_AUTH };
-      }
-
-      token = await resp.json();
-    } catch (e) {
-      console.error("Failed to fetch the token with scope: " + scope, e);
-      return { state: FXA_ERR_NETWORK };
+    if (!fxaCode) {
+      return null;
     }
 
-    // Let's store when this token has been received.
-    // eslint-disable-next-line verify-await/check
-    token.received_at = Math.round(Date.now() / 1000);
-
-    return { state: FXA_OK, token };
+    return {
+      stateToken,
+      fxaCode,
+    }
   }
 
   // This method returns a token or a Promise.
   askForProxyToken() {
     // eslint-disable-next-line verify-await/check
     let nowInSecs = Math.round(Date.now() / 1000);
-    if (this.generatingTokens ||
+    if (this.requestingToken ||
         !this.nextExpireTime ||
         nowInSecs >= (this.nextExpireTime - EXPIRE_DELTA)) {
       // We don't care about the cached values. Maybe they are the old ones.
-      return this.maybeGenerateTokens().then(_ => this.cachedProxyTokenValue);
+      return this.maybeObtainToken().then(_ => this.cachedProxyTokenValue);
     }
 
     return this.cachedProxyTokenValue;
   }
 
   async forceToken(data) {
-    await StorageUtils.setDynamicTokenData(data.proxy || await StorageUtils.getStorageKey("proxyTokenData"),
-                                           data.profile || await StorageUtils.getStorageKey("profileTokenData"),
-                                           await StorageUtils.getStorageKey("profileData"));
+    await StorageUtils.setProxyTokenData(data);
     this.nextExpireTime = 0;
   }
 
@@ -401,30 +345,31 @@ export class FxAUtils extends Component {
     return this.wellKnownData.fetch();
   }
 
-  async resetAllTokens() {
-    let refreshTokenData = await StorageUtils.getRefreshTokenData();
-
-    await StorageUtils.resetAllTokenData();
-
-    if (refreshTokenData) {
-      const tokenEndpoint = await this.wellKnownData.getTokenEndpoint();
-      // eslint-disable-next-line verify-await/check
-      const destroyEndpoint = tokenEndpoint.replace("token", "destroy");
-
+  async resetToken() {
+    let stateTokenData = await StorageUtils.getStateTokenData();
+    if (stateTokenData) {
       const headers = new Headers();
-      // eslint-disable-next-line verify-await/check
       headers.append("Content-Type", "application/json");
 
-      const request = new Request(destroyEndpoint, {
+      const request = new Request(this.service + "oauth/forget", {
         method: "POST",
         headers,
         body: JSON.stringify({
-          refresh_token: refreshTokenData.refresh_token,
+          state_token: stateTokenData,
         }),
       });
 
-      await fetch(request, {cache: "no-cache"});
+      try {
+        let resp = await fetch(request, {cache: "no-cache"});
+        if (resp.status !== 200) {
+          throw new Error("200 exepcted");
+        }
+      } catch (e) {
+        console.error("Failed to fetch /forget request: ", e);
+      }
     }
+
+    await StorageUtils.setStateToken(null);
   }
 
   // check storage for optional flow params

@@ -20,6 +20,8 @@ export class ExternalHandler extends Component {
         return ConfigUtils.setDebuggingEnabled(message.value);
       case "setProxyURL":
         return ConfigUtils.setProxyURL(message.value);
+      case "setSPService":
+        return ConfigUtils.setSPService(message.value);
       case "setFxaOpenID":
         return ConfigUtils.setFxaOpenID(message.value);
       case "setFxaExpirationTime":
@@ -28,15 +30,10 @@ export class ExternalHandler extends Component {
       case "setFxaExpirationDelta":
         // eslint-disable-next-line verify-await/check
         return ConfigUtils.setFxaExpirationDelta(parseInt(message.value, 10));
-      case "getTokens":
-        return {
-          proxy: await StorageUtils.getStorageKey("proxyTokenData"),
-          profile: await StorageUtils.getStorageKey("profileTokenData"),
-        };
+      case "getProxyToken":
+        return await StorageUtils.getProxyTokenData();
       case "setProxyToken":
-        return this.sendMessage("forceToken", { proxy: message.value });
-      case "setProfileToken":
-        return this.sendMessage("forceToken", { profile: message.value });
+        return this.sendMessage("forceToken", message.value);
       case "reload":
         return browser.runtime.reload();
       default:

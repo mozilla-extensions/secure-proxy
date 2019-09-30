@@ -163,7 +163,7 @@ class Main {
     }
 
     // All seems good. Let's see if the proxy should enabled.
-    let data = await this.fxa.maybeGenerateTokens();
+    let data = await this.fxa.maybeObtainToken();
     switch (data.state) {
       case FXA_OK:
         this.setProxyState(PROXY_STATE_CONNECTING);
@@ -262,17 +262,17 @@ class Main {
         log("authentication failed");
         this.setProxyState(PROXY_STATE_AUTHFAILURE);
 
-        await this.fxa.resetAllTokens();
+        await this.fxa.resetToken();
         await this.ui.update();
         break;
 
       case FXA_ERR_NETWORK:
-        // This is interesting. We are not able to fetch new tokens because
+        // This is interesting. We are not able to fetch new token because
         // the network is probably down. There is not much we can do:
         // - we don't want to show a toast because it would be confusing for
         //   the user.
         // - we don't want to change the proxy state because maybe we will be
-        //   able to generate new tokens during the processing of the next
+        //   able to generate a new token during the processing of the next
         //   request.
         // So, the current strategy is to ignore this authFailure and wait
         // until the network component complains...
@@ -330,13 +330,13 @@ class Main {
 
     this.setProxyState(state);
 
-    // Let's reset the tokens before udating the UI and before generating new
-    // ones.
-    await StorageUtils.resetDynamicTokenData();
+    // Let's reset the token before udating the UI and before generating new
+    // one.
+    await StorageUtils.setProxyTokenData(null);
 
     await Promise.all([
       this.ui.update(),
-      this.fxa.maybeGenerateTokens(),
+      this.fxa.maybeObtainToken(),
     ]);
   }
 
@@ -376,7 +376,7 @@ class Main {
     }
 
     // We want to update the UI only if we were not already active, because, if
-    // we are here, in ACTIVE state, it's because we just rotating the tokens.
+    // we are here, in ACTIVE state, it's because we just rotating the token.
     if (this.proxyState !== PROXY_STATE_ACTIVE) {
       // We are in an inactive state at this point.
       this.setProxyState(PROXY_STATE_INACTIVE);
