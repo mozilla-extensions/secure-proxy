@@ -94,15 +94,6 @@ const ConfigUtils = {
     return await this.getStorageKey("debuggingEnabled") || false;
   },
 
-  async setFxaExpirationTime(fxaExpirationTime) {
-    await browser.storage.local.set({fxaExpirationTime});
-  },
-
-  async getFxaExpirationTime() {
-    // eslint-disable-next-line verify-await/check
-    return parseInt(await this.getStorageKey("fxaExpirationTime"), 10) || DEFAULT_FXA_EXPIRATION_TIME;
-  },
-
   async setFxaExpirationDelta(fxaExpirationDelta) {
     await browser.storage.local.set({fxaExpirationDelta});
   },
@@ -121,7 +112,6 @@ const ConfigUtils = {
       sps: await this.getSPService(),
       proxyURL: await this.getProxyURL(),
       debuggingEnabled: await this.getDebuggingEnabled(),
-      fxaExpirationTime: await this.getFxaExpirationTime(),
       fxaExpirationDelta: await this.getFxaExpirationDelta(),
     };
   },

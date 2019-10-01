@@ -44,9 +44,6 @@
   "productionSPService": {
     "message": "Production Secure-Proxy service URL"
   },
-  "pageFxaExpirationTime": {
-    "message": "FxA token expiration time"
-  },
   "pageFxaExpirationDelta": {
     "message": "FxA token expiration delta"
   },

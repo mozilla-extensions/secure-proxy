@@ -1,3 +1,6 @@
+// For a description of the interaction of SP and FxA, see:
+// https://gitlab.com/shane-tomlinson/mermaid-charts/blob/master/charts/secure-proxy/secure-proxy-signin-with-backend-server.svg
+
 import {Component} from "./component.js";
 import {StorageUtils} from "./storageUtils.js";
 import {WellKnownData} from "./wellKnownData.js";
@@ -47,7 +50,6 @@ export class FxAUtils extends Component {
   async init(prefs) {
     this.service = await ConfigUtils.getSPService();
     this.proxyURL = await ConfigUtils.getProxyURL();
-    this.fxaExpirationTime = await ConfigUtils.getFxaExpirationTime();
     this.fxaExpirationDelta = await ConfigUtils.getFxaExpirationDelta();
 
     await this.wellKnownData.init();
@@ -145,9 +147,9 @@ export class FxAUtils extends Component {
     this.nextExpireTime = tokenData.received_at + tokenData.expires_in;
 
     // Let's update the proxy token cache with the new values.
-    this.cachedProxyTokenValue.tokenType = tokenData.token_type;
-    this.cachedProxyTokenValue.tokenValue = tokenData.access_token;
-    this.cachedProxyTokenValue.tokenHash = await this.digestTokenValue(tokenData.access_token);
+    this.cachedProxyTokenValue.tokenType = "Bearer";
+    this.cachedProxyTokenValue.tokenValue = tokenData.token;
+    this.cachedProxyTokenValue.tokenHash = await this.digestTokenValue(tokenData.token);
 
     if (tokenGenerated) {
       // We cannot wait for this message because otherwise we create a bad
