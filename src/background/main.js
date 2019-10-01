@@ -334,10 +334,26 @@ class Main {
     // one.
     await StorageUtils.setProxyTokenData(null);
 
-    await Promise.all([
-      this.ui.update(),
-      this.fxa.maybeObtainToken(),
-    ]);
+    await this.ui.update();
+
+    const data = await this.fxa.maybeObtainToken();
+    switch (data.state) {
+      case FXA_OK:
+        // We are going to have a token-generated event.
+        return;
+
+      case FXA_ERR_AUTH:
+        this.setProxyState(PROXY_STATE_UNAUTHENTICATED);
+        await this.ui.update();
+        return;
+
+      case FXA_ERR_NETWORK:
+        // Something is wrong with FxA. No way to recover this scenario.
+        return;
+
+      default:
+        throw new Error("Invalid FXA error value!");
+    }
   }
 
   syncSkipProxy(requestInfo, url) {
