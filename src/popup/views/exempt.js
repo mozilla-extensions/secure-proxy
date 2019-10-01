@@ -1,7 +1,7 @@
 import {View} from "../view.js";
 
 class ViewExemptTab extends View {
-  syncShow(proxyState) {
+  syncShow() {
     View.setState("disabled", {text: this.getTranslation("heroProxyOff")});
     View.showToggleButton(false);
 

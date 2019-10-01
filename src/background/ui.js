@@ -1,4 +1,5 @@
 import {Component} from "./component.js";
+import {Passes} from "./passes.js";
 import {StorageUtils} from "./storageUtils.js";
 
 // These URLs must be formatted
@@ -9,6 +10,8 @@ const CLOUDFLARE_URL = "https://www.cloudflare.com/";
 const PRIVACY_POLICY_URL = "https://www.mozilla.org/privacy/firefox-private-network";
 const TERMS_AND_CONDITIONS_URL = "https://www.mozilla.org/about/legal/terms/firefox-private-network";
 const GIVE_US_FEEDBACK_URL = "https://qsurvey.mozilla.com/s3/fx-private-network-beta-feedback";
+const BETA_LEARNMORE_URL = "https://private-network.firefox.com/beta-announcement";
+const BETA_UPGRADE_URL = "https://fpn.firefox.com/vpn";
 
 export class UI extends Component {
   constructor(receiver) {
@@ -237,6 +240,14 @@ export class UI extends Component {
           this.syncSendMessage("telemetry", { category: "settings_url_clicks", event: message.type });
           break;
 
+        case "betaLearnMore":
+          await this.openUrl(BETA_LEARNMORE_URL);
+          break;
+
+        case "betaUpgrade":
+          await this.openUrl(BETA_UPGRADE_URL);
+          break;
+
         case "telemetry":
           this.syncSendMessage("telemetry", message.data);
           break;
@@ -298,6 +309,38 @@ export class UI extends Component {
     }
   }
 
+  async syncPassNeededToast() {
+    const passes = Passes.syncGet().syncGetPasses();
+    const passesAvailable = passes.totalPasses - passes.currentPass;
+
+    if (passesAvailable === 0) {
+      return browser.experiments.proxyutils.showPrompt(
+        this.getTranslation("toastLastPassExpired"), true);
+    }
+
+    return browser.experiments.proxyutils.showPrompt(
+      this.getTranslation("toastPassExpired"), true);
+  }
+
+  async syncPassAvailableToast() {
+    const passes = Passes.syncGet().syncGetPasses();
+    const passesAvailable = passes.totalPasses - passes.currentPass;
+
+    if (passesAvailable === 1) {
+      return browser.experiments.proxyutils.showPrompt(
+        this.getTranslation("toastLastPassAvailable"), false);
+    }
+
+    if (passesAvailable > 0) {
+      return browser.experiments.proxyutils.showPrompt(
+        this.getTranslation("toastPassesAvailable", passesAvailable), false);
+    }
+
+    // TODO: any notification here? Let's use toastPassesAvailable for now.
+    return browser.experiments.proxyutils.showPrompt(
+      this.getTranslation("toastPassesAvailable", passesAvailable), false);
+  }
+
   async update(showToast = true) {
     if (showToast) {
       await this.showStatusPrompt();
@@ -340,13 +383,19 @@ export class UI extends Component {
   async sendDataToCurrentPort() {
     log("Update the panel: ", this.currentPort);
     if (this.currentPort) {
-      let exempt = await this.isCurrentTabExempt();
-      let profileData = await StorageUtils.getProfileData();
+      const exempt = await this.isCurrentTabExempt();
+      const profileData = await StorageUtils.getProfileData();
+      const migrationCompleted = Passes.syncGet().syncIsMigrationCompleted();
+      const dataPasses = Passes.syncGet().syncGetPasses();
+      const tokenData = await StorageUtils.getProxyTokenData();
 
       return this.currentPort.postMessage({
         userInfo: profileData,
         proxyState: this.cachedProxyState,
         exempt,
+        migrationCompleted,
+        ...dataPasses,
+        tokenData,
       });
     }
     return null;

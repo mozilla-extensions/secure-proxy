@@ -35,7 +35,7 @@ export class ProxyDownChecker extends Component {
 
     // eslint-disable-next-line verify-await/check
     let now = Date.now();
-    let nowInSecs = Math.round(now / 1000);
+    let nowInSecs = Math.floor(now / 1000);
     if ((this.lastCheckTime + PDC_TIME) > nowInSecs) {
       // We can wait a bit more before running another check.
       log("Proxy down check postponed");

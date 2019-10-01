@@ -66,14 +66,14 @@ export class Survey extends Component {
 
     let surveyInitialTime = await StorageUtils.getSurveyInitialTime();
     if (!surveyInitialTime) {
-      surveyInitialTime = Math.round(now / 1000);
+      surveyInitialTime = Math.floor(now / 1000);
       await StorageUtils.setSurveyInitialTime(surveyInitialTime);
     }
 
     // Let's find the next survey to show.
     let nextSurvey = await this.nextSurvey();
     if (nextSurvey) {
-      now = Math.round(now / 1000);
+      now = Math.floor(now / 1000);
       let diff = surveyInitialTime + nextSurvey.triggerAfterTime - now;
       if (diff < 0) {
         diff = 0;

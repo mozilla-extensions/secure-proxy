@@ -501,3 +501,36 @@ footer {
 .link {
   cursor: pointer;
 }
+
+#popupBeta {
+  flex: max-content;
+}
+
+.popupBetaLink {
+  font-weight: bold;
+  text-decoration:none;
+}
+
+#passCount::before {
+  /* TODO */
+  position: absolute;
+  inset-block-start: 2px;
+  content: "";
+  display: inline-block;
+  block-size: 16px;
+  inline-size: 16px;
+  background: url("/img/ticket.svg");
+  margin-inline-start: -22px;
+}
+
+#passCountdown::before {
+  /* TODO */
+  position: absolute;
+  inset-block-start: 2px;
+  content: "";
+  display: inline-block;
+  block-size: 16px;
+  inline-size: 16px;
+  background: url("/img/timer.svg");
+  margin-inline-start: -22px;
+}

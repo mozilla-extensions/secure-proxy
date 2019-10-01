@@ -45,7 +45,7 @@ export class WellKnownData {
 
     // eslint-disable-next-line verify-await/check
     let now = Date.now();
-    let nowInSecs = Math.round(now / 1000);
+    let nowInSecs = Math.floor(now / 1000);
 
     if ((this.fxaEndpointsReceivedAt + FXA_EXP_WELLKNOWN_TIME) > nowInSecs) {
       log("Well-knonw data cache is good");

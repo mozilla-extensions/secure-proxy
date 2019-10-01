@@ -15,7 +15,7 @@
   "badgeWarningText": {
     "message": "Firefox Private Network is inactive"
   },
-    
+
   "heroProxyOff": {
     "message": "OFF"
   },
@@ -70,7 +70,36 @@
   "popupToggleButtonLabel": {
     "message": "Toggle proxy state"
   },
+  "popupBetaEndingSoon": {
+    "message": "Changes are coming to beta."
+  },
+  "popupBetaLearnMore": {
+    "message": "Learn more"
+  },
+  "popupBetaUnlimited": {
+    "message": "Want unlimited access?"
+  },
+  "popupBetaUpgrade": {
+    "message": "Upgrade"
+  },
 
+  "toastLastPassAvailable": {
+    "message": "You have 1 new Firefox Private Network pass!"
+  },
+  "toastPassesAvailable": {
+    "message": "You have $number$ new Firefox Private Network passes!",
+    "placeholders": {
+      "number" : {
+        "content" : "$1"
+      }
+    }
+  },
+  "toastLastPassExpired": {
+    "message": "You've used all your free passes for this month."
+  },
+  "toastPassExpired": {
+    "message": "Pass expired. Firefox Private Network is off."
+  },
   "toastProxyOff": {
     "message": "Firefox Private Network is off."
   },
@@ -94,16 +123,42 @@
     "message": "Establishing connection to Firefox Private Network. This should take just a few more moments."
   },
   "viewLoginMessage":{
-    "message": "Sign in to your Firefox account to start using Firefox Private Network"
+    "message": "To start using Private Network, sign in to your Firefox account or create one."
   },
   "viewLoginButton":{
-    "message": "Sign in"
+    "message": "Continue"
   },
   "viewMainActive": {
-    "message": "Your connection is secure, and your location is hidden from websites and trackers, making it tougher for those annoying targeted ads to track you online."
+    "message": "Your connection is secure, and your location is hidden from websites and trackers, making it tougher for those annoying targeted ads to follow you around online."
+  },
+  "viewMainActiveLimited": {
+    "message": "Each pass lasts for 3 hours, encrypts your Firefox browsing, and hides your location. Time cannot be paused or stopped."
   },
   "viewMainInactive": {
-    "message": "Using public Wi-Fi without a secure connection can put you at risk for identity theft, snooping, and malware infection."
+    "message": "Using public Wi-Fi without a secure connection can put you at risk of identity theft, snooping, and malware infection."
+  },
+  "viewMainInactiveWithPasses": {
+    "message": "To claim a pass, turn on Private Network. This reduces ad tracking, encrypts your Firefox browsing, and hides your location. Passes run without stopping for 3 hours."
+  },
+  "viewMainInactiveWithoutPasses": {
+    "message": "Upgrade for unlimited access to Private Network to encrypt your browsing and hide your location."
+  },
+  "viewMainUpgradeButton": {
+    "message": "Upgrade"
+  },
+  "viewMainLastPassAvailable": {
+    "message": "1 pass remaining"
+  },
+  "viewMainManyPassesAvailable": {
+    "message": "$number$ passes remaining",
+    "placeholders": {
+      "number" : {
+        "content" : "$1"
+      }
+    }
+  },
+  "viewMainLastPassActive": {
+    "message": "Final pass in use"
   },
   "viewOffline": {
     "message": "You are offline. Check your network connection and try again."

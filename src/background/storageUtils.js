@@ -11,11 +11,11 @@ export const StorageUtils = {
     return this.getStorageKey("stateTokenData");
   },
 
-  async setStateToken(stateTokenData) {
+  async setStateTokenAndProfileData(stateTokenData, profileData) {
     await browser.storage.local.set({
       stateTokenData,
       proxyTokenData: null,
-      profileData: null,
+      profileData,
     });
   },
 

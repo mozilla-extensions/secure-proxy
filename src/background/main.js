@@ -4,6 +4,7 @@ import {ExternalHandler} from "./external.js";
 import {FxAUtils} from "./fxa.js";
 import {Network} from "./network.js";
 import {OfflineManager} from "./offline.js";
+import {Passes} from "./passes.js";
 import {ProxyDownChecker} from "./proxyDownChecker.js";
 import {ProxyStateObserver} from "./proxyStateObserver.js";
 import {StorageUtils} from "./storageUtils.js";
@@ -39,6 +40,7 @@ class Main {
     this.fxa = new FxAUtils(this);
     this.offlineManager = new OfflineManager(this);
     this.net = new Network(this);
+    this.passes = new Passes(this);
     this.proxyDownChecker = new ProxyDownChecker(this);
     this.proxyStateObserver = new ProxyStateObserver(this);
     this.survey = new Survey(this);
@@ -117,13 +119,13 @@ class Main {
   }
 
   // Set this.proxyState based on the current settings.
-  async computeProxyState() {
+  async computeProxyState(createTokenIfNeeded = false) {
     log("computing status - currently: " + this.proxyState);
 
     let currentState = this.proxyState;
 
     // Let's compute the state.
-    await this.computeProxyStateInternal();
+    await this.computeProxyStateInternal(createTokenIfNeeded);
 
     // If we are here we are not active yet. At least we are connecting.
     // Restore default settings.
@@ -135,7 +137,7 @@ class Main {
     return currentState !== this.proxyState;
   }
 
-  async computeProxyStateInternal() {
+  async computeProxyStateInternal(createTokenIfNeeded) {
     // If all is disabled, we are inactive.
     let proxyState = await StorageUtils.getProxyState();
     if (proxyState === PROXY_STATE_INACTIVE) {
@@ -163,11 +165,9 @@ class Main {
     }
 
     // All seems good. Let's see if the proxy should enabled.
-    let data = await this.fxa.maybeObtainToken();
+    let data = await this.fxa.maybeObtainToken(createTokenIfNeeded);
     switch (data.state) {
       case FXA_OK:
-        this.setProxyState(PROXY_STATE_CONNECTING);
-
         // Note that we are not waiting for this function. The code moves on.
         // eslint-disable-next-line verify-await/check
         this.testProxyConnection();
@@ -179,6 +179,10 @@ class Main {
 
       case FXA_ERR_NETWORK:
         this.setProxyState(PROXY_STATE_OFFLINE);
+        return;
+
+      case FXA_PAYMENT_REQUIRED:
+        this.syncPassNeeded();
         return;
 
       default:
@@ -230,9 +234,13 @@ class Main {
     // Let's force a new proxy state, and then let's compute it again.
     await StorageUtils.setProxyState(proxyState);
 
-    if (await this.computeProxyState()) {
+    if (value) {
+      this.setProxyState(PROXY_STATE_CONNECTING);
       await this.ui.update();
     }
+
+    await this.computeProxyState(true);
+    await this.ui.update();
   }
 
   async auth() {
@@ -277,6 +285,10 @@ class Main {
         // So, the current strategy is to ignore this authFailure and wait
         // until the network component complains...
         log("authentication failed by network - ignore");
+        break;
+
+      case FXA_PAYMENT_REQUIRED:
+        // This should not really happen. Let's ignore this scenario.
         break;
 
       default:
@@ -336,23 +348,31 @@ class Main {
 
     await this.ui.update();
 
-    const data = await this.fxa.maybeObtainToken();
-    switch (data.state) {
-      case FXA_OK:
-        // We are going to have a token-generated event.
-        return;
+    // We try to recover only if unlimited or pre-migration.
+    if (!this.passes.syncIsMigrationCompleted() ||
+        this.passes.syncAreUnlimited()) {
+      const data = await this.fxa.maybeObtainToken();
+      switch (data.state) {
+        case FXA_OK:
+          // We are going to have a token-generated event.
+          break;
 
-      case FXA_ERR_AUTH:
-        this.setProxyState(PROXY_STATE_UNAUTHENTICATED);
-        await this.ui.update();
-        return;
+        case FXA_ERR_AUTH:
+          this.setProxyState(PROXY_STATE_UNAUTHENTICATED);
+          await this.ui.update();
+          break;
 
-      case FXA_ERR_NETWORK:
-        // Something is wrong with FxA. No way to recover this scenario.
-        return;
+        case FXA_ERR_NETWORK:
+          // Something is wrong with FxA. No way to recover this scenario.
+          break;
 
-      default:
-        throw new Error("Invalid FXA error value!");
+        case FXA_PAYMENT_REQUIRED:
+          // This should not really happen. Let's ignore this scenario.
+          break;
+
+        default:
+          throw new Error("Invalid FXA error value!");
+      }
     }
   }
 
@@ -400,6 +420,21 @@ class Main {
       // Let's enable the proxy.
       await this.enableProxy(true, reason);
     }
+  }
+
+  syncPassNeeded() {
+    // It's time to disable everything...
+    this.setProxyState(PROXY_STATE_INACTIVE);
+    this.ui.syncPassNeededToast();
+  }
+
+  syncPassAvailable(firstMigration) {
+    if (firstMigration) {
+      // It's time to disable everything for the first migration.
+      this.setProxyState(PROXY_STATE_INACTIVE);
+    }
+
+    this.ui.syncPassAvailableToast();
   }
 
   // Provides an async response in most cases
@@ -458,6 +493,16 @@ class Main {
 
       case "managerAccountURL":
         return this.fxa.manageAccountURL();
+
+      case "pass-available":
+        return this.syncPassAvailable(data.firstMigration);
+
+      case "pass-availability-check":
+        return this.fxa.passAvailabilityCheck();
+
+      case "pass-needed":
+        this.syncPassNeeded();
+        return this.ui.update(false /* no toast here */);
 
       case "onlineDetected":
         return this.run();

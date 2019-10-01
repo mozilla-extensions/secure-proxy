@@ -33,7 +33,7 @@ export class View {
     footer.toggleAttribute("hidden", true);
 
     let introHeading = document.getElementById("introHeading");
-    introHeading.textContent = currentView.getTranslation(currentView.syncHeadingText());
+    introHeading.textContent = currentView.getTranslation(currentView.syncHeadingText(data));
 
     log(`Show: ${name}`);
     let template = currentView.syncShow(data);
@@ -107,7 +107,9 @@ export class View {
   }
 
   // To be overwritten with a string for the header
-  syncHeadingText() { return "introHeading"; }
+  syncHeadingText(data) {
+    return "introHeading";
+  }
 
   // To be overwritten to return an escaped template if the panel should have one
   state() { return null; }
@@ -140,6 +142,13 @@ export class View {
       return;
     }
 
+    if (e.target.id === "betaLearnMore") {
+      // eslint-disable-next-line verify-await/check
+      View.sendMessage(e.target.id);
+      View.close();
+      return;
+    }
+
     // eslint-disable-next-line verify-await/check
     this.handleClickEvent(e);
   }
@@ -153,7 +162,35 @@ export class View {
   }
 
   // To be overwritten if needed.
-  syncFooter() {}
+  syncFooter(data) {
+    if (!data) {
+      return null;
+    }
+
+    if (!data.migrationCompleted) {
+      return escapedTemplate`
+        <span id="popupBeta">${this.getTranslation("popupBetaEndingSoon")}</span>
+        <a href="#" class="link popupBetaLink" id="betaLearnMore">${this.getTranslation("popupBetaLearnMore")}</a>
+      `;
+    }
+
+    // No footer for unlimited, or when there are not passes available.
+    if (data.totalPasses === -1 || (data.totalPasses - data.currentPass) === 0) {
+      return null;
+    }
+
+    // eslint-disable-next-line verify-await/check
+    if ([ PROXY_STATE_INACTIVE,
+          PROXY_STATE_ACTIVE,
+          PROXY_STATE_CONNECTING ].includes(data.proxyState)) {
+      return escapedTemplate`
+        <span id="popupBeta">${this.getTranslation("popupBetaUnlimited")}</span>
+        <a href="#" class="link popupBetaLink" id="betaUpgrade">${this.getTranslation("popupBetaUpgrade")}</a>
+      `;
+    }
+
+    return null;
+  }
 
   // To be overwritten if needed.
   syncPostShow() {}
