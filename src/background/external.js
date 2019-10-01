@@ -24,12 +24,6 @@ export class ExternalHandler extends Component {
         return ConfigUtils.setSPService(message.value);
       case "setFxaOpenID":
         return ConfigUtils.setFxaOpenID(message.value);
-      case "setFxaExpirationTime":
-        // eslint-disable-next-line verify-await/check
-        return ConfigUtils.setFxaExpirationTime(parseInt(message.value, 10));
-      case "setFxaExpirationDelta":
-        // eslint-disable-next-line verify-await/check
-        return ConfigUtils.setFxaExpirationDelta(parseInt(message.value, 10));
       case "getProxyToken":
         return await StorageUtils.getProxyTokenData();
       case "setProxyToken":

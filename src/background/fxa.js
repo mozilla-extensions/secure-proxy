@@ -50,7 +50,6 @@ export class FxAUtils extends Component {
   async init(prefs) {
     this.service = await ConfigUtils.getSPService();
     this.proxyURL = await ConfigUtils.getProxyURL();
-    this.fxaExpirationTime = await ConfigUtils.getFxaExpirationTime();
     this.fxaExpirationDelta = await ConfigUtils.getFxaExpirationDelta();
 
     await this.wellKnownData.init();
