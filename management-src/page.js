@@ -4,8 +4,8 @@ const PRODUCTION_PROXY_URL = "https://firefox.factor11.cloudflareclient.com:2486
 const DEBUGGING_FXA_OPENID = "https://stable.dev.lcip.org/.well-known/openid-configuration";
 const PRODUCTION_FXA_OPENID = "https://accounts.firefox.com/.well-known/openid-configuration";
 
-const DEBUGGING_SPS = "http://localhost:3000/";
-const PRODUCTION_SPS = "https://private-network.firefox.com";
+const DEBUGGING_SPS = "https://guardian-dev.herokuapp.com/";
+const PRODUCTION_SPS = "https://private-network.firefox.com/";
 
 class Page {
   constructor() {
