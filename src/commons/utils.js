@@ -55,8 +55,8 @@ const DEFAULT_FXA_EXPIRATION_DELTA = 3600; // 1 hour
 // FxA openID configuration
 const DEFAULT_FXA_OPENID = "https://accounts.firefox.com/.well-known/openid-configuration";
 
-// SPS configuration
-const DEFAULT_SPS = "https://private-network.firefox.com";
+// SPS configuration (final '/' is important!)
+const DEFAULT_SPS = "https://guardian-dev.herokuapp.com/";
 
 const ConfigUtils = {
   async setProxyURL(proxyURL) {
