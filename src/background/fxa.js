@@ -41,7 +41,6 @@ export class FxAUtils extends Component {
     // The cached token will be populated as soon as the token is retrieved
     // from the storage or requested.
     this.cachedProxyTokenValue = {
-      tokenType: "bearer",
       tokenValue: "invalid-token",
       tokenHash: "",
     };
@@ -147,7 +146,6 @@ export class FxAUtils extends Component {
     this.nextExpireTime = tokenData.received_at + tokenData.expires_in;
 
     // Let's update the proxy token cache with the new values.
-    this.cachedProxyTokenValue.tokenType = "Bearer";
     this.cachedProxyTokenValue.tokenValue = tokenData.token;
     this.cachedProxyTokenValue.tokenHash = await this.digestTokenValue(tokenData.token);
 

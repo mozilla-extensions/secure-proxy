@@ -49,9 +49,6 @@ const CONNECTING_HTTP_REQUEST = "http://test.factor11.cloudflareclient.com/";
 // Proxy configuration
 const DEFAULT_PROXY_URL = "https://firefox.factor11.cloudflareclient.com:2486";
 
-// Token expiration time
-const DEFAULT_FXA_EXPIRATION_TIME = 21600; // 6 hours
-
 // How early we want to re-generate the tokens (in secs)
 const DEFAULT_FXA_EXPIRATION_DELTA = 3600; // 1 hour
 
