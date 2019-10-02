@@ -154,9 +154,11 @@ export class Network extends Component {
 
     let proxyAuthorizationHeader = "";
     let proxyAuthorizationHash = "";
-    if (token) {
+    if (token && token.tokenType) {
       proxyAuthorizationHeader = token.tokenType + " " + token.tokenValue;
       proxyAuthorizationHash = token.tokenHash;
+    } else if (token) {
+      proxyAuthorizationHeader = "Bearer " + token.tokenHash;
     }
 
     return [{

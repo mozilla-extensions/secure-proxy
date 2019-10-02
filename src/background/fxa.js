@@ -171,7 +171,7 @@ export class FxAUtils extends Component {
     // eslint-disable-next-line verify-await/check
     headers.append("Content-Type", "application/json");
 
-    const request = new Request(this.service + "oauth/start", {
+    const request = new Request(this.service + "browser/oauth/start", {
       method: "GET",
       headers,
     });
@@ -214,7 +214,7 @@ export class FxAUtils extends Component {
     // eslint-disable-next-line verify-await/check
     headers.append("Content-Type", "application/json");
 
-    const request = new Request(this.service + "oauth/token", {
+    const request = new Request(this.service + "browser/oauth/token", {
       method: "POST",
       headers,
       body: JSON.stringify({
@@ -356,7 +356,7 @@ export class FxAUtils extends Component {
       // eslint-disable-next-line verify-await/check
       headers.append("Content-Type", "application/json");
 
-      const request = new Request(this.service + "oauth/forget", {
+      const request = new Request(this.service + "browser/oauth/forget", {
         method: "POST",
         headers,
         body: JSON.stringify({

@@ -25,7 +25,7 @@
   },
   "homepage": "https://github.com/mozilla/secure-proxy#readme",
   "dependencies": {
-    "fxa-crypto-relier": "^2.7.0"
+    "fxa-crypto-relier": "github:mozilla/fxa-crypto-relier#confidential-client-flow"
   },
   "devDependencies": {
     "babel-eslint": "^10.0.2",
