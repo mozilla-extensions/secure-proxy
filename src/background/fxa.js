@@ -2,6 +2,7 @@
 // https://gitlab.com/shane-tomlinson/mermaid-charts/blob/master/charts/secure-proxy/secure-proxy-signin-with-backend-server.svg
 
 import {Component} from "./component.js";
+import {Passes} from "./passes.js";
 import {StorageUtils} from "./storageUtils.js";
 import {WellKnownData} from "./wellKnownData.js";
 
@@ -11,9 +12,6 @@ const FXA_PROXY_SCOPE = "https://identity.mozilla.com/apps/secure-proxy";
 
 // The client ID for this extension
 const FXA_CLIENT_ID = "565585c1745a144d";
-
-// How early we want to re-generate the tokens (in secs)
-const EXPIRE_DELTA = 3600;
 
 // FxA CDNs
 const FXA_CDN_DOMAINS = [
@@ -38,6 +36,8 @@ export class FxAUtils extends Component {
 
     this.nextExpireTime = 0;
 
+    this.tokenGenerationTimerId = 0;
+
     // The cached token will be populated as soon as the token is retrieved
     // from the storage or requested.
     this.cachedProxyTokenValue = {
@@ -49,7 +49,6 @@ export class FxAUtils extends Component {
   async init(prefs) {
     this.service = await ConfigUtils.getSPService();
     this.proxyURL = await ConfigUtils.getProxyURL();
-    this.fxaExpirationDelta = await ConfigUtils.getFxaExpirationDelta();
 
     await this.wellKnownData.init();
 
@@ -69,17 +68,33 @@ export class FxAUtils extends Component {
 
     // Let's store the state token and let's invalidate all the other tokens
     // in order to regenerate them.
-    await StorageUtils.setStateToken(data.stateToken);
+    await StorageUtils.setStateTokenAndProfileData(data.stateToken, data.profileData);
 
-    // Let's obtain the proxy token data. This method will dispatch a
-    // "tokenGenerated" event.
-    const result = await this.maybeObtainToken(data.fxaCode);
-    if (this.syncStateError(result)) {
-      throw new Error("Token generation failed");
+    // If we have to migrate, a pass-needed event will be dispatched.
+    await this.updatePasses(data);
+
+    // Let's obtain the token immediately only if the migration is not
+    // completed or the user is subscribed.
+    if (!Passes.syncGet().syncIsMigrationCompleted() ||
+        Passes.syncGet().syncAreUnlimited()) {
+      // Let's obtain the proxy token data. This method will dispatch a
+      // "tokenGenerated" event.
+      const result = await this.maybeObtainToken();
+      if (this.syncStateError(result)) {
+        throw new Error("Token generation failed");
+      }
     }
   }
 
-  async maybeObtainToken(fxaCode = null) {
+  async updatePasses(data) {
+    log("Update pass report");
+
+    if (data.migrationCompleted) {
+      await Passes.syncGet().setPasses(data.currentPass, data.totalPasses);
+    }
+  }
+
+  async maybeObtainToken(createIfNeeded = false) {
     log("maybe request a token and profile data");
 
     if (this.requestingToken) {
@@ -88,7 +103,7 @@ export class FxAUtils extends Component {
     }
 
     this.requestingToken = true;
-    const result = await this.maybeObtainTokenInternal(fxaCode);
+    const result = await this.maybeObtainTokenInternal(createIfNeeded);
     this.requestingToken = false;
 
     // Let's take all the ops and execute them.
@@ -100,20 +115,22 @@ export class FxAUtils extends Component {
     return result;
   }
 
-  async maybeObtainTokenInternal(fxaCode) {
+  async maybeObtainTokenInternal(createIfNeeded) {
     log("maybe generate proxy token");
+
+    clearTimeout(this.tokenGenerationTimerId);
 
     let tokenGenerated = false;
 
     // eslint-disable-next-line verify-await/check
     let now = Date.now();
-    let nowInSecs = Math.round(now / 1000);
+    let nowInSecs = Math.floor(now / 1000);
 
     let tokenData = await StorageUtils.getProxyTokenData();
     if (tokenData) {
       // If we are close to the expiration time, we have to generate the token.
       // We want to keep a big time margin: 1 hour seems good enough.
-      let diff = tokenData.received_at + tokenData.expires_in - nowInSecs - this.fxaExpirationDelta;
+      let diff = tokenData.received_at + tokenData.expires_in - nowInSecs;
       if (!diff || diff < 0) {
         log(`Token exists but it is expired. Received at ${tokenData.received_at} and expires in ${tokenData.expires_in}`);
         tokenData = null;
@@ -124,7 +141,17 @@ export class FxAUtils extends Component {
 
     if (!tokenData) {
       log("generating token");
-      const data = await this.generateToken(fxaCode);
+
+      // If the creation is not wanted, we continue only if in pre-migration or
+      // unlimited.
+      if (!createIfNeeded) {
+        if (Passes.syncGet().syncIsMigrationCompleted() &&
+            !Passes.syncGet().syncAreUnlimited()) {
+          return { state: FXA_PAYMENT_REQUIRED };
+        }
+      }
+
+      const data = await this.generateToken();
       if (this.syncStateError(data)) {
         return data;
       }
@@ -137,11 +164,10 @@ export class FxAUtils extends Component {
                                                      data.profile_data);
     }
 
-    let minDiff = tokenData.received_at + tokenData.expires_in - nowInSecs - this.fxaExpirationDelta;
+    let minDiff = tokenData.received_at + tokenData.expires_in - nowInSecs;
     log(`token expires in ${minDiff}`);
 
-    // Let's schedule the token rotation.
-    setTimeout(async _ => this.scheduledTokenGeneration(), minDiff * 1000);
+    this.tokenGenerationTimerId = setTimeout(async _ => this.scheduledTokenGeneration(), minDiff * 1000);
 
     this.nextExpireTime = tokenData.received_at + tokenData.expires_in;
 
@@ -169,7 +195,7 @@ export class FxAUtils extends Component {
     // eslint-disable-next-line verify-await/check
     headers.append("Content-Type", "application/json");
 
-    const request = new Request(this.service + "browser/oauth/start", {
+    const request = new Request(this.service + "browser/oauth/state", {
       method: "GET",
       headers,
     });
@@ -190,6 +216,14 @@ export class FxAUtils extends Component {
   async scheduledTokenGeneration() {
     log("Token generation scheduled");
 
+    // We need a new pass.
+    if (Passes.syncGet().syncIsMigrationCompleted() &&
+        !Passes.syncGet().syncAreUnlimited()) {
+      Passes.syncGet().syncPassNeeded();
+      return;
+    }
+
+    // Unlimited or pre-migration.
     const result = await this.maybeObtainToken();
     if (this.syncStateError(result)) {
       log("token generation failed");
@@ -202,8 +236,74 @@ export class FxAUtils extends Component {
     }
   }
 
-  async generateToken(fxaCode) {
-    let stateTokenData = await StorageUtils.getStateTokenData();
+  async generateToken() {
+    // Post migration, this block should go away.
+    if (!Passes.syncGet().syncIsMigrationCompleted()) {
+      const data = await this.obtainProxyInfo();
+      if (this.syncStateError(data)) {
+        return data;
+      }
+
+      await this.updatePasses(data);
+
+      if (data.migrationCompleted) {
+        return { state: FXA_PAYMENT_REQUIRED };
+      }
+    }
+
+    return this.generateTokenInternal();
+  }
+
+  async obtainProxyInfo() {
+    const stateTokenData = await StorageUtils.getStateTokenData();
+    if (!stateTokenData) {
+      return { state: FXA_ERR_AUTH };
+    }
+
+    const headers = new Headers();
+    // eslint-disable-next-line verify-await/check
+    headers.append("Content-Type", "application/json");
+
+    const request = new Request(this.service + "browser/oauth/info", {
+      method: "POST",
+      headers,
+      body: JSON.stringify({
+        state_token: stateTokenData,
+      }),
+    });
+
+    try {
+      let resp = await fetch(request, {cache: "no-cache"});
+      if (resp.status >= 500 && resp.status <= 599) {
+        return { state: FXA_ERR_NETWORK };
+      }
+
+      if (resp.status !== 200) {
+        return { state: FXA_ERR_AUTH };
+      }
+
+      const json = await resp.json();
+      const data = this.syncJsonToInfo(json);
+
+      return {
+        state: FXA_OK,
+        ...data,
+      };
+    } catch (e) {
+      return { state: FXA_ERR_NETWORK };
+    }
+  }
+
+  syncJsonToInfo(json) {
+    return {
+      migrationCompleted: json.tiers_enabled,
+      currentPass: json.current_pass,
+      totalPasses: json.total_passes,
+    };
+  }
+
+  async generateTokenInternal() {
+    const stateTokenData = await StorageUtils.getStateTokenData();
     if (!stateTokenData) {
       return { state: FXA_ERR_AUTH };
     }
@@ -217,7 +317,6 @@ export class FxAUtils extends Component {
       headers,
       body: JSON.stringify({
         state_token: stateTokenData,
-        fxa_code: fxaCode,
       }),
     });
 
@@ -227,15 +326,22 @@ export class FxAUtils extends Component {
         return { state: FXA_ERR_NETWORK };
       }
 
-      if (resp.status !== 201) {
+      if (resp.status !== 201 && resp.status !== 402) {
         return { state: FXA_ERR_AUTH };
       }
 
       const json = await resp.json();
 
+      // Let's update the current pass values.
+      await this.updatePasses(this.syncJsonToInfo(json));
+
+      if (resp.status === 402) {
+        return { state: FXA_PAYMENT_REQUIRED };
+      }
+
       // Let's store when this token has been received.
       // eslint-disable-next-line verify-await/check
-      json.proxy_token.received_at = Math.round(Date.now() / 1000);
+      json.proxy_token.received_at = Math.floor(Date.now() / 1000);
 
       return {
         state: FXA_OK,
@@ -260,16 +366,34 @@ export class FxAUtils extends Component {
   async authenticateInternal() {
     log("generate state token and the fxa code");
 
+    const stateToken = await this.obtainStateToken();
+    if (!stateToken) {
+      return null;
+    }
+
+    const fxaCode = await this.obtainFxaCode(stateToken);
+    if (!fxaCode) {
+      return null;
+    }
+
+    const completed = await this.completeAuthentication(stateToken, fxaCode);
+    if (!completed) {
+      return null;
+    }
+
+    return {
+      stateToken,
+      fxaCode,
+      ...completed,
+    };
+  }
+
+  async obtainFxaCode(stateToken) {
     const contentServer = await this.wellKnownData.getIssuerEndpoint();
     const fxaKeysUtil = new fxaCryptoRelier.OAuthUtils({contentServer});
 
     // get optional flow params for fxa metrics
     await this.maybeFetchFxaFlowParams();
-
-    const stateToken = await this.obtainStateToken();
-    if (!stateToken) {
-      return null;
-    }
 
     let fxaCode;
     try {
@@ -292,28 +416,66 @@ export class FxAUtils extends Component {
       console.error("Failed to fetch the refresh token", e);
     }
 
-    if (!fxaCode) {
-      return null;
-    }
-
-    return {
-      stateToken,
-      fxaCode,
-    };
+    return fxaCode;
   }
 
-  // This method returns a token or a Promise.
+  async completeAuthentication(stateToken, fxaCode) {
+    const headers = new Headers();
+    // eslint-disable-next-line verify-await/check
+    headers.append("Content-Type", "application/json");
+
+    const request = new Request(this.service + "browser/oauth/authenticate", {
+      method: "POST",
+      headers,
+      body: JSON.stringify({
+        state_token: stateToken,
+        fxa_code: fxaCode,
+      }),
+    });
+
+    try {
+      let resp = await fetch(request, {cache: "no-cache"});
+      if (resp.status >= 500 && resp.status <= 599) {
+        return null;
+      }
+
+      if (resp.status !== 200) {
+        return null;
+      }
+
+      const json = await resp.json();
+      const data = this.syncJsonToInfo(json);
+
+      return {
+        profileData: json.profile_data,
+        ...data,
+      };
+    } catch (e) {
+      return null;
+    }
+  }
+
+  // This method returns a token, null or a Promise.
   askForProxyToken() {
     // eslint-disable-next-line verify-await/check
-    let nowInSecs = Math.round(Date.now() / 1000);
-    if (this.requestingToken ||
-        !this.nextExpireTime ||
-        nowInSecs >= (this.nextExpireTime - EXPIRE_DELTA)) {
+    let nowInSecs = Math.floor(Date.now() / 1000);
+    if (!this.requestingToken &&
+        this.nextExpireTime &&
+        nowInSecs < this.nextExpireTime) {
+      // Happy path!
+      return this.cachedProxyTokenValue;
+    }
+
+    // Let's obtain the token immediately only if the migration is not
+    // completed or the user is subscribed.
+    if (!Passes.syncGet().syncIsMigrationCompleted() ||
+        Passes.syncGet().syncAreUnlimited()) {
       // We don't care about the cached values. Maybe they are the old ones.
       return this.maybeObtainToken().then(_ => this.cachedProxyTokenValue);
     }
 
-    return this.cachedProxyTokenValue;
+    // No proxy here.
+    return null;
   }
 
   async forceToken(data) {
@@ -372,7 +534,7 @@ export class FxAUtils extends Component {
       }
     }
 
-    await StorageUtils.setStateToken(null);
+    await StorageUtils.setStateTokenAndProfileData(null, null);
   }
 
   // check storage for optional flow params
@@ -393,5 +555,14 @@ export class FxAUtils extends Component {
     const hashHex = hashArray.map(b => b.toString(16).padStart(2, "0")).join("");
     // eslint-disable-next-line verify-await/check
     return hashHex.substr(0, 16);
+  }
+
+  async passAvailabilityCheck() {
+    const data = await this.obtainProxyInfo();
+    if (this.syncStateError(data)) {
+      // We don't care about this error.
+    }
+
+    await this.updatePasses(data);
   }
 }

@@ -8,14 +8,26 @@
   "pageReload": {
     "message": "Reload Extension"
   },
+  "pageClear": {
+    "message": "Clear all data"
+  },
   "pageVersion": {
     "message": "FPN version"
+  },
+  "pagePasses": {
+    "message": "Passes"
   },
   "pageDebuggingTitle": {
     "message": "Debugging enabled"
   },
   "pageDebuggingValue": {
     "message": "enabled"
+  },
+  "pageMigrationCompletedTitle": {
+    "message": "Migration Completed"
+  },
+  "pageMigrationCompleted": {
+    "message": "completed"
   },
   "pageProxyURLTitle": {
     "message": "Proxy URL"
@@ -43,9 +55,6 @@
   },
   "productionSPService": {
     "message": "Production Secure-Proxy service URL"
-  },
-  "pageFxaExpirationDelta": {
-    "message": "FxA token expiration delta"
   },
   "pageFxaExpirationWarning": {
     "message": "This value is in seconds. Be careful!"

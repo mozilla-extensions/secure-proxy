@@ -39,6 +39,9 @@ const FXA_ERR_NETWORK = "networkError";
 // FXA authentication failed error code.
 const FXA_ERR_AUTH = "authFailed";
 
+// FXA token generation requires payment.
+const FXA_PAYMENT_REQUIRED = "paymentRequired";
+
 // FXA all good!
 const FXA_OK = "ok";
 
@@ -48,9 +51,6 @@ const CONNECTING_HTTP_REQUEST = "http://test.factor11.cloudflareclient.com/";
 
 // Proxy configuration
 const DEFAULT_PROXY_URL = "https://firefox.factor11.cloudflareclient.com:2486";
-
-// How early we want to re-generate the tokens (in secs)
-const DEFAULT_FXA_EXPIRATION_DELTA = 3600; // 1 hour
 
 // FxA openID configuration
 const DEFAULT_FXA_OPENID = "https://accounts.firefox.com/.well-known/openid-configuration";
@@ -91,13 +91,12 @@ const ConfigUtils = {
     return await this.getStorageKey("debuggingEnabled") || false;
   },
 
-  async setFxaExpirationDelta(fxaExpirationDelta) {
-    await browser.storage.local.set({fxaExpirationDelta});
+  async setMigrationCompleted(migrationCompleted) {
+    await browser.storage.local.set({migrationCompleted});
   },
 
-  async getFxaExpirationDelta() {
-    // eslint-disable-next-line verify-await/check
-    return parseInt(await this.getStorageKey("fxaExpirationDelta"), 10) || DEFAULT_FXA_EXPIRATION_DELTA;
+  async getMigrationCompleted() {
+    return await this.getStorageKey("migrationCompleted") || false;
   },
 
   async getCurrentConfig() {
@@ -109,7 +108,11 @@ const ConfigUtils = {
       sps: await this.getSPService(),
       proxyURL: await this.getProxyURL(),
       debuggingEnabled: await this.getDebuggingEnabled(),
-      fxaExpirationDelta: await this.getFxaExpirationDelta(),
+      migrationCompleted: await this.getMigrationCompleted(),
+      // eslint-disable-next-line verify-await/check
+      currentPass: parseInt(await this.getStorageKey("currentPass"), 10),
+      // eslint-disable-next-line verify-await/check
+      totalPasses: parseInt(await this.getStorageKey("totalPasses"), 10),
     };
   },
 

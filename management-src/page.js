@@ -5,7 +5,7 @@ const DEBUGGING_FXA_OPENID = "https://stable.dev.lcip.org/.well-known/openid-con
 const PRODUCTION_FXA_OPENID = "https://accounts.firefox.com/.well-known/openid-configuration";
 
 const DEBUGGING_SPS = "https://guardian-dev.herokuapp.com/";
-const PRODUCTION_SPS = "https://private-network.firefox.com/";
+const PRODUCTION_SPS = "https://fpn.firefox.com/";
 
 class Page {
   constructor() {
@@ -27,6 +27,9 @@ class Page {
       config.version = 0;
     }
 
+    const passes = document.getElementById("passes");
+    passes.innerText = config.currentPass + "/" + config.totalPasses;
+
     const reloadButton = document.getElementById("reload");
     reloadButton.onclick = _ => {
       browser.runtime.sendMessage({ type: "reload" });
@@ -35,10 +38,24 @@ class Page {
       reloadButton.disabled = true;
     }
 
+    const clearButton = document.getElementById("clear");
+    clearButton.onclick = _ => {
+      browser.runtime.sendMessage({ type: "clear" });
+    }
+    if (config.version < 12) {
+      clearButton.disabled = true;
+    }
+
     const debuggingEnabled = document.getElementById("debuggingEnabled");
     debuggingEnabled.checked = config.debuggingEnabled || false;
     debuggingEnabled.onchange = _ => {
       browser.runtime.sendMessage({ type: "setDebuggingEnabled", value: debuggingEnabled.checked });
+    }
+
+    const migrationCompleted = document.getElementById("migrationCompleted");
+    migrationCompleted.checked = config.migrationCompleted || false;
+    migrationCompleted.onchange = _ => {
+      browser.runtime.sendMessage({ type: "setMigrationCompleted", value: migrationCompleted.checked });
     }
 
     const proxyURL = document.getElementById("proxyURL");
@@ -102,15 +119,6 @@ class Page {
     productionFxaOpenID.onclick = _ => {
       fxaOpenID.value = PRODUCTION_FXA_OPENID;
       browser.runtime.sendMessage({ type: "setFxaOpenID", value: PRODUCTION_FXA_OPENID });
-    }
-
-    const fxaExpirationDelta = document.getElementById("fxaExpirationDelta");
-    fxaExpirationDelta.value = config.fxaExpirationDelta || 10;
-    fxaExpirationDelta.onchange = _ => {
-      browser.runtime.sendMessage({ type: "setFxaExpirationDelta", value: fxaExpirationDelta.value });
-    }
-    if (config.version < 10) {
-      fxaExpirationDelta.disabled = true;
     }
 
     const token = await browser.runtime.sendMessage({ type: "getProxyToken" });

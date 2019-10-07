@@ -15,6 +15,7 @@ module.exports = {
     FXA_ERR_AUTH: false,
     FXA_ERR_NETWORK: false,
     FXA_OK: false,
+    FXA_PAYMENT_REQUIRED: false,
     fxaCryptoRelier: false,
     log: false,
     PROXY_STATE_ACTIVE: false,

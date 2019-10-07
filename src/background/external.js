@@ -18,6 +18,8 @@ export class ExternalHandler extends Component {
         return ConfigUtils.getCurrentConfig();
       case "setDebuggingEnabled":
         return ConfigUtils.setDebuggingEnabled(message.value);
+      case "setMigrationCompleted":
+        return ConfigUtils.setMigrationCompleted(message.value);
       case "setProxyURL":
         return ConfigUtils.setProxyURL(message.value);
       case "setSPService":
@@ -29,6 +31,9 @@ export class ExternalHandler extends Component {
       case "setProxyToken":
         return this.sendMessage("forceToken", message.value);
       case "reload":
+        return browser.runtime.reload();
+      case "clear":
+        await browser.storage.local.clear();
         return browser.runtime.reload();
       default:
         console.error("unhandled message from external extension");

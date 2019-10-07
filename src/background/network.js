@@ -1,4 +1,5 @@
 import {Component} from "./component.js";
+import {Passes} from "./passes.js";
 
 // Parameters for DNS over HTTP
 const DOH_MODE = 3;
@@ -148,6 +149,14 @@ export class Network extends Component {
     // obtain the token or a Promise which will be resolved with the token,
     // eventually.
     let token = this.syncSendMessage("askForProxyToken");
+
+    // No token found! We need to consume a new pass.
+    if (!token) {
+      Passes.syncGet().syncPassNeeded();
+      return {type: "direct"};
+    }
+
+    // Async operation.
     if (token instanceof Promise) {
       token = await token;
     }

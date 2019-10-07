@@ -14,31 +14,64 @@ class ViewMain extends View {
       throw new Error("Invalid proxy state for ViewMain");
     }
 
-    View.showToggleButton(data.proxyState === PROXY_STATE_ACTIVE);
+    this.proxyEnabled = data.proxyState === PROXY_STATE_ACTIVE;
 
-    let text;
-    if (data.proxyState === PROXY_STATE_ACTIVE) {
-      text = "viewMainActive";
-    } else {
-      text = "viewMainInactive";
-    }
+    const content = this.syncMainContent(data);
 
-    let userInfo = escapedTemplate`
-    <p>
-      ${this.getTranslation(text)}
-    </p>
+    return escapedTemplate`
+      <div id="passReport" hidden>
+        <span id="passCount"></span>
+        <span id="passCountdown"></span>
+      </div>
+      <p class="${content.className}">
+        ${this.getTranslation(content.label)}
+      </p>
+      <button id="betaUpgrade" class="primary" hidden>
+        ${this.getTranslation("viewMainUpgradeButton")}
+      </button>
     `;
-
-    return userInfo;
   }
 
   syncPostShow(data) {
-    this.proxyEnabled = data.proxyState === PROXY_STATE_ACTIVE;
+    if (!data.migrationCompleted || data.totalPasses === -1) {
+      View.showToggleButton(this.proxyEnabled);
+    } else {
+      View.hideToggleButton();
+
+      // eslint-disable-next-line verify-await/check
+      const template = escapedTemplate`${this.passCountText(data)}`;
+      template.syncRenderTo(document.getElementById("passCount"));
+    }
 
     if (this.proxyEnabled) {
       View.setState("enabled", {text: this.getTranslation("heroProxyOn")});
     } else {
       View.setState("disabled", {text: this.getTranslation("heroProxyOff")});
+    }
+
+    // Free-tier.
+    if (data.migrationCompleted && data.totalPasses !== -1) {
+      document.getElementById("passReport").hidden = false;
+
+      // No pass available.
+      if ((data.totalPasses - data.currentPass) === 0) {
+        document.getElementById("betaUpgrade").hidden = false;
+      }
+
+      // Countdown Timer
+      if (this.proxyEnabled) {
+        const countdown = document.getElementById("passCountdown");
+        countdown.hidden = false;
+        this.syncActivateCountdown(data, countdown);
+      }
+    }
+  }
+
+  handleClickEvent(e) {
+    if (e.target.id === "betaUpgrade") {
+      // eslint-disable-next-line verify-await/check
+      View.sendMessage(e.target.id);
+      View.close();
     }
   }
 
@@ -59,6 +92,84 @@ class ViewMain extends View {
       enabledState: this.proxyEnabled,
       reason: "stateButton",
     });
+  }
+
+  syncMainContent(data) {
+    // Pre migration or unlimited
+    if (!data.migrationCompleted || data.totalPasses === -1) {
+      if (this.proxyEnabled) {
+        return { label: "viewMainActive", className: "" };
+      }
+
+      return { label: "viewMainInactive", className: "" };
+    }
+
+    // Free-tier.
+    if (this.proxyEnabled) {
+      return { label: "viewMainActiveLimited", className: "" };
+    }
+
+    let availablePasses = data.totalPasses - data.currentPass;
+    if (availablePasses > 0) {
+      return { label: "viewMainInactiveWithPasses", className: "" };
+    }
+
+    return { label: "viewMainInactiveWithoutPasses", className: "warning" };
+  }
+
+  passCountText(data) {
+    let available = data.totalPasses - data.currentPass;
+    if (this.proxyEnabled && available === 1) {
+      return this.getTranslation("viewMainLastPassActive");
+    }
+
+    if (available === 1) {
+      return this.getTranslation("viewMainLastPassAvailable");
+    }
+
+    return this.getTranslation("viewMainManyPassesAvailable", available);
+  }
+
+  syncActivateCountdown(data, elm) {
+    if (!data.tokenData) {
+      elm.innerHTML = "";
+    }
+
+    function syncCountDown() {
+      // eslint-disable-next-line verify-await/check
+      const nowInSecs = Math.floor(Date.now() / 1000);
+      let diff = data.tokenData.received_at + data.tokenData.expires_in - nowInSecs;
+      if (diff < 0) {
+        diff = 0;
+      }
+
+      const secs = diff % 60;
+      diff -= secs;
+      diff /= 60;
+
+      const mins = diff % 60;
+      diff -= mins;
+      diff /= 60;
+
+      function syncHelper(number) {
+        if (number === 0) {
+          return "00";
+        }
+
+        if (number < 10) {
+          return "0" + number;
+        }
+
+        return number;
+      }
+
+      const template = escapedTemplate`${syncHelper(diff)}:${syncHelper(mins)}:${syncHelper(secs)}`;
+      template.syncRenderTo(elm);
+    }
+
+    // eslint-disable-next-line verify-await/check
+    setInterval(syncCountDown, 1000);
+    syncCountDown();
   }
 }
 

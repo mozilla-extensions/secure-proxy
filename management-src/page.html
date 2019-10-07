@@ -15,10 +15,21 @@
         <td id="version"></td>
       </tr>
       <tr>
+        <th class="column" data-l10n="pagePasses"></th>
+        <td id="passes"></td>
+      </tr>
+      <tr>
         <th class="column" data-l10n="pageDebuggingTitle"></th>
         <td>
           <input type="checkbox" id="debuggingEnabled" />
           <label for="debuggingEnabled" data-l10n="pageDebuggingValue"></label>
+        </td>
+      </tr>
+      <tr>
+        <th class="column" data-l10n="pageMigrationCompletedTitle"></th>
+        <td>
+          <input type="checkbox" id="migrationCompleted" />
+          <label for="migrationCompleted" data-l10n="pageMigrationCompleted"></label>
         </td>
       </tr>
       <tr>
@@ -52,13 +63,6 @@
         </td>
       </tr>
       <tr>
-        <th class="column" data-l10n="pageFxaExpirationDelta"></th>
-        <td>
-          <input type="number" min="10" id="fxaExpirationDelta" />
-          <small data-l10n="pageFxaExpirationWarning"></small>
-        </td>
-      </tr>
-      <tr>
         <th class="column" data-l10n="pageProxyToken"></th>
         <td>
           <textarea id="proxyToken"></textarea>
@@ -69,5 +73,6 @@
   </table>
 
   <button data-l10n="pageReload" id="reload"></button>
+  <button data-l10n="pageClear" id="clear"></button>
 </body>
 </html>

@@ -2,11 +2,11 @@ import {View} from "../view.js";
 
 // Login view.
 class ViewLogin extends View {
-  syncShow(proxyState) {
+  syncShow(data) {
     View.setState("login", {label: this.getTranslation("heroProxyLogin")});
 
     let text;
-    if (proxyState === PROXY_STATE_UNAUTHENTICATED) {
+    if (data.proxyState === PROXY_STATE_UNAUTHENTICATED) {
       text = "viewLoginMessage";
     } else {
       text = "viewAuthFailure";
