@@ -511,26 +511,32 @@ footer {
   text-decoration:none;
 }
 
-#passCount::before {
-  /* TODO */
-  position: absolute;
-  inset-block-start: 2px;
+#passReport {
+  border-block-end: 1px solid #e4e4e4;
+  min-block-size: 38px;
+  display: flex;
+  align-items: center;
+  padding-inline: var(--edge-padding);
+}
+
+#passCountdown {
+  margin-inline-start: 28px;
+}
+
+#passCount::before,
+#passCountdown::before {
   content: "";
   display: inline-block;
   block-size: 16px;
   inline-size: 16px;
+  margin-block-end: -2px;
+  margin-inline-end: 8px;
+}
+
+#passCount::before {
   background: url("/img/ticket.svg");
-  margin-inline-start: -22px;
 }
 
 #passCountdown::before {
-  /* TODO */
-  position: absolute;
-  inset-block-start: 2px;
-  content: "";
-  display: inline-block;
-  block-size: 16px;
-  inline-size: 16px;
   background: url("/img/timer.svg");
-  margin-inline-start: -22px;
 }
