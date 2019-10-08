@@ -432,6 +432,8 @@ class Main {
     if (firstMigration) {
       // It's time to disable everything for the first migration.
       this.setProxyState(PROXY_STATE_INACTIVE);
+
+      // eslint-disable-next-line verify-await/check
       this.ui.update(false /* no toast here */);
     }
 
