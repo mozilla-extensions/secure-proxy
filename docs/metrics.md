@@ -22,6 +22,7 @@ The data collection outlined here is geared toward answering the following quest
 
 
 * Is the current user-interface good enough?
+  * Is the panel opened?
   * Is the settings page visible enough?
   * What's the most important URL in the settings page?
   * Do the users manage their accounts through the settings page?
@@ -87,6 +88,7 @@ The **methods** are:
    1. `update`: the extension has been updated. **value**: the version number.
    1. `proxyEnabled`: the proxy is enabled by user-interaction. **value**: toggleButton or stateButton.
    1. `proxyDisabled`: the proxy is disabled by user-interaction. **value**: toggleButton or stateButton.
+   1. `panelShown`: the proxy panel has been opened.
 1. `fxa` fires when there are authentication events. **objects**:
    1. `authStarted`: the user has started the authentication flow.
    1. `authCompleted`: the user has completed the authentication flow.
