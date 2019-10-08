@@ -3,12 +3,23 @@ import {View} from "../view.js";
 class ViewProxyError extends View {
   syncShow() {
     View.setState("disabled", {text: this.getTranslation("heroProxyOn")});
-    View.showToggleButton(true);
 
     return escapedTemplate`
-    <p class="warning">
-      ${this.getTranslation("viewProxyError")}
-    </p>`;
+      <div id="passReport" hidden>
+        <span id="passCount">${this.getTranslation("viewProxyErrorPassCount")}</span>
+      </div>
+      <p class="warning">
+        ${this.getTranslation("viewProxyError")}
+      </p>`;
+  }
+
+  syncPostShow(data) {
+    if (!data.migrationCompleted || data.totalPasses === -1) {
+      View.showToggleButton(true);
+    } else {
+      View.hideToggleButton();
+      document.getElementById("passReport").hidden = false;
+    }
   }
 
   toggleButtonClicked(e) {

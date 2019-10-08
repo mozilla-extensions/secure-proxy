@@ -51,6 +51,7 @@ export class Passes extends Component {
     log(`Storing passes current: ${currentPass} - total: ${totalPasses}`);
 
     const oldMigrationCompleted = this.migrationCompleted;
+    const oldAvailability = this.totalPasses - this.currentPass;
 
     if (this.currentPass < currentPass) {
       this.passRequested = false;
@@ -64,7 +65,11 @@ export class Passes extends Component {
 
     await browser.storage.local.set({currentPass, totalPasses});
 
-    if (!oldMigrationCompleted || this.currentPass === this.totalPasses) {
+    const availability = this.totalPasses - this.currentPass;
+
+    log(`Current availability: ${availability} - old availability: ${oldAvailability}`);
+
+    if (!oldMigrationCompleted || availability > oldAvailability) {
       // We don't want to wait here. We would create a dead-lock.
       // eslint-disable-next-line verify-await/check
       this.sendMessage("pass-available", {firstMigration: !oldMigrationCompleted });
