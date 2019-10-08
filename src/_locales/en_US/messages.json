@@ -169,6 +169,9 @@
   "viewProxyError": {
     "message": "Firefox Private Network encountered an unknown issue. Try turning it off, then on again."
   },
+  "viewProxyErrorPassCount": {
+    "message": "/ passes remaining"
+  },
   "viewSettings-accountLabel": {
     "message": "Firefox Account"
   },

@@ -240,7 +240,11 @@ class Main {
     }
 
     await this.computeProxyState(true);
-    await this.ui.update();
+
+    // Let's show the toast only if we were disabling the proxy or if all has
+    // worked correctly.
+    const showToast = !value || this.proxyState !== PROXY_STATE_INACTIVE;
+    await this.ui.update(showToast);
   }
 
   async auth() {
