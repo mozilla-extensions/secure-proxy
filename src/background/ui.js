@@ -336,9 +336,8 @@ export class UI extends Component {
         this.getTranslation("toastPassesAvailable", passesAvailable), false);
     }
 
-    // TODO: any notification here? Let's use toastPassesAvailable for now.
     return browser.experiments.proxyutils.showPrompt(
-      this.getTranslation("toastPassesAvailable", passesAvailable), false);
+      this.getTranslation("toastLastPassExpired", passesAvailable), true);
   }
 
   async update(showToast = true) {

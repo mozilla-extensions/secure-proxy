@@ -140,6 +140,16 @@ class Page {
     if (config.version < 10) {
       proxySubmitButton.disabled = true;
     }
+
+    const passesTimeout = document.getElementById("passesTimeout");
+    passesTimeout.value = config.passesTimeout;
+    passesTimeout.onchange = _ => {
+      browser.runtime.sendMessage({ type: "setPassesTimeout", value: passesTimeout.value });
+    }
+    if (config.version < 12) {
+      passesTimeout.disabled = true;
+    }
+
   }
 
   getTranslation(stringName, ...args) {

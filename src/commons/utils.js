@@ -58,6 +58,9 @@ const DEFAULT_FXA_OPENID = "https://accounts.firefox.com/.well-known/openid-conf
 // SPS configuration (final '/' is important!)
 const DEFAULT_SPS = "https://guardian-dev.herokuapp.com/";
 
+// How often we check if we have new passes.
+const DEFAULT_PASSES_TIMEOUT = 21600; // 6 hours
+
 const ConfigUtils = {
   async setProxyURL(proxyURL) {
     await browser.storage.local.set({proxyURL});
@@ -99,6 +102,14 @@ const ConfigUtils = {
     return await this.getStorageKey("migrationCompleted") || false;
   },
 
+  async setPassesTimeout(passesTimeout) {
+    await browser.storage.local.set({passesTimeout});
+  },
+
+  async getPassesTimeout() {
+    return await this.getStorageKey("passesTimeout") || DEFAULT_PASSES_TIMEOUT;
+  },
+
   async getCurrentConfig() {
     let self = await browser.management.getSelf();
 
@@ -113,6 +124,7 @@ const ConfigUtils = {
       currentPass: parseInt(await this.getStorageKey("currentPass"), 10),
       // eslint-disable-next-line verify-await/check
       totalPasses: parseInt(await this.getStorageKey("totalPasses"), 10),
+      passesTimeout: await this.getPassesTimeout(),
     };
   },
 

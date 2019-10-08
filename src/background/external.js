@@ -20,6 +20,8 @@ export class ExternalHandler extends Component {
         return ConfigUtils.setDebuggingEnabled(message.value);
       case "setMigrationCompleted":
         return ConfigUtils.setMigrationCompleted(message.value);
+      case "setPassesTimeout":
+        return ConfigUtils.setPassesTimeout(message.value);
       case "setProxyURL":
         return ConfigUtils.setProxyURL(message.value);
       case "setSPService":

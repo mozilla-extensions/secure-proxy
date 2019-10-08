@@ -1,8 +1,5 @@
 import {Component} from "./component.js";
 
-// How often we check if we have new passes.
-const CHECK_NEW_PASSES_TIMEOUT = 21600; // 6 hours
-
 let self;
 
 export class Passes extends Component {
@@ -20,6 +17,9 @@ export class Passes extends Component {
   }
 
   async init() {
+    // In msecs.
+    this.passesTimeoutMs = (await ConfigUtils.getPassesTimeout()) * 1000;
+
     const {migrationCompleted} = await browser.storage.local.get("migrationCompleted");
     this.migrationCompleted = migrationCompleted;
 
@@ -74,10 +74,12 @@ export class Passes extends Component {
   }
 
   syncSchedulePassCheck() {
+    log("Scheduling the pass check");
+
     const now = new Date();
     // eslint-disable-next-line verify-await/check
     const firstOfNextMonth = new Date(now.getFullYear(), now.getMonth() + 1);
-    const diff = Math.min(CHECK_NEW_PASSES_TIMEOUT, firstOfNextMonth - now);
+    const diff = Math.min(this.passesTimeoutMs, firstOfNextMonth - now);
 
     clearTimeout(this.nextMonthTimer);
     this.nextMonthTimer = setTimeout(_ => this.checkNewPasses(), diff);
