@@ -1,4 +1,5 @@
 import {Component} from "./component.js";
+import {Passes} from "./passes.js";
 import {StorageUtils} from "./storageUtils.js";
 
 const SURVEY_UNINSTALL = "https://qsurvey.mozilla.com/s3/fx-private-network-beta-exit-survey?sub=no";
@@ -18,13 +19,29 @@ const SURVEYS = [
     triggerAfterTime: 0,
     URL: "pages/welcome.html",
     onIdle: false,
+    background: false,
+  },
+
+  // beta-announcement
+  { name: "beta-announcement",
+    triggerAfterTime: 0,
+    URL: "https://private-network.firefox.com/beta-announcement",
+    onIdle: false,
+    background: true,
+    syncSkipIf: _ => {
+      const migrated = !!Passes.syncGet().syncIsMigrationCompleted();
+      console.log(`survey to skip if migrated ${migrated}`);
+      return migrated;
+    },
   },
 
   // 14 days
   { name: "14-day",
     triggerAfterTime: 1209600,
     URL: "https://qsurvey.mozilla.com/s3/fx-private-network-beta-survey?type=14-day&enabled=PROXYENABLED&v=VERSION&days=USAGEDAYS",
-    onIdle: true, },
+    onIdle: true,
+    background: true,
+  },
 
 ];
 
@@ -125,8 +142,13 @@ export class Survey extends Component {
   }
 
   async runSurveyInternal(survey) {
-    let url = await this.formatUrl(survey.URL);
-    await browser.tabs.create({url});
+    if (!survey.syncSkipIf || !survey.syncSkipIf()) {
+      let url = await this.formatUrl(survey.URL);
+      await browser.tabs.create({
+        url,
+        active: !survey.background,
+      });
+    }
 
     await StorageUtils.setLastSurvey(survey.name);
     await this.scheduleNextSurvey();
