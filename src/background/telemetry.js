@@ -5,7 +5,7 @@ const TELEMETRY_EVENTS = {
   "general": {
     methods: [ "general" ],
     objects: [ "otherProxyInUse", "settingsShown", "loadingError", "install",
-               "update", "proxyEnabled", "proxyDisabled" ],
+               "update", "proxyEnabled", "proxyDisabled", "panelShown" ],
     extra_keys: [],
     record_on_release: true,
   },

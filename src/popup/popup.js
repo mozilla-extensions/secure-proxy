@@ -12,6 +12,9 @@ async function init() {
   let port = browser.runtime.connect({name: "panel"});
   View.syncSetPort(port);
 
+  // A new telemetry event for this panel.
+  View.sendMessage("telemetry", { category: "general", event: "panelShown"});
+
   let timeoutId = setTimeout(async _ => {
     await View.setView("error", "loadingError");
     // eslint-disable-next-line verify-await/check
