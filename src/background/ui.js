@@ -310,6 +310,10 @@ export class UI extends Component {
   }
 
   async syncPassNeededToast() {
+    if (this.currentPort) {
+      return;
+    }
+
     const passes = Passes.syncGet().syncGetPasses();
     const passesAvailable = passes.totalPasses - passes.currentPass;
 
@@ -323,6 +327,10 @@ export class UI extends Component {
   }
 
   async syncPassAvailableToast() {
+    if (this.currentPort) {
+      return;
+    }
+
     const passes = Passes.syncGet().syncGetPasses();
     const passesAvailable = passes.totalPasses - passes.currentPass;
 
