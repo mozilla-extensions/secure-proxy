@@ -12,7 +12,7 @@ https://gitlab.com/shane-tomlinson/mermaid-charts/blob/master/charts/secure-prox
 
 To summarize them, the authentication flow works in this way:
 
-1 The SP requests an oauth state token from SPS.
+1. The SP requests an oauth state token from SPS.
 2. The SP starts the authentication, calling the FxA authorization endpoint, and passing the state token as parameter.
 3. The SP obtains the fxa code from the FxA authorization endpoint.
 4. The SP sends a "finalize the authentication request" to SPS.
