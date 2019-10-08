@@ -56,8 +56,11 @@
   "productionSPService": {
     "message": "Production Secure-Proxy service URL"
   },
-  "pageFxaExpirationWarning": {
+  "pageSecondsWarning": {
     "message": "This value is in seconds. Be careful!"
+  },
+  "pagePassesTimeout": {
+    "message": "Passes Timer"
   },
   "pageProxyToken": {
     "message": "Proxy Token"
