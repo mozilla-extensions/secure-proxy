@@ -122,7 +122,7 @@ class ViewMain extends View {
 
   passCountText(data) {
     let available = data.totalPasses - data.currentPass;
-    if (this.proxyEnabled && available === 1) {
+    if (this.proxyEnabled && available === 0) {
       return this.getTranslation("viewMainLastPassActive");
     }
 
