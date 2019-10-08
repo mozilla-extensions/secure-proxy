@@ -58,11 +58,14 @@ class ViewMain extends View {
         document.getElementById("betaUpgrade").hidden = false;
       }
 
+      const countdown = document.getElementById("passCountdown");
+
       // Countdown Timer
       if (this.proxyEnabled) {
-        const countdown = document.getElementById("passCountdown");
         countdown.hidden = false;
         this.syncActivateCountdown(data, countdown);
+      } else {
+        countdown.hidden = true;
       }
     }
   }
@@ -119,7 +122,7 @@ class ViewMain extends View {
 
   passCountText(data) {
     let available = data.totalPasses - data.currentPass;
-    if (this.proxyEnabled && available === 1) {
+    if (this.proxyEnabled && available === 0) {
       return this.getTranslation("viewMainLastPassActive");
     }
 
