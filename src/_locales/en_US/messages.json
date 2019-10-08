@@ -132,10 +132,10 @@
     "message": "Your connection is secure, and your location is hidden from websites and trackers, making it tougher for those annoying targeted ads to follow you around online."
   },
   "viewMainActiveLimited": {
-    "message": "Each pass lasts for 3 hours, encrypts your Firefox browsing, and hides your location. Time cannot be paused or stopped."
+    "message": "Private Network reduces ad tracking, encrypts your Firefox browsing, and hides your location. Passes run without stopping for 3 hours."
   },
   "viewMainInactive": {
-    "message": "Using public Wi-Fi without a secure connection can put you at risk of identity theft, snooping, and malware infection."
+    "message": "Private Network is not protecting your Firefox connection. Websites, ad trackers, and your internet service provider may be able to see your online activity."
   },
   "viewMainInactiveWithPasses": {
     "message": "To claim a pass, turn on Private Network. This reduces ad tracking, encrypts your Firefox browsing, and hides your location. Passes run without stopping for 3 hours."
@@ -146,11 +146,22 @@
   "viewMainUpgradeButton": {
     "message": "Upgrade"
   },
-  "viewMainLastPassAvailable": {
+  "viewMainLastPassAvailableActive": {
     "message": "1 pass remaining"
   },
-  "viewMainManyPassesAvailable": {
+  "viewMainLastPassAvailableInactive": {
+    "message": "1 pass remaining this month"
+  },
+  "viewMainManyPassesAvailableActive": {
     "message": "$number$ passes remaining",
+    "placeholders": {
+      "number" : {
+        "content" : "$1"
+      }
+    }
+  },
+  "viewMainManyPassesAvailableInactive": {
+    "message": "$number$ passes remaining this month",
     "placeholders": {
       "number" : {
         "content" : "$1"
@@ -159,6 +170,9 @@
   },
   "viewMainLastPassActive": {
     "message": "Final pass in use"
+  },
+  "viewMainUpgradeLearnMore": {
+    "message": "Learn more"
   },
   "viewOffline": {
     "message": "You are offline. Check your network connection and try again."
