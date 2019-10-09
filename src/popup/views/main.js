@@ -33,11 +33,9 @@ class ViewMain extends View {
   }
 
   syncPostShow(data) {
-    if (!data.migrationCompleted || data.totalPasses === -1) {
-      View.showToggleButton(this.proxyEnabled);
-    } else {
-      View.hideToggleButton();
+    View.showToggleButton(data, this.proxyEnabled);
 
+    if (data.migrationCompleted && data.totalPasses !== -1) {
       // eslint-disable-next-line verify-await/check
       const template = escapedTemplate`${this.passCountText(data)}`;
       template.syncRenderTo(document.getElementById("passCount"));

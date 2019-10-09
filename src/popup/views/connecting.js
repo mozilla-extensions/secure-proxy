@@ -4,12 +4,7 @@ import {View} from "../view.js";
 class ViewConnecting extends View {
   syncShow(data) {
     View.setState("connecting", {label: this.getTranslation("heroProxyConnecting")});
-
-    if (!data.migrationCompleted || data.totalPasses === -1) {
-      View.showToggleButton(true);
-    } else {
-      View.hideToggleButton();
-    }
+    View.showToggleButton(data, true);
 
     return escapedTemplate`
     <p>

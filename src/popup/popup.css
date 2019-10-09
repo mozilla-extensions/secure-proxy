@@ -437,12 +437,15 @@ footer {
 
 #toggleRow {
   padding-block-start: 12px;
-  padding-block-end: 10px;
   padding-inline-start: var(--edge-padding);
   padding-inline-end: var(--edge-padding);
   border-block-start: 1px solid #e4e4e4;
-  border-block-end: 1px solid #e4e4e4;
   display: flex;
+}
+
+.toggleRowBeta {
+  padding-block-end: 10px;
+  border-block-end: 1px solid #e4e4e4;
 }
 
 #toggleButton {
