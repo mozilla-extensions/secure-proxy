@@ -502,6 +502,8 @@ export class FxAUtils extends Component {
     url.searchParams.set("uid", profileData.uid);
     // eslint-disable-next-line verify-await/check
     url.searchParams.set("email", profileData.email);
+    // eslint-disable-next-line verify-await/check
+    url.searchParams.set("entrypoint", "secure-proxy-desktop-settings");
     return url.href;
   }
 
