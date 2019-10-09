@@ -14,10 +14,9 @@ class ViewProxyError extends View {
   }
 
   syncPostShow(data) {
-    if (!data.migrationCompleted || data.totalPasses === -1) {
-      View.showToggleButton(true);
-    } else {
-      View.hideToggleButton();
+    View.showToggleButton(data, true);
+
+    if (data.migrationCompleted && data.totalPasses !== -1) {
       document.getElementById("passReport").hidden = false;
     }
   }

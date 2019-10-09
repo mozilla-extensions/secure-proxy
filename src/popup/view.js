@@ -58,9 +58,13 @@ export class View {
     document.body.classList.remove("loading");
   }
 
-  static showToggleButton(state) {
+  static showToggleButton(data, state) {
     let toggleRow = document.getElementById("toggleRow");
     toggleRow.removeAttribute("hidden");
+
+    if (!data.migrationCompleted || data.totalPasses === -1) {
+      toggleRow.classList.add("toggleRowBeta");
+    }
 
     let toggleButton = document.getElementById("toggleButton");
     toggleButton.setAttribute("aria-label", currentView.getTranslation("popupToggleButtonLabel"));
