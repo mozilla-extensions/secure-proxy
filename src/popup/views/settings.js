@@ -21,6 +21,7 @@ class ViewSettings extends View {
         <li>
           <ul>
             <li><a href="#" class="link" id="helpAndSupport">${this.getTranslation("viewSettings-helpAndSupportLink")}</a></li>
+            <li><a href="#" class="link" id="howPassesWork">${this.getTranslation("viewSettings-howPassesWorkLink")}</a></li>
             <li><a href="#" class="link" id="giveUsFeedback">${this.getTranslation("viewSettings-giveUsFeedbackLink")}</a></li>
           </ul>
         </li>
@@ -46,7 +47,7 @@ class ViewSettings extends View {
 
   async handleClickEvent(e) {
     // eslint-disable-next-line verify-await/check
-    if (["cloudflare", "helpAndSupport", "privacyPolicy", "termsAndConditions", "giveUsFeedback"].includes(e.target.id)) {
+    if (["cloudflare", "howPassesWork", "helpAndSupport", "privacyPolicy", "termsAndConditions", "giveUsFeedback"].includes(e.target.id)) {
       await View.sendMessage(e.target.id);
       View.close();
     }
