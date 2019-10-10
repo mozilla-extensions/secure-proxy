@@ -14,6 +14,8 @@ export class Passes extends Component {
     this.nextMonthTimer = 0;
 
     self = this;
+
+    browser.runtime.onInstalled.addListener(async details => this.onInstalled(details));
   }
 
   async init() {
@@ -105,5 +107,27 @@ export class Passes extends Component {
   async checkNewPasses() {
     log("Check new passes");
     await this.sendMessage("pass-availability-check");
+  }
+
+  async onInstalled(details) {
+    if (details.reason !== "update") {
+      return;
+    }
+
+    let version;
+
+    try {
+      let self = await browser.management.getSelf();
+      version = self.version;
+    } catch (e) {
+      version = null;
+    }
+
+    if (version !== "12" || details.previousVersion === version) {
+      return;
+    }
+
+    log("Force a new authentication for un update");
+    await this.sendMessage("authenticationNeeded");
   }
 }

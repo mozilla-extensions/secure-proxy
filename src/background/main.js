@@ -314,6 +314,17 @@ class Main {
     }
   }
 
+  async authenticationNeeded() {
+    if (this.proxyState === PROXY_STATE_UNAUTHENTICATED) {
+      return;
+    }
+
+    this.setProxyState(PROXY_STATE_UNAUTHENTICATED);
+
+    await this.ui.update();
+    await this.ui.showWarningStatusPrompt();
+  }
+
   async onConnectivityChanged(connectivity) {
     log("connectivity changed!");
     this.net.increaseConnectionIsolation();
@@ -497,6 +508,9 @@ class Main {
     switch (type) {
       case "authenticationFailed":
         return this.authFailure(data);
+
+      case "authenticationNeeded":
+        return this.authenticationNeeded();
 
       case "authenticationRequired":
         return this.auth();
