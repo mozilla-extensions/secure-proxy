@@ -1,7 +1,7 @@
 :root {
   --base-font-size: 10px;
   --heading-font-size: 14px;
-  --footer-font-size: 12px;
+  --footer-font-size: 14px;
   --body-font-size: 14px;
   --edge-padding: 12px;
 
@@ -449,40 +449,51 @@ footer {
 }
 
 #toggleButton {
-  margin-inline-start: auto;
-  align-self: center;
-
-  --x-pos: .15em;
   -moz-appearance: none;
-  background-color: var(--grey-20);
-  font-size: 16px;
-  inline-size: 2em;
-  block-size: 1em;
-  border-radius: 1em;
-  border: 1px solid transparent;
-  box-sizing: content-box;
-  transition: background-color .1s ease-out;
+  align-self: center;
+  margin-inline-start: auto;
+  box-sizing: border-box;
+  min-width: 26px;
+  border-radius: 10px;
+  background-color: #F9F9FA;
+  border: 1px solid rgba(24, 26, 27, 0.14);
+  padding: 2px;
+  padding-inline-end: 0;
+  transition: padding .2s ease;
 }
 
 #toggleButton:checked {
-  --x-pos: 1.15em;
-  background-color: var(--blue-50);
+  background-color: #0060DF;
+  /* Push the toggle to the right. */
+  padding-inline-start: 12px;
+}
+
+#toggleButton:checked:hover {
+  background-color: #003EAA;
+}
+
+#toggleButton:checked:hover:active {
+  background-color: #002275;
+}
+
+#toggleButton:not(:checked):hover {
+  background-color: #C9C9CA;
+}
+
+#toggleButton:not(:checked):hover:active {
+  background-color: #B1B1B2;
 }
 
 #toggleButton::before {
   position: relative;
-  inline-size: calc(1em - .3em);
-  block-size: calc(1em - .3em);
-  transform: translateY(.15em) translateX(var(--x-pos));
-  border-radius: 100%;
   display: block;
   content: "";
-  background-color: var(--grey-50);
-  transition: transform .1s ease-out;
-}
-
-#toggleButton:checked::before {
-  background-color: white;
+  width: 10px;
+  height: 10px;
+  border-radius: 10px;
+  background: white;
+  outline: 1px solid rgba(24, 26, 27, 0.14);
+  -moz-outline-radius: 11px;
 }
 
 #poweredBy {
