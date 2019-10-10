@@ -56,7 +56,7 @@ const DEFAULT_PROXY_URL = "https://firefox.factor11.cloudflareclient.com:2486";
 const DEFAULT_FXA_OPENID = "https://accounts.firefox.com/.well-known/openid-configuration";
 
 // SPS configuration (final '/' is important!)
-const DEFAULT_SPS = "https://guardian-dev.herokuapp.com/";
+const DEFAULT_SPS = "https://fpn.firefox.com/";
 
 // How often we check if we have new passes.
 const DEFAULT_PASSES_TIMEOUT = 21600; // 6 hours
