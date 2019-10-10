@@ -160,6 +160,7 @@ class Main {
 
     // We want to keep these states.
     if (this.proxyState === PROXY_STATE_AUTHFAILURE ||
+        this.proxyState === PROXY_STATE_GEOFAILURE ||
         this.proxyState === PROXY_STATE_PROXYAUTHFAILED) {
       return;
     }
@@ -253,18 +254,22 @@ class Main {
     // non authenticate state.
     this.setProxyState(PROXY_STATE_UNAUTHENTICATED);
 
-    try {
-      await this.fxa.authenticate();
+    const data = await this.fxa.authenticate();
+    switch (data.state) {
+      case FXA_OK:
+        this.telemetry.syncAddEvent("fxa", "authCompleted");
+        log("Authentication completed");
+        return true;
 
-      this.telemetry.syncAddEvent("fxa", "authCompleted");
-      log("Authentication completed");
-      return true;
-    } catch (error) {
-      this.telemetry.syncAddEvent("fxa", "authFailed");
-      log(`Authentication failed: ${error.message}`);
-      // This can be a different error type, but we don't care. We need to
-      // report authentication error because there was user interaction.
-      return this.authFailure(FXA_ERR_AUTH);
+      case FXA_ERR_GEO:
+        this.telemetry.syncAddEvent("fxa", "authFailedByGeo");
+        return this.authFailure(FXA_ERR_GEO);
+
+      default:
+        this.telemetry.syncAddEvent("fxa", "authFailed");
+        // This can be a different error type, but we don't care. We need to
+        // report authentication error because there was user interaction.
+        return this.authFailure(FXA_ERR_AUTH);
     }
   }
 
@@ -273,6 +278,14 @@ class Main {
       case FXA_ERR_AUTH:
         log("authentication failed");
         this.setProxyState(PROXY_STATE_AUTHFAILURE);
+
+        await this.fxa.resetToken();
+        await this.ui.update();
+        break;
+
+      case FXA_ERR_GEO:
+        log("authentication failed because of geo restrictions");
+        this.setProxyState(PROXY_STATE_GEOFAILURE);
 
         await this.fxa.resetToken();
         await this.ui.update();

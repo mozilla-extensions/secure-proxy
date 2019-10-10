@@ -61,9 +61,9 @@ export class FxAUtils extends Component {
   async authenticate() {
     // Let's do the authentication. This will generate a fxa code that is going
     // to be sent to the secure-proxy service to obtain the other ones.
-    let data = await this.authenticateInternal();
-    if (!data) {
-      throw new Error("authentication failed");
+    const data = await this.authenticateInternal();
+    if (this.syncStateError(data)) {
+      return data;
     }
 
     // Let's store the state token and let's invalidate all the other tokens
@@ -81,9 +81,11 @@ export class FxAUtils extends Component {
       // "tokenGenerated" event.
       const result = await this.maybeObtainToken();
       if (this.syncStateError(result)) {
-        throw new Error("Token generation failed");
+        return { state: FXA_ERR_AUTH };
       }
     }
+
+    return { state: FXA_OK };
   }
 
   async updatePasses(data) {
@@ -368,17 +370,17 @@ export class FxAUtils extends Component {
 
     const stateToken = await this.obtainStateToken();
     if (!stateToken) {
-      return null;
+      return { state: FXA_ERR_NETWORK };
     }
 
     const fxaCode = await this.obtainFxaCode(stateToken);
     if (!fxaCode) {
-      return null;
+      return { state: FXA_ERR_AUTH };
     }
 
     const completed = await this.completeAuthentication(stateToken, fxaCode);
-    if (!completed) {
-      return null;
+    if (this.syncStateError(completed)) {
+      return completed;
     }
 
     return {
@@ -436,22 +438,27 @@ export class FxAUtils extends Component {
     try {
       let resp = await fetch(request, {cache: "no-cache"});
       if (resp.status >= 500 && resp.status <= 599) {
-        return null;
+        return { state: FXA_ERR_NETWORK };
+      }
+
+      if (resp.status === 451) {
+        return { state: FXA_ERR_GEO };
       }
 
       if (resp.status !== 200) {
-        return null;
+        return { state: FXA_ERR_AUTH };
       }
 
       const json = await resp.json();
       const data = this.syncJsonToInfo(json);
 
       return {
+        state: FXA_OK,
         profileData: json.profile_data,
         ...data,
       };
     } catch (e) {
-      return null;
+      return { state: FXA_ERR_NETWORK };
     }
   }
 

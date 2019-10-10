@@ -11,7 +11,7 @@ const TELEMETRY_EVENTS = {
   },
   "authentication": {
     methods: [ "fxa" ],
-    objects: [ "authStarted", "authCompleted", "authFailed", ],
+    objects: [ "authStarted", "authCompleted", "authFailed", "authFailedByGeo" ],
     extra_keys: [],
     record_on_release: true,
   },
