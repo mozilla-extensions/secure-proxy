@@ -25,9 +25,6 @@ class ViewMain extends View {
       </div>
       <p class="${content.className}">
         ${this.getTranslation(content.label)}
-        <a href="#" id="upgradeLearnMore" hidden>
-          ${this.getTranslation("viewMainUpgradeLearnMore")}
-        </a>
       </p>
       <button id="betaUpgrade" class="primary" hidden>
         ${this.getTranslation("viewMainUpgradeButton")}
@@ -52,7 +49,6 @@ class ViewMain extends View {
 
     // Free-tier.
     if (data.migrationCompleted && data.totalPasses !== -1) {
-      document.getElementById("upgradeLearnMore").hidden = false;
       document.getElementById("passReport").hidden = false;
 
       // No pass available.
@@ -74,12 +70,6 @@ class ViewMain extends View {
 
   handleClickEvent(e) {
     if (e.target.id === "betaUpgrade") {
-      // eslint-disable-next-line verify-await/check
-      View.sendMessage(e.target.id);
-      View.close();
-    }
-
-    if (e.target.id === "upgradeLearnMore") {
       // eslint-disable-next-line verify-await/check
       View.sendMessage(e.target.id);
       View.close();

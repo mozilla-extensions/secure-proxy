@@ -525,11 +525,6 @@ footer {
   text-decoration: none;
 }
 
-#upgradeLearnMore {
-  font-weight: bold;
-  text-decoration: none;
-}
-
 #passReport {
   border-block-end: 1px solid #e4e4e4;
   min-block-size: 38px;

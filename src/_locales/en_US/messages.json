@@ -177,9 +177,6 @@
   "viewMainLastPassActive": {
     "message": "Final pass in use"
   },
-  "viewMainUpgradeLearnMore": {
-    "message": "Learn more"
-  },
   "viewOffline": {
     "message": "You are offline. Check your network connection and try again."
   },
@@ -200,6 +197,9 @@
   },
   "viewSettings-helpAndSupportLink": {
     "message": "Help & Support"
+  },
+  "viewSettings-howPassesWorkLink": {
+    "message": "How Passes Work"
   },
   "viewSettings-manageAccountButton": {
     "message": "Manage Account"
