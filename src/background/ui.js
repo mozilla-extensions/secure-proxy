@@ -314,6 +314,10 @@ export class UI extends Component {
     }
   }
 
+  async showWarningStatusPrompt() {
+    await browser.experiments.proxyutils.showPrompt(this.getTranslation("toastWarning"), true);
+  }
+
   async syncPassNeededToast() {
     if (this.currentPort) {
       return;
