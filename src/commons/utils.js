@@ -33,11 +33,17 @@ const PROXY_STATE_PROXYAUTHFAILED = "proxyAuthFailed";
 // Authentication failed
 const PROXY_STATE_AUTHFAILURE = "authFailure";
 
+// Authentication failed because of geo-restrictions
+const PROXY_STATE_GEOFAILURE = "geoFailure";
+
 // FXA network error code.
 const FXA_ERR_NETWORK = "networkError";
 
 // FXA authentication failed error code.
 const FXA_ERR_AUTH = "authFailed";
+
+// FXA authentication failed because of geo restrictions.
+const FXA_ERR_GEO = "authFailedByGeo";
 
 // FXA token generation requires payment.
 const FXA_PAYMENT_REQUIRED = "paymentRequired";

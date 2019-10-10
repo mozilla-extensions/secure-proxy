@@ -6,10 +6,17 @@ class ViewLogin extends View {
     View.setState("login", {label: this.getTranslation("heroProxyLogin")});
 
     let text;
+    let button;
+
     if (data.proxyState === PROXY_STATE_UNAUTHENTICATED) {
       text = "viewLoginMessage";
+      button = "viewLoginButton";
+    } else if (data.proxyState === PROXY_STATE_GEOFAILURE) {
+      text = "viewGeoFailure";
+      button = "viewTryAgainLoginButton";
     } else {
       text = "viewAuthFailure";
+      button = "viewLoginButton";
     }
 
     return escapedTemplate`
@@ -17,7 +24,7 @@ class ViewLogin extends View {
       ${this.getTranslation(text)}
     </p>
     <button id="authButton" class="primary">
-      ${this.getTranslation("viewLoginButton")}
+      ${this.getTranslation(button)}
     </button>`;
   }
 

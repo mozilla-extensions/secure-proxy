@@ -63,6 +63,7 @@ export class View {
     toggleRow.removeAttribute("hidden");
 
     if (!data.migrationCompleted || data.totalPasses === -1) {
+      // eslint-disable-next-line verify-await/check
       toggleRow.classList.add("toggleRowBeta");
     }
 

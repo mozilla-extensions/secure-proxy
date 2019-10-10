@@ -294,6 +294,8 @@ export class UI extends Component {
         // Fall through
       case PROXY_STATE_CAPTIVE:
         // Fall through
+      case PROXY_STATE_GEOFAILURE:
+        // Fall through
       case PROXY_STATE_AUTHFAILURE:
         promptNotice = "toastWarning";
         isWarning = true;
@@ -323,11 +325,14 @@ export class UI extends Component {
     const passesAvailable = passes.totalPasses - passes.currentPass;
 
     if (passesAvailable === 0) {
-      return browser.experiments.proxyutils.showPrompt(
+      // eslint-disable-next-line verify-await/check
+      browser.experiments.proxyutils.showPrompt(
         this.getTranslation("toastLastPassExpired"), true);
+      return;
     }
 
-    return browser.experiments.proxyutils.showPrompt(
+    // eslint-disable-next-line verify-await/check
+    browser.experiments.proxyutils.showPrompt(
       this.getTranslation("toastPassExpired"), true);
   }
 
@@ -340,16 +345,21 @@ export class UI extends Component {
     const passesAvailable = passes.totalPasses - passes.currentPass;
 
     if (passesAvailable === 1) {
-      return browser.experiments.proxyutils.showPrompt(
+      // eslint-disable-next-line verify-await/check
+      browser.experiments.proxyutils.showPrompt(
         this.getTranslation("toastLastPassAvailable"), false);
+      return;
     }
 
     if (passesAvailable > 0) {
-      return browser.experiments.proxyutils.showPrompt(
+      // eslint-disable-next-line verify-await/check
+      browser.experiments.proxyutils.showPrompt(
         this.getTranslation("toastPassesAvailable", passesAvailable), false);
+      return;
     }
 
-    return browser.experiments.proxyutils.showPrompt(
+    // eslint-disable-next-line verify-await/check
+    browser.experiments.proxyutils.showPrompt(
       this.getTranslation("toastLastPassExpired", passesAvailable), true);
   }
 

@@ -61,6 +61,8 @@ async function init() {
       case PROXY_STATE_UNAUTHENTICATED:
         // fall through
       case PROXY_STATE_AUTHFAILURE:
+        // fall through
+      case PROXY_STATE_GEOFAILURE:
         await View.setView("login", msg);
         return;
 

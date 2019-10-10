@@ -23,6 +23,7 @@ export class ProxyDownChecker extends Component {
     if (this.cachedProxyState === PROXY_STATE_PROXYAUTHFAILED ||
         this.cachedProxyState === PROXY_STATE_LOADING ||
         this.cachedProxyState === PROXY_STATE_UNAUTHENTICATED ||
+        this.cachedProxyState === PROXY_STATE_GEOFAILURE ||
         this.cachedProxyState === PROXY_STATE_AUTHFAILURE) {
       log(`No checking for the current proxy state: ${this.cachedProxyState}`);
       return;

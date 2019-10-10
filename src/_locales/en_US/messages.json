@@ -119,6 +119,9 @@
   "viewConnecting": {
     "message": "Connecting to the secure server…"
   },
+  "viewGeoFailure": {
+    "message": "At this time, Firefox Private Network is not available in your region. You must be in the United States to complete the setup process."
+  },
   "viewLoading": {
     "message": "Establishing connection to Firefox Private Network. This should take just a few more moments."
   },
@@ -127,6 +130,9 @@
   },
   "viewLoginButton":{
     "message": "Continue"
+  },
+  "viewTryAgainLoginButton":{
+    "message": "Try Again"
   },
   "viewMainActive": {
     "message": "Your connection is secure, and your location is hidden from websites and trackers, making it tougher for those annoying targeted ads to follow you around online."

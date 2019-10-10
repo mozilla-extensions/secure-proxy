@@ -207,6 +207,7 @@ export class Network extends Component {
     if (this.cachedProxyState === PROXY_STATE_LOADING ||
         this.cachedProxyState === PROXY_STATE_UNAUTHENTICATED ||
         this.cachedProxyState === PROXY_STATE_AUTHFAILURE ||
+        this.cachedProxyState === PROXY_STATE_GEOFAILURE ||
         this.cachedProxyState === PROXY_STATE_INACTIVE ||
         this.cachedProxyState === PROXY_STATE_CONNECTING ||
         this.cachedProxyState === PROXY_STATE_CAPTIVE ||

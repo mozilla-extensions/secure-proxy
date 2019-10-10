@@ -92,7 +92,8 @@ The **methods** are:
 1. `fxa` fires when there are authentication events. **objects**:
    1. `authStarted`: the user has started the authentication flow.
    1. `authCompleted`: the user has completed the authentication flow.
-   1. `authFailed`: the authentication failed has terminated with an error.
+   1. `authFailed`: the authentication flow has terminated with an error.
+   1. `authFailedByGeo`: the authentication flow has terminated with an geo-restriction error.
 1. `networking` fires when there is a proxy network error. **objects**:
    1. `407`: a 407 error code has been received. This error is received when the proxy receives an invalid/expired token.
    1. `429`: the proxy returns 429 when the user is abusing of the service. The concept of "abuse" has not been defined yet.
