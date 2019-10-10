@@ -176,6 +176,7 @@ class Main {
 
       case FXA_ERR_AUTH:
         this.setProxyState(PROXY_STATE_UNAUTHENTICATED);
+        await StorageUtils.setStateTokenAndProfileData(null, null);
         return;
 
       case FXA_ERR_NETWORK:
@@ -376,6 +377,7 @@ class Main {
 
         case FXA_ERR_AUTH:
           this.setProxyState(PROXY_STATE_UNAUTHENTICATED);
+          await StorageUtils.setStateTokenAndProfileData(null, null);
           await this.ui.update();
           break;
 
