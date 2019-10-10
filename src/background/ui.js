@@ -12,6 +12,7 @@ const TERMS_AND_CONDITIONS_URL = "https://www.mozilla.org/about/legal/terms/fire
 const GIVE_US_FEEDBACK_URL = "https://qsurvey.mozilla.com/s3/fx-private-network-beta-feedback";
 const BETA_LEARNMORE_URL = "https://private-network.firefox.com/beta-announcement";
 const BETA_UPGRADE_URL = "https://fpn.firefox.com/vpn";
+const BETA_UPGRADE_LEARNMORE_URL = "https://fpn.firefox.com/browser";
 
 export class UI extends Component {
   constructor(receiver) {
@@ -246,6 +247,10 @@ export class UI extends Component {
 
         case "betaUpgrade":
           await this.openUrl(BETA_UPGRADE_URL);
+          break;
+
+        case "upgradeLearnMore":
+          await this.openUrl(BETA_UPGRADE_LEARNMORE_URL);
           break;
 
         case "telemetry":

@@ -13,6 +13,7 @@ async function init() {
   View.syncSetPort(port);
 
   // A new telemetry event for this panel.
+  // eslint-disable-next-line verify-await/check
   View.sendMessage("telemetry", { category: "general", event: "panelShown"});
 
   let timeoutId = setTimeout(async _ => {

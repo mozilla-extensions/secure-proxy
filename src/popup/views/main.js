@@ -25,6 +25,9 @@ class ViewMain extends View {
       </div>
       <p class="${content.className}">
         ${this.getTranslation(content.label)}
+        <a href="#" id="upgradeLearnMore" hidden>
+          ${this.getTranslation("viewMainUpgradeLearnMore")}
+        </a>
       </p>
       <button id="betaUpgrade" class="primary" hidden>
         ${this.getTranslation("viewMainUpgradeButton")}
@@ -49,6 +52,7 @@ class ViewMain extends View {
 
     // Free-tier.
     if (data.migrationCompleted && data.totalPasses !== -1) {
+      document.getElementById("upgradeLearnMore").hidden = false;
       document.getElementById("passReport").hidden = false;
 
       // No pass available.
@@ -70,6 +74,12 @@ class ViewMain extends View {
 
   handleClickEvent(e) {
     if (e.target.id === "betaUpgrade") {
+      // eslint-disable-next-line verify-await/check
+      View.sendMessage(e.target.id);
+      View.close();
+    }
+
+    if (e.target.id === "upgradeLearnMore") {
       // eslint-disable-next-line verify-await/check
       View.sendMessage(e.target.id);
       View.close();
@@ -125,10 +135,18 @@ class ViewMain extends View {
     }
 
     if (available === 1) {
-      return this.getTranslation("viewMainLastPassAvailable");
+      if (this.proxyEnabled) {
+        return this.getTranslation("viewMainLastPassAvailableActive");
+      }
+
+      return this.getTranslation("viewMainLastPassAvailableInactive");
     }
 
-    return this.getTranslation("viewMainManyPassesAvailable", available);
+    if (this.proxyEnabled) {
+      return this.getTranslation("viewMainManyPassesAvailableActive", available);
+    }
+
+    return this.getTranslation("viewMainManyPassesAvailableInactive", available);
   }
 
   syncActivateCountdown(data, elm) {
