@@ -68,12 +68,12 @@ const ContentScript = {
 
   syncOverwriteProperties() {
     const overwrittenProperties = new Set([
-      { originalMethod: null, parentObject: window.navigator.mediaDevices, methodName: "getSupportedConstraints", potentiallyShowContextBanner: true },
-      { originalMethod: null, parentObject: window.navigator.mediaDevices, methodName: "enumerateDevices", potentiallyShowContextBanner: false },
-      { originalMethod: null, parentObject: window.navigator.mediaDevices, methodName: "getUserMedia", potentiallyShowContextBanner: true },
-      { originalMethod: null, parentObject: window.navigator.mediaDevices, methodName: "getDisplayMedia", potentiallyShowContextBanner: true },
-      { originalMethod: null, parentObject: window.navigator, methodName: "mozGetUserMedia", potentiallyShowContextBanner: true },
-      { originalMethod: null, parentObject: window.navigator, methodName: "mozGetUserMediaDevices", potentiallyShowContextBanner: true },
+      { originalMethod: null, parentObject: window.MediaDevices.prototype, methodName: "getSupportedConstraints", potentiallyShowContextBanner: true },
+      { originalMethod: null, parentObject: window.MediaDevices.prototype, methodName: "enumerateDevices", potentiallyShowContextBanner: false },
+      { originalMethod: null, parentObject: window.MediaDevices.prototype, methodName: "getUserMedia", potentiallyShowContextBanner: true },
+      { originalMethod: null, parentObject: window.MediaDevices.prototype, methodName: "getDisplayMedia", potentiallyShowContextBanner: true },
+      { originalMethod: null, parentObject: window.Navigator.prototype, methodName: "mozGetUserMedia", potentiallyShowContextBanner: true },
+      { originalMethod: null, parentObject: window.Navigator.prototype, methodName: "mozGetUserMediaDevices", potentiallyShowContextBanner: true },
       { originalMethod: null, parentObject: window, methodName: "RTCPeerConnection" },
       { originalMethod: null, parentObject: window, methodName: "RTCIceCandidate" },
       { originalMethod: null, parentObject: window, methodName: "RTCPeerConnectionStatic" },
