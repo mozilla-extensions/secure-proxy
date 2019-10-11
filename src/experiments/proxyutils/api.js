@@ -22,6 +22,8 @@ ChromeUtils.defineModuleGetter(this, "ExtensionPreferencesManager",
                                "resource://gre/modules/ExtensionPreferencesManager.jsm");
 ChromeUtils.defineModuleGetter(this, "XPCOMUtils",
                                "resource://gre/modules/XPCOMUtils.jsm");
+ChromeUtils.defineModuleGetter(this, "AppConstants",
+                               "resource://gre/modules/AppConstants.jsm");
 
 XPCOMUtils.defineLazyServiceGetter(this, "gNetworkLinkService",
                                    "@mozilla.org/network/network-link-service;1",
@@ -53,6 +55,10 @@ let ConfirmationHint = {
    *
    */
   syncShow(selector, messageContent, options = {}) {
+    if (AppConstants.platform === "android") {
+      return;
+    }
+
     const anchor = Services.wm.getMostRecentWindow("navigator:browser").document.querySelector(selector);
     this._message.textContent = messageContent;
 

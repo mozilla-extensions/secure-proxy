@@ -34,6 +34,7 @@
       "captivePortal",
       "identity",
       "idle",
+      "notifications",
       "proxy",
       "storage",
       "tabs",

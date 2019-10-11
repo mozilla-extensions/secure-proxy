@@ -1,5 +1,6 @@
 import {ConnectionTester} from "./connection.js";
 import {Connectivity} from "./connectivity.js";
+import {constants} from "./constants.js";
 import {ExternalHandler} from "./external.js";
 import {FxAUtils} from "./fxa.js";
 import {Network} from "./network.js";
@@ -11,6 +12,7 @@ import {StorageUtils} from "./storageUtils.js";
 import {Survey} from "./survey.js";
 import {Telemetry} from "./telemetry.js";
 import {UI} from "./ui.js";
+import {identityForFennec} from "./identityForFennec.js";
 
 // If set to true, it imports tester.js and it execs the tests.
 const RUN_TESTS = false;
@@ -18,6 +20,11 @@ const RUN_TESTS = false;
 class Main {
   constructor() {
     log("constructor");
+
+    // Mobile hack!
+    if (!browser.identity) {
+      browser.identity = identityForFennec;
+    }
 
     // We want to avoid the processing of events during the initialization.
     // Setting handlingEvent to true, we simulate the processing of an event
@@ -51,6 +58,9 @@ class Main {
   async init() {
     const prefs = await browser.experiments.proxyutils.settings.get({});
     log("init");
+
+    // Initialize the constants.
+    await constants.init();
 
     // Let's initialize the observers.
     for (let observer of this.observers) {
@@ -361,6 +371,10 @@ class Main {
   }
 
   async hasProxyInUse() {
+    if (constants.isAndroid) {
+      return false;
+    }
+
     let proxySettings = await browser.proxy.settings.get({});
     return ["manual", "autoConfig", "autoDetect"].includes(proxySettings.value.proxyType);
   }

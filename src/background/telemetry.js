@@ -1,4 +1,5 @@
 import {Component} from "./component.js";
+import {constants} from "./constants.js";
 
 const TELEMETRY_CATEGORY = "secure.proxy";
 const TELEMETRY_EVENTS = {
@@ -66,6 +67,11 @@ export class Telemetry extends Component {
   }
 
   syncAddEvent(category, event, value = null) {
+    if (constants.isAndroid) {
+      log(`No telemetry on android`);
+      return;
+    }
+
     log(`Sending telemetry: ${category} - ${event} - ${value}`);
 
     // eslint-disable-next-line verify-await/check

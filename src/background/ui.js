@@ -1,4 +1,5 @@
 import {Component} from "./component.js";
+import {constants} from "./constants.js";
 import {Passes} from "./passes.js";
 import {StorageUtils} from "./storageUtils.js";
 
@@ -13,6 +14,8 @@ const GIVE_US_FEEDBACK_URL = "https://qsurvey.mozilla.com/s3/fx-private-network-
 const BETA_LEARNMORE_URL = "https://private-network.firefox.com/beta-announcement";
 const BETA_UPGRADE_URL = "https://fpn.firefox.com/vpn";
 const BETA_HOW_PASSES_WORK_URL = "https://fpn.firefox.com/browser";
+
+const ANDROID_NOTIFICATION = "secure-proxy-notification";
 
 export class UI extends Component {
   constructor(receiver) {
@@ -129,16 +132,21 @@ export class UI extends Component {
       path = "/img/badge_warning.svg";
     }
 
-    return Promise.all([
-      browser.browserAction.setIcon({
+    if (title === null) {
+      return;
+    }
+
+    await browser.browserAction.setTitle({
+       tabId,
+     title
+    });
+
+    if (!constants.isAndroid) {
+      await browser.browserAction.setIcon({
         path,
         tabId
-      }),
-      browser.browserAction.setTitle({
-        tabId,
-        title
-      }),
-    ]);
+      });
+    }
   }
 
   contentScriptConnected(port) {
@@ -314,13 +322,34 @@ export class UI extends Component {
       isWarning = true;
     }
 
-    if (promptNotice) {
-      await browser.experiments.proxyutils.showPrompt(this.getTranslation(promptNotice), isWarning);
+    if (!promptNotice) {
+      return;
     }
+
+    await this.showPrompt(this.getTranslation(promptNotice), isWarning);
+  }
+
+  async showPrompt(text, isWarning) {
+    if (!constants.isAndroid) {
+      await browser.experiments.proxyutils.showPrompt(text, isWarning);
+      return;
+    }
+
+    await browser.notifications.create(ANDROID_NOTIFICATION, {
+      type: "basic",
+      iconUrl: "img/icon.svg",
+      title: this.getTranslation("extensionName"),
+      message: text,
+    });
+
+    browser.notifications.onClicked.addListener(async _ => {
+      // eslint-disable-next-line verify-await/check
+      await this.openUrl(browser.runtime.getURL("popup/popup.html"));
+    });
   }
 
   async showWarningStatusPrompt() {
-    await browser.experiments.proxyutils.showPrompt(this.getTranslation("toastWarning"), true);
+    await this.showPrompt(this.getTranslation("toastWarning"), true);
   }
 
   async syncPassNeededToast() {
@@ -333,14 +362,12 @@ export class UI extends Component {
 
     if (passesAvailable === 0) {
       // eslint-disable-next-line verify-await/check
-      browser.experiments.proxyutils.showPrompt(
-        this.getTranslation("toastLastPassExpired"), true);
+      this.showPrompt(this.getTranslation("toastLastPassExpired"), true);
       return;
     }
 
     // eslint-disable-next-line verify-await/check
-    browser.experiments.proxyutils.showPrompt(
-      this.getTranslation("toastPassExpired"), true);
+    this.showPrompt(this.getTranslation("toastPassExpired"), true);
   }
 
   async syncPassAvailableToast() {
@@ -353,21 +380,18 @@ export class UI extends Component {
 
     if (passesAvailable === 1) {
       // eslint-disable-next-line verify-await/check
-      browser.experiments.proxyutils.showPrompt(
-        this.getTranslation("toastLastPassAvailable"), false);
+      this.showPrompt(this.getTranslation("toastLastPassAvailable"), false);
       return;
     }
 
     if (passesAvailable > 0) {
       // eslint-disable-next-line verify-await/check
-      browser.experiments.proxyutils.showPrompt(
-        this.getTranslation("toastPassesAvailable", passesAvailable), false);
+      this.showPrompt(this.getTranslation("toastPassesAvailable", passesAvailable), false);
       return;
     }
 
     // eslint-disable-next-line verify-await/check
-    browser.experiments.proxyutils.showPrompt(
-      this.getTranslation("toastLastPassExpired", passesAvailable), true);
+    this.showPrompt(this.getTranslation("toastLastPassExpired", passesAvailable), true);
   }
 
   async update(showToast = true) {
@@ -399,14 +423,15 @@ export class UI extends Component {
       text = "badgeWarningText";
     }
 
-    return Promise.all([
-      browser.browserAction.setIcon({
+    await browser.browserAction.setTitle({
+      title: this.getTranslation(text),
+    });
+
+    if (!constants.isAndroid) {
+      await browser.browserAction.setIcon({
         path: icon,
-      }),
-      browser.browserAction.setTitle({
-        title: this.getTranslation(text),
-      }),
-    ]);
+      });
+    }
   }
 
   async sendDataToCurrentPort() {
