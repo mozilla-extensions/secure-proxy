@@ -61,12 +61,6 @@
 
   "content_scripts": [
     {
-      "matches": ["<all_urls>"],
-      "js": ["commons/utils.js", "commons/template.js", "content/content-script.js"],
-      "css": ["content/content-modal.css"],
-      "run_at": "document_start"
-    },
-    {
       "matches": ["https://fpn.firefox.com/*"],
       "js": ["content/fetch-fxa-flow-params.js"]
     }
