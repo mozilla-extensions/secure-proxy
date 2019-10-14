@@ -174,6 +174,14 @@ ExtensionPreferencesManager.addSetting("network.ftp.enabled", {
   },
 });
 
+ExtensionPreferencesManager.addSetting("network.http.proxy.respect-be-conservative", {
+  prefNames: ["network.http.proxy.respect-be-conservative"],
+
+  setCallback(value) {
+    return { [this.prefNames[0]]: value };
+  },
+});
+
 ExtensionPreferencesManager.addSetting("secureProxy.DNSoverHTTP", {
   prefNames: [
     "network.trr.mode",
@@ -242,6 +250,28 @@ this.proxyutils = class extends ExtensionAPI {
                 return ExtensionPreferencesManager.setSetting(
                   context.extension.id,
                   "network.ftp.enabled",
+                  details.value
+                );
+              },
+            }
+          ),
+
+          HTTPProxyRespectBeConservative: Object.assign(
+            ExtensionPreferencesManager.getSettingsAPI(
+              context.extension.id,
+              "network.http.proxy.respect-be-conservative",
+              () => {
+                return Services.prefs.getBoolPref("network.http.proxy.respect-be-conservative");
+              },
+              undefined,
+              false,
+              () => {}
+            ),
+            {
+              set: details => {
+                return ExtensionPreferencesManager.setSetting(
+                  context.extension.id,
+                  "network.http.proxy.respect-be-conservative",
                   details.value
                 );
               },
