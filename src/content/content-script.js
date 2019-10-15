@@ -150,8 +150,24 @@ class ContentScriptBanner {
   }
 
   async insertBanner() {
-    this.modal = document.createElement("section");
-    this.modal.id = "injectedModal";
+    // Create a wrapper to host our shadow DOM.
+    this.container = document.createElement("div");
+    // Do not display this element on the page, only its contents.
+    this.container.style.display = "contents";
+    document.body.appendChild(this.container);
+    // eslint-disable-next-line verify-await/check
+    let shadowRoot = this.container.attachShadow({mode: "closed"});
+
+    let modal = document.createElement("section");
+    modal.id = "injectedModal";
+
+    // Inject the stylesheet for our modal into the shadow DOM.
+    let style = document.createElement("link");
+    style.setAttribute("rel", "stylesheet");
+    // eslint-disable-next-line verify-await/check
+    style.setAttribute("href", browser.runtime.getURL("content/content-modal.css"));
+    shadowRoot.appendChild(style);
+
     let domainName = await prettyHostname(window.location.hostname);
     let template = escapedTemplate`
       <div class="content">
@@ -166,14 +182,14 @@ class ContentScriptBanner {
         </footer>
       </div>
     `;
-    this.modal.addEventListener("click", this);
-    template.syncRenderTo(this.modal);
-    document.body.appendChild(this.modal);
+    modal.addEventListener("click", this);
+    template.syncRenderTo(modal);
+    shadowRoot.appendChild(modal);
   }
 
   syncClose() {
-    document.body.removeChild(this.modal);
-    this.modal = null;
+    document.body.removeChild(this.container);
+    this.container = null;
   }
 
   async handleSiteEvent(e) {
