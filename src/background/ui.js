@@ -72,6 +72,19 @@ export class UI extends Component {
     });
   }
 
+  setProxyState(proxyState) {
+    const wasLoading = (this.cachedProxyState === PROXY_STATE_LOADING);
+
+    super.setProxyState(proxyState);
+
+    // No after steps if we jump from "loading" to "active". In this case we
+    // are at startup time and we don't want to annoy the user with the toast
+    // message.
+    if (!wasLoading && proxyState === PROXY_STATE_ACTIVE) {
+      this.afterConnectionSteps();
+    }
+  }
+
   syncGetExemptTabStatus(name) {
     return this.exemptTabStatus.get(name);
   }

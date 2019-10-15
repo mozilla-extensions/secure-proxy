@@ -98,10 +98,6 @@ class Main {
     if (proxyState === PROXY_STATE_ACTIVE) {
       this.setProxyState(PROXY_STATE_ACTIVE);
 
-      // We want to inform only the network component which needs to reset a
-      // few preferences.
-      this.net.syncAfterConnectionSteps();
-
       await this.ui.update(false /* no toast here */);
       return;
     }
@@ -140,12 +136,6 @@ class Main {
 
     // Let's compute the state.
     await this.computeProxyStateInternal(createTokenIfNeeded);
-
-    // If we are here we are not active yet. At least we are connecting.
-    // Restore default settings.
-    if (currentState !== this.proxyState) {
-      this.net.inactiveSteps();
-    }
 
     log("computing status - final: " + this.proxyState);
     return currentState !== this.proxyState;
@@ -219,9 +209,6 @@ class Main {
     }
 
     this.setProxyState(PROXY_STATE_ACTIVE);
-
-    this.net.syncAfterConnectionSteps();
-    await this.ui.afterConnectionSteps();
   }
 
   async enableProxy(value, telemetryReason) {
