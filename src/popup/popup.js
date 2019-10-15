@@ -22,13 +22,12 @@ async function init() {
     View.sendMessage("telemetry", { category: "general", event: "loadingError"});
   }, loadingTimeout);
 
-  let userInfo;
-  let proxyState;
+  let lastMessage;
 
   let settingsButton = document.getElementById("settingsButton");
   settingsButton.addEventListener("click", async () => {
-    if (userInfo) {
-      await View.setView("settings", {userInfo, proxyState});
+    if (lastMessage && lastMessage.userInfo) {
+      await View.setView("settings", lastMessage);
       // eslint-disable-next-line verify-await/check
       View.sendMessage("telemetry", { category: "general", event: "settingsShown"});
     }
@@ -48,13 +47,13 @@ async function init() {
       clearTimeout(timeoutId);
       timeoutId = 0;
     }
-    userInfo = msg.userInfo;
-    proxyState = msg.proxyState;
 
-    View.showSettings(!!userInfo);
+    lastMessage = msg;
+
+    View.showSettings(!!msg.userInfo);
     View.showBack(false);
 
-    switch (proxyState) {
+    switch (msg.proxyState) {
       case PROXY_STATE_LOADING:
         // We want to keep the 'loading' view.
         return;
@@ -85,7 +84,7 @@ async function init() {
       case PROXY_STATE_INACTIVE:
         // fall through
       case PROXY_STATE_ACTIVE:
-        if (msg.exempt && proxyState === PROXY_STATE_ACTIVE) {
+        if (msg.exempt && msg.proxyState === PROXY_STATE_ACTIVE) {
           await View.setView("exempt", msg);
         } else {
           await View.setView("main", msg);
