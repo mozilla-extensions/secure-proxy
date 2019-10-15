@@ -7,6 +7,7 @@ class ViewSettings extends View {
     View.showSettings(false);
     View.hideToggleButton();
     View.setState("hidden");
+
     return escapedTemplate`
       <ul class="settingsMenu">
         <li class="manage">
@@ -33,6 +34,12 @@ class ViewSettings extends View {
         </li>
       </ul>
     `;
+  }
+
+  syncPostShow(data) {
+    if (!data.migrationCompleted) {
+      document.getElementById("howPassesWork").hidden = true;
+    }
   }
 
   syncHeadingText() { return "introSettings"; }
