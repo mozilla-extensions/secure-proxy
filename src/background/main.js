@@ -75,6 +75,23 @@ class Main {
     // the meantime.
     this.handlingEvent = false;
     this.syncProcessPendingEvents();
+
+    // Let's disable webRTC only if the firefox version is lower than 71.
+    const browserInfo = await browser.runtime.getBrowserInfo();
+    if (browserInfo.version < "71") {
+      await browser.contentScripts.register({
+        matches: ["<all_urls>"],
+        js: [
+          {file: "../commons/utils.js" },
+          {file: "../commons/template.js"},
+          {file: "../content/content-script.js"},
+        ],
+        css: [
+          {file: "../content/content-modal.css"},
+        ],
+        runAt: "document_start"
+      });
+    }
   }
 
   async firstRun() {
