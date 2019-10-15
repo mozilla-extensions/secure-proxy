@@ -123,7 +123,7 @@ export class Passes extends Component {
       version = null;
     }
 
-    if (version !== "12" || details.previousVersion === version) {
+    if (parseInt(details.previousVersion) > 11) {
       return;
     }
 
