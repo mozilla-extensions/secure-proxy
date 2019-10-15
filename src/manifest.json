@@ -53,7 +53,7 @@
     }
   },
 
-  "web_accessible_resources": ["fonts/*.woff2"],
+  "web_accessible_resources": ["fonts/*.woff2", "content/content-modal.css"],
 
   "background": {
     "page": "background/page.html"

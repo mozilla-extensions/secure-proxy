@@ -86,9 +86,6 @@ class Main {
           {file: "../commons/template.js"},
           {file: "../content/content-script.js"},
         ],
-        css: [
-          {file: "../content/content-modal.css"},
-        ],
         runAt: "document_start"
       });
     }
