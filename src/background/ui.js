@@ -102,6 +102,9 @@ export class UI extends Component {
     this.syncSetExemptTabStatus(tabId, status);
     // We don't care about the delay here for setting the icon and we can't block here
     this.setTabIcon(tabId);
+
+    // eslint-disable-next-line verify-await/check
+    this.showStatusPrompt();
   }
 
   syncRemoveExemptTab(tabId) {
