@@ -114,15 +114,7 @@ export class Passes extends Component {
       return;
     }
 
-    let version;
-
-    try {
-      let self = await browser.management.getSelf();
-      version = self.version;
-    } catch (e) {
-      version = null;
-    }
-
+    // eslint-disable-next-line verify-await/check
     if (parseInt(details.previousVersion) > 11) {
       return;
     }
