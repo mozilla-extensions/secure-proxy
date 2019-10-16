@@ -490,8 +490,13 @@ export class FxAUtils extends Component {
     this.nextExpireTime = 0;
   }
 
-  isAuthUrl(origin) {
-    return this.wellKnownData.isAuthUrl(origin);
+  isAuthUrl(url) {
+    // Let's skip our authentication flow.
+    if (url.href.startsWith(this.service + "browser/oauth")) {
+      return true;
+    }
+
+    return this.wellKnownData.isAuthUrl(url.origin);
   }
 
   excludedDomains() {
