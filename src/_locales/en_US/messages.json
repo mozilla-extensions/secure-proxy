@@ -138,13 +138,13 @@
     "message": "Your connection is secure, and your location is hidden from websites and trackers, making it tougher for those annoying targeted ads to follow you around online."
   },
   "viewMainActiveLimited": {
-    "message": "Private Network reduces ad tracking, encrypts your Firefox browsing, and hides your location. Passes run without stopping for 3 hours."
+    "message": "Private Network reduces ad tracking, encrypts your Firefox browsing, and hides your location. Passes run without stopping for 8 hours."
   },
   "viewMainInactive": {
     "message": "Private Network is not protecting your Firefox connection. Websites, ad trackers, and your internet service provider may be able to see your online activity."
   },
   "viewMainInactiveWithPasses": {
-    "message": "To claim a pass, turn on Private Network. This reduces ad tracking, encrypts your Firefox browsing, and hides your location. Passes run without stopping for 3 hours."
+    "message": "To claim a pass, turn on Private Network. This reduces ad tracking, encrypts your Firefox browsing, and hides your location. Passes run without stopping for 8 hours."
   },
   "viewMainInactiveWithoutPasses": {
     "message": "Upgrade for unlimited access to Private Network to encrypt your browsing and hide your location."
