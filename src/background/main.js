@@ -426,7 +426,7 @@ class Main {
     }
 
     // eslint-disable-next-line verify-await/check
-    if (this.fxa.isAuthUrl(url.origin)) {
+    if (this.fxa.isAuthUrl(url)) {
       return true;
     }
 
