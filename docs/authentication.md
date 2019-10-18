@@ -8,7 +8,8 @@ the proxy:
 - FxA services
 
 The steps are described here:
-https://gitlab.com/shane-tomlinson/mermaid-charts/blob/master/charts/secure-proxy/secure-proxy-signin-with-backend-server.svg
+
+![Diagram](authentication.svg)
 
 To summarize them, the authentication flow works in this way:
 
