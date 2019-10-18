@@ -1,0 +1,84 @@
+sequenceDiagram
+participant UA as Browser Addon
+participant FPN as Fx Priv Network Server
+participant FxA as FxA Content Server
+participant FxAA as FxA Authorization Server
+participant FxAP as FxA Profile Server
+participant CF as Cloudflare
+participant IN as Internet
+
+activate UA
+UA->>FPN: Request state token from FPN
+activate FPN
+FPN-->>FPN: Create state token, associate with local session
+FPN->>UA: Return state token
+deactivate FPN
+UA->>FxA: Open tab to FxA's /authorization page w/ state token
+activate FxA
+FxA->>FxAA: User authenticates, authorizes
+activate FxAA
+FxAA-->>FxAA: Generate OAuth code
+FxAA->>FxA: Return OAuth code
+deactivate FxAA
+FxA->>UA: Redirect with OAuth code, state token
+deactivate FxA
+UA->>FPN: Send OAuth code and state token to FPN
+activate FPN
+FPN-->>FPN: Check state vs state stored in local session. If match, continue
+FPN->>FxAA: Using server held client_secret, trade code, state for access_token, refresh_token
+activate FxAA
+FxAA->>FPN: Return access_token, refresh_token w/ scope=`profile https://identity.mozilla.com/apps/secure-proxy`
+deactivate FxAA
+FPN-->>FPN: Associate refresh_token with session in the DB
+FPN->>FxAA: Use refresh_token to fetch access_token w/ `profile` scope
+activate FxAA
+FxAA->>FPN: Return access_token w/ `profile` scope
+deactivate FxAA
+FPN-->>FPN: Store the profile_token in the DB
+FPN->>FxAP: Use access_token to fetch profile info
+activate FxAP
+FxAP->>FPN: Return profile info, including subscription info
+deactivate FxAP
+FPN->>UA: Return profile, passes data
+deactivate FPN
+UA-->>UA: Display profile info
+deactivate UA
+
+Note over UA, FPN: The user activates the proxy
+UA->>FPN: Request a proxy_token from FPN with the state token
+activate UA
+activate FPN
+FPN-->>FPN: Retrieve the refresh_token from the DB using the state token
+alt if the proxy_token is expired
+FPN->>FxAA: Use refresh_token to fetch access_token w/ `profile` scope
+activate FxAA
+FxAA->>FPN: Return access_token w/ `profile` scope
+deactivate FxAA
+FPN-->>FPN: Store the profile_token in the DB
+end
+FPN->>FxAP: Use access_token to fetch profile info
+activate FxAP
+FxAP->>FPN: Return profile info, including subscription info
+deactivate FxAP
+alt free-tier mode
+FPN-->>FPN: Check if there is an existing valid proxy_token in the DB
+FPN-->>FPN: Check if user is allowed to consume a new pass
+end
+FPN->>FxAA: Use refresh_token to fetch access_token w/ `https://identity.mozilla.com/apps/secure-proxy` scope
+activate FxAA
+FxAA->>FPN: Return proxy_token w/ `https://identity.mozilla.com/apps/secure-proxy` scope
+deactivate FxAA
+FPN-->>FPN: Store the current proxy_token in the DB
+FPN->>UA: Return proxy_token, profile info and passes data
+deactivate FPN
+UA-->>UA: Display profile info
+UA->>CF: Send network traffic to secure proxy w/ access_token sent in Proxy-Authorization header
+activate CF
+CF-->>CF: Verify access token, verification succeeds
+CF->>IN: Forward network traffic
+activate IN
+IN->>CF: Return network responses
+deactivate IN
+CF->>UA: Return network responses
+deactivate CF
+deactivate UA
