@@ -102,6 +102,10 @@
         "$ref": "types.Setting",
         "description": "This property controls FTP protocol"
       },
+      "HTTPProxyRespectBeConservative": {
+        "$ref": "types.Setting",
+        "description": "This property controls network.http.proxy.respect-be-conservative pref"
+      },
       "DNSoverHTTP": {
         "$ref": "types.Setting",
         "description": "This property controls DOH"

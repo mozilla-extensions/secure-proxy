@@ -343,6 +343,8 @@ export class Network extends Component {
 
     // eslint-disable-next-line verify-await/check
     browser.experiments.proxyutils.FTPEnabled.set({value: false});
+    // eslint-disable-next-line verify-await/check
+    browser.experiments.proxyutils.HTTPProxyRespectBeConservative.set({value: false});
   }
 
   inactiveSteps() {
@@ -350,6 +352,8 @@ export class Network extends Component {
     browser.experiments.proxyutils.DNSoverHTTP.clear({});
     // eslint-disable-next-line verify-await/check
     browser.experiments.proxyutils.FTPEnabled.clear({});
+    // eslint-disable-next-line verify-await/check
+    browser.experiments.proxyutils.HTTPProxyRespectBeConservative.clear({});
   }
 
   async processNetworkError(url, errorStatus) {
