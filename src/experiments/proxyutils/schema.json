@@ -106,6 +106,10 @@
         "$ref": "types.Setting",
         "description": "This property controls network.http.proxy.respect-be-conservative pref"
       },
+      "TLSVersionMax": {
+        "$ref": "types.Setting",
+        "description": "This property controls security.tls.version.max pref"
+      },
       "DNSoverHTTP": {
         "$ref": "types.Setting",
         "description": "This property controls DOH"
