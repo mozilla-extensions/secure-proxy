@@ -182,6 +182,14 @@ ExtensionPreferencesManager.addSetting("network.http.proxy.respect-be-conservati
   },
 });
 
+ExtensionPreferencesManager.addSetting("security.tls.version.max", {
+  prefNames: ["security.tls.version.max"],
+
+  setCallback(value) {
+    return { [this.prefNames[0]]: value };
+  },
+});
+
 ExtensionPreferencesManager.addSetting("secureProxy.DNSoverHTTP", {
   prefNames: [
     "network.trr.mode",
@@ -272,6 +280,28 @@ this.proxyutils = class extends ExtensionAPI {
                 return ExtensionPreferencesManager.setSetting(
                   context.extension.id,
                   "network.http.proxy.respect-be-conservative",
+                  details.value
+                );
+              },
+            }
+          ),
+
+          TLSVersionMax: Object.assign(
+            ExtensionPreferencesManager.getSettingsAPI(
+              context.extension.id,
+              "security.tls.version.max",
+              () => {
+                return Services.prefs.getBoolPref("security.tls.version.max");
+              },
+              undefined,
+              false,
+              () => {}
+            ),
+            {
+              set: details => {
+                return ExtensionPreferencesManager.setSetting(
+                  context.extension.id,
+                  "security.tls.version.max",
                   details.value
                 );
               },
