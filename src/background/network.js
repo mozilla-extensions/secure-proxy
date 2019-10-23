@@ -89,6 +89,15 @@ export class Network extends Component {
 
   setProxyState(proxyState) {
     super.setProxyState(proxyState);
+
+    if (proxyState === PROXY_STATE_ACTIVE) {
+      this.syncAfterConnectionSteps();
+    } else {
+      // If we are here we are not active yet. At least we are connecting.
+      // Restore default settings.
+      this.inactiveSteps();
+    }
+
     this.syncReconfigureProxyRequestCallback();
   }
 
