@@ -10,7 +10,6 @@ const CLOUDFLARE_URL = "https://www.cloudflare.com/";
 const PRIVACY_POLICY_URL = "https://www.mozilla.org/privacy/firefox-private-network";
 const TERMS_AND_CONDITIONS_URL = "https://www.mozilla.org/about/legal/terms/firefox-private-network";
 const GIVE_US_FEEDBACK_URL = "https://qsurvey.mozilla.com/s3/fx-private-network-beta-feedback";
-const BETA_LEARNMORE_URL = "https://private-network.firefox.com/beta-announcement";
 const BETA_UPGRADE_URL = "https://fpn.firefox.com/vpn";
 const BETA_HOW_PASSES_WORK_URL = "https://fpn.firefox.com/browser";
 
@@ -255,10 +254,6 @@ export class UI extends Component {
         case "giveUsFeedback":
           await this.openUrl(GIVE_US_FEEDBACK_URL);
           this.syncSendMessage("telemetry", { category: "settings_url_clicks", event: message.type });
-          break;
-
-        case "betaLearnMore":
-          await this.openUrl(BETA_LEARNMORE_URL);
           break;
 
         case "betaUpgrade":

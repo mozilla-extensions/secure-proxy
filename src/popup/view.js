@@ -147,13 +147,6 @@ export class View {
       return;
     }
 
-    if (e.target.id === "betaLearnMore") {
-      // eslint-disable-next-line verify-await/check
-      View.sendMessage(e.target.id);
-      View.close();
-      return;
-    }
-
     // eslint-disable-next-line verify-await/check
     this.handleClickEvent(e);
   }
@@ -172,24 +165,9 @@ export class View {
       return null;
     }
 
-    if (!data.migrationCompleted) {
-      // eslint-disable-next-line verify-await/check
-      if ([ PROXY_STATE_PROXYERROR,
-            PROXY_STATE_PROXYAUTHFAILED,
-            PROXY_STATE_INACTIVE,
-            PROXY_STATE_ACTIVE,
-            PROXY_STATE_CONNECTING ].includes(data.proxyState)) {
-        return escapedTemplate`
-          <span id="popupBeta">${this.getTranslation("popupBetaEndingSoon")}</span>
-          <a href="#" class="link popupBetaLink" id="betaLearnMore">${this.getTranslation("popupBetaLearnMore")}</a>
-        `;
-      }
-
-      return null;
-    }
-
     // No footer for unlimited, or when there are not passes available.
-    if (data.totalPasses === -1 || (data.totalPasses - data.currentPass) === 0) {
+    if (!data.migrationCompleted || data.totalPasses === -1 ||
+        (data.totalPasses - data.currentPass) === 0) {
       return null;
     }
 
