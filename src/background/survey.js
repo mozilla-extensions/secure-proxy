@@ -22,19 +22,6 @@ const SURVEYS = [
     background: false,
   },
 
-  // beta-announcement
-  { name: "beta-announcement",
-    triggerAfterTime: 0,
-    URL: "https://private-network.firefox.com/beta-announcement",
-    onIdle: false,
-    background: true,
-    syncSkipIf: _ => {
-      const migrated = !!Passes.syncGet().syncIsMigrationCompleted();
-      console.log(`survey to skip if migrated ${migrated}`);
-      return migrated;
-    },
-  },
-
   // 14 days
   { name: "14-day",
     triggerAfterTime: 1209600,

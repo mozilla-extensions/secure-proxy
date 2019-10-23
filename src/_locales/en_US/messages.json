@@ -70,12 +70,6 @@
   "popupToggleButtonLabel": {
     "message": "Toggle proxy state"
   },
-  "popupBetaEndingSoon": {
-    "message": "Changes are coming to beta."
-  },
-  "popupBetaLearnMore": {
-    "message": "Learn more"
-  },
   "popupBetaUnlimited": {
     "message": "Want unlimited access?"
   },
