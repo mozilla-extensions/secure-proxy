@@ -30,14 +30,14 @@
     "fxa-crypto-relier": "github:mozilla/fxa-crypto-relier#confidential-client-flow"
   },
   "devDependencies": {
-    "babel-eslint": "^10.0.2",
-    "eslint": "^6.0.1",
+    "babel-eslint": "^10.0.3",
+    "eslint": "^6.5.1",
+    "eslint-config-prettier": "^4.2.0",
     "eslint-plugin-fetch-options": "^0.0.5",
     "eslint-plugin-mozilla": "^1.3.0",
-    "eslint-config-prettier": "^4.2.0",
     "eslint-plugin-no-unsanitized": "^3.0.2",
-    "eslint-plugin-prettier": "^3.1.0",
-    "eslint-plugin-verify-await": "git@github.com:jonathanKingston/eslint-plugin-verify-await.git",
+    "eslint-plugin-prettier": "^3.1.1",
+    "eslint-plugin-verify-await": "git+ssh://git@github.com/jonathanKingston/eslint-plugin-verify-await.git",
     "prettier": "^1.18.2",
     "web-ext": "^3.2.0"
   }
