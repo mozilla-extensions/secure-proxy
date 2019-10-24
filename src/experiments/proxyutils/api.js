@@ -53,7 +53,7 @@ let ConfirmationHint = {
    *
    */
   syncShow(selector, messageContent, options = {}) {
-    const anchor = Services.wm.getMostRecentWindow("navigator:browser").document.querySelector(selector);
+    const anchor = Services.wm.getMostRecentWindow(null).document.querySelector(selector);
     this._message.textContent = messageContent;
 
     this._description.hidden = true;
@@ -125,7 +125,7 @@ let ConfirmationHint = {
   },
 
   get _document() {
-    return Services.wm.getMostRecentWindow("navigator:browser").document;
+    return Services.wm.getMostRecentWindow(null).document;
   },
 
   get _panel() {
