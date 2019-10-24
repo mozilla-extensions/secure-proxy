@@ -30,6 +30,9 @@ export class Network extends Component {
 
     this.processingNetworkError = false;
 
+    // By default, let's proxy all.
+    this.proxyMode = MODE_ALL;
+
     // Handle header errors before we render the response
     browser.webRequest.onHeadersReceived.addListener(async details => {
       // eslint-disable-next-line verify-await/check
@@ -76,6 +79,8 @@ export class Network extends Component {
     this.proxyType = proxyURL.protocol === "https:" ? "https" : "http";
     this.proxyPort = proxyURL.port || (proxyURL.protocol === "https:" ? 443 : 80);
     this.proxyHost = proxyURL.hostname;
+
+    this.proxyMode = await ConfigUtils.getProxyMode();
 
     try {
       const capitivePortalUrl = new URL(prefs.value.captiveDetect);
@@ -142,13 +147,35 @@ export class Network extends Component {
     }
   }
 
+  syncIs3rdPartyTrackingRequest(requestInfo) {
+    // Maybe we are running in an old firefox version.
+    if (!requestInfo.urlClassification ||
+        !requestInfo.urlClassification.thirdParty) {
+      return false;
+    }
+
+    return requestInfo.urlClassification.thirdParty.includes("any_basic_tracking");
+  }
+
+  syncIsTrackingRequest(requestInfo) {
+    // Maybe we are running in an old firefox version.
+    if (!requestInfo.urlClassification ||
+        !requestInfo.urlClassification.firstParty) {
+      return false;
+    }
+
+    // eslint-disable-next-line verify-await/check
+    return requestInfo.urlClassification.firstParty.includes("any_basic_tracking") ||
+           this.syncIs3rdPartyTrackingRequest(requestInfo);
+  }
+
   async proxyRequestCallback(requestInfo) {
     // eslint-disable-next-line verify-await/check
     let shouldProxyRequest = this.shouldProxyRequest(requestInfo);
     // eslint-disable-next-line verify-await/check
     let additionalConnectionIsolation = this.additionalConnectionIsolation(requestInfo);
 
-    log("proxy request for " + requestInfo.url + " => " + shouldProxyRequest);
+    log(`proxy request for ${requestInfo.url} => ${shouldProxyRequest} - mode: ${this.proxyMode}`);
 
     if (!shouldProxyRequest) {
       return {type: "direct"};
@@ -285,6 +312,24 @@ export class Network extends Component {
         this.cachedProxyState !== PROXY_STATE_PROXYERROR &&
         this.cachedProxyState !== PROXY_STATE_PROXYAUTHFAILED) {
       console.error("In which state are we?!?");
+    }
+
+    switch (this.proxyMode) {
+      case MODE_TRACKER_ONLY:
+        if (!this.syncIsTrackingRequest(requestInfo)) {
+          return false;
+        }
+        break;
+
+      case MODE_3RD_PARTY_TRACKER_ONLY:
+        if (!this.syncIs3rdPartyTrackingRequest(requestInfo)) {
+          return false;
+        }
+        break;
+
+      case MODE_ALL:
+        // All must be proxied!
+        break;
     }
 
     // Just to avoid recreating the URL several times, let's cache it.

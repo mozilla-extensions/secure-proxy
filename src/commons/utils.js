@@ -51,6 +51,10 @@ const FXA_PAYMENT_REQUIRED = "paymentRequired";
 // FXA all good!
 const FXA_OK = "ok";
 
+const MODE_3RD_PARTY_TRACKER_ONLY = "3rdPartyTrackerOnly";
+const MODE_TRACKER_ONLY = "trackerOnly";
+const MODE_ALL = "all";
+
 // Testing URL. This request is sent with the proxy settings when we are in
 // connecting state. If this succeeds, we go to active state.
 const CONNECTING_HTTP_REQUEST = "http://test.factor11.cloudflareclient.com/";
@@ -74,6 +78,14 @@ const ConfigUtils = {
 
   async getProxyURL() {
     return new URL(await this.getStorageKey("proxyURL") || DEFAULT_PROXY_URL);
+  },
+
+  async setProxyMode(proxyMode) {
+    await browser.storage.local.set({proxyMode});
+  },
+
+  async getProxyMode() {
+    return await this.getStorageKey("proxyMode") || MODE_ALL;
   },
 
   async setSPService(sps) {
@@ -124,6 +136,7 @@ const ConfigUtils = {
       fxaOpenID: await this.getFxaOpenID(),
       sps: await this.getSPService(),
       proxyURL: await this.getProxyURL(),
+      proxyMode: await this.getProxyMode(),
       debuggingEnabled: await this.getDebuggingEnabled(),
       migrationCompleted: await this.getMigrationCompleted(),
       // eslint-disable-next-line verify-await/check

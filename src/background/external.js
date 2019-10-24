@@ -24,6 +24,8 @@ export class ExternalHandler extends Component {
         return ConfigUtils.setPassesTimeout(message.value);
       case "setProxyURL":
         return ConfigUtils.setProxyURL(message.value);
+      case "setProxyMode":
+        return ConfigUtils.setProxyMode(message.value);
       case "setSPService":
         return ConfigUtils.setSPService(message.value);
       case "setFxaOpenID":
