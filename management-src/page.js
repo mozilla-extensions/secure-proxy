@@ -79,6 +79,15 @@ class Page {
       browser.runtime.sendMessage({ type: "setProxyURL", value: PRODUCTION_PROXY_URL });
     }
 
+    const proxyMode = document.getElementById("proxyMode");
+    proxyMode.value = config.proxyMode || "";
+    proxyMode.onchange = _ => {
+      browser.runtime.sendMessage({ type: "setProxyMode", value: proxyMode.value });
+    }
+    if (config.version < 15) {
+      proxyMode.disabled = true;
+    }
+
     const sps = document.getElementById("sps");
     sps.value = config.sps || "";
     sps.onchange = _ => {

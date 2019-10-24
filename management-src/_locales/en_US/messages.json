@@ -38,6 +38,18 @@
   "productionProxyURL": {
     "message": "Production proxy URL"
   },
+  "pageProxyModeTitle": {
+    "message": "Proxy Mode"
+  },
+  "modeAll": {
+    "message": "Proxy all the requests"
+  },
+  "mode3rdPartyTracker": {
+    "message": "Proxy only 3rd party tracking requests"
+  },
+  "modeTracker": {
+    "message": "Proxy only tracking requests"
+  },
   "pageFxaOpenIDTitle": {
     "message": "FxA OpenID URL"
   },
