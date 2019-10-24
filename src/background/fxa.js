@@ -492,6 +492,8 @@ export class FxAUtils extends Component {
 
   isAuthUrl(url) {
     // Let's skip our authentication flow.
+
+    // eslint-disable-next-line verify-await/check
     if (url.href.startsWith(this.service + "browser/oauth")) {
       return true;
     }

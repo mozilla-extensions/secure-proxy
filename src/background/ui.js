@@ -80,6 +80,7 @@ export class UI extends Component {
     // are at startup time and we don't want to annoy the user with the toast
     // message.
     if (!wasLoading && proxyState === PROXY_STATE_ACTIVE) {
+      // eslint-disable-next-line verify-await/check
       this.afterConnectionSteps();
     }
   }

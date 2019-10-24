@@ -37,6 +37,9 @@ class ViewLogin extends View {
     if (e.target.id === "authButton") {
       // eslint-disable-next-line verify-await/check
       View.sendMessage("authenticate");
+
+      // eslint-disable-next-line verify-await/check
+      View.close();
     }
   }
 }
