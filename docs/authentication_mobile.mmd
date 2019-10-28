@@ -1,5 +1,6 @@
 sequenceDiagram
-participant UA as Browser Addon
+participant AC as MozAC
+participant XPI as Browser Addon
 participant FPN as Fx Priv Network Server
 participant FxA as FxA Content Server
 participant FxAA as FxA Authorization Server
@@ -7,23 +8,25 @@ participant FxAP as FxA Profile Server
 participant CF as Cloudflare
 participant IN as Internet
 
-Note over UA, FxAP: User authentication
-activate UA
-UA->>FPN: Request state data from FPN
+Note over AC, FxAP: User authentication
+activate AC
+AC->>FPN: Request state data from FPN
 activate FPN
 FPN-->>FPN: Create state token, associate with local session
-FPN->>UA: Return state token, scopes, client id and authorization endpoint
+FPN->>AC: Return state token, scopes, client id and authorization endpoint
 deactivate FPN
-UA->>FxA: Open tab to FxA's /authorization page w/ state token
+AC->>FxA: Open tab to FxA's /authorization page w/ state token
 activate FxA
 FxA->>FxAA: User authenticates, authorizes
 activate FxAA
 FxAA-->>FxAA: Generate OAuth code
 FxAA->>FxA: Return OAuth code
 deactivate FxAA
-FxA->>UA: Redirect with OAuth code, state token
+FxA->>AC: Redirect with OAuth code, state token
 deactivate FxA
-UA->>FPN: Send OAuth code and state token to FPN
+AC->>XPI: Send OAuth code and state token to XPI
+activate XPI
+XPI->>FPN: Send OAuth code and state token to FPN
 activate FPN
 FPN-->>FPN: Check state vs state stored in local session. If match, continue
 FPN->>FxAA: Using server held client_secret, trade code, state for access_token, refresh_token
@@ -40,14 +43,18 @@ FPN->>FxAP: Use access_token to fetch profile info
 activate FxAP
 FxAP->>FPN: Return profile info, including subscription info
 deactivate FxAP
-FPN->>UA: Return profile, passes data
+FPN->>XPI: Return profile, passes data
 deactivate FPN
-UA-->>UA: Display profile info
-deactivate UA
+XPI->>AC: Return profile, passes data
+deactivate XPI
+AC-->>AC: Display profile info
+deactivate AC
 
-Note over UA, FxAP: The user activates the proxy
-activate UA
-UA->>FPN: Request a proxy_token from FPN with the state token
+Note over AC, FxAP: Proxy activation
+activate AC
+AC->>XPI: Activation request
+activate XPI
+XPI->>FPN: Request a proxy_token from FPN with the state token
 activate FPN
 FPN-->>FPN: Retrieve the refresh_token from the DB using the state token
 alt if the proxy_token is expired
@@ -70,20 +77,22 @@ activate FxAA
 FxAA->>FPN: Return proxy_token w/ `https://identity.mozilla.com/apps/secure-proxy` scope
 deactivate FxAA
 FPN-->>FPN: Store the current proxy_token in the DB
-FPN->>UA: Return proxy_token, profile info and passes data
+FPN->>XPI: Return proxy_token, profile info and passes data
 deactivate FPN
-UA-->>UA: Display profile info
-deactivate UA
+XPI->>AC: Return proxy state
+deactivate XPI
+AC-->>AC: Display profile info
+deactivate AC
 
-Note over UA, IN: User authentication
-activate UA
-UA->>CF: Send network traffic to secure proxy w/ access_token sent in Proxy-Authorization header
+Note over XPI, IN: Network proxy handling
+activate XPI
+XPI->>CF: Send network traffic to secure proxy w/ access_token sent in Proxy-Authorization header
 activate CF
 CF-->>CF: Verify access token, verification succeeds
 CF->>IN: Forward network traffic
 activate IN
 IN->>CF: Return network responses
 deactivate IN
-CF->>UA: Return network responses
+CF->>XPI: Return network responses
 deactivate CF
-deactivate UA
+deactivate XPI
