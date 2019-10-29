@@ -8,10 +8,10 @@ participant CF as Cloudflare
 participant IN as Internet
 
 activate UA
-UA->>FPN: Request state token from FPN
+UA->>FPN: Request state data from FPN
 activate FPN
 FPN-->>FPN: Create state token, associate with local session
-FPN->>UA: Return state token
+FPN->>UA: Return state token, scopes, client id and authorization endpoint
 deactivate FPN
 UA->>FxA: Open tab to FxA's /authorization page w/ state token
 activate FxA

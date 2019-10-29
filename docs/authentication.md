@@ -35,7 +35,14 @@ Request:
 
 Response:
 * State: 201
-* Body: `{ state: "ok", state_token: <token> }`
+* Body: ```{
+  state: "ok",
+  state_token: <token>,
+  scopes: [<array>],
+  client_id: <fxa clientID>
+  access_type: <access type>
+  authorization_endpoint: <authorization endpoint>
+}```
 * content-type: application/json
 
 ### finalize the authentication request

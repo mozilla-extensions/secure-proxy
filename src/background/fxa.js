@@ -6,13 +6,6 @@ import {Passes} from "./passes.js";
 import {StorageUtils} from "./storageUtils.js";
 import {WellKnownData} from "./wellKnownData.js";
 
-// Token scopes
-const FXA_PROFILE_SCOPE = "profile";
-const FXA_PROXY_SCOPE = "https://identity.mozilla.com/apps/secure-proxy";
-
-// The client ID for this extension
-const FXA_CLIENT_ID = "565585c1745a144d";
-
 // FxA CDNs
 const FXA_CDN_DOMAINS = [
   "firefoxusercontent.com",
@@ -190,7 +183,7 @@ export class FxAUtils extends Component {
     return { state: FXA_OK };
   }
 
-  async obtainStateToken() {
+  async obtainStateData() {
     log("Obtain state token");
 
     const headers = new Headers();
@@ -209,7 +202,13 @@ export class FxAUtils extends Component {
       }
 
       const json = await resp.json();
-      return json.state_token;
+      return {
+        clientID: json.client_id,
+        stateToken: json.state_token,
+        scopes: json.scopes,
+        accessType: json.access_type,
+        authorizationEndpoint: json.authorization_endpoint,
+      };
     } catch (e) {
       return null;
     }
@@ -368,57 +367,73 @@ export class FxAUtils extends Component {
   async authenticateInternal() {
     log("generate state token and the fxa code");
 
-    const stateToken = await this.obtainStateToken();
-    if (!stateToken) {
+    const stateData = await this.obtainStateData();
+    if (!stateData) {
       return { state: FXA_ERR_NETWORK };
     }
 
-    const fxaCode = await this.obtainFxaCode(stateToken);
+    const fxaCode = await this.obtainFxaCode(stateData);
     if (!fxaCode) {
       return { state: FXA_ERR_AUTH };
     }
 
-    const completed = await this.completeAuthentication(stateToken, fxaCode);
+    const completed = await this.completeAuthentication(stateData.stateToken, fxaCode);
     if (this.syncStateError(completed)) {
       return completed;
     }
 
     return {
-      stateToken,
+      stateToken: stateData.stateToken,
       fxaCode,
       ...completed,
     };
   }
 
-  async obtainFxaCode(stateToken) {
-    const contentServer = await this.wellKnownData.getIssuerEndpoint();
-    const fxaKeysUtil = new fxaCryptoRelier.OAuthUtils({contentServer});
-
+  async obtainFxaCode(stateData) {
     // get optional flow params for fxa metrics
     await this.maybeFetchFxaFlowParams();
 
-    let fxaCode;
+    /* eslint-disable verify-await/check */
+    const endpoint = new URL(stateData.authorizationEndpoint);
+    endpoint.searchParams.append("access_type", stateData.accessType);
+    endpoint.searchParams.append("client_id", stateData.clientID);
+    endpoint.searchParams.append("state", stateData.stateToken);
+    endpoint.searchParams.append("scope", stateData.scopes.join(" "));
+    endpoint.searchParams.append("redirect_uri", browser.identity.getRedirectURL());
+    endpoint.searchParams.append("response_type", "code");
+    endpoint.searchParams.append("action", "email");
+
+    // Spread in FxA flow metrics if we have them
+    if (this.fxaFlowParams && this.fxaFlowParams.deviceId) {
+      endpoint.searchParams.append("device_id", this.fxaFlowParams.deviceId);
+      endpoint.searchParams.append("flow_id", this.fxaFlowParams.flowId);
+      endpoint.searchParams.append("flow_begin_time", this.fxaFlowParams.flowBeginTime);
+    }
+    /* eslint-enable verify-await/check */
+
     try {
-      let data = await fxaKeysUtil.launchWebExtensionCodeFlow(FXA_CLIENT_ID, stateToken, {
-        // eslint-disable-next-line verify-await/check
-        redirectUri: browser.identity.getRedirectURL(),
-        scopes: [FXA_PROFILE_SCOPE, FXA_PROXY_SCOPE],
-        // Spread in FxA flow metrics if we have them
-        ...this.fxaFlowParams,
-        // We have our well-known-data cache, let's use it.
-        ensureOpenIDConfiguration: _ => this.wellKnownData.openID(),
+      const redirectURL = await browser.identity.launchWebAuthFlow({
+        interactive: true,
+        url: endpoint.href,
       });
 
-      if (data.state !== stateToken) {
+      const url = new URL(redirectURL);
+      const data = {
+        // eslint-disable-next-line verify-await/check
+        state: url.searchParams.get("state"),
+        // eslint-disable-next-line verify-await/check
+        code: url.searchParams.get("code"),
+      };
+
+      if (data.state !== stateData.stateToken) {
         throw new Error("Invalid state code received!");
       }
 
-      fxaCode = data.code;
+      return data.code;
     } catch (e) {
       console.error("Failed to fetch the refresh token", e);
+      return null;
     }
-
-    return fxaCode;
   }
 
   async completeAuthentication(stateToken, fxaCode) {

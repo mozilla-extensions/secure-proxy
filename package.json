@@ -7,7 +7,6 @@
     "doc": "docs"
   },
   "scripts": {
-    "build": "cp node_modules/fxa-crypto-relier/dist/fxa-crypto-relier/fxa-crypto-relier.js src/vendor/",
     "lint": "eslint src",
     "md": "npm run md:lint && npm run md:spell",
     "md:lint": "npx markdownlint-cli '*.md' 'docs/*.md'",
@@ -26,9 +25,6 @@
     "url": "https://github.com/mozilla/secure-proxy/issues"
   },
   "homepage": "https://github.com/mozilla/secure-proxy#readme",
-  "dependencies": {
-    "fxa-crypto-relier": "github:mozilla/fxa-crypto-relier#confidential-client-flow"
-  },
   "devDependencies": {
     "babel-eslint": "^10.0.3",
     "eslint": "^6.5.1",
