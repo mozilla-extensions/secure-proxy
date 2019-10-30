@@ -8,11 +8,11 @@
     "gecko": {
       "id": "secure-proxy@mozilla.com",
       "strict_min_version": "68.0.1",
-      "update_url": "https://fpn.firefox.com/downloads/browser/updates.json"
+      "update_url": "https://private-network.firefox.com/files/updates.json"
     }
   },
 
-  "homepage_url": "https://fpn.firefox.com/browser",
+  "homepage_url": "https://private-network.firefox.com",
 
   "description": "__MSG_extensionDescription__",
   "browser_action": {
@@ -61,7 +61,7 @@
 
   "content_scripts": [
     {
-      "matches": ["https://fpn.firefox.com/*"],
+      "matches": ["https://private-network.firefox.com/*"],
       "js": ["content/fetch-fxa-flow-params.js"]
     }
   ]
