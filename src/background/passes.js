@@ -115,7 +115,7 @@ export class Passes extends Component {
     }
 
     // eslint-disable-next-line verify-await/check
-    if (parseInt(details.previousVersion) > 11) {
+    if (parseInt(details.previousVersion) >= 15) {
       return;
     }
 
