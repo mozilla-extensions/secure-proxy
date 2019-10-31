@@ -395,8 +395,14 @@ export class Network extends Component {
       }
     });
 
-    // eslint-disable-next-line verify-await/check
-    browser.experiments.proxyutils.FTPEnabled.set({value: false});
+    if (browser.browserSettings.ftpProtocolEnabled) {
+      // eslint-disable-next-line verify-await/check
+      browser.browserSettings.ftpProtocolEnabled.set({value: false});
+    } else {
+      // eslint-disable-next-line verify-await/check
+      browser.experiments.proxyutils.FTPEnabled.set({value: false});
+    }
+
     // eslint-disable-next-line verify-await/check
     browser.experiments.proxyutils.HTTPProxyRespectBeConservative.set({value: false});
     // eslint-disable-next-line verify-await/check
