@@ -74,7 +74,7 @@ export class Network extends Component {
     }, {urls: ["<all_urls>"]});
   }
 
-  async init(prefs) {
+  async init() {
     const proxyURL = await ConfigUtils.getProxyURL();
     this.proxyType = proxyURL.protocol === "https:" ? "https" : "http";
     this.proxyPort = proxyURL.port || (proxyURL.protocol === "https:" ? 443 : 80);
@@ -82,9 +82,17 @@ export class Network extends Component {
 
     this.proxyMode = await ConfigUtils.getProxyMode();
 
+    let captivePortalUrl;
+    if (browser.captivePortal.canonicalURL) {
+      captivePortalUrl = await browser.captivePortal.canonicalURL.get({});
+    } else {
+      const prefs = await browser.experiments.proxyutils.settings.get({});
+      captivePortalUrl = prefs.value.captiveDetect;
+    }
+
     try {
-      const capitivePortalUrl = new URL(prefs.value.captiveDetect);
-      this.captivePortalOrigin = capitivePortalUrl.origin;
+      const url = new URL(captivePortalUrl);
+      this.captivePortalOrigin = url.origin;
     } catch (e) {
       // ignore
     }

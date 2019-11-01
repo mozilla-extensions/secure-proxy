@@ -49,12 +49,11 @@ class Main {
   }
 
   async init() {
-    const prefs = await browser.experiments.proxyutils.settings.get({});
     log("init");
 
     // Let's initialize the observers.
     for (let observer of this.observers) {
-      await observer.init(prefs);
+      await observer.init();
     }
 
     // All good. Let's start.
