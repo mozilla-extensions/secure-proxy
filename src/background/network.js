@@ -2,7 +2,8 @@ import {Component} from "./component.js";
 import {Passes} from "./passes.js";
 
 // Parameters for DNS over HTTP
-const DOH_MODE = 3;
+const DNS_MODE = "trr-only";
+const DNS_MODE_INT = 3;
 const DOH_BOOTSTRAP_ADDRESS = "1.1.1.1";
 const DOH_SKIP_CONFIRMATION_NS = "skip";
 const DOH_REQUEST_TIMEOUT = 30000; // 30 secs
@@ -391,17 +392,30 @@ export class Network extends Component {
     // eslint-disable-next-line verify-await/check
     excludedDomains.push(this.proxyHost);
 
-    // eslint-disable-next-line verify-await/check
-    browser.experiments.proxyutils.DNSoverHTTP.set({
-      value: {
-        mode: DOH_MODE,
-        bootstrapAddress: DOH_BOOTSTRAP_ADDRESS,
-        // eslint-disable-next-line verify-await/check
-        excludedDomains: excludedDomains.join(","),
-        confirmationNS: DOH_SKIP_CONFIRMATION_NS,
-        requestTimeout: DOH_REQUEST_TIMEOUT,
-      }
-    });
+    if (browser.dns.DNSoverHTTPS) {
+      // eslint-disable-next-line verify-await/check
+      browser.dns.DNSoverHTTPS.set({
+        value: {
+          mode: DNS_MODE,
+          bootstrapAddress: DOH_BOOTSTRAP_ADDRESS,
+          excludedDomains,
+          confirmationNS: DOH_SKIP_CONFIRMATION_NS,
+          requestTimeout: DOH_REQUEST_TIMEOUT,
+        }
+      });
+    } else {
+      // eslint-disable-next-line verify-await/check
+      browser.experiments.proxyutils.DNSoverHTTP.set({
+        value: {
+          mode: DNS_MODE_INT,
+          bootstrapAddress: DOH_BOOTSTRAP_ADDRESS,
+          // eslint-disable-next-line verify-await/check
+          excludedDomains: excludedDomains.join(","),
+          confirmationNS: DOH_SKIP_CONFIRMATION_NS,
+          requestTimeout: DOH_REQUEST_TIMEOUT,
+        }
+      });
+    }
 
     if (browser.browserSettings.ftpProtocolEnabled) {
       // eslint-disable-next-line verify-await/check
@@ -418,8 +432,14 @@ export class Network extends Component {
   }
 
   inactiveSteps() {
-    // eslint-disable-next-line verify-await/check
-    browser.experiments.proxyutils.DNSoverHTTP.clear({});
+    if (browser.dns.DNSoverHTTPS) {
+      // eslint-disable-next-line verify-await/check
+      browser.dns.DNSoverHTTPS.clear({});
+    } else {
+      // eslint-disable-next-line verify-await/check
+      browser.experiments.proxyutils.DNSoverHTTP.clear({});
+    }
+
     // eslint-disable-next-line verify-await/check
     browser.experiments.proxyutils.FTPEnabled.clear({});
     // eslint-disable-next-line verify-await/check

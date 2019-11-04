@@ -33,6 +33,7 @@
       "<all_urls>",
       "browserSettings",
       "captivePortal",
+      "dns",
       "identity",
       "idle",
       "proxy",
