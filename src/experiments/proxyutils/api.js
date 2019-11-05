@@ -193,19 +193,23 @@ ExtensionPreferencesManager.addSetting("security.tls.version.max", {
 ExtensionPreferencesManager.addSetting("secureProxy.DNSoverHTTP", {
   prefNames: [
     "network.trr.mode",
+    "network.trr.uri",
     "network.trr.bootstrapAddress",
     "network.trr.excluded-domains",
     "network.trr.confirmationNS",
-    "network.trr.request-timeout",
+    "network_trr_request_timeout_ms",
+    "network.trr.request_timeout_mode_trronly_ms",
   ],
 
   setCallback(value) {
     return {
       "network.trr.mode": value.mode,
+      "network.trr.uri": value.uri,
       "network.trr.bootstrapAddress": value.bootstrapAddress,
       "network.trr.excluded-domains": value.excludedDomains,
       "network.trr.confirmationNS": value.confirmationNS,
-      "network.trr.request-timeout": value.requestTimeout,
+      "network_trr_request_timeout_ms": value.requestTimeout,
+      "network.trr.request_timeout_mode_trronly_ms": value.requestTimeout,
     };
   },
 });
@@ -315,10 +319,15 @@ this.proxyutils = class extends ExtensionAPI {
               () => {
                 return {
                   mode: Services.prefs.getIntPref("network.trr.mode"),
+                  uri: Services.prefs.getIntPref("network.trr.uri"),
                   bootstrapAddress: Services.prefs.getCharPref("network.trr.bootstrapAddress"),
                   excludedDomains: Services.prefs.getCharPref("network.trr.excluded-domains"),
                   confirmationNS: Services.prefs.getCharPref("network.trr.confirmationNS"),
-                  requestTimeout: Services.prefs.getIntPref("network.trr.request-timeout"),
+                  // There are 2 prefs here to control the request timeout.
+                  // Returning one or the other doesn't matter because
+                  // DNSoverHTTP getter is not actually used.
+                  requestTimeout: Services.prefs.getIntPref("network_trr_request_timeout_ms") ||
+                                  Services.prefs.getIntPref("network_trr_request_timeout_mode_trronly_ms"),
                 };
               },
               undefined,
@@ -373,6 +382,7 @@ this.proxyutils = class extends ExtensionAPI {
                   "secureProxy.DNSoverHTTP",
                   {
                     mode: details.value.mode,
+                    uri: details.value.uri,
                     bootstrapAddress,
                     excludedDomains,
                     confirmationNS: details.value.confirmationNS,
