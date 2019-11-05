@@ -14,12 +14,12 @@ async function init() {
 
   // A new telemetry event for this panel.
   // eslint-disable-next-line verify-await/check
-  View.sendMessage("telemetry", { category: "general", event: "panelShown"});
+  View.sendMessage("telemetryEvent", { category: "general", event: "panelShown"});
 
   let timeoutId = setTimeout(async _ => {
     await View.setView("error", "loadingError");
     // eslint-disable-next-line verify-await/check
-    View.sendMessage("telemetry", { category: "general", event: "loadingError"});
+    View.sendMessage("telemetryEvent", { category: "general", event: "loadingError"});
   }, loadingTimeout);
 
   let lastMessage;
@@ -29,7 +29,7 @@ async function init() {
     if (lastMessage && lastMessage.userInfo) {
       await View.setView("settings", lastMessage);
       // eslint-disable-next-line verify-await/check
-      View.sendMessage("telemetry", { category: "general", event: "settingsShown"});
+      View.sendMessage("telemetryEvent", { category: "general", event: "settingsShown"});
     }
   });
 

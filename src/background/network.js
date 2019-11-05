@@ -33,6 +33,9 @@ export class Network extends Component {
     // By default, let's proxy all.
     this.proxyMode = MODE_ALL;
 
+    // Current bandwidth consumed.
+    this.bandwidthConsumed = 0;
+
     // Handle header errors before we render the response
     browser.webRequest.onHeadersReceived.addListener(async details => {
       // eslint-disable-next-line verify-await/check
@@ -71,6 +74,10 @@ export class Network extends Component {
 
     browser.webRequest.onErrorOccurred.addListener(async details => {
       await this.processNetworkError(details.url, details.error);
+    }, {urls: ["<all_urls>"]});
+
+    browser.webRequest.onCompleted.addListener(async details => {
+      await this.maybeSendTelemetryBandwidthMessage(details);
     }, {urls: ["<all_urls>"]});
   }
 
@@ -439,13 +446,13 @@ export class Network extends Component {
   async processNetworkErrorInternal(errorStatus) {
     if (errorStatus === "NS_ERROR_PROXY_AUTHENTICATION_FAILED") {
       await this.sendMessage("proxyAuthenticationFailed");
-      this.syncSendMessage("telemetry", { category: "networking", event: "407" });
+      this.syncSendMessage("telemetryEvent", { category: "networking", event: "407" });
       return true;
     }
 
     if (errorStatus === "NS_ERROR_TOO_MANY_REQUESTS") {
       await this.sendMessage("proxyTooManyRequests");
-      this.syncSendMessage("telemetry", { category: "networking", event: "429" });
+      this.syncSendMessage("telemetryEvent", { category: "networking", event: "429" });
       return true;
     }
 
@@ -472,5 +479,32 @@ export class Network extends Component {
       // eslint-disable-next-line verify-await/check
       this.proxyPassthrough.add(host.trim());
     });
+  }
+
+  async maybeSendTelemetryBandwidthMessage(details) {
+    if (!this.syncShouldProxyInCurrentState()) {
+      return;
+    }
+
+    if (!details.requestSize && !details.responseSize) {
+      return;
+    }
+
+    this.bandwidthConsumed += details.requestSize;
+    this.bandwidthConsumed += details.responseSize;
+
+    log(`Bandwidth: ${this.bandwidthConsumed}`);
+
+    // Telemetry scalar values are uint32_t, the max value is
+    // 2^32 (~4gb). Because tt's not too hard to reach 4gb of network requests,
+    // we store the bandwith consumed in k-bytes.
+    if (this.bandwidthConsumed >= 1024) {
+      const b = this.bandwidthConsumed % 1024;
+      const kb = (this.bandwidthConsumed - b) / 1024;
+      this.bandwidthConsumed = b;
+      log(`Bandwidth left: ${this.bandwidthConsumed}`);
+
+      this.syncSendMessage("telemetryScalar", { key: "bandwidth", value: kb });
+    }
   }
 }

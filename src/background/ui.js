@@ -109,7 +109,7 @@ export class UI extends Component {
 
   syncExemptTab(tabId, status) {
     // We don't care about the return value here.
-    this.syncSendMessage("telemetry", { category: "webRTC", event: status });
+    this.syncSendMessage("telemetryEvent", { category: "webRTC", event: status });
 
     log(`exemptTab ${tabId} ${status}`);
     this.syncSetExemptTabStatus(tabId, status);
@@ -229,32 +229,32 @@ export class UI extends Component {
 
         case "manageAccount":
           await this.openUrl(await this.sendMessage("managerAccountURL"));
-          this.syncSendMessage("telemetry", { category: "settings_url_clicks", event: message.type });
+          this.syncSendMessage("telemetryEvent", { category: "settings_url_clicks", event: message.type });
           break;
 
         case "helpAndSupport":
           await this.formatAndOpenURL(HELP_AND_SUPPORT_URL);
-          this.syncSendMessage("telemetry", { category: "settings_url_clicks", event: message.type });
+          this.syncSendMessage("telemetryEvent", { category: "settings_url_clicks", event: message.type });
           break;
 
         case "cloudflare":
           await this.formatAndOpenURL(CLOUDFLARE_URL);
-          this.syncSendMessage("telemetry", { category: "settings_url_clicks", event: message.type });
+          this.syncSendMessage("telemetryEvent", { category: "settings_url_clicks", event: message.type });
           break;
 
         case "privacyPolicy":
           await this.openUrl(PRIVACY_POLICY_URL);
-          this.syncSendMessage("telemetry", { category: "settings_url_clicks", event: message.type });
+          this.syncSendMessage("telemetryEvent", { category: "settings_url_clicks", event: message.type });
           break;
 
         case "termsAndConditions":
           await this.openUrl(TERMS_AND_CONDITIONS_URL);
-          this.syncSendMessage("telemetry", { category: "settings_url_clicks", event: message.type });
+          this.syncSendMessage("telemetryEvent", { category: "settings_url_clicks", event: message.type });
           break;
 
         case "giveUsFeedback":
           await this.openUrl(GIVE_US_FEEDBACK_URL);
-          this.syncSendMessage("telemetry", { category: "settings_url_clicks", event: message.type });
+          this.syncSendMessage("telemetryEvent", { category: "settings_url_clicks", event: message.type });
           break;
 
         case "betaUpgrade":
@@ -265,8 +265,8 @@ export class UI extends Component {
           await this.openUrl(BETA_HOW_PASSES_WORK_URL);
           break;
 
-        case "telemetry":
-          this.syncSendMessage("telemetry", message.data);
+        case "telemetryEvent":
+          this.syncSendMessage("telemetryEvent", message.data);
           break;
       }
     });
