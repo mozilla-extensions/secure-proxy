@@ -412,6 +412,8 @@ export class Network extends Component {
     }
 
     // eslint-disable-next-line verify-await/check
+    browser.proxy.settings.set({value: {respectBeConservative: false}});
+    // eslint-disable-next-line verify-await/check
     browser.experiments.proxyutils.HTTPProxyRespectBeConservative.set({value: false});
     // eslint-disable-next-line verify-await/check
     browser.experiments.proxyutils.TLSVersionMax.set({value: 4});
@@ -422,6 +424,8 @@ export class Network extends Component {
     browser.experiments.proxyutils.DNSoverHTTP.clear({});
     // eslint-disable-next-line verify-await/check
     browser.experiments.proxyutils.FTPEnabled.clear({});
+    // eslint-disable-next-line verify-await/check
+    browser.proxy.settings.clear({});
     // eslint-disable-next-line verify-await/check
     browser.experiments.proxyutils.HTTPProxyRespectBeConservative.clear({});
     // eslint-disable-next-line verify-await/check
