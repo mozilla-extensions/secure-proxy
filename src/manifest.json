@@ -31,9 +31,12 @@
 
   "permissions": [
       "<all_urls>",
+      "geckoViewAddons",
+      "nativeMessaging",
       "captivePortal",
       "identity",
       "idle",
+      "notifications",
       "proxy",
       "storage",
       "tabs",

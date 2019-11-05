@@ -1,4 +1,5 @@
 import {Component} from "./component.js";
+import {constants} from "./constants.js";
 import {Passes} from "./passes.js";
 import {StorageUtils} from "./storageUtils.js";
 
@@ -12,6 +13,8 @@ const TERMS_AND_CONDITIONS_URL = "https://www.mozilla.org/about/legal/terms/fire
 const GIVE_US_FEEDBACK_URL = "https://qsurvey.mozilla.com/s3/fx-private-network-beta-feedback";
 const BETA_UPGRADE_URL = "https://fpn.firefox.com/vpn";
 const BETA_HOW_PASSES_WORK_URL = "https://fpn.firefox.com/browser";
+
+const ANDROID_NOTIFICATION = "secure-proxy-notification";
 
 export class UI extends Component {
   constructor(receiver) {
@@ -408,14 +411,15 @@ export class UI extends Component {
       text = "badgeWarningText";
     }
 
-    return Promise.all([
-      browser.browserAction.setIcon({
-        path: icon,
-      }),
-      browser.browserAction.setTitle({
-        title: this.getTranslation(text),
-      }),
-    ]);
+    await browser.browserAction.setTitle({
+      title: this.getTranslation(text),
+    });
+
+    if (!constants.isAndroid) {
+      await browser.browserAction.setIcon({
+        path: Icon,
+      });
+    }
   }
 
   async sendDataToCurrentPort() {

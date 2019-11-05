@@ -14,10 +14,12 @@ export class Connectivity extends Component {
       return this.sendMessage("connectivityChanged", { connectivity });
     });
 
-    // captive portal observer.
-    browser.captivePortal.onStateChanged.addListener(data => {
-      return this.sendMessage("captivePortalStateChanged", data);
-    });
+    if (browser.captiveportal) {
+      // captive portal observer.
+      browser.captivePortal.onStateChanged.addListener(data => {
+        return this.sendMessage("captivePortalStateChanged", data);
+      });
+    }
   }
 
   async init() {
@@ -29,7 +31,11 @@ export class Connectivity extends Component {
   }
 
   async inCaptivePortal() {
-    let state = await browser.captivePortal.getState();
-    return state === "locked_portal";
+    if (browser.captiveportal) {
+      let state = await browser.captivePortal.getState();
+      return state === "locked_portal";
+    }
+
+    return false;
   }
 }
