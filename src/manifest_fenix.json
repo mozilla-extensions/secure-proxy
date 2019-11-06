@@ -1,0 +1,61 @@
+{
+  "manifest_version": 2,
+  "name": "__MSG_extensionName__",
+  "default_locale": "en_US",
+  "version": "15",
+  "author": "Firefox",
+  "applications": {
+    "gecko": {
+      "id": "secure-proxy@mozilla.com",
+      "strict_min_version": "68.0.1",
+      "update_url": "https://private-network.firefox.com/files/updates.json"
+    }
+  },
+
+  "homepage_url": "https://private-network.firefox.com",
+
+  "description": "__MSG_extensionDescription__",
+
+  "icons": {
+    "48": "img/icon.svg",
+    "96": "img/icon.svg"
+  },
+
+  "incognito": "spanning",
+
+  "permissions": [
+      "<all_urls>",
+      "geckoViewAddons",
+      "nativeMessaging",
+      "idle",
+      "proxy",
+      "storage",
+      "tabs",
+      "webRequest",
+      "webRequestBlocking"
+  ],
+
+  "experiment_apis": {
+    "proxyutils": {
+      "schema": "experiments/proxyutils/schema.json",
+      "parent": {
+        "scopes": ["addon_parent"],
+        "script": "experiments/proxyutils/api.js",
+        "paths": [["experiments", "proxyutils"]]
+      }
+    }
+  },
+
+  "web_accessible_resources": ["fonts/*.woff2", "content/content-modal.css"],
+
+  "background": {
+    "page": "background/page.html"
+  },
+
+  "content_scripts": [
+    {
+      "matches": ["https://private-network.firefox.com/*"],
+      "js": ["content/fetch-fxa-flow-params.js"]
+    }
+  ]
+}

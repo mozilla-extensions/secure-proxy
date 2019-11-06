@@ -1,7 +1,9 @@
 import {ConnectionTester} from "./connection.js";
 import {Connectivity} from "./connectivity.js";
+import {constants} from "./constants.js";
 import {ExternalHandler} from "./external.js";
 import {FxAUtils} from "./fxa.js";
+import {MobileEvents} from "./mobileEvents.js";
 import {Network} from "./network.js";
 import {OfflineManager} from "./offline.js";
 import {Passes} from "./passes.js";
@@ -38,8 +40,9 @@ class Main {
     this.connectivity = new Connectivity(this);
     this.externalHandler = new ExternalHandler(this);
     this.fxa = new FxAUtils(this);
-    this.offlineManager = new OfflineManager(this);
+    this.mobileEvents = new MobileEvents(this);
     this.net = new Network(this);
+    this.offlineManager = new OfflineManager(this);
     this.passes = new Passes(this);
     this.proxyDownChecker = new ProxyDownChecker(this);
     this.proxyStateObserver = new ProxyStateObserver(this);
@@ -50,6 +53,8 @@ class Main {
 
   async init() {
     log("init");
+
+    await constants.init();
 
     // Let's initialize the observers.
     for (let observer of this.observers) {
@@ -347,6 +352,10 @@ class Main {
   }
 
   async hasProxyInUse() {
+    if (constants.isAndroid) {
+      return false;
+    }
+
     let proxySettings = await browser.proxy.settings.get({});
     return ["manual", "autoConfig", "autoDetect"].includes(proxySettings.value.proxyType);
   }
@@ -554,6 +563,9 @@ class Main {
 
       case "proxySettingsChanged":
         return this.proxySettingsChanged();
+
+      case "sendCode":
+        return this.fxa.receiveCode(data);
 
       case "tokenGenerated":
         return this.maybeActivate("tokenGenerated");

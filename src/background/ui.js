@@ -1,4 +1,5 @@
 import {Component} from "./component.js";
+import {constants} from "./constants.js";
 import {Passes} from "./passes.js";
 import {StorageUtils} from "./storageUtils.js";
 
@@ -79,7 +80,7 @@ export class UI extends Component {
     // No after steps if we jump from "loading" to "active". In this case we
     // are at startup time and we don't want to annoy the user with the toast
     // message.
-    if (!wasLoading && proxyState === PROXY_STATE_ACTIVE) {
+    if (!constants.isAndroid && !wasLoading && proxyState === PROXY_STATE_ACTIVE) {
       // eslint-disable-next-line verify-await/check
       this.afterConnectionSteps();
     }
@@ -133,6 +134,11 @@ export class UI extends Component {
   // Used to set or remove tab exemption icons
   async setTabIcon(tabId) {
     log(`updating tab icon: ${tabId}`);
+
+    if (constants.isAndroid) {
+      return;
+    }
+
     // default value here is undefined which resets the icon back when it becomes non exempt again
     let path;
     // default title resets the tab title
@@ -142,7 +148,7 @@ export class UI extends Component {
       path = "/img/badge_warning.svg";
     }
 
-    return Promise.all([
+    await Promise.all([
       browser.browserAction.setIcon({
         path,
         tabId
@@ -392,6 +398,10 @@ export class UI extends Component {
 
   // This updates any tab that doesn't have an exemption
   async updateIcon() {
+    if (constants.isAndroid) {
+      return;
+    }
+
     let icon;
     let text;
     if (this.cachedProxyState === PROXY_STATE_INACTIVE ||
@@ -408,7 +418,7 @@ export class UI extends Component {
       text = "badgeWarningText";
     }
 
-    return Promise.all([
+    await Promise.all([
       browser.browserAction.setIcon({
         path: icon,
       }),

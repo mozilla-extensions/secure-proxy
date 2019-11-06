@@ -1,4 +1,5 @@
 import {Component} from "./component.js";
+import {constants} from "./constants.js";
 import {Passes} from "./passes.js";
 
 // Parameters for DNS over HTTP
@@ -123,7 +124,7 @@ export class Network extends Component {
 
     if (this.syncShouldProxyInCurrentState()) {
       this.syncActivateProxyRequestCallback();
-    } else {
+    } else if (!constants.isAndroid) {
       this.syncDeactivateProxyRequestCallback();
     }
   }
@@ -477,14 +478,17 @@ export class Network extends Component {
 
   async checkProxyPassthrough() {
     log("Check proxy passthrough");
-    const proxySettings = await browser.proxy.settings.get({});
 
-    // eslint-disable-next-line verify-await/check
-    this.proxyPassthrough.clear();
-    // eslint-disable-next-line verify-await/check
-    proxySettings.value.passthrough.split(",").forEach(host => {
+    if (!constants.isAndroid) {
+      const proxySettings = await browser.proxy.settings.get({});
+
       // eslint-disable-next-line verify-await/check
-      this.proxyPassthrough.add(host.trim());
-    });
+      this.proxyPassthrough.clear();
+      // eslint-disable-next-line verify-await/check
+      proxySettings.value.passthrough.split(",").forEach(host => {
+        // eslint-disable-next-line verify-await/check
+        this.proxyPassthrough.add(host.trim());
+      });
+    }
   }
 }
