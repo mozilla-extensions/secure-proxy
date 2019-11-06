@@ -8,7 +8,7 @@ export class Component {
   }
 
   // To overwrite, if needed.
-  init(prefs) {}
+  init() {}
 
   // Returns an async response from the main
   sendMessage(type, data = null) {

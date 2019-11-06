@@ -12,8 +12,13 @@ export class ProxyDownChecker extends Component {
     this.checking = false;
   }
 
-  init(prefs) {
-    this.captivePortalUrl = prefs.value.captiveDetect;
+  async init() {
+    if (browser.captivePortal.canonicalURL) {
+      this.captivePortalUrl = await browser.captivePortal.canonicalURL.get({});
+    } else {
+      const prefs = await browser.experiments.proxyutils.settings.get({});
+      this.captivePortalUrl = prefs.value.captiveDetect;
+    }
   }
 
   syncRun() {

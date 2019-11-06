@@ -39,7 +39,7 @@ export class FxAUtils extends Component {
     };
   }
 
-  async init(prefs) {
+  async init() {
     this.service = await ConfigUtils.getSPService();
     this.proxyURL = await ConfigUtils.getProxyURL();
 
