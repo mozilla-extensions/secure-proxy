@@ -596,4 +596,28 @@ export class FxAUtils extends Component {
 
     await this.updatePasses(data);
   }
+
+  async receiveCode(object) {
+    const data = await this.completeAuthentication(object.statusCode, object.authCode);
+    if (this.syncStateError(data)) {
+      return data;
+    }
+
+    await StorageUtils.setStateTokenAndProfileData(object.statusCode, data.profileData);
+    await this.updatePasses(data);
+
+    // Let's obtain the token immediately only if the migration is not
+    // completed or the user is subscribed.
+    if (!Passes.syncGet().syncIsMigrationCompleted() ||
+        Passes.syncGet().syncAreUnlimited()) {
+      // Let's obtain the proxy token data. This method will dispatch a
+      // "tokenGenerated" event.
+      const result = await this.maybeObtainToken();
+      if (this.syncStateError(result)) {
+        return { state: FXA_ERR_AUTH };
+      }
+    }
+
+    return { state: FXA_OK };
+  }
 }
