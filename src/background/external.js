@@ -18,8 +18,10 @@ export class ExternalHandler extends Component {
         return ConfigUtils.getCurrentConfig();
       case "setDebuggingEnabled":
         return ConfigUtils.setDebuggingEnabled(message.value);
-      case "setMigrationCompleted":
-        return ConfigUtils.setMigrationCompleted(message.value);
+      case "setReminder":
+        return ConfigUtils.setReminder(message.value);
+      case "setAutoRenew":
+        return ConfigUtils.setAutoRenew(message.value);
       case "setPassesTimeout":
         return ConfigUtils.setPassesTimeout(message.value);
       case "setProxyURL":

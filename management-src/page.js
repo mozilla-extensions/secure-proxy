@@ -32,16 +32,18 @@ class Page {
 
     const reloadButton = document.getElementById("reload");
     reloadButton.onclick = _ => {
+      // eslint-disable-next-line verify-await/check
       browser.runtime.sendMessage({ type: "reload" });
-    }
+    };
     if (config.version < 10) {
       reloadButton.disabled = true;
     }
 
     const clearButton = document.getElementById("clear");
     clearButton.onclick = _ => {
+      // eslint-disable-next-line verify-await/check
       browser.runtime.sendMessage({ type: "clear" });
-    }
+    };
     if (config.version < 12) {
       clearButton.disabled = true;
     }
@@ -49,20 +51,36 @@ class Page {
     const debuggingEnabled = document.getElementById("debuggingEnabled");
     debuggingEnabled.checked = config.debuggingEnabled || false;
     debuggingEnabled.onchange = _ => {
+      // eslint-disable-next-line verify-await/check
       browser.runtime.sendMessage({ type: "setDebuggingEnabled", value: debuggingEnabled.checked });
+    };
+
+    const reminderEnabled = document.getElementById("reminderEnabled");
+    reminderEnabled.checked = config.reminder;
+    reminderEnabled.onchange = _ => {
+      // eslint-disable-next-line verify-await/check
+      browser.runtime.sendMessage({ type: "setReminder", value: reminderEnabled.checked });
+    };
+    if (config.version < 16) {
+      reminderEnabled.disabled = true;
     }
 
-    const migrationCompleted = document.getElementById("migrationCompleted");
-    migrationCompleted.checked = config.migrationCompleted || false;
-    migrationCompleted.onchange = _ => {
-      browser.runtime.sendMessage({ type: "setMigrationCompleted", value: migrationCompleted.checked });
+    const autorenewEnabled = document.getElementById("autorenewEnabled");
+    autorenewEnabled.checked = config.autorenew;
+    autorenewEnabled.onchange = _ => {
+      // eslint-disable-next-line verify-await/check
+      browser.runtime.sendMessage({ type: "setAutoRenew", value: autorenewEnabled.checked });
+    };
+    if (config.version < 16) {
+      autorenewEnabled.disabled = true;
     }
 
     const proxyURL = document.getElementById("proxyURL");
     proxyURL.value = config.proxyURL || "";
     proxyURL.onchange = _ => {
+      // eslint-disable-next-line verify-await/check
       browser.runtime.sendMessage({ type: "setProxyURL", value: proxyURL.value });
-    }
+    };
     if (config.version < 10) {
       proxyURL.disabled = true;
     }
@@ -70,20 +88,23 @@ class Page {
     const debuggingProxyURL = document.getElementById("debuggingProxyURL");
     debuggingProxyURL.onclick = _ => {
       proxyURL.value = DEBUGGING_PROXY_URL;
+      // eslint-disable-next-line verify-await/check
       browser.runtime.sendMessage({ type: "setProxyURL", value: DEBUGGING_PROXY_URL });
-    }
+    };
 
     const productionProxyURL = document.getElementById("productionProxyURL");
     productionProxyURL.onclick = _ => {
       proxyURL.value = PRODUCTION_PROXY_URL;
+      // eslint-disable-next-line verify-await/check
       browser.runtime.sendMessage({ type: "setProxyURL", value: PRODUCTION_PROXY_URL });
-    }
+    };
 
     const proxyMode = document.getElementById("proxyMode");
     proxyMode.value = config.proxyMode || "";
     proxyMode.onchange = _ => {
+      // eslint-disable-next-line verify-await/check
       browser.runtime.sendMessage({ type: "setProxyMode", value: proxyMode.value });
-    }
+    };
     if (config.version < 15) {
       proxyMode.disabled = true;
     }
@@ -91,8 +112,9 @@ class Page {
     const sps = document.getElementById("sps");
     sps.value = config.sps || "";
     sps.onchange = _ => {
+      // eslint-disable-next-line verify-await/check
       browser.runtime.sendMessage({ type: "setSPService", value: sps.value });
-    }
+    };
     if (config.version < 10) {
       sps.disabled = true;
     }
@@ -100,20 +122,23 @@ class Page {
     const debuggingSPService = document.getElementById("debuggingSPService");
     debuggingSPService.onclick = _ => {
       sps.value = DEBUGGING_SPS;
+      // eslint-disable-next-line verify-await/check
       browser.runtime.sendMessage({ type: "setSPService", value: DEBUGGING_SPS });
-    }
+    };
 
     const productionSPService = document.getElementById("productionSPService");
     productionSPService.onclick = _ => {
       sps.value = PRODUCTION_SPS;
+      // eslint-disable-next-line verify-await/check
       browser.runtime.sendMessage({ type: "setSPService", value: PRODUCTION_SPS });
-    }
+    };
 
     const fxaOpenID = document.getElementById("fxaOpenID");
     fxaOpenID.value = config.fxaOpenID || "";
     fxaOpenID.onchange = _ => {
+      // eslint-disable-next-line verify-await/check
       browser.runtime.sendMessage({ type: "setFxaOpenID", value: fxaOpenID.value });
-    }
+    };
     if (config.version < 10) {
       fxaOpenID.disabled = true;
     }
@@ -121,14 +146,16 @@ class Page {
     const debuggingFxaOpenID = document.getElementById("debuggingFxaOpenID");
     debuggingFxaOpenID.onclick = _ => {
       fxaOpenID.value = DEBUGGING_FXA_OPENID;
+      // eslint-disable-next-line verify-await/check
       browser.runtime.sendMessage({ type: "setFxaOpenID", value: DEBUGGING_FXA_OPENID });
-    }
+    };
 
     const productionFxaOpenID = document.getElementById("productionFxaOpenID");
     productionFxaOpenID.onclick = _ => {
       fxaOpenID.value = PRODUCTION_FXA_OPENID;
+      // eslint-disable-next-line verify-await/check
       browser.runtime.sendMessage({ type: "setFxaOpenID", value: PRODUCTION_FXA_OPENID });
-    }
+    };
 
     const token = await browser.runtime.sendMessage({ type: "getProxyToken" });
     const proxyToken = document.getElementById("proxyToken");
@@ -140,12 +167,15 @@ class Page {
     const proxySubmitButton = document.getElementById("proxySubmit");
     proxySubmitButton.onclick = _ => {
       try {
+        // eslint-disable-next-line verify-await/check
         const value = JSON.parse(proxyToken.value);
+        // eslint-disable-next-line verify-await/check
         browser.runtime.sendMessage({ type: "setProxyToken", value });
       } catch (e) {
+        // eslint-disable-next-line verify-await/check
         alert("Syntax invalid: " + e);
       }
-    }
+    };
     if (config.version < 10) {
       proxySubmitButton.disabled = true;
     }
@@ -153,12 +183,12 @@ class Page {
     const passesTimeout = document.getElementById("passesTimeout");
     passesTimeout.value = config.passesTimeout;
     passesTimeout.onchange = _ => {
+      // eslint-disable-next-line verify-await/check
       browser.runtime.sendMessage({ type: "setPassesTimeout", value: passesTimeout.value });
-    }
+    };
     if (config.version < 12) {
       passesTimeout.disabled = true;
     }
-
   }
 
   getTranslation(stringName, ...args) {

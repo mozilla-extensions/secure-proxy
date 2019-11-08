@@ -37,13 +37,13 @@ class Main {
     this.observers = new Set();
 
     // All the modules, at the end.
+    this.passes = new Passes(this);
     this.connectivity = new Connectivity(this);
     this.externalHandler = new ExternalHandler(this);
     this.fxa = new FxAUtils(this);
     this.mobileEvents = new MobileEvents(this);
     this.net = new Network(this);
     this.offlineManager = new OfflineManager(this);
-    this.passes = new Passes(this);
     this.proxyDownChecker = new ProxyDownChecker(this);
     this.proxyStateObserver = new ProxyStateObserver(this);
     this.survey = new Survey(this);
@@ -229,12 +229,14 @@ class Main {
       return;
     }
 
+    const passes = this.passes.syncGetPasses();
+
     let proxyState;
     if (value) {
-      this.telemetry.syncAddEvent("general", "proxyEnabled", telemetryReason);
+      this.telemetry.syncAddEvent("state", "proxyEnabled", telemetryReason, { passes: "" + passes.currentPass });
       proxyState = PROXY_STATE_CONNECTING;
     } else {
-      this.telemetry.syncAddEvent("general", "proxyDisabled", telemetryReason);
+      this.telemetry.syncAddEvent("state", "proxyDisabled", telemetryReason, { passes: "" + passes.currentPass });
       proxyState = PROXY_STATE_INACTIVE;
     }
 
@@ -311,7 +313,8 @@ class Main {
         break;
 
       case FXA_PAYMENT_REQUIRED:
-        // This should not really happen. Let's ignore this scenario.
+        this.setProxyState(PROXY_STATE_INACTIVE);
+        await this.ui.update(false /* no toast here */);
         break;
 
       default:
@@ -386,9 +389,8 @@ class Main {
 
     await this.ui.update();
 
-    // We try to recover only if unlimited or pre-migration.
-    if (!this.passes.syncIsMigrationCompleted() ||
-        this.passes.syncAreUnlimited()) {
+    // We try to recover only if unlimited.
+    if (this.passes.syncAreUnlimited()) {
       const data = await this.fxa.maybeObtainToken();
       switch (data.state) {
         case FXA_OK:
@@ -459,24 +461,34 @@ class Main {
       // Let's enable the proxy.
       await this.enableProxy(true, reason);
     }
+
+    await this.ui.update(false /* no toast here */);
   }
 
   syncPassNeeded() {
-    // It's time to disable everything...
-    this.setProxyState(PROXY_STATE_INACTIVE);
-    this.ui.syncPassNeededToast();
+    if (this.proxyState === PROXY_STATE_LOADING ||
+        this.proxyState === PROXY_STATE_ACTIVE ||
+        this.proxyState === PROXY_STATE_INACTIVE ||
+        this.proxyState === PROXY_STATE_CONNECTING) {
+      // It's time to disable everything...
+      this.setProxyState(PROXY_STATE_INACTIVE);
+      this.ui.syncPassNeededToast();
+    }
   }
 
-  syncPassAvailable(firstMigration) {
-    if (firstMigration) {
-      // It's time to disable everything for the first migration.
-      this.setProxyState(PROXY_STATE_INACTIVE);
+  syncPassNeededAtStartup() {
+    this.setProxyState(PROXY_STATE_INACTIVE);
+    return this.ui.update(false /* no toast here */);
+  }
 
-      // eslint-disable-next-line verify-await/check
-      this.ui.update(false /* no toast here */);
-    }
+  syncAuthCompletedWithPass() {
+    this.setProxyState(PROXY_STATE_INACTIVE);
+    return this.ui.update(false /* no toast here */);
+  }
 
+  async passAvailable() {
     this.ui.syncPassAvailableToast();
+    await this.survey.passReceived();
   }
 
   // Provides an async response in most cases
@@ -524,6 +536,9 @@ class Main {
       case "authenticationRequired":
         return this.auth();
 
+      case "authCompletedWithPass":
+        return this.syncAuthCompletedWithPass();
+
       case "captivePortalStateChanged":
         return this.onCaptivePortalStateChanged(data.state);
 
@@ -540,7 +555,7 @@ class Main {
         return this.fxa.manageAccountURL();
 
       case "pass-available":
-        return this.syncPassAvailable(data.firstMigration);
+        return this.passAvailable();
 
       case "pass-availability-check":
         return this.fxa.passAvailabilityCheck();
@@ -548,6 +563,9 @@ class Main {
       case "pass-needed":
         this.syncPassNeeded();
         return this.ui.update(false /* no toast here */);
+
+      case "pass-needed-at-startup":
+        return this.syncPassNeededAtStartup();
 
       case "onlineDetected":
         return this.run();
@@ -566,6 +584,15 @@ class Main {
 
       case "sendCode":
         return this.fxa.receiveCode(data);
+
+      case "setReminder":
+        return StorageUtils.setReminder(data.value);
+
+      case "showReminder":
+        return this.ui.showReminder();
+
+      case "setAutoRenew":
+        return this.fxa.setAutoRenew(data.value);
 
       case "tokenGenerated":
         return this.maybeActivate("tokenGenerated");
@@ -591,7 +618,7 @@ class Main {
         return this.fxa.excludedDomains();
 
       case "telemetryEvent":
-        return this.telemetry.syncAddEvent(data.category, data.event);
+        return this.telemetry.syncAddEvent(data.category, data.event, data.extra);
 
       case "telemetryScalar":
         return this.telemetry.syncAddScalar(data.key, data.value);

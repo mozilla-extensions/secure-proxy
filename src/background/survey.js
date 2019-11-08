@@ -1,7 +1,9 @@
 import {Component} from "./component.js";
+import {Passes} from "./passes.js";
 import {StorageUtils} from "./storageUtils.js";
 
-const SURVEY_UNINSTALL = "https://qsurvey.mozilla.com/s3/fx-private-network-beta-exit-survey?sub=no";
+const SURVEY_UNLIMITED_UNINSTALL = "https://qsurvey.mozilla.com/s3/fx-private-network-beta-exit-survey?sub=no";
+const SURVEY_FREETIER_UNINSTALL = "https://qsurvey.mozilla.com/s3/Firefox-Private-Network-Exit-Survey-Phase-Two-Pass-Based";
 
 const IDLE_INTERVAL = 60; // seconds
 const FULLSCREEN_TIMEOUT = 3600; // seconds
@@ -24,7 +26,7 @@ const SURVEYS = [
   // 14 days
   { name: "14-day",
     triggerAfterTime: 1209600,
-    URL: "https://qsurvey.mozilla.com/s3/fx-private-network-beta-survey?type=14-day&enabled=PROXYENABLED&v=VERSION&days=USAGEDAYS",
+    URL: "https://qsurvey.mozilla.com/s3/fx-private-network-beta-survey?type=14-day&enabled=PROXYENABLED&v=VERSION&days=USAGEDAYS&passes=PASSES",
     onIdle: true,
     background: true,
   },
@@ -59,8 +61,20 @@ export class Survey extends Component {
     }
     this.lastUsageDays = lastUsageDays;
 
-    await browser.runtime.setUninstallURL(SURVEY_UNINSTALL);
+    await this.setUninstallURL();
     await this.scheduleNextSurvey();
+  }
+
+  async passReceived() {
+    await this.setUninstallURL();
+  }
+
+  async setUninstallURL() {
+    if (Passes.syncGet().syncAreUnlimited()) {
+      await browser.runtime.setUninstallURL(SURVEY_UNLIMITED_UNINSTALL);
+    } else {
+      await browser.runtime.setUninstallURL(SURVEY_FREETIER_UNINSTALL);
+    }
   }
 
   async scheduleNextSurvey() {
@@ -142,10 +156,13 @@ export class Survey extends Component {
 
   async formatUrl(url, data) {
     let self = await browser.management.getSelf();
+    let passes = Passes.syncGet().syncGetPasses();
+
     // eslint-disable-next-line verify-await/check
     url = url.replace(/PROXYENABLED/g, this.cachedProxyState === PROXY_STATE_ACTIVE ? "true" : "false")
              .replace(/VERSION/g, self.version)
-             .replace(/USAGEDAYS/g, this.lastUsageDays.count);
+             .replace(/USAGEDAYS/g, this.lastUsageDays.count)
+             .replace(/PASSES/g, passes.currentPass || 0);
 
     // eslint-disable-next-line verify-await/check
     if (url.startsWith("http://") || url.startsWith("https://")) {

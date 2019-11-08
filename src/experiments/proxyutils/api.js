@@ -325,7 +325,7 @@ this.proxyutils = class extends ExtensionAPI {
               () => {
                 return {
                   mode: Services.prefs.getIntPref("network.trr.mode"),
-                  uri: Services.prefs.getIntPref("network.trr.uri"),
+                  uri: Services.prefs.getCharPref("network.trr.uri"),
                   bootstrapAddress: Services.prefs.getCharPref("network.trr.bootstrapAddress"),
                   excludedDomains: Services.prefs.getCharPref("network.trr.excluded-domains"),
                   confirmationNS: Services.prefs.getCharPref("network.trr.confirmationNS"),
@@ -377,10 +377,18 @@ this.proxyutils = class extends ExtensionAPI {
                 // eslint-disable-next-line verify-await/check
                 let excludedDomains = [...new Set(domains.concat(localhostDomains))].join(",");
 
+                // We don't overwrite custom URI pref.
+                let uri = details.value.uri;
+                // eslint-disable-next-line verify-await/check
+                if (Services.prefs.prefHasUserValue("network.trr.uri")) {
+                  uri = Services.prefs.getCharPref("network.trr.uri");
+                }
+
                 // We don't overwrite custom bootstrap address pref.
-                let bootstrapAddress = Services.prefs.getCharPref("network.trr.bootstrapAddress");
-                if (!bootstrapAddress) {
-                   bootstrapAddress = details.value.bootstrapAddress;
+                let bootstrapAddress = details.value.bootstrapAddress;
+                // eslint-disable-next-line verify-await/check
+                if (Services.prefs.prefHasUserValue("network.trr.bootstrapAddress")) {
+                  bootstrapAddress = Services.prefs.getCharPref("network.trr.bootstrapAddress");
                 }
 
                 return ExtensionPreferencesManager.setSetting(
@@ -388,7 +396,7 @@ this.proxyutils = class extends ExtensionAPI {
                   "secureProxy.DNSoverHTTP",
                   {
                     mode: details.value.mode,
-                    uri: details.value.uri,
+                    uri,
                     bootstrapAddress,
                     excludedDomains,
                     confirmationNS: details.value.confirmationNS,
@@ -405,6 +413,7 @@ this.proxyutils = class extends ExtensionAPI {
               "proxyutils.settings",
               () => {
                 return {
+                  dohUri: Services.prefs.getCharPref("network.trr.uri"),
                   captiveDetect: getStringPrefValue("captivedetect.canonicalURL"),
                 };
               },

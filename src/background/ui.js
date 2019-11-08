@@ -11,8 +11,7 @@ const CLOUDFLARE_URL = "https://www.cloudflare.com/";
 const PRIVACY_POLICY_URL = "https://www.mozilla.org/privacy/firefox-private-network";
 const TERMS_AND_CONDITIONS_URL = "https://www.mozilla.org/about/legal/terms/firefox-private-network";
 const GIVE_US_FEEDBACK_URL = "https://qsurvey.mozilla.com/s3/fx-private-network-beta-feedback";
-const BETA_UPGRADE_URL = "https://fpn.firefox.com/vpn";
-const BETA_HOW_PASSES_WORK_URL = "https://fpn.firefox.com/browser";
+const BETA_VPN_URL = "https://fpn.firefox.com/vpn";
 
 export class UI extends Component {
   constructor(receiver) {
@@ -263,16 +262,22 @@ export class UI extends Component {
           this.syncSendMessage("telemetryEvent", { category: "settings_url_clicks", event: message.type });
           break;
 
-        case "betaUpgrade":
-          await this.openUrl(BETA_UPGRADE_URL);
-          break;
-
-        case "howPassesWork":
-          await this.openUrl(BETA_HOW_PASSES_WORK_URL);
+        case "vpnLink":
+          await this.openUrl(BETA_VPN_URL);
           break;
 
         case "telemetryEvent":
           this.syncSendMessage("telemetryEvent", message.data);
+          break;
+
+        case "setReminder":
+          this.syncSendMessage("telemetryEvent", { category: "settings", event: message.type, extra: "" + message.data.value });
+          await this.sendMessage("setReminder", message.data);
+          break;
+
+        case "setAutoRenew":
+          this.syncSendMessage("telemetryEvent", { category: "settings", event: message.type, extra: "" + message.data.value });
+          await this.sendMessage("setAutoRenew", message.data);
           break;
       }
     });
@@ -433,17 +438,19 @@ export class UI extends Component {
     if (this.currentPort) {
       const exempt = await this.isCurrentTabExempt();
       const profileData = await StorageUtils.getProfileData();
-      const migrationCompleted = Passes.syncGet().syncIsMigrationCompleted();
       const dataPasses = Passes.syncGet().syncGetPasses();
       const tokenData = await StorageUtils.getProxyTokenData();
+      const reminder = await StorageUtils.getReminder();
+      const autorenew = await StorageUtils.getAutoRenew();
 
       return this.currentPort.postMessage({
         userInfo: profileData,
         proxyState: this.cachedProxyState,
         exempt,
-        migrationCompleted,
         ...dataPasses,
         tokenData,
+        reminder,
+        autorenew,
       });
     }
     return null;
@@ -462,5 +469,27 @@ export class UI extends Component {
 
   async openUrl(url) {
     await browser.tabs.create({url});
+  }
+
+  async showReminder() {
+    // No need to show the toast if the panel is visible.
+    if (this.currentPort) {
+      return;
+    }
+
+    const autorenew = await StorageUtils.getAutoRenew();
+    const dataPasses = Passes.syncGet().syncGetPasses();
+
+    let string;
+    if (!autorenew) {
+       string = "toastReminderAutoStartOFF";
+    } else if ((dataPasses.totalPasses - dataPasses.currentPass) === 0) {
+       string = "toastReminderAutoStartONNoPasses";
+    } else {
+       string = "toastReminderAutoStartON";
+    }
+
+    // eslint-disable-next-line verify-await/check
+    browser.experiments.proxyutils.showPrompt(this.getTranslation(string), true);
   }
 }

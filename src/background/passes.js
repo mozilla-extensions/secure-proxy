@@ -22,9 +22,6 @@ export class Passes extends Component {
     // In msecs.
     this.passesTimeoutMs = (await ConfigUtils.getPassesTimeout()) * 1000;
 
-    const {migrationCompleted} = await browser.storage.local.get("migrationCompleted");
-    this.migrationCompleted = migrationCompleted;
-
     const {currentPass} = await browser.storage.local.get("currentPass");
     this.currentPass = currentPass;
 
@@ -34,12 +31,8 @@ export class Passes extends Component {
     this.syncSchedulePassCheck();
   }
 
-  syncIsMigrationCompleted() {
-    return this.migrationCompleted;
-  }
-
   syncAreUnlimited() {
-    return this.totalPasses === -1;
+    return this.totalPasses === undefined || this.totalPasses === -1;
   }
 
   syncGetPasses() {
@@ -52,29 +45,31 @@ export class Passes extends Component {
   async setPasses(currentPass, totalPasses) {
     log(`Storing passes current: ${currentPass} - total: ${totalPasses}`);
 
-    const oldMigrationCompleted = this.migrationCompleted;
-    const oldAvailability = this.totalPasses - this.currentPass;
-
-    if (this.currentPass < currentPass) {
-      this.passRequested = false;
+    let oldAvailability;
+    // First activation of secure-proxy.
+    if (this.totalPasses === undefined) {
+      oldAvailability = -1;
+    } else {
+      oldAvailability = this.totalPasses - this.currentPass;
     }
-
-    this.migrationCompleted = true;
-    await browser.storage.local.set({migrationCompleted: true});
 
     this.currentPass = currentPass;
     this.totalPasses = totalPasses;
+    this.passRequested = false;
 
     await browser.storage.local.set({currentPass, totalPasses});
 
-    const availability = this.totalPasses - this.currentPass;
+    let availability = -1;
+    if (this.totalPasses !== -1) {
+      availability = this.totalPasses - this.currentPass;
+    }
 
     log(`Current availability: ${availability} - old availability: ${oldAvailability}`);
 
-    if (!oldMigrationCompleted || availability > oldAvailability) {
+    if (availability > oldAvailability) {
       // We don't want to wait here. We would create a dead-lock.
       // eslint-disable-next-line verify-await/check
-      this.sendMessage("pass-available", {firstMigration: !oldMigrationCompleted });
+      this.sendMessage("pass-available");
     }
 
     this.syncSchedulePassCheck();
