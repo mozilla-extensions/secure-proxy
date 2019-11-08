@@ -590,8 +590,11 @@ class Main {
       case "excludedDomains":
         return this.fxa.excludedDomains();
 
-      case "telemetry":
+      case "telemetryEvent":
         return this.telemetry.syncAddEvent(data.category, data.event);
+
+      case "telemetryScalar":
+        return this.telemetry.syncAddScalar(data.key, data.value);
 
       case "proxyRequestCallback":
         return this.net.syncNewProxyRequestCallback();

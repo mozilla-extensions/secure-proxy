@@ -68,7 +68,7 @@ export class ProxyDownChecker extends Component {
       await this.runTests();
 
       log("The proxy is down!");
-      this.syncSendMessage("telemetry", { category: "networking", event: "proxyDown" });
+      this.syncSendMessage("telemetryEvent", { category: "networking", event: "proxyDown" });
     } catch (e) {
       log("All up or all down. We don't want to report this.");
     } finally {

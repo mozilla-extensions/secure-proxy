@@ -7,7 +7,9 @@ _Last Updated: Aug 28, 2019_
 - [Analysis](#analysis)
 - [Collection](#collection)
 	- [Event Registration and Recording](#event-registration-and-recording)
+	- [Scalar Registration and Recording](#scalar-registration-and-recording)
 - [List of Planned Metrics Events](#list-of-planned-metrics-events)
+- [List of Planned Metrics Scalars](#list-of-planned-metrics-scalars)
 - [References](#references)
 
 <!-- /TOC -->
@@ -36,6 +38,7 @@ The data collection outlined here is geared toward answering the following quest
   * How often the authentication flow succeeds and how often it fails.
 * Is the webRTC-disabling message good enough?
   * Is this feature used by the user to exempt tabs?
+* What is the amount of bandwidth consumed when the proxy is in use?
 
 ## Collection
 
@@ -109,6 +112,19 @@ The **methods** are:
 1. `webRTC` fires when the user interacts with the webRTC dialog in-content. **objects**:
    1. `ignoreTab`: the user has decided to keep the proxy on for this tab.
    1. `exemptTab`: the user has decided to disable the proxy for this tab.
+
+
+### scalar Registration and Recording
+
+About how to register scalars, see https://firefox-source-docs.mozilla.org/toolkit/components/telemetry/collection/scalars.html
+
+## List of Planned Scalars
+
+All scalars are currently implemented under the **category: secure.proxy**.
+
+The **scalars** are:
+
+1. `bandwidth` contains the amount of kbytes sent and received when the proxy is in use.
 
 
 ---
