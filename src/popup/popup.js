@@ -112,3 +112,17 @@ if (document.readyState === "loading") {
   // eslint-disable-next-line verify-await/check
   init();
 }
+
+document.addEventListener("keydown", event => {
+  if (event.ctrlKey &&
+      // Keys: +, -, hyphen, underscore
+      [61, 107, 173, 109, 187, 189].includes(event.which)) {
+    event.preventDefault();
+  }
+});
+
+window.addEventListener("DOMMouseScroll", event => {
+  if (event.ctrlKey) {
+    event.preventDefault();
+  }
+});
