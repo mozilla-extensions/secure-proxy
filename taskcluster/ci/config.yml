@@ -1,0 +1,21 @@
+---
+trust-domain: xpi
+
+task-priority: lowest
+
+taskgraph:
+    register: xpi_taskgraph:register
+    repositories:
+        xpi:
+            name: "XPI source"
+
+workers:
+    aliases:
+        b-linux:
+            provisioner: xpi-{level}
+            implementation: docker-worker
+            os: linux
+            worker-type: 'b-linux'
+
+# Uncomment if this is a private repo
+# github_clone_secret: project/xpi/xpi-github-clone-ssh
