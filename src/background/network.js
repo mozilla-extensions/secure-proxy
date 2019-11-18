@@ -4,6 +4,7 @@ import {Passes} from "./passes.js";
 
 // Parameters for DNS over HTTP
 const DOH_MODE = 3;
+const DOH_URI = "https://mozilla.cloudflare-dns.com/dns-query";
 const DOH_BOOTSTRAP_ADDRESS = "1.1.1.1";
 const DOH_SKIP_CONFIRMATION_NS = "skip";
 const DOH_REQUEST_TIMEOUT = 30000; // 30 secs
@@ -403,6 +404,7 @@ export class Network extends Component {
     browser.experiments.proxyutils.DNSoverHTTP.set({
       value: {
         mode: DOH_MODE,
+        uri: DOH_URI,
         bootstrapAddress: DOH_BOOTSTRAP_ADDRESS,
         // eslint-disable-next-line verify-await/check
         excludedDomains: excludedDomains.join(","),
