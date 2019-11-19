@@ -112,3 +112,10 @@ if (document.readyState === "loading") {
   // eslint-disable-next-line verify-await/check
   init();
 }
+
+// Disable middle click.
+window.addEventListener("auxclick", event => {
+  if (event.button !== 0) {
+    event.preventDefault();
+  }
+});
