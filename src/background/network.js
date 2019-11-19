@@ -455,11 +455,10 @@ export class Network extends Component {
       return;
     }
 
-    this.processingNetworkError = true;
-
     // If the error has been propaged as event to the Main component, we wait a
     // bit before processing the next one.
     if (await this.processNetworkErrorInternal(errorStatus)) {
+      this.processingNetworkError = true;
       setTimeout(_ => { this.processingNetworkError = false; }, NET_ERROR_TIMEOUT);
     }
   }
