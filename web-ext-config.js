@@ -4,7 +4,7 @@ const defaultConfig = {
   // Global options:
   sourceDir: "./src/",
   artifactsDir: "./dist/",
-  ignoreFiles: [".DS_Store", "./tests"],
+  ignoreFiles: [".DS_Store", "./tests", "./manifest_fenix.json", ],
   // Command options:
   build: {
     overwriteDest: true,
