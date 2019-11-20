@@ -23,13 +23,13 @@ class ViewSettings extends View {
           <ul>
             <li>
               <span>${this.getTranslation("viewSettings-autorenew")}</span>
-              <input type="checkbox" id="autorenew" class="toggleButton" />
+              <input type="checkbox" id="autorenew" class="toggleSettings" />
             <li>
               <span class="sub extraSub">${this.getTranslation("viewSettings-autorenewSub")}</span>
             </li>
             <li>
               <span>${this.getTranslation("viewSettings-reminder")}</span>
-              <input type="checkbox" id="reminder" class="toggleButton" />
+              <input type="checkbox" id="reminder" class="toggleSettings" />
             <li>
               <span class="sub">${this.getTranslation("viewSettings-reminderSub")}</span>
             </li>
