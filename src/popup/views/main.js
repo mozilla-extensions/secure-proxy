@@ -9,36 +9,93 @@ class ViewMain extends View {
   }
 
   syncShow(data) {
-    if (data.proxyState !== PROXY_STATE_INACTIVE &&
-        data.proxyState !== PROXY_STATE_ACTIVE) {
-      throw new Error("Invalid proxy state for ViewMain");
-    }
-
     this.proxyEnabled = data.proxyState === PROXY_STATE_ACTIVE;
 
-    const content = this.syncMainContent(data);
+    // Unlimited.
+    if (data.totalPasses === -1) {
+      const label = this.proxyEnabled ? "viewMainActive" : "viewMainInactive";
+      return escapedTemplate`
+        <p data-mode="unlimited">${this.getTranslation(label)}</p>
+        <p id="proxyError" hidden>${this.getTranslation("viewMainProxyError")}</p>
+      `;
+    }
+
+    // Free-tier - active.
+    if (this.proxyEnabled) {
+      const subRenew = data.autorenew ? "viewMainActiveSubPassAutoStartON" : "viewMainActiveSubPassAutoStartOFF";
+
+      return escapedTemplate`
+        <div class="sub subMain">${this.getTranslation(subRenew)}
+          <a href="#" id="settingsLink">${this.getTranslation("viewMainSubSettings")}</a>${this.getTranslation("viewMainSubSettingsPost")}</div>
+        <div id="passReport">
+          <span id="passMsg">${this.getTranslation("viewMainPassAvailable")}</span>
+          <span id="passCount"></span>
+        </div>
+        <div class="sub subMain">${this.getTranslation("viewMainSubPassLeft")}</div>
+        <p id="proxyError" hidden>${this.getTranslation("viewMainProxyError")}</p>
+      `;
+    }
+
+    // Free-tier - inactive.
+    let availablePasses = data.totalPasses - data.currentPass;
+    if (availablePasses > 0) {
+      const subRenew = data.autorenew ? "viewMainInactiveSubPassAutoStartON" : "viewMainInactiveSubPassAutoStartOFF";
+
+      return escapedTemplate`
+        <div class="sub subMain">${this.getTranslation(subRenew)}
+          <a href="#" id="settingsLink">${this.getTranslation("viewMainSubSettings")}</a>${this.getTranslation("viewMainSubSettingsPost")}</div>
+        <div id="passReport">
+          <span id="passMsg">${this.getTranslation("viewMainPassAvailable")}</span>
+          <span id="passCount"></span>
+        </div>
+        <div class="sub subMain">${this.getTranslation("viewMainSubPassLeft")}</div>
+        <p id="proxyError" hidden>${this.getTranslation("viewMainProxyError")}</p>
+      `;
+    }
 
     return escapedTemplate`
-      <div id="passReport" hidden>
+      <div id="passReport">
+        <span id="passMsg">${this.getTranslation("viewMainPassAvailable")}</span>
         <span id="passCount"></span>
-        <span id="passCountdown"></span>
       </div>
-      <p class="${content.className}">
-        ${this.getTranslation(content.label)}
-      </p>
-      <button id="betaUpgrade" class="primary" hidden>
-        ${this.getTranslation("viewMainUpgradeButton")}
+      <p data-mode="0pass">${this.getTranslation("viewMainInactiveWithoutPasses")}</p>
+      <p id="proxyError" hidden>${this.getTranslation("viewMainProxyError")}</p>
+      <button id="vpnLink" class="primary">
+        ${this.getTranslation("viewMainVPNButton")}
       </button>
     `;
   }
 
-  syncPostShow(data) {
-    View.showToggleButton(data, this.proxyEnabled);
+  syncFooter(data) {
+    // No footer for unlimited.
+    if (data.totalPasses === -1 ||
+        (!this.proxyEnabled && (data.totalPasses - data.currentPass) === 0)) {
+      return null;
+    }
 
-    if (data.migrationCompleted && data.totalPasses !== -1) {
-      // eslint-disable-next-line verify-await/check
-      const template = escapedTemplate`${this.passCountText(data)}`;
-      template.syncRenderTo(document.getElementById("passCount"));
+    // No footer with errors.
+    if (data.proxyState !== PROXY_STATE_INACTIVE &&
+        data.proxyState !== PROXY_STATE_ACTIVE) {
+      return null;
+    }
+
+    return escapedTemplate`
+      <span id="popupBeta">${this.getTranslation("popupVPNFooter")}</span>
+      <a href="#" class="link popupBetaLink" id="vpnLink">${this.getTranslation("popupVPNLink")}</a>
+    `;
+  }
+
+  syncPostShow(data) {
+    if (data.proxyState !== PROXY_STATE_INACTIVE &&
+        data.proxyState !== PROXY_STATE_ACTIVE) {
+      document.getElementById("proxyError").hidden = false;
+    }
+
+    if (data.totalPasses === -1 || this.proxyEnabled ||
+        (data.totalPasses - data.currentPass) > 0) {
+      View.showToggleButton(data, this.proxyEnabled);
+    } else {
+      View.hideToggleButton();
     }
 
     if (this.proxyEnabled) {
@@ -48,31 +105,31 @@ class ViewMain extends View {
     }
 
     // Free-tier.
-    if (data.migrationCompleted && data.totalPasses !== -1) {
-      document.getElementById("passReport").hidden = false;
-
-      // No pass available.
-      if ((data.totalPasses - data.currentPass) === 0) {
-        document.getElementById("betaUpgrade").hidden = false;
+    if (data.totalPasses !== -1) {
+      let passAvailable = data.totalPasses - data.currentPass;
+      const passCount = document.getElementById("passCount");
+      if (passCount) {
+        passCount.textContent = passAvailable;
       }
-
-      const countdown = document.getElementById("passCountdown");
 
       // Countdown Timer
-      if (this.proxyEnabled) {
-        countdown.hidden = false;
-        this.syncActivateCountdown(data, countdown);
-      } else {
-        countdown.hidden = true;
-      }
+      View.syncShowPassCountdown(true);
+      this.syncActivateCountdown(data);
     }
   }
 
   handleClickEvent(e) {
-    if (e.target.id === "betaUpgrade") {
+    if (e.target.id === "vpnLink") {
       // eslint-disable-next-line verify-await/check
       View.sendMessage(e.target.id);
       View.close();
+      return;
+    }
+
+    if (e.target.id === "settingsLink") {
+      const settingsButton = document.getElementById("settingsButton");
+      // eslint-disable-next-line verify-await/check
+      settingsButton.click();
     }
   }
 
@@ -95,69 +152,36 @@ class ViewMain extends View {
     });
   }
 
-  syncMainContent(data) {
-    // Pre migration or unlimited
-    if (!data.migrationCompleted || data.totalPasses === -1) {
-      if (this.proxyEnabled) {
-        return { label: "viewMainActive", className: "" };
-      }
+  syncActivateCountdown(data) {
+    const elm = document.getElementById("passCountdown");
 
-      return { label: "viewMainInactive", className: "" };
-    }
-
-    // Free-tier.
-    if (this.proxyEnabled) {
-      return { label: "viewMainActiveLimited", className: "" };
-    }
-
-    let availablePasses = data.totalPasses - data.currentPass;
-    if (availablePasses > 0) {
-      return { label: "viewMainInactiveWithPasses", className: "" };
-    }
-
-    return { label: "viewMainInactiveWithoutPasses", className: "warning" };
-  }
-
-  passCountText(data) {
-    let available = data.totalPasses - data.currentPass;
-    if (this.proxyEnabled && available === 0) {
-      return this.getTranslation("viewMainLastPassActive");
-    }
-
-    if (available === 1) {
-      if (this.proxyEnabled) {
-        return this.getTranslation("viewMainLastPassAvailableActive");
-      }
-
-      return this.getTranslation("viewMainLastPassAvailableInactive");
-    }
-
-    if (this.proxyEnabled) {
-      return this.getTranslation("viewMainManyPassesAvailableActive", available);
-    }
-
-    return this.getTranslation("viewMainManyPassesAvailableInactive", available);
-  }
-
-  syncActivateCountdown(data, elm) {
     if (!data.tokenData) {
       elm.innerHTML = "";
     }
 
-    function syncCountDown() {
+    let syncCountDown = _ => {
       // eslint-disable-next-line verify-await/check
       const nowInSecs = Math.floor(Date.now() / 1000);
-      let diff = data.tokenData.received_at + data.tokenData.expires_in - nowInSecs;
+      let diff;
+      if (data.tokenData) {
+        diff = data.tokenData.received_at + data.tokenData.expires_in - nowInSecs;
+      } else {
+        diff = -1;
+      }
+
       if (diff < 0) {
+        // eslint-disable-next-line verify-await/check
+        clearInterval(this.countDownId);
+
+        if (!this.proxyEnabled) {
+          View.syncShowPassCountdown(false);
+        }
+
         diff = 0;
       }
 
       const secs = diff % 60;
       diff -= secs;
-      diff /= 60;
-
-      const mins = diff % 60;
-      diff -= mins;
       diff /= 60;
 
       function syncHelper(number) {
@@ -172,12 +196,15 @@ class ViewMain extends View {
         return number;
       }
 
-      const template = escapedTemplate`${syncHelper(diff)}:${syncHelper(mins)}:${syncHelper(secs)}`;
+      const template = escapedTemplate`${syncHelper(diff)}:${syncHelper(secs)}`;
       template.syncRenderTo(elm);
-    }
+    };
 
     // eslint-disable-next-line verify-await/check
-    setInterval(syncCountDown, 1000);
+    clearInterval(this.countDownId);
+
+    // eslint-disable-next-line verify-await/check
+    this.countDownId = setInterval(syncCountDown, 1000);
     syncCountDown();
   }
 }

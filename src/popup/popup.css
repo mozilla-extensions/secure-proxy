@@ -1,9 +1,8 @@
 :root {
-  --base-font-size: 10px;
-  --heading-font-size: 14px;
-  --footer-font-size: 14px;
-  --body-font-size: 14px;
-  --edge-padding: 12px;
+  --heading-font-size: 15px;
+  --footer-font-size: 15px;
+  --body-font-size: 15px;
+  --edge-padding: 16px;
 
   --in-content-selected-text: #fff;
   --in-content-button-background: var(--grey-90-a10);
@@ -34,6 +33,7 @@
   --ink-90: #1D1133;
   --black: #0c0c0D;
   --grey-10: #F9F9FA;
+  --error: #FFBDC5;
 
   --link-link: var(--blue-50);
   --link-hover: var(--blue-60);
@@ -53,7 +53,8 @@ body {
   inline-size: 320px;
   font-size: var(--body-font-size);
   line-height: 22px;
-  min-block-size: 450px;
+  min-block-size: 490px;
+  overflow-inline: hidden;
 }
 
 body.loading {
@@ -142,8 +143,50 @@ button.primary:enabled:hover:active {
 }
 
 #content p {
-  inline-size: 296px;
+  padding: var(--edge-padding);
+  padding-block-start: var(--edge-padding);
+}
+
+#content p[data-mode="0pass"] {
+  position: relative;
+  margin-block-start: 4px;
+  border-block-start: 1px solid #e4e4e4;
+}
+
+#content p[data-mode="warning"] {
+  position: relative;
+  padding-inline-start: 40px;
+  background-color: var(--error);
+  border-radius: 4px;
   margin: var(--edge-padding);
+  padding-inline-start: 32px !important;
+}
+
+#content p[data-mode="warning"]::before {
+  position: absolute;
+  inset-block-start: 18px;
+  content: "";
+  display: inline-block;
+  block-size: 16px;
+  inline-size: 16px;
+  background: url("/img/i-warning16.svg");
+  margin-inline-start: -22px;
+}
+
+#content .sub {
+  font-weight: normal;
+  color: var(--grey-90-a60);
+  line-height: 17px;
+  font-size: 13px;
+  margin: 0px;
+  margin-block-start: 0px;
+  margin-block-end: 0px;
+}
+
+#content .subMain {
+  min-height: 60px;
+  margin-inline-start: var(--edge-padding);
+  margin-inline-end: var(--edge-padding);
 }
 
 header {
@@ -323,6 +366,23 @@ header button {
   animation-timing-function: cubic-bezier(0.445,  0.050, 0.550, 0.950);
 }
 
+#passCountdown {
+  color: #fff;
+  position: absolute;
+  text-align: center;
+  width: 80px;
+  /* container width (320px) / 2 - self width (80px) / 2 */
+  left: 120px;
+  /* container height (200px) - 12px - its height 22px */
+  top: 166px;
+  font-size: 15px;
+  font-weight: 500;
+}
+
+#settingsLink, #vpnLink {
+  font-weight: 500;
+}
+
 #enabled-circle-2 {
   animation-delay: 1s;
 }
@@ -344,11 +404,30 @@ header button {
   width: 100%;
   color: black;
   text-decoration: none;
-  padding-block-start: 6px;
-  padding-block-end: 6px;
+  padding-block-start: 13px;
+  padding-block-end: 13px;
   padding-inline-start: var(--edge-padding);
   padding-inline-end: var(--edge-padding);
   list-style: none;
+}
+
+.settingsMenu span {
+  display: flex;
+  color: black;
+  text-decoration: none;
+  padding-block-start: 4px;
+  padding-block-end: 4px;
+  padding-inline-start: var(--edge-padding);
+  padding-inline-end: var(--edge-padding);
+  list-style: none;
+}
+
+.settingsMenu .sub {
+  padding-block-start: 0px;
+}
+
+.settingsMenu .toggleSettings {
+  margin-inline-end: var(--edge-padding);
 }
 
 .settingsMenu a:hover {
@@ -358,7 +437,6 @@ header button {
 .settingsMenu img {
   border-radius: 200%;
   align-self: center;
-  margin-inline-end: 8px;
   block-size: 32px;
   inline-size: 32px;
 }
@@ -372,7 +450,7 @@ header button {
   block-size: 50px;
   padding-block-start: 0;
   padding-block-end: 0;
-  padding-inline-start: 12px;
+  padding-inline-start: var(--edge-padding);
   padding-inline-end: 8px;
 }
 
@@ -384,11 +462,8 @@ header button {
   font-size: 15px;
 }
 
-.settingsMenu .details strong {
-  font-weight: normal;
-  color: var(--grey-90-a60);
-  line-height: 16px;
-  font-size: 13px;
+.settingsMenu strong {
+  padding-inline-start: var(--edge-padding);
 }
 
 .settingsMenu ul {
@@ -397,12 +472,12 @@ header button {
 
 .settingsMenu > li {
   border-block-end: 1px solid #e4e4e4;
-  display: flex;
   padding-block-start: 9px;
   padding-block-end: 9px;
 }
 
 .settingsMenu li {
+  display: flex;
   list-style: none;
 }
 
@@ -414,14 +489,18 @@ header button {
   text-overflow: ellipsis;
 }
 
+.extraSub {
+  padding-block-end: 8px !important;
+}
+
 .end {
   margin-inline-start: auto;
 }
 
 footer {
   font-size: var(--footer-font-size);
-  padding-inline-start: 12px;
-  padding-inline-end: 12px;
+  padding-inline-start: var(--edge-padding);
+  padding-inline-end: var(--edge-padding);
   padding-block-start: 14px;
   padding-block-end: 14px;
   border-block-start: 1px solid #e4e4e4;
@@ -436,7 +515,8 @@ footer {
 }
 
 #toggleRow {
-  padding-block-start: 12px;
+  padding-block-start: 8px;
+  padding-block-end: 4px;
   padding-inline-start: var(--edge-padding);
   padding-inline-end: var(--edge-padding);
   border-block-start: 1px solid #e4e4e4;
@@ -444,11 +524,11 @@ footer {
 }
 
 .toggleRowBeta {
-  padding-block-end: 10px;
+  padding-block-end: 8px !important;
   border-block-end: 1px solid #e4e4e4;
 }
 
-#toggleButton {
+.toggleSettings {
   -moz-appearance: none;
   align-self: center;
   margin-inline-start: auto;
@@ -462,29 +542,29 @@ footer {
   transition: padding .2s ease;
 }
 
-#toggleButton:checked {
+.toggleSettings:checked {
   background-color: #0060DF;
   /* Push the toggle to the right. */
   padding-inline-start: 12px;
 }
 
-#toggleButton:checked:hover {
+.toggleSettings:checked:hover {
   background-color: #003EAA;
 }
 
-#toggleButton:checked:hover:active {
+.toggleSettings:checked:hover:active {
   background-color: #002275;
 }
 
-#toggleButton:not(:checked):hover {
+.toggleSettings:not(:checked):hover {
   background-color: #C9C9CA;
 }
 
-#toggleButton:not(:checked):hover:active {
+.toggleSettings:not(:checked):hover:active {
   background-color: #B1B1B2;
 }
 
-#toggleButton::before {
+.toggleSettings::before {
   position: relative;
   display: block;
   content: "";
@@ -512,6 +592,18 @@ footer {
   color: var(--link-link);
 }
 
+#settingsLink {
+  color: var(--link-link);
+}
+
+#settingsLink:link {
+  text-decoration: none;
+}
+
+#settingsLink:visited {
+  color: var(--link-link);
+}
+
 .link {
   cursor: pointer;
 }
@@ -526,31 +618,47 @@ footer {
 }
 
 #passReport {
-  border-block-end: 1px solid #e4e4e4;
-  min-block-size: 38px;
   display: flex;
   align-items: center;
   padding-inline: var(--edge-padding);
+  padding-block-start: 8px;
+  padding-block-end: 4px;
 }
 
-#passCountdown {
-  margin-inline-start: 28px;
+#passMsg {
+  flex: max-content;
 }
 
-#passCount::before,
-#passCountdown::before {
+#passCount {
+  text-align: center;
+
+  -moz-appearance: none;
+  align-self: center;
+  box-sizing: border-box;
+  min-width: 26px;
+  border-radius: 10px;
+  border: 1px solid rgba(24, 26, 27, 0.20);
+  background-color: #032E74;
+  line-height: 16px;
+  font-size: 12px;
+  font-weight: bold;
+  color: #fff;
+}
+
+#proxyError {
+  background-color: var(--error);
+  border-radius: 4px;
+  margin: var(--edge-padding);
+  position: relative;
+  padding-inline-start: 32px !important;
+}
+
+#proxyError::before {
+  position: absolute;
   content: "";
   display: inline-block;
   block-size: 16px;
   inline-size: 16px;
-  margin-block-end: -2px;
-  margin-inline-end: 8px;
-}
-
-#passCount::before {
-  background: url("/img/ticket.svg");
-}
-
-#passCountdown::before {
-  background: url("/img/timer.svg");
+  background: url("/img/i-warning16.svg");
+  margin-inline-start: -22px;
 }

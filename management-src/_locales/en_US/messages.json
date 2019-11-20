@@ -23,11 +23,17 @@
   "pageDebuggingValue": {
     "message": "enabled"
   },
-  "pageMigrationCompletedTitle": {
-    "message": "Migration Completed"
+  "pageReminderTitle": {
+    "message": "Reminder enabled"
   },
-  "pageMigrationCompleted": {
-    "message": "completed"
+  "pageReminderValue": {
+    "message": "enabled"
+  },
+  "pageAutoRenewTitle": {
+    "message": "Auto-renew pass enabled"
+  },
+  "pageAutoRenewValue": {
+    "message": "enabled"
   },
   "pageProxyURLTitle": {
     "message": "Proxy URL"

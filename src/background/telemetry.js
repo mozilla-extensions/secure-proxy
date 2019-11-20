@@ -6,8 +6,14 @@ const TELEMETRY_EVENTS = {
   "general": {
     methods: [ "general" ],
     objects: [ "otherProxyInUse", "settingsShown", "loadingError", "install",
-               "update", "proxyEnabled", "proxyDisabled", "panelShown" ],
+               "update", "panelShown" ],
     extra_keys: [],
+    record_on_release: true,
+  },
+  "state": {
+    methods: [ "state" ],
+    objects: [ "proxyEnabled", "proxyDisabled", ],
+    extra_keys: [ "passes" ],
     record_on_release: true,
   },
   "authentication": {
@@ -25,7 +31,13 @@ const TELEMETRY_EVENTS = {
   "settingsUrlClicks": {
     methods: [ "settings_url_clicks" ],
     objects: [ "manageAccount", "helpAndSupport", "cloudflare", "privacyPolicy",
-               "termsAndConditions", "giveUsFeedback" ],
+               "termsAndConditions", "giveUsFeedback", ],
+    extra_keys: [],
+    record_on_release: true,
+  },
+  "settings": {
+    methods: [ "settings" ],
+    objects: [ "setReminder", "setAutoRenew", ],
     extra_keys: [],
     record_on_release: true,
   },
@@ -78,8 +90,8 @@ export class Telemetry extends Component {
     }
   }
 
-  syncAddEvent(category, event, value = null) {
-    log(`Sending telemetry: ${category} - ${event} - ${value}`);
+  syncAddEvent(category, event, value = null, extra = null) {
+    log(`Sending telemetry: ${category} - ${event} - ${value} - ${extra}`);
 
     if (constants.isAndroid) {
       log(`No telemetry on android`);
@@ -87,7 +99,7 @@ export class Telemetry extends Component {
     }
 
     // eslint-disable-next-line verify-await/check
-    browser.telemetry.recordEvent(TELEMETRY_CATEGORY, category, event, value).catch(e => {
+    browser.telemetry.recordEvent(TELEMETRY_CATEGORY, category, event, value, extra).catch(e => {
       console.error("Telemetry.recordEvent failed", e);
     });
   }

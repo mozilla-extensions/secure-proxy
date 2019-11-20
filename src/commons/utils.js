@@ -71,6 +71,16 @@ const DEFAULT_SPS = "https://fpn.firefox.com/";
 // How often we check if we have new passes.
 const DEFAULT_PASSES_TIMEOUT = 21600; // 6 hours
 
+// Reminder enabled
+const DEFAULT_REMINDER = true;
+
+// Auto-renew enabled
+const DEFAULT_AUTORENEW = false;
+
+// DNS over HTTPS
+const DOH_URI = "https://mozilla.cloudflare-dns.com/dns-query";
+const DOH_BOOTSTRAP_ADDRESS = "1.1.1.1";
+
 const ConfigUtils = {
   async setProxyURL(proxyURL) {
     await browser.storage.local.set({proxyURL});
@@ -112,20 +122,30 @@ const ConfigUtils = {
     return await this.getStorageKey("debuggingEnabled") || false;
   },
 
-  async setMigrationCompleted(migrationCompleted) {
-    await browser.storage.local.set({migrationCompleted});
-  },
-
-  async getMigrationCompleted() {
-    return await this.getStorageKey("migrationCompleted") || false;
-  },
-
   async setPassesTimeout(passesTimeout) {
     await browser.storage.local.set({passesTimeout});
   },
 
   async getPassesTimeout() {
     return await this.getStorageKey("passesTimeout") || DEFAULT_PASSES_TIMEOUT;
+  },
+
+  async setReminder(reminder) {
+    await browser.storage.local.set({reminder});
+  },
+
+  async getReminder() {
+    let reminder = await this.getStorageKey("reminder");
+    return reminder === undefined ? DEFAULT_REMINDER : reminder;
+  },
+
+  async setAutoRenew(autorenew) {
+    await browser.storage.local.set({autorenew});
+  },
+
+  async getAutoRenew() {
+    let autorenew = await this.getStorageKey("autorenew");
+    return autorenew === undefined ? DEFAULT_AUTORENEW : autorenew;
   },
 
   async getCurrentConfig() {
@@ -138,12 +158,13 @@ const ConfigUtils = {
       proxyURL: await this.getProxyURL(),
       proxyMode: await this.getProxyMode(),
       debuggingEnabled: await this.getDebuggingEnabled(),
-      migrationCompleted: await this.getMigrationCompleted(),
       // eslint-disable-next-line verify-await/check
       currentPass: parseInt(await this.getStorageKey("currentPass"), 10),
       // eslint-disable-next-line verify-await/check
       totalPasses: parseInt(await this.getStorageKey("totalPasses"), 10),
       passesTimeout: await this.getPassesTimeout(),
+      reminder: await this.getReminder(),
+      autorenew: await this.getAutoRenew(),
     };
   },
 

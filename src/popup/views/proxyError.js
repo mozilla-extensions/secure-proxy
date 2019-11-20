@@ -16,7 +16,7 @@ class ViewProxyError extends View {
   syncPostShow(data) {
     View.showToggleButton(data, true);
 
-    if (data.migrationCompleted && data.totalPasses !== -1) {
+    if (data.totalPasses !== -1) {
       document.getElementById("passReport").hidden = false;
     }
   }

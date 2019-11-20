@@ -4,8 +4,6 @@ import {Passes} from "./passes.js";
 
 // Parameters for DNS over HTTP
 const DOH_MODE = 3;
-const DOH_URI = "https://mozilla.cloudflare-dns.com/dns-query";
-const DOH_BOOTSTRAP_ADDRESS = "1.1.1.1";
 const DOH_SKIP_CONFIRMATION_NS = "skip";
 const DOH_REQUEST_TIMEOUT = 30000; // 30 secs
 
@@ -93,7 +91,7 @@ export class Network extends Component {
 
     let captivePortalUrl;
     if (browser.captivePortal.canonicalURL) {
-      captivePortalUrl = await browser.captivePortal.canonicalURL.get({});
+      captivePortalUrl = (await browser.captivePortal.canonicalURL.get({})).value;
     } else {
       const prefs = await browser.experiments.proxyutils.settings.get({});
       captivePortalUrl = prefs.value.captiveDetect;
@@ -421,8 +419,13 @@ export class Network extends Component {
       browser.experiments.proxyutils.FTPEnabled.set({value: false});
     }
 
-    // eslint-disable-next-line verify-await/check
-    browser.proxy.settings.set({value: {respectBeConservative: false}});
+    try {
+      // eslint-disable-next-line verify-await/check
+      browser.proxy.settings.set({value: {respectBeConservative: false}});
+    } catch (e) {
+      console.error("Proxy.settings.set failed");
+    }
+
     // eslint-disable-next-line verify-await/check
     browser.experiments.proxyutils.HTTPProxyRespectBeConservative.set({value: false});
     // eslint-disable-next-line verify-await/check
@@ -434,8 +437,14 @@ export class Network extends Component {
     browser.experiments.proxyutils.DNSoverHTTP.clear({});
     // eslint-disable-next-line verify-await/check
     browser.experiments.proxyutils.FTPEnabled.clear({});
-    // eslint-disable-next-line verify-await/check
-    browser.proxy.settings.clear({});
+
+    try {
+      // eslint-disable-next-line verify-await/check
+      browser.proxy.settings.clear({});
+    } catch (e) {
+      console.error("Proxy.settings.set failed");
+    }
+
     // eslint-disable-next-line verify-await/check
     browser.experiments.proxyutils.HTTPProxyRespectBeConservative.clear({});
     // eslint-disable-next-line verify-await/check

@@ -35,6 +35,9 @@ export class View {
     let introHeading = document.getElementById("introHeading");
     introHeading.textContent = currentView.getTranslation(currentView.syncHeadingText(data));
 
+    // Hide the countdown by default.
+    this.syncShowPassCountdown(false);
+
     log(`Show: ${name}`);
     let template = currentView.syncShow(data);
     if (template && template instanceof Template) {
@@ -62,7 +65,7 @@ export class View {
     let toggleRow = document.getElementById("toggleRow");
     toggleRow.removeAttribute("hidden");
 
-    if (!data.migrationCompleted || data.totalPasses === -1) {
+    if (data.totalPasses === -1) {
       // eslint-disable-next-line verify-await/check
       toggleRow.classList.add("toggleRowBeta");
     }
@@ -72,9 +75,14 @@ export class View {
     toggleButton.checked = state;
   }
 
+  static syncShowPassCountdown(state) {
+    const countdown = document.getElementById("passCountdown");
+    countdown.hidden = !state;
+  }
+
   static hideToggleButton() {
     let toggleRow = document.getElementById("toggleRow");
-    toggleRow.setAttribute("hidden", "hidden");
+    toggleRow.toggleAttribute("hidden", true);
   }
 
   static onToggleButtonClicked(e) {
@@ -161,26 +169,6 @@ export class View {
 
   // To be overwritten if needed.
   syncFooter(data) {
-    if (!data) {
-      return null;
-    }
-
-    // No footer for unlimited, or when there are not passes available.
-    if (!data.migrationCompleted || data.totalPasses === -1 ||
-        (data.totalPasses - data.currentPass) === 0) {
-      return null;
-    }
-
-    // eslint-disable-next-line verify-await/check
-    if ([ PROXY_STATE_INACTIVE,
-          PROXY_STATE_ACTIVE,
-          PROXY_STATE_CONNECTING ].includes(data.proxyState)) {
-      return escapedTemplate`
-        <span id="popupBeta">${this.getTranslation("popupBetaUnlimited")}</span>
-        <a href="#" class="link popupBetaLink" id="betaUpgrade">${this.getTranslation("popupBetaUpgrade")}</a>
-      `;
-    }
-
     return null;
   }
 

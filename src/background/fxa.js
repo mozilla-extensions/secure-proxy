@@ -17,6 +17,8 @@ const FXA_CDN_DOMAINS = [
 // If the token generation fails for network errors, when should we try again?
 const NEXT_TRY_TIME = 300; // 5 minutes in secs.
 
+const NOTIFY_TIME = 300; // 5 minutes in secs.
+
 export class FxAUtils extends Component {
   constructor(receiver) {
     super(receiver);
@@ -30,6 +32,9 @@ export class FxAUtils extends Component {
     this.nextExpireTime = 0;
 
     this.tokenGenerationTimerId = 0;
+    this.notifyExpirationTimerId = 0;
+
+    this.dohHostnames = [];
 
     // The cached token will be populated as soon as the token is retrieved
     // from the storage or requested.
@@ -42,13 +47,35 @@ export class FxAUtils extends Component {
   async init() {
     this.service = await ConfigUtils.getSPService();
     this.proxyURL = await ConfigUtils.getProxyURL();
+    this.autoRenew = await StorageUtils.getAutoRenew();
+
+    const prefs = await browser.experiments.proxyutils.settings.get({});
+
+    try {
+      const url = new URL(prefs.value.dohUri);
+      // eslint-disable-next-line verify-await/check
+      this.dohHostnames.push(url.hostname);
+    } catch (e) {
+      // ignore
+    }
+
+    // eslint-disable-next-line verify-await/check
+    this.dohHostnames.push(new URL(DOH_URI).hostname);
+    // eslint-disable-next-line verify-await/check
+    this.dohHostnames.push(DOH_BOOTSTRAP_ADDRESS);
 
     await this.wellKnownData.init();
 
     // Let's see if we have to request a new token, but without waiting for the
     // result.
     // eslint-disable-next-line verify-await/check
-    this.maybeObtainToken();
+    const data = await this.maybeObtainToken();
+    if (data.state === FXA_PAYMENT_REQUIRED) {
+      log("We were active, but not we need a new token");
+      // We don't want to wait here to avoid a deadlock.
+      // eslint-disable-next-line verify-await/check
+      this.sendMessage("pass-needed-at-startup");
+    }
   }
 
   async authenticate() {
@@ -63,19 +90,24 @@ export class FxAUtils extends Component {
     // in order to regenerate them.
     await StorageUtils.setStateTokenAndProfileData(data.stateToken, data.profileData);
 
-    // If we have to migrate, a pass-needed event will be dispatched.
+    // Let's update the passes.
     await this.updatePasses(data);
 
-    // Let's obtain the token immediately only if the migration is not
-    // completed or the user is subscribed.
-    if (!Passes.syncGet().syncIsMigrationCompleted() ||
-        Passes.syncGet().syncAreUnlimited()) {
-      // Let's obtain the proxy token data. This method will dispatch a
-      // "tokenGenerated" event.
-      const result = await this.maybeObtainToken();
-      if (this.syncStateError(result)) {
-        return { state: FXA_ERR_AUTH };
-      }
+    // If we have passes, we need to inform the UI that tokens are not going to
+    // be generated.
+    if (!Passes.syncGet().syncAreUnlimited()) {
+      // We don't want to wait here. It would be a deadlock.
+      // eslint-disable-next-line verify-await/check
+      this.sendMessage("authCompletedWithPass");
+      return { state: FXA_OK };
+    }
+
+    // Let's obtain the token immediately only if we have unlimited passes.
+    // Let's obtain the proxy token data. This method will dispatch a
+    // "tokenGenerated" event.
+    const result = await this.maybeObtainToken();
+    if (this.syncStateError(result)) {
+      return { state: FXA_ERR_AUTH };
     }
 
     return { state: FXA_OK };
@@ -83,14 +115,11 @@ export class FxAUtils extends Component {
 
   async updatePasses(data) {
     log("Update pass report");
-
-    if (data.migrationCompleted) {
-      await Passes.syncGet().setPasses(data.currentPass, data.totalPasses);
-    }
+    await Passes.syncGet().setPasses(data.currentPass, data.totalPasses);
   }
 
   async maybeObtainToken(createIfNeeded = false) {
-    log("maybe request a token and profile data");
+    log(`maybe request a token and profile data - createIfNeeded: ${createIfNeeded}`);
 
     if (this.requestingToken) {
       log("token request in progress. Let's wait.");
@@ -114,6 +143,13 @@ export class FxAUtils extends Component {
     log("maybe generate proxy token");
 
     clearTimeout(this.tokenGenerationTimerId);
+    clearTimeout(this.notifyExpirationTimerId);
+
+    // Not authenticated yet.
+    const stateTokenData = await StorageUtils.getStateTokenData();
+    if (!stateTokenData) {
+      return { state: FXA_ERR_AUTH };
+    }
 
     let tokenGenerated = false;
 
@@ -137,11 +173,10 @@ export class FxAUtils extends Component {
     if (!tokenData) {
       log("generating token");
 
-      // If the creation is not wanted, we continue only if in pre-migration or
-      // unlimited.
+      // If the creation is not wanted, we continue only if passes are
+      // unlimited or we are in auto-renew.
       if (!createIfNeeded) {
-        if (Passes.syncGet().syncIsMigrationCompleted() &&
-            !Passes.syncGet().syncAreUnlimited()) {
+        if (!Passes.syncGet().syncAreUnlimited() && !this.autoRenew) {
           return { state: FXA_PAYMENT_REQUIRED };
         }
       }
@@ -163,6 +198,11 @@ export class FxAUtils extends Component {
     log(`token expires in ${minDiff}`);
 
     this.tokenGenerationTimerId = setTimeout(async _ => this.scheduledTokenGeneration(), minDiff * 1000);
+
+    // Notification when the token is about to expire.
+    if (minDiff > NOTIFY_TIME) {
+      this.notifyExpirationTimerId = setTimeout(async _ => this.showNotifyExpiration(), (minDiff - NOTIFY_TIME) * 1000);
+    }
 
     this.nextExpireTime = tokenData.received_at + tokenData.expires_in;
 
@@ -217,14 +257,18 @@ export class FxAUtils extends Component {
   async scheduledTokenGeneration() {
     log("Token generation scheduled");
 
+    if (this.cachedProxyState !== PROXY_STATE_ACTIVE) {
+      log("Proxy is inactive. We don't need a new token.");
+      return;
+    }
+
     // We need a new pass.
-    if (Passes.syncGet().syncIsMigrationCompleted() &&
-        !Passes.syncGet().syncAreUnlimited()) {
+    if (!Passes.syncGet().syncAreUnlimited() && !this.autoRenew) {
       Passes.syncGet().syncPassNeeded();
       return;
     }
 
-    // Unlimited or pre-migration.
+    // Unlimited.
     const result = await this.maybeObtainToken();
     if (this.syncStateError(result)) {
       log("token generation failed");
@@ -235,24 +279,6 @@ export class FxAUtils extends Component {
         setTimeout(async _ => this.scheduledTokenGeneration(), NEXT_TRY_TIME * 1000);
       }
     }
-  }
-
-  async generateToken() {
-    // Post migration, this block should go away.
-    if (!Passes.syncGet().syncIsMigrationCompleted()) {
-      const data = await this.obtainProxyInfo();
-      if (this.syncStateError(data)) {
-        return data;
-      }
-
-      await this.updatePasses(data);
-
-      if (data.migrationCompleted) {
-        return { state: FXA_PAYMENT_REQUIRED };
-      }
-    }
-
-    return this.generateTokenInternal();
   }
 
   async obtainProxyInfo() {
@@ -297,13 +323,12 @@ export class FxAUtils extends Component {
 
   syncJsonToInfo(json) {
     return {
-      migrationCompleted: json.tiers_enabled,
       currentPass: json.current_pass,
       totalPasses: json.total_passes,
     };
   }
 
-  async generateTokenInternal() {
+  async generateToken() {
     const stateTokenData = await StorageUtils.getStateTokenData();
     if (!stateTokenData) {
       return { state: FXA_ERR_AUTH };
@@ -477,21 +502,25 @@ export class FxAUtils extends Component {
     }
   }
 
-  // This method returns a token, null or a Promise.
-  askForProxyToken() {
+  syncIsRequestingToken() {
     // eslint-disable-next-line verify-await/check
     let nowInSecs = Math.floor(Date.now() / 1000);
-    if (!this.requestingToken &&
-        this.nextExpireTime &&
-        nowInSecs < this.nextExpireTime) {
+
+    return this.requestingToken ||
+           !this.nextExpireTime ||
+           nowInSecs >= this.nextExpireTime;
+  }
+
+  // This method returns a token, null or a Promise.
+  askForProxyToken() {
+    if (!this.syncIsRequestingToken()) {
       // Happy path!
       return this.cachedProxyTokenValue;
     }
 
-    // Let's obtain the token immediately only if the migration is not
-    // completed or the user is subscribed.
-    if (!Passes.syncGet().syncIsMigrationCompleted() ||
-        Passes.syncGet().syncAreUnlimited()) {
+    // Let's obtain the token immediately only if passes are unlimited or we
+    // are in auto-renew.
+    if (Passes.syncGet().syncAreUnlimited() || this.autoRenew) {
       // We don't care about the cached values. Maybe they are the old ones.
       return this.maybeObtainToken().then(_ => this.cachedProxyTokenValue);
     }
@@ -507,9 +536,18 @@ export class FxAUtils extends Component {
 
   isAuthUrl(url) {
     // Let's skip our authentication flow.
-
     // eslint-disable-next-line verify-await/check
     if (url.href.startsWith(this.service + "browser/oauth")) {
+      return true;
+    }
+
+    // Let's skip the DOH URIs during the token generation.
+    // Otherwise we can introduce a race condition: when we are generating a
+    // token we try to do the DNS lookup, but DOH requires a valid token and we
+    // start the generation of the token again...
+    if (this.syncIsRequestingToken() &&
+        // eslint-disable-next-line verify-await/check
+        this.dohHostnames.includes(url.hostname)) {
       return true;
     }
 
@@ -619,5 +657,24 @@ export class FxAUtils extends Component {
     }
 
     return { state: FXA_OK };
+  }
+
+  async showNotifyExpiration() {
+    log("Show notify expiration");
+
+    if (Passes.syncGet().syncAreUnlimited()) {
+      return;
+    }
+
+    if (!(await StorageUtils.getReminder())) {
+      return;
+    }
+
+    await this.sendMessage("showReminder");
+  }
+
+  async setAutoRenew(value) {
+    this.autoRenew = value;
+    return StorageUtils.setAutoRenew(value);
   }
 }

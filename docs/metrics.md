@@ -68,8 +68,6 @@ browser.telemetry.registerEvents("eventcategory", {
     }
 ```
 
-For our purposes, we don't use the `extra` field.
-
 Once an event is registered, we can record it with: (\*)
 
 `browser.telemetry.recordEvent(category, method, object, value, extra)`
@@ -89,8 +87,6 @@ The **methods** are:
    1. `loadingError`: the loading of the panel fails (this is based on a timer)
    1. `install`: the extension has been installed. **value**: the version number.
    1. `update`: the extension has been updated. **value**: the version number.
-   1. `proxyEnabled`: the proxy is enabled by user-interaction. **value**: toggleButton or stateButton.
-   1. `proxyDisabled`: the proxy is disabled by user-interaction. **value**: toggleButton or stateButton.
    1. `panelShown`: the proxy panel has been opened.
 1. `fxa` fires when there are authentication events. **objects**:
    1. `authStarted`: the user has started the authentication flow.
@@ -102,6 +98,9 @@ The **methods** are:
    1. `429`: the proxy returns 429 when the user is abusing of the service. The concept of "abuse" has not been defined yet.
    1. `connecting`: the proxy is unreachable during the connecting phase.
    1. `proxyDown`: the proxy seems unreachable.
+1. `state` fires when the proxy state changes
+   1. `proxyEnabled`: the proxy is enabled by user-interaction. **value**: toggleButton or stateButton. **extra**: passes, with the number of consumed passes
+   1. `proxyDisabled`: the proxy is disabled by user-interaction. **value**: toggleButton or stateButton. **extra**: passes, with the number of consumed passes
 1. `settings_url_clicks` fires when the user interacts with the settings view. **objects**:
    1. `manageAccount`: the user clicks on the manage account URL.
    1. `helpAndSupport`: the user clicks on the help & support URL.
@@ -109,6 +108,9 @@ The **methods** are:
    1. `privacyPolicy`: the user clicks on privacy & policy URL.
    1. `termsAndConditions`: the user clicks on terms & conditions URL.
    1. `giveUsFeedback`: the user clicks on give-us-a-feedback URL
+1. `settings` fires when the user changes some of settings. **objects**:
+   1. `setReminder`: the reminder setting has changed.
+   1. `setAutoRenew`: the auto-renew setting has changed.
 1. `webRTC` fires when the user interacts with the webRTC dialog in-content. **objects**:
    1. `ignoreTab`: the user has decided to keep the proxy on for this tab.
    1. `exemptTab`: the user has decided to disable the proxy for this tab.

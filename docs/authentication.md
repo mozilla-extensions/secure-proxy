@@ -79,7 +79,6 @@ Response:
 * Content-type: application/json
 * Body: ```{
   state: "ok",
-  tiers_enabled: <true/false>,
   proxy_token: <current token string if exists - null otherwise>,
   current_pass: <-1 for unlimited>
   total_passes: <-1 for unlimited>
@@ -102,7 +101,6 @@ Response:
 * Content-type: application/json
 * Body: ```{
   state: "ok",
-  tiers_enabled: <true/false>,
   proxy_token: <current token string if exists - null otherwise>,
   current_pass: <-1 for unlimited>
   total_passes: <-1 for unlimited>
@@ -125,7 +123,6 @@ Response:
 * Content-type: application/json
 * body: ```{
   state: "ok",
-  tiers_enabled: <true/false>,
   proxy_token: <new token or null>,
   current_pass: <-1 for unlimited>
   total_passes: <-1 for unlimited>
