@@ -62,7 +62,7 @@
 
   "content_scripts": [
     {
-      "matches": ["https://private-network.firefox.com/*"],
+      "matches": ["https://fpn.firefox.com/*"],
       "js": ["content/fetch-fxa-flow-params.js"]
     }
   ]
