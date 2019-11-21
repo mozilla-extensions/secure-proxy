@@ -427,6 +427,9 @@ export class Network extends Component {
     }
 
     // eslint-disable-next-line verify-await/check
+    browser.privacy.network.webRTCIPHandlingPolicy.set({value: "disable_non_proxied_udp" });
+
+    // eslint-disable-next-line verify-await/check
     browser.experiments.proxyutils.HTTPProxyRespectBeConservative.set({value: false});
     // eslint-disable-next-line verify-await/check
     browser.experiments.proxyutils.TLSVersionMax.set({value: 4});
@@ -444,6 +447,9 @@ export class Network extends Component {
     } catch (e) {
       console.error("Proxy.settings.set failed");
     }
+
+    // eslint-disable-next-line verify-await/check
+    browser.privacy.network.webRTCIPHandlingPolicy.clear({});
 
     // eslint-disable-next-line verify-await/check
     browser.experiments.proxyutils.HTTPProxyRespectBeConservative.clear({});
