@@ -24,9 +24,15 @@ export class Passes extends Component {
 
     const {currentPass} = await browser.storage.local.get("currentPass");
     this.currentPass = currentPass;
+    if (this.currentPass === undefined) {
+      this.currentPass = -1;
+    }
 
     const {totalPasses} = await browser.storage.local.get("totalPasses");
     this.totalPasses = totalPasses;
+    if (this.totalPasses === undefined) {
+      this.totalPasses = -1;
+    }
 
     this.syncSchedulePassCheck();
   }
