@@ -75,6 +75,7 @@ body {
   --inkLight: rgba(227, 225, 230, 1);
   --lightGrey: rgba(249, 249, 249, 1);
   --transparentGrey: rgba(24, 24, 24, 0.75);
+  --header-background-color: #073072;
 
   margin: 0;
   padding: 0;
@@ -94,29 +95,27 @@ body {
 }
 
 header {
-  position: absolute;
+  background-color: var(--header-background-color);
+  display: flex;
+  flex-direction: column;
+  position: fixed;
+  width: 100%;
+  z-index: 2;
+}
+
+.header-bg {
+  align-items: center;
+  color: #fff;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  margin: 0 auto;
+  max-width: 1440px;
+  padding: 16px 64px;
   top: 0;
   left: 0;
   right: 0;
-  z-index: 1;
-}
-
-.hero-bg,
-.header-bg {
-  background-color: var(--lightGrey);
-  background-image: url("img/proxy-shapes-top-right-rings.svg");
-  background-position: bottom center;
-  background-repeat: no-repeat;
-  background-size: cover;
-}
-
-.hero-bg {
-  padding-top: 8rem;
-}
-
-.header-bg {
-  background-position: center 80%;
-  box-shadow: 2px 2px 10px var(--transparentGrey);
+  width: 100%;
 }
 
 h1 {
@@ -140,19 +139,12 @@ h1,
 .logo {
   background-image: url("img/fpn-logo.svg");
   background-repeat: no-repeat;
-  background-size: contain;
-  min-width: 2.5rem;
-  min-height: 2.75rem;
-}
-
-.logotype {
-  background-image: url("img/fx-pn-logotype.svg");
-  background-repeat: no-repeat;
-  content: "";
-  max-width: 500px;
-  width: var(--logoWidth);
+  background-size: auto;
+  background-size: 286px;
   display: inline-block;
-  background-position: left center;
+  height: 48px;
+  padding-left: 38px;
+  width: 286px;
 }
 
 .section {
@@ -351,13 +343,18 @@ h1,
     text-align: left;
   }
 
-  .icon-headline-wrap {
-    flex-direction: column;
+  .header-bg {
+    padding: 16px 32px;
   }
 
-  .logotype {
-    background-image: url("img/fpn-logotype-stacked.svg");
-    margin-left: 0.5rem;
+  .logo {
+    background-size: 238px;
+    height: 40px;
+    width: 238px;
+  }
+
+  .icon-headline-wrap {
+    flex-direction: column;
   }
 
   footer,
@@ -387,11 +384,6 @@ h1,
 
   .how-to-wrapper {
     padding-top: 0;
-  }
-
-  .hero-bg {
-    padding-top: 6rem;
-    background-position: top;
   }
 }
 
