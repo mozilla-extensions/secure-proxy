@@ -9,7 +9,7 @@ class ViewMain extends View {
   }
 
   syncShow(data) {
-    this.proxyEnabled = data.proxyState === PROXY_STATE_ACTIVE;
+    this.proxyEnabled = data.proxyState !== PROXY_STATE_INACTIVE;
 
     // Unlimited.
     if (data.totalPasses === -1) {
@@ -98,7 +98,7 @@ class ViewMain extends View {
       View.hideToggleButton();
     }
 
-    if (this.proxyEnabled) {
+    if (data.proxyState === PROXY_STATE_ACTIVE) {
       View.setState("enabled", {text: this.getTranslation("heroProxyOn")});
     } else {
       View.setState("disabled", {text: this.getTranslation("heroProxyOff")});
@@ -113,7 +113,13 @@ class ViewMain extends View {
       }
 
       // Countdown Timer
-      View.syncShowPassCountdown(true);
+      if (data.proxyState === PROXY_STATE_ACTIVE &&
+          data.proxyState === PROXY_STATE_INACTIVE) {
+        View.syncShowPassCountdown(true);
+      } else {
+        View.syncShowPassCountdown(false);
+      }
+
       this.syncActivateCountdown(data);
     }
   }
