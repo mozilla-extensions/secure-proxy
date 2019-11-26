@@ -10,7 +10,7 @@ An extension to enable a proxy within Firefox.
 ## How to run WebExtension
 
 1. `npm start`
-2. This command uses `web-ext run` internally. Read [here](https://extensionworkshop.com/documentation/develop/web-ext-command-reference/#web-ext_run) how to change the default settings of web-ext.
+2. This command uses `web-ext run` internally. Read [here](https://extensionworkshop.com/documentation/develop/web-ext-command-reference/#web-ext_run) to change the default settings of web-ext.
 
 ## How to build WebExtension
 
@@ -39,7 +39,7 @@ See the [guidelines][contributing-link] for contributing to this project.
 
 This project is governed by a [Code Of Conduct][coc-link].
 
-To disclose potential a security vulnerability please see our [security][security-link] documentation.
+To disclose a potential security vulnerability please see our [security][security-link] documentation.
 
 ## [License][license-link]
 
