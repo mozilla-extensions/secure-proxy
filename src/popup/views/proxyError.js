@@ -1,23 +1,42 @@
 import {View} from "../view.js";
 
 class ViewProxyError extends View {
-  syncShow() {
-    View.setState("disabled", {text: this.getTranslation("heroProxyOn")});
+  syncShow(data) {
+    // Unlimited.
+    if (data.totalPasses === -1) {
+      const label = this.proxyEnabled ? "viewMainActive" : "viewMainInactive";
+      return escapedTemplate`
+        <p data-mode="unlimited">${this.getTranslation(label)}</p>
+        <p id="proxyError">${this.getTranslation("viewMainProxyError")}</p>
+      `;
+    }
+
+    // Free-tier - active.
+    const subRenew = data.autorenew ? "viewMainActiveSubPassAutoStartON" : "viewMainActiveSubPassAutoStartOFF";
 
     return escapedTemplate`
-      <div id="passReport" hidden>
-        <span id="passCount">${this.getTranslation("viewProxyErrorPassCount")}</span>
+      <div class="sub subMain">${this.getTranslation(subRenew)}
+        <a href="#" id="settingsLink">${this.getTranslation("viewMainSubSettings")}</a>${this.getTranslation("viewMainSubSettingsPost")}</div>
+      <div id="passReport">
+        <span id="passMsg">${this.getTranslation("viewMainPassAvailable")}</span>
+        <span id="passCount"></span>
       </div>
-      <p class="warning">
-        ${this.getTranslation("viewProxyError")}
-      </p>`;
+      <div class="sub subMain">${this.getTranslation("viewMainSubPassLeft")}</div>
+      <p id="proxyError">${this.getTranslation("viewMainProxyError")}</p>
+    `;
   }
 
   syncPostShow(data) {
     View.showToggleButton(data, true);
+    View.setState("disabled", {text: this.getTranslation("heroProxyOff")});
 
+    // Free-tier.
     if (data.totalPasses !== -1) {
-      document.getElementById("passReport").hidden = false;
+      let passAvailable = data.totalPasses - data.currentPass;
+      const passCount = document.getElementById("passCount");
+      if (passCount) {
+        passCount.textContent = passAvailable;
+      }
     }
   }
 

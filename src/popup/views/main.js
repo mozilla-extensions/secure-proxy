@@ -9,14 +9,13 @@ class ViewMain extends View {
   }
 
   syncShow(data) {
-    this.proxyEnabled = data.proxyState !== PROXY_STATE_INACTIVE;
+    this.proxyEnabled = data.proxyState === PROXY_STATE_ACTIVE;
 
     // Unlimited.
     if (data.totalPasses === -1) {
       const label = this.proxyEnabled ? "viewMainActive" : "viewMainInactive";
       return escapedTemplate`
         <p data-mode="unlimited">${this.getTranslation(label)}</p>
-        <p id="proxyError" hidden>${this.getTranslation("viewMainProxyError")}</p>
       `;
     }
 
@@ -32,7 +31,6 @@ class ViewMain extends View {
           <span id="passCount"></span>
         </div>
         <div class="sub subMain">${this.getTranslation("viewMainSubPassLeft")}</div>
-        <p id="proxyError" hidden>${this.getTranslation("viewMainProxyError")}</p>
       `;
     }
 
@@ -49,7 +47,6 @@ class ViewMain extends View {
           <span id="passCount"></span>
         </div>
         <div class="sub subMain">${this.getTranslation("viewMainSubPassLeft")}</div>
-        <p id="proxyError" hidden>${this.getTranslation("viewMainProxyError")}</p>
       `;
     }
 
@@ -59,7 +56,6 @@ class ViewMain extends View {
         <span id="passCount"></span>
       </div>
       <p data-mode="0pass">${this.getTranslation("viewMainInactiveWithoutPasses")}</p>
-      <p id="proxyError" hidden>${this.getTranslation("viewMainProxyError")}</p>
       <button id="vpnLink" class="primary">
         ${this.getTranslation("viewMainVPNButton")}
       </button>
@@ -73,12 +69,6 @@ class ViewMain extends View {
       return null;
     }
 
-    // No footer with errors.
-    if (data.proxyState !== PROXY_STATE_INACTIVE &&
-        data.proxyState !== PROXY_STATE_ACTIVE) {
-      return null;
-    }
-
     return escapedTemplate`
       <span id="popupBeta">${this.getTranslation("popupVPNFooter")}</span>
       <a href="#" class="link popupBetaLink" id="vpnLink">${this.getTranslation("popupVPNLink")}</a>
@@ -86,11 +76,6 @@ class ViewMain extends View {
   }
 
   syncPostShow(data) {
-    if (data.proxyState !== PROXY_STATE_INACTIVE &&
-        data.proxyState !== PROXY_STATE_ACTIVE) {
-      document.getElementById("proxyError").hidden = false;
-    }
-
     if (data.totalPasses === -1 || this.proxyEnabled ||
         (data.totalPasses - data.currentPass) > 0) {
       View.showToggleButton(data, this.proxyEnabled);
@@ -113,13 +98,7 @@ class ViewMain extends View {
       }
 
       // Countdown Timer
-      if (data.proxyState === PROXY_STATE_ACTIVE &&
-          data.proxyState === PROXY_STATE_INACTIVE) {
-        View.syncShowPassCountdown(true);
-      } else {
-        View.syncShowPassCountdown(false);
-      }
-
+      View.syncShowPassCountdown(true);
       this.syncActivateCountdown(data);
     }
   }
