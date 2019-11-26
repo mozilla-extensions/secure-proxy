@@ -76,17 +76,19 @@ async function init() {
       case PROXY_STATE_INACTIVE:
         // fall through
       case PROXY_STATE_ACTIVE:
-        // fall through
-      case PROXY_STATE_PROXYERROR:
-        // fall through
-      case PROXY_STATE_PROXYAUTHFAILED:
-        // fall through
-      case PROXY_STATE_OFFLINE:
         if (msg.exempt && msg.proxyState === PROXY_STATE_ACTIVE) {
           await View.setView("exempt", msg);
         } else {
           await View.setView("main", msg);
         }
+        return;
+
+      case PROXY_STATE_PROXYERROR:
+        // fall through
+      case PROXY_STATE_PROXYAUTHFAILED:
+        // fall through
+      case PROXY_STATE_OFFLINE:
+        await View.setView("proxyError", msg);
         return;
 
       case PROXY_STATE_CONNECTING:
