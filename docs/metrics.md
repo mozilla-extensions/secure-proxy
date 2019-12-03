@@ -1,6 +1,6 @@
 # Secure-Proxy telemetry events
 
-_Last Updated: Aug 28, 2019_
+_Last Updated: Dec 03, 2019_
 
 <!-- TOC depthFrom:2 depthTo:6 withLinks:1 updateOnSave:1 orderedList:0 -->
 
@@ -89,7 +89,7 @@ The **methods** are:
    1. `update`: the extension has been updated. **value**: the version number.
    1. `panelShown`: the proxy panel has been opened.
 1. `fxa` fires when there are authentication events. **objects**:
-   1. `authStarted`: the user has started the authentication flow.
+   1. `authStarted`: the user has started the authentication flow. (user-interaction)
    1. `authCompleted`: the user has completed the authentication flow.
    1. `authFailed`: the authentication flow has terminated with an error.
    1. `authFailedByGeo`: the authentication flow has terminated with an geo-restriction error.
@@ -99,21 +99,21 @@ The **methods** are:
    1. `connecting`: the proxy is unreachable during the connecting phase.
    1. `proxyDown`: the proxy seems unreachable.
 1. `state` fires when the proxy state changes
-   1. `proxyEnabled`: the proxy is enabled by user-interaction. **value**: toggleButton or stateButton. **extra**: passes, with the number of consumed passes
-   1. `proxyDisabled`: the proxy is disabled by user-interaction. **value**: toggleButton or stateButton. **extra**: passes, with the number of consumed passes
+   1. `proxyEnabled`: the proxy is enabled by user-interaction. **value**: toggleButton or stateButton. **extra**: passes, with the number of consumed passes. (user-interaction)
+   1. `proxyDisabled`: the proxy is disabled by user-interaction. **value**: toggleButton or stateButton. **extra**: passes, with the number of consumed passes. (user-interaction)
 1. `settings_url_clicks` fires when the user interacts with the settings view. **objects**:
-   1. `manageAccount`: the user clicks on the manage account URL.
-   1. `helpAndSupport`: the user clicks on the help & support URL.
-   1. `cloudflare`: the user clicks on the Cloudflare URL.
-   1. `privacyPolicy`: the user clicks on privacy & policy URL.
-   1. `termsAndConditions`: the user clicks on terms & conditions URL.
-   1. `giveUsFeedback`: the user clicks on give-us-a-feedback URL
+   1. `manageAccount`: the user clicks on the manage account URL. (user-interaction)
+   1. `helpAndSupport`: the user clicks on the help & support URL. (user-interaction)
+   1. `cloudflare`: the user clicks on the Cloudflare URL. (user-interaction)
+   1. `privacyPolicy`: the user clicks on privacy & policy URL. (user-interaction)
+   1. `termsAndConditions`: the user clicks on terms & conditions URL. (user-interaction)
+   1. `giveUsFeedback`: the user clicks on give-us-a-feedback URL (user-interaction)
 1. `settings` fires when the user changes some of settings. **objects**:
-   1. `setReminder`: the reminder setting has changed.
-   1. `setAutoRenew`: the auto-renew setting has changed.
+   1. `setReminder`: the reminder setting has changed. (user-interaction)
+   1. `setAutoRenew`: the auto-renew setting has changed. (user-interaction)
 1. `webRTC` fires when the user interacts with the webRTC dialog in-content. **objects**:
-   1. `ignoreTab`: the user has decided to keep the proxy on for this tab.
-   1. `exemptTab`: the user has decided to disable the proxy for this tab.
+   1. `ignoreTab`: the user has decided to keep the proxy on for this tab. (user-interaction)
+   1. `exemptTab`: the user has decided to disable the proxy for this tab. (user-interaction)
 
 
 ### scalar Registration and Recording
