@@ -2,12 +2,12 @@
   "manifest_version": 2,
   "name": "__MSG_extensionName__",
   "default_locale": "en_US",
-  "version": "17",
+  "version": "18",
   "author": "Firefox",
   "applications": {
     "gecko": {
       "id": "secure-proxy@mozilla.com",
-      "strict_min_version": "68.0.1",
+      "strict_min_version": "71",
       "update_url": "https://fpn.firefox.com/downloads/browser/updates.json"
     }
   },
@@ -48,7 +48,7 @@
     }
   },
 
-  "web_accessible_resources": ["fonts/*.woff2", "content/content-modal.css"],
+  "web_accessible_resources": ["fonts/*.woff2"],
 
   "background": {
     "page": "background/page.html"

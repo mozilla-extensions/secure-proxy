@@ -38,9 +38,6 @@
   "injectedModalAcceptButton": {
     "message": "Turn Off in This Tab"
   },
-  "viewExemptTab": {
-    "message": "This tab is not protected by the Private Network proxy service. Your location is visible to ad trackers and websites you visit in this tab."
-  },
 
   "introHeading": {
     "message": "Firefox Private Network"
@@ -102,9 +99,6 @@
   },
   "toastWarning": {
     "message": "Firefox Private Network needs your attention!"
-  },
-  "toastTabExempt": {
-    "message": "Firefox Private Network is temporarily disabled."
   },
   "toastReminderAutoStartOFF": {
     "message": "5 minutes left. Firefox Private Network will turn off when this pass expires."

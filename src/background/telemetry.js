@@ -41,12 +41,6 @@ const TELEMETRY_EVENTS = {
     extra_keys: [],
     record_on_release: true,
   },
-  "webRTC": {
-    methods: [ "webRTC" ],
-    objects: [ "ignoreTab", "exemptTab" ],
-    extra_keys: [],
-    record_on_release: true,
-  },
 };
 const TELEMETRY_SCALARS = {
   bandwidth: {
