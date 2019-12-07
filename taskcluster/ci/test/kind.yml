@@ -17,7 +17,7 @@ job-defaults:
     worker:
         max-run-time: 7200
         docker-image:
-            indexed: xpi.xpi-manifest.cache.level-1.docker-images.v2.node-latest.latest
+            indexed: xpi.cache.level-1.docker-images.v2.node-latest.latest
     run:
         use-caches: false
 
