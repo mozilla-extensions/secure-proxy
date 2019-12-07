@@ -23,6 +23,8 @@ job-defaults:
 
 jobs:
     ci:
+        attributes:
+            code-review: true
         run:
             using: run-task
             cwd: '{checkout}'
