@@ -76,11 +76,7 @@ async function init() {
       case PROXY_STATE_INACTIVE:
         // fall through
       case PROXY_STATE_ACTIVE:
-        if (msg.exempt && msg.proxyState === PROXY_STATE_ACTIVE) {
-          await View.setView("exempt", msg);
-        } else {
-          await View.setView("main", msg);
-        }
+        await View.setView("main", msg);
         return;
 
       case PROXY_STATE_PROXYERROR:

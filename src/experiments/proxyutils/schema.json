@@ -44,19 +44,6 @@
         ]
       },
       {
-        "name": "getBaseDomainFromHost",
-        "type": "function",
-        "async": true,
-        "description": "Returns a base domain ETLD+1 string",
-        "parameters": [
-          {
-            "name": "url",
-            "type": "string",
-            "description": "the URL string to get the ETLD+1 for"
-          }
-        ]
-      },
-      {
         "name": "formatURL",
         "type": "function",
         "async": true,

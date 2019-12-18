@@ -17,49 +17,7 @@ export class UI extends Component {
   constructor(receiver) {
     super(receiver);
 
-    this.exemptTabStatus = new Map();
-
-    // A map of content-script ports. The key is the tabId.
-    this.contentScriptPorts = new Map();
-
-    browser.tabs.onRemoved.addListener((tabId) => {
-      // eslint-disable-next-line verify-await/check
-      this.exemptTabStatus.delete(tabId);
-    });
-
-    browser.tabs.onUpdated.addListener((tabId) => {
-      // Icon overrides are changes when the user navigates
-      // We don't care about the delay here for setting the icon and we can't block here
-      // eslint-disable-next-line verify-await/check
-      this.setTabIcon(tabId);
-    });
-    browser.tabs.onActivated.addListener((info) => {
-      if (this.syncIsTabExempt(info.tabId)) {
-        // Is async but doesn't have side effects
-        // eslint-disable-next-line verify-await/check
-        this.showStatusPrompt();
-      }
-    });
-
-    // eslint-disable-next-line consistent-return
-    browser.runtime.onMessage.addListener((message, sender) => {
-      if (message.type === "getBaseDomainFromHost") {
-        return browser.experiments.proxyutils.getBaseDomainFromHost(message.hostname);
-      }
-
-      if (message.type === "exempt") {
-        this.syncExemptTab(sender.tab.id, message.status);
-      }
-    });
-
     browser.runtime.onConnect.addListener(port => {
-      if (port.name === "port-from-cs") {
-        // Is sync
-        // eslint-disable-next-line verify-await/check
-        this.contentScriptConnected(port);
-        return;
-      }
-
       if (port.name === "panel") {
         // is async but waiting for this is not important
         // eslint-disable-next-line verify-await/check
@@ -85,113 +43,8 @@ export class UI extends Component {
     }
   }
 
-  syncGetExemptTabStatus(name) {
-    return this.exemptTabStatus.get(name);
-  }
-
-  syncSetExemptTabStatus(name, value) {
-    return this.exemptTabStatus.set(name, value);
-  }
-
-  async getCurrentTab() {
-    let currentTab = (await browser.tabs.query({currentWindow: true, active: true}))[0];
-    return currentTab;
-  }
-
-  async isCurrentTabExempt() {
-    let currentTab = await this.getCurrentTab();
-    return currentTab && this.syncIsTabExempt(currentTab.id);
-  }
-
-  syncIsTabExempt(tabId) {
-    return this.syncGetExemptTabStatus(tabId) === "exemptTab";
-  }
-
-  syncExemptTab(tabId, status) {
-    // We don't care about the return value here.
-    this.syncSendMessage("telemetryEvent", { category: "webRTC", event: status });
-
-    log(`exemptTab ${tabId} ${status}`);
-    this.syncSetExemptTabStatus(tabId, status);
-    // We don't care about the delay here for setting the icon and we can't block here
-    this.setTabIcon(tabId);
-
-    // eslint-disable-next-line verify-await/check
-    this.showStatusPrompt();
-  }
-
-  syncRemoveExemptTab(tabId) {
-    log(`removeExemptTab ${tabId}`);
-    this.syncSetExemptTabStatus(tabId, "ignoreTab");
-    // We don't care about the delay here for setting the icon and we can't block here
-    this.setTabIcon(tabId);
-
-    // Re-enable the content script blocking on the tab
-    this.informContentScripts();
-  }
-
-  // Used to set or remove tab exemption icons
-  async setTabIcon(tabId) {
-    log(`updating tab icon: ${tabId}`);
-
-    if (constants.isAndroid) {
-      return;
-    }
-
-    // default value here is undefined which resets the icon back when it becomes non exempt again
-    let path;
-    // default title resets the tab title
-    let title = null;
-    if (this.syncIsTabExempt(tabId)) {
-      title = this.getTranslation("badgeWarningText");
-      path = "/img/badge_warning.svg";
-    }
-
-    await Promise.all([
-      browser.browserAction.setIcon({
-        path,
-        tabId
-      }),
-      browser.browserAction.setTitle({
-        tabId,
-        title
-      }),
-    ]);
-  }
-
-  contentScriptConnected(port) {
-    log("content-script connected");
-
-    // eslint-disable-next-line verify-await/check
-    this.contentScriptPorts.set(port.sender.tab.id, port);
-    // Let's inform the new port about the current state.
-    this.syncContentScriptNotify(port);
-
-    port.onDisconnect.addListener(_ => {
-      log("content-script port disconnected");
-      // eslint-disable-next-line verify-await/check
-      this.contentScriptPorts.delete(port.sender.tab.id);
-    });
-  }
-
-  informContentScripts() {
-    for (const p of this.contentScriptPorts) {
-      this.syncContentScriptNotify(p);
-    }
-  }
-
   async afterConnectionSteps() {
-    this.informContentScripts();
     await this.update();
-  }
-
-  syncContentScriptNotify(p) {
-    try {
-      const exempted = this.syncGetExemptTabStatus(p.sender.tab.id);
-      // Post message explicitly is fire and forget
-      // eslint-disable-next-line verify-await/check
-      p.postMessage({type: "proxyState", enabled: this.cachedProxyState === PROXY_STATE_ACTIVE, exempted});
-    } catch (e) {}
   }
 
   async panelConnected(port) {
@@ -213,15 +66,6 @@ export class UI extends Component {
             enabledState: message.data.enabledState,
             reason: message.data.reason,
           });
-          break;
-
-        case "removeExemptTab":
-          // port.sender.tab doesn't exist for browser actions
-          const currentTab = await this.getCurrentTab();
-          if (currentTab) {
-            this.syncRemoveExemptTab(currentTab.id);
-            await this.update();
-          }
           break;
 
         case "authenticate":
@@ -329,11 +173,6 @@ export class UI extends Component {
         break;
     }
 
-    if (await this.isCurrentTabExempt()) {
-      promptNotice = "toastTabExempt";
-      isWarning = true;
-    }
-
     if (promptNotice) {
       await browser.experiments.proxyutils.showPrompt(this.getTranslation(promptNotice), isWarning);
     }
@@ -401,7 +240,6 @@ export class UI extends Component {
     ]);
   }
 
-  // This updates any tab that doesn't have an exemption
   async updateIcon() {
     if (constants.isAndroid) {
       return;
@@ -436,7 +274,6 @@ export class UI extends Component {
   async sendDataToCurrentPort() {
     log("Update the panel: ", this.currentPort);
     if (this.currentPort) {
-      const exempt = await this.isCurrentTabExempt();
       const profileData = await StorageUtils.getProfileData();
       const dataPasses = Passes.syncGet().syncGetPasses();
       const tokenData = await StorageUtils.getProxyTokenData();
@@ -446,7 +283,6 @@ export class UI extends Component {
       return this.currentPort.postMessage({
         userInfo: profileData,
         proxyState: this.cachedProxyState,
-        exempt,
         ...dataPasses,
         tokenData,
         reminder,

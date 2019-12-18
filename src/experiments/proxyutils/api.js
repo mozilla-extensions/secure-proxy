@@ -474,10 +474,6 @@ this.proxyutils = class extends ExtensionAPI {
             return Services.urlFormatter.formatURL(url);
           },
 
-          async getBaseDomainFromHost(url) {
-            return Services.eTLD.getBaseDomainFromHost(url);
-          },
-
           async loadNetError(errorCode, url, tabId) {
             let nativeTab = getTabOrActive(tabId);
             // eslint-disable-next-line verify-await/check

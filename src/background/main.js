@@ -79,20 +79,6 @@ class Main {
     // the meantime.
     this.handlingEvent = false;
     this.syncProcessPendingEvents();
-
-    // Let's disable webRTC only if the firefox version is lower than 71.
-    const browserInfo = await browser.runtime.getBrowserInfo();
-    if (browserInfo.version < "71") {
-      await browser.contentScripts.register({
-        matches: ["<all_urls>"],
-        js: [
-          {file: "../commons/utils.js" },
-          {file: "../commons/template.js"},
-          {file: "../content/content-script.js"},
-        ],
-        runAt: "document_start"
-      });
-    }
   }
 
   async firstRun() {
@@ -418,10 +404,6 @@ class Main {
   }
 
   syncSkipProxy(requestInfo, url) {
-    if (this.ui.syncIsTabExempt(requestInfo.tabId)) {
-      return true;
-    }
-
     // eslint-disable-next-line verify-await/check
     if (this.fxa.isAuthUrl(url)) {
       return true;

@@ -36,8 +36,6 @@ The data collection outlined here is geared toward answering the following quest
 * How often we have authentication errors. In particular we care about:
   * How often the user starts the authentication flow
   * How often the authentication flow succeeds and how often it fails.
-* Is the webRTC-disabling message good enough?
-  * Is this feature used by the user to exempt tabs?
 * What is the amount of bandwidth consumed when the proxy is in use?
 
 ## Collection
@@ -111,9 +109,6 @@ The **methods** are:
 1. `settings` fires when the user changes some of settings. **objects**:
    1. `setReminder`: the reminder setting has changed. (user-interaction)
    1. `setAutoRenew`: the auto-renew setting has changed. (user-interaction)
-1. `webRTC` fires when the user interacts with the webRTC dialog in-content. **objects**:
-   1. `ignoreTab`: the user has decided to keep the proxy on for this tab. (user-interaction)
-   1. `exemptTab`: the user has decided to disable the proxy for this tab. (user-interaction)
 
 
 ### scalar Registration and Recording
