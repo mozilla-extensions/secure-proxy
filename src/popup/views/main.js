@@ -56,7 +56,7 @@ class ViewMain extends View {
         <span id="passCount"></span>
       </div>
       <p data-mode="0pass">${this.getTranslation("viewMainInactiveWithoutPasses")}</p>
-      <button id="vpnLink" class="primary">
+      <button id="vpnLinkPassesExpired" class="primary">
         ${this.getTranslation("viewMainVPNButton")}
       </button>
     `;
@@ -71,7 +71,7 @@ class ViewMain extends View {
 
     return escapedTemplate`
       <span id="popupBeta">${this.getTranslation("popupVPNFooter")}</span>
-      <a href="#" class="link popupBetaLink" id="vpnLink">${this.getTranslation("popupVPNLink")}</a>
+      <a href="#" class="link popupBetaLink" id="vpnLinkFooter">${this.getTranslation("popupVPNLink")}</a>
     `;
   }
 
@@ -104,7 +104,7 @@ class ViewMain extends View {
   }
 
   handleClickEvent(e) {
-    if (e.target.id === "vpnLink") {
+    if (e.target.id === "vpnLinkPassesExpired" || e.target.id === "vpnLinkFooter") {
       // eslint-disable-next-line verify-await/check
       View.sendMessage(e.target.id);
       View.close();

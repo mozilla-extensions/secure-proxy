@@ -11,7 +11,8 @@ const CLOUDFLARE_URL = "https://www.cloudflare.com/";
 const PRIVACY_POLICY_URL = "https://www.mozilla.org/privacy/firefox-private-network";
 const TERMS_AND_CONDITIONS_URL = "https://www.mozilla.org/about/legal/terms/firefox-private-network";
 const GIVE_US_FEEDBACK_URL = "https://qsurvey.mozilla.com/s3/fx-private-network-beta-feedback";
-const BETA_VPN_URL = "https://fpn.firefox.com/vpn";
+const BETA_VPN_FOOTER_URL = "https://fpn.firefox.com/vpn?utm_medium=secure-proxy&utm_source=firefox-browser&utm_campaign=upgrade&utm_content=looking-for-vpn";
+const BETA_VPN_PASSES_EXPIRED_URL = "https://fpn.firefox.com/vpn?utm_medium=secure-proxy&utm_source=firefox-browser&utm_campaign=upgrade&utm_content=passes-expired";
 
 export class UI extends Component {
   constructor(receiver) {
@@ -106,8 +107,12 @@ export class UI extends Component {
           this.syncSendMessage("telemetryEvent", { category: "settings_url_clicks", event: message.type });
           break;
 
-        case "vpnLink":
-          await this.openUrl(BETA_VPN_URL);
+        case "vpnLinkFooter":
+          await this.openUrl(BETA_VPN_FOOTER_URL);
+          break;
+
+        case "vpnLinkPassesExpired":
+          await this.openUrl(BETA_VPN_PASSES_EXPIRED_URL);
           break;
 
         case "telemetryEvent":
