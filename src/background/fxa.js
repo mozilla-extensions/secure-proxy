@@ -630,6 +630,7 @@ export class FxAUtils extends Component {
     const data = await this.obtainProxyInfo();
     if (this.syncStateError(data)) {
       // We don't care about this error.
+      return;
     }
 
     await this.updatePasses(data);
