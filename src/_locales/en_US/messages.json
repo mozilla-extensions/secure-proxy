@@ -135,7 +135,7 @@
     "message": "Private Network is not protecting your Firefox connection. Websites, ad trackers, and your internet service provider may be able to see your online activity."
   },
   "viewMainInactiveWithoutPasses": {
-    "message": "You’ll receive 12 new passes at the beginning of next month. For full-device protection, join the waitlist for the VPN."
+    "message": "You’ll receive 12 new passes at the beginning of next month. For unlimited protection, join the waitlist to upgrade to the full-device VPN."
   },
   "viewMainVPNButton": {
     "message": "Join the Waitlist"
