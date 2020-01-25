@@ -53,6 +53,12 @@ async function init() {
     View.showSettings(!!msg.userInfo);
     View.showBack(false);
 
+    // We received some logs to download.
+    if (Array.isArray(msg.logs)) {
+      downloadLogs(msg.logs);
+      delete msg.logs;
+    }
+
     switch (msg.proxyState) {
       case PROXY_STATE_LOADING:
         // We want to keep the 'loading' view.
@@ -116,3 +122,17 @@ window.addEventListener("auxclick", event => {
     event.preventDefault();
   }
 });
+
+function downloadLogs(logs) {
+  const blob = new Blob([logs.join("\n")], {type: "octet/stream"});
+  const url = URL.createObjectURL(blob);
+
+  const a = document.createElement("a");
+  document.body.appendChild(a);
+  a.style = "display: none";
+  a.href = url;
+  a.download = "secure-proxy-logs.txt";
+
+  a.click();
+  URL.revokeObjectURL(url);
+}

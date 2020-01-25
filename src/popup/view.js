@@ -34,6 +34,7 @@ export class View {
 
     let introHeading = document.getElementById("introHeading");
     introHeading.textContent = currentView.getTranslation(currentView.syncHeadingText(data));
+    introHeading.addEventListener("click", currentView);
 
     // Hide the countdown by default.
     this.syncShowPassCountdown(false);

@@ -131,6 +131,10 @@ export class UI extends Component {
           this.syncSendMessage("telemetryEvent", { category: "settings", event: message.type, extra: "" + message.data.value });
           await this.sendMessage("setAutoRenew", message.data);
           break;
+
+        case "logRequired":
+          this.logRequired();
+          break;
       }
     });
 
@@ -140,6 +144,13 @@ export class UI extends Component {
     });
 
     await this.sendDataToCurrentPort();
+  }
+
+  async logRequired() {
+    const logs = await this.sendMessage("logRequired");
+    if (logs) {
+      this.sendDataToCurrentPort(logs);
+    }
   }
 
   async showStatusPrompt() {
@@ -279,7 +290,7 @@ export class UI extends Component {
     ]);
   }
 
-  async sendDataToCurrentPort() {
+  async sendDataToCurrentPort(logs = null) {
     log("Update the panel: ", this.currentPort);
     if (this.currentPort) {
       const profileData = await StorageUtils.getProfileData();
@@ -295,6 +306,7 @@ export class UI extends Component {
         tokenData,
         reminder,
         autorenew,
+        logs,
       });
     }
     return null;

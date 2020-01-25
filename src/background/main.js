@@ -583,6 +583,9 @@ class Main {
       case "tokenGenerated":
         return this.maybeActivate("tokenGenerated");
 
+      case "logRequired":
+        return await this.logger.syncGetLogs();
+
       default:
         console.error("Invalid event: " + type);
         throw new Error("Invalid event: " + type);

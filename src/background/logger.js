@@ -18,6 +18,10 @@ export class Logger extends Component {
     this.debuggingMode = await ConfigUtils.getDebuggingEnabled();
   }
 
+  syncGetLogs() {
+    return this.logMessages;
+  }
+
   static logger(category) {
     return (msg, ...rest) => {
       if (self) {
