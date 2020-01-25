@@ -1,5 +1,8 @@
 import {Component} from "./component.js";
 import {constants} from "./constants.js";
+import {Logger} from "./logger.js";
+
+const log = Logger.logger("MobileEvents");
 
 export class MobileEvents extends Component {
   async init() {

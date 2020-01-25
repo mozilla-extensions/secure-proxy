@@ -1,7 +1,10 @@
 import {Component} from "./component.js";
 import {constants} from "./constants.js";
+import {Logger} from "./logger.js";
 import {Passes} from "./passes.js";
 import {StorageUtils} from "./storageUtils.js";
+
+const log = Logger.logger("UI");
 
 // These URLs must be formatted
 const HELP_AND_SUPPORT_URL = "https://support.mozilla.org/1/firefox/%VERSION%/%OS%/%LOCALE%/firefox-private-network";

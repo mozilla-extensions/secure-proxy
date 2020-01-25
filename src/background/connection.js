@@ -1,3 +1,7 @@
+import {Logger} from "./logger.js";
+
+const log = Logger.logger("ConnectionTester");
+
 const CONNECTION_TIMEOUT = 20000; // 20 secs.
 
 export class ConnectionTester {

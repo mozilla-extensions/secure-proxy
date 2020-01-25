@@ -1,5 +1,8 @@
 import {ConnectionTester} from "./connection.js";
 import {Component} from "./component.js";
+import {Logger} from "./logger.js";
+
+const log = Logger.logger("OfflineManager");
 
 export class OfflineManager extends Component {
   constructor(receiver) {

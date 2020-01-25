@@ -1,5 +1,8 @@
 import {Component} from "./component.js";
+import {Logger} from "./logger.js";
 import {StorageUtils} from "./storageUtils.js";
+
+const log = Logger.logger("ExternalHandler");
 
 // This component handles message from external extensions
 // It's current use is to accept configuration of the addon

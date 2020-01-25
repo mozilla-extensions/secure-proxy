@@ -1,5 +1,8 @@
 import {Component} from "./component.js";
 import {constants} from "./constants.js";
+import {Logger} from "./logger.js";
+
+const log = Logger.logger("Telemetry");
 
 const TELEMETRY_CATEGORY = "secure.proxy";
 const TELEMETRY_EVENTS = {

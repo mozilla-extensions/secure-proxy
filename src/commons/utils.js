@@ -173,29 +173,3 @@ const ConfigUtils = {
     return data[key];
   }
 };
-
-// Enable debugging
-let debuggingMode = false;
-// We don't want to block log's from happening so use then()
-ConfigUtils.getDebuggingEnabled().then((debugging) => {
-  debuggingMode = debugging;
-});
-
-function log(msg, ...rest) {
-  if (debuggingMode) {
-    const options = {
-      year: "numeric",
-      month: "2-digit",
-      day: "2-digit",
-      hour: "numeric",
-      minute: "numeric",
-      second: "numeric",
-      hour12: false,
-    };
-    const dateTimeFormat = new Intl.DateTimeFormat("en-US", options).format;
-
-    // eslint-disable-next-line verify-await/check
-    let now = dateTimeFormat(Date.now());
-    console.log("*** secure-proxy *** [" + now + "] - " + msg, ...rest);
-  }
-}
