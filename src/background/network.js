@@ -491,9 +491,15 @@ export class Network extends Component {
       return true;
     }
 
+    if (errorStatus === "NS_ERROR_PROXY_BAD_GATEWAY") {
+      this.syncSendMessage("telemetryEvent", { category: "networking", event: "502" });
+      // We don't want to dispatch a proxyGenericError here. We let
+      // NetworkErrorCounter to do it if needed.
+      return true;
+    }
+
     if (errorStatus === "NS_ERROR_PROXY_CONNECTION_REFUSED" ||
         errorStatus === "NS_ERROR_UNKNOWN_PROXY_HOST" ||
-        errorStatus === "NS_ERROR_PROXY_BAD_GATEWAY" ||
         errorStatus === "NS_ERROR_PROXY_GATEWAY_TIMEOUT") {
       await this.sendMessage("proxyGenericError");
       return true;
