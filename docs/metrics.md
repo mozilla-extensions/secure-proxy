@@ -94,6 +94,7 @@ The **methods** are:
 1. `networking` fires when there is a proxy network error. **objects**:
    1. `407`: a 407 error code has been received. This error is received when the proxy receives an invalid/expired token.
    1. `429`: the proxy returns 429 when the user is abusing of the service. The concept of "abuse" has not been defined yet.
+   1. `502`: the proxy returns 502. We want to track this error.
    1. `connecting`: the proxy is unreachable during the connecting phase.
    1. `proxyDown`: the proxy seems unreachable.
 1. `state` fires when the proxy state changes
