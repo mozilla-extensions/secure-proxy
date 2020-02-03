@@ -10,8 +10,41 @@ const DOH_REQUEST_TIMEOUT = 30000; // 30 secs
 // Timeout between 1 network error and the next one.
 const NET_ERROR_TIMEOUT = 5000; // 5 seconds.
 
+const NET_ERROR_WARNING_TIMEOUT = 2000 // 2 seconds.
+
 // Telemetry host
 const TELEMETRY_HOST = "https://incoming.telemetry.mozilla.org";
+
+// Simple errors counter. If in NET_ERROR_WARNING_TIMEOUT milliseconds, we do
+// not receive successfully connections, and the proxy is on, we try to
+// increase the connection isolation to recover from a potential network
+// failure.
+class NetworkErrorCounter {
+  constructor(network) {
+    this.network = network;
+    this.errors = 0;
+    this.timerId = 0;
+  }
+
+  onError(error) {
+    if (this.errors++ === 0) {
+      this.timerId = setTimeout(_ => this.onTimeout(), NET_ERROR_WARNING_TIMEOUT);
+    }
+  }
+
+  onSuccess() {
+    if (this.errors > 0) {
+      this.errors = 0;
+      clearTimeout(this.timerId);
+    }
+  }
+
+  onTimeout() {
+    this.errors = 0;
+    this.timerId = 0;
+    this.network.increaseConnectionIsolation();
+  }
+}
 
 export class Network extends Component {
   constructor(receiver) {
@@ -35,6 +68,9 @@ export class Network extends Component {
 
     // Current bandwidth consumed.
     this.bandwidthConsumed = 0;
+
+    // Error counter.
+    this.nec = new NetworkErrorCounter(this);
 
     // Handle header errors before we render the response
     browser.webRequest.onHeadersReceived.addListener(async details => {
@@ -73,10 +109,12 @@ export class Network extends Component {
     }, {urls: ["http://*/*"]}, ["responseHeaders", "blocking"]);
 
     browser.webRequest.onErrorOccurred.addListener(async details => {
+      this.nec.onError(details.error);
       await this.processNetworkError(details.url, details.error);
     }, {urls: ["<all_urls>"]});
 
     browser.webRequest.onCompleted.addListener(async details => {
+      this.nec.onSuccess();
       await this.maybeSendTelemetryBandwidthMessage(details);
     }, {urls: ["<all_urls>"]});
   }
