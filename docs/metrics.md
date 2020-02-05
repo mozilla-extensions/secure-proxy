@@ -76,6 +76,7 @@ Note: The semantics of `value` is contingent on the event being recorded, see li
 
 All events are currently implemented under the **category: secure.proxy**.
 If not specified differently, **value** is passed as null.
+If not specified differently, **extra** is an object containing the extension version number.
 
 The **methods** are:
 
@@ -98,8 +99,8 @@ The **methods** are:
    1. `connecting`: the proxy is unreachable during the connecting phase.
    1. `proxyDown`: the proxy seems unreachable.
 1. `state` fires when the proxy state changes
-   1. `proxyEnabled`: the proxy is enabled by user-interaction. **value**: toggleButton or stateButton. **extra**: passes, with the number of consumed passes. (user-interaction)
-   1. `proxyDisabled`: the proxy is disabled by user-interaction. **value**: toggleButton or stateButton. **extra**: passes, with the number of consumed passes. (user-interaction)
+   1. `proxyEnabled`: the proxy is enabled by user-interaction. **value**: toggleButton or stateButton. **extra**: passes, with the number of consumed passes; version, the extension version. (user-interaction)
+   1. `proxyDisabled`: the proxy is disabled by user-interaction. **value**: toggleButton or stateButton. **extra**: passes, with the number of consumed passes; version, the extension version. (user-interaction)
 1. `settings_url_clicks` fires when the user interacts with the settings view. **objects**:
    1. `manageAccount`: the user clicks on the manage account URL. (user-interaction)
    1. `helpAndSupport`: the user clicks on the help & support URL. (user-interaction)
