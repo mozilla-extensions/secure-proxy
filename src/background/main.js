@@ -3,6 +3,7 @@ import {Connectivity} from "./connectivity.js";
 import {constants} from "./constants.js";
 import {ExternalHandler} from "./external.js";
 import {FxAUtils} from "./fxa.js";
+import {Logger} from "./logger.js";
 import {MobileEvents} from "./mobileEvents.js";
 import {Network} from "./network.js";
 import {OfflineManager} from "./offline.js";
@@ -16,6 +17,8 @@ import {UI} from "./ui.js";
 
 // If set to true, it imports tester.js and it execs the tests.
 const RUN_TESTS = false;
+
+const log = Logger.logger("Main");
 
 class Main {
   constructor() {
@@ -37,6 +40,7 @@ class Main {
     this.observers = new Set();
 
     // All the modules, at the end.
+    this.logger = new Logger(this);
     this.passes = new Passes(this);
     this.connectivity = new Connectivity(this);
     this.externalHandler = new ExternalHandler(this);
@@ -578,6 +582,9 @@ class Main {
 
       case "tokenGenerated":
         return this.maybeActivate("tokenGenerated");
+
+      case "logRequired":
+        return await this.logger.syncGetLogs();
 
       default:
         console.error("Invalid event: " + type);

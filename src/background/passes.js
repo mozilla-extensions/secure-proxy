@@ -1,4 +1,7 @@
 import {Component} from "./component.js";
+import {Logger} from "./logger.js";
+
+const log = Logger.logger("Passes");
 
 let self;
 

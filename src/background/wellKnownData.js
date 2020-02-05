@@ -1,3 +1,7 @@
+import {Logger} from "./logger.js";
+
+const log = Logger.logger("WellKnownData");
+
 // List of attributes for the openID configuration
 const FXA_ENDPOINT_PROFILE = "userinfo_endpoint";
 const FXA_ENDPOINT_TOKEN = "token_endpoint";

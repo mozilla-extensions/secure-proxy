@@ -17,7 +17,7 @@ export class View {
     // eslint-disable-next-line verify-await/check
     let view = views.get(name);
     if (!(view instanceof View)) {
-      log("Invalid view name: " + name);
+      console.error("Invalid view name: " + name);
       return;
     }
 
@@ -34,11 +34,11 @@ export class View {
 
     let introHeading = document.getElementById("introHeading");
     introHeading.textContent = currentView.getTranslation(currentView.syncHeadingText(data));
+    introHeading.addEventListener("click", currentView);
 
     // Hide the countdown by default.
     this.syncShowPassCountdown(false);
 
-    log(`Show: ${name}`);
     let template = currentView.syncShow(data);
     if (template && template instanceof Template) {
       footer.addEventListener("click", currentView);
@@ -137,7 +137,6 @@ export class View {
 
   // This method stores a view in the view map.
   static syncRegisterView(view, name) {
-    log("Register view: " + name);
     // eslint-disable-next-line verify-await/check
     views.set(name, view);
   }

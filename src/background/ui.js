@@ -1,7 +1,10 @@
 import {Component} from "./component.js";
 import {constants} from "./constants.js";
+import {Logger} from "./logger.js";
 import {Passes} from "./passes.js";
 import {StorageUtils} from "./storageUtils.js";
+
+const log = Logger.logger("UI");
 
 // These URLs must be formatted
 const HELP_AND_SUPPORT_URL = "https://support.mozilla.org/1/firefox/%VERSION%/%OS%/%LOCALE%/firefox-private-network";
@@ -128,6 +131,10 @@ export class UI extends Component {
           this.syncSendMessage("telemetryEvent", { category: "settings", event: message.type, extra: "" + message.data.value });
           await this.sendMessage("setAutoRenew", message.data);
           break;
+
+        case "logRequired":
+          this.logRequired();
+          break;
       }
     });
 
@@ -137,6 +144,13 @@ export class UI extends Component {
     });
 
     await this.sendDataToCurrentPort();
+  }
+
+  async logRequired() {
+    const logs = await this.sendMessage("logRequired");
+    if (logs) {
+      this.sendDataToCurrentPort(logs);
+    }
   }
 
   async showStatusPrompt() {
@@ -276,7 +290,7 @@ export class UI extends Component {
     ]);
   }
 
-  async sendDataToCurrentPort() {
+  async sendDataToCurrentPort(logs = null) {
     log("Update the panel: ", this.currentPort);
     if (this.currentPort) {
       const profileData = await StorageUtils.getProfileData();
@@ -292,6 +306,7 @@ export class UI extends Component {
         tokenData,
         reminder,
         autorenew,
+        logs,
       });
     }
     return null;

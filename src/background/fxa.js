@@ -2,9 +2,12 @@
 // https://gitlab.com/shane-tomlinson/mermaid-charts/blob/master/charts/secure-proxy/secure-proxy-signin-with-backend-server.svg
 
 import {Component} from "./component.js";
+import {Logger} from "./logger.js";
 import {Passes} from "./passes.js";
 import {StorageUtils} from "./storageUtils.js";
 import {WellKnownData} from "./wellKnownData.js";
+
+const log = Logger.logger("FxA");
 
 // FxA CDNs
 const FXA_CDN_DOMAINS = [

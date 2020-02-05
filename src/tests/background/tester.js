@@ -1,9 +1,12 @@
 /* eslint-disable verify-await/check */
 
 import {ConnectionTester} from "../../background/connection.js";
+import {Logger} from "../../background/logger.js";
 import {StorageUtils} from "../../background/storageUtils.js";
 import {Survey} from "../../background/survey.js";
 import {WellKnownData} from "../../background/wellKnownData.js";
+
+const log = Logger.logger("Tester");
 
 const tests = [
   {

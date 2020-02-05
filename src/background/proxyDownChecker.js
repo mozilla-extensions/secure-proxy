@@ -1,5 +1,8 @@
 import {Component} from "./component.js";
 import {ConnectionTester} from "./connection.js";
+import {Logger} from "./logger.js";
+
+const log = Logger.logger("ProxyDownChecker");
 
 // How often should we check the proxy connectivity in case of errors?
 const PDC_TIME = 3600; // 1 hour

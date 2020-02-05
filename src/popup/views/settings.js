@@ -1,5 +1,7 @@
 import {View} from "../view.js";
 
+const LOG_DOWNLOAD_CLICKS = 12;
+
 // Settings view.
 class ViewSettings extends View {
   syncShow(data) {
@@ -7,6 +9,8 @@ class ViewSettings extends View {
     View.showSettings(false);
     View.hideToggleButton();
     View.setState("hidden");
+
+    this.headerClicks = 0;
 
     return escapedTemplate`
       <ul class="settingsMenu">
@@ -87,9 +91,14 @@ class ViewSettings extends View {
       await View.sendMessage(e.target.id);
       View.close();
     }
+
     if (e.target.closest("#manageAccount")) {
       await View.sendMessage("manageAccount");
       View.close();
+    }
+
+    if (e.target.id === "introHeading" && ++this.headerClicks === LOG_DOWNLOAD_CLICKS) {
+      await View.sendMessage("logRequired");
     }
 
     e.preventDefault();

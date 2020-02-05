@@ -1,6 +1,9 @@
 import {Component} from "./component.js";
 import {constants} from "./constants.js";
+import {Logger} from "./logger.js";
 import {Passes} from "./passes.js";
+
+const log = Logger.logger("Network");
 
 // Parameters for DNS over HTTP
 const DOH_MODE = 3;
