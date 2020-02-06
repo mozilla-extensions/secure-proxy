@@ -111,6 +111,9 @@ The **methods** are:
 1. `settings` fires when the user changes some of settings. **objects**:
    1. `setReminder`: the reminder setting has changed. (user-interaction)
    1. `setAutoRenew`: the auto-renew setting has changed. (user-interaction)
+1. `upsell_clicks` fires when the user clicks on one of the upsell entrypoints. **objects**:
+   1. `footer`: footer link. (user-interaction)
+   1. `expired`: link when the passes are all consumed. (user-interaction)
 
 
 ### scalar Registration and Recording

@@ -112,10 +112,12 @@ export class UI extends Component {
 
         case "vpnLinkFooter":
           await this.openUrl(BETA_VPN_FOOTER_URL);
+          this.syncSendMessage("telemetryEvent", { category: "upsell_clicks", event: "footer" });
           break;
 
         case "vpnLinkPassesExpired":
           await this.openUrl(BETA_VPN_PASSES_EXPIRED_URL);
+          this.syncSendMessage("telemetryEvent", { category: "upsell_clicks", event: "expired" });
           break;
 
         case "telemetryEvent":

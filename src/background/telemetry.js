@@ -38,6 +38,12 @@ const TELEMETRY_EVENTS = {
     extra_keys: [ "version" ],
     record_on_release: true,
   },
+  "upsellClicks": {
+    methods: [ "upsell_clicks" ],
+    objects: [ "footer", "expired" ],
+    extra_keys: [ "version" ],
+    record_on_release: true,
+  },
   "settings": {
     methods: [ "settings" ],
     objects: [ "setReminder", "setAutoRenew", ],
