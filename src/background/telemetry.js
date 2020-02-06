@@ -10,38 +10,44 @@ const TELEMETRY_EVENTS = {
     methods: [ "general" ],
     objects: [ "otherProxyInUse", "settingsShown", "loadingError", "install",
                "update", "panelShown" ],
-    extra_keys: [],
+    extra_keys: [ "version" ],
     record_on_release: true,
   },
   "state": {
     methods: [ "state" ],
     objects: [ "proxyEnabled", "proxyDisabled", ],
-    extra_keys: [ "passes" ],
+    extra_keys: [ "passes", "version" ],
     record_on_release: true,
   },
   "authentication": {
     methods: [ "fxa" ],
     objects: [ "authStarted", "authCompleted", "authFailed", "authFailedByGeo" ],
-    extra_keys: [],
+    extra_keys: [ "version" ],
     record_on_release: true,
   },
   "networkingEvents": {
     methods: [ "networking" ],
     objects: [ "407", "429", "502", "connecting", "proxyDown" ],
-    extra_keys: [],
+    extra_keys: [ "version" ],
     record_on_release: true,
   },
   "settingsUrlClicks": {
     methods: [ "settings_url_clicks" ],
     objects: [ "manageAccount", "helpAndSupport", "cloudflare", "privacyPolicy",
                "termsAndConditions", "giveUsFeedback", ],
-    extra_keys: [],
+    extra_keys: [ "version" ],
+    record_on_release: true,
+  },
+  "upsellClicks": {
+    methods: [ "upsell_clicks" ],
+    objects: [ "footer", "expired" ],
+    extra_keys: [ "version" ],
     record_on_release: true,
   },
   "settings": {
     methods: [ "settings" ],
     objects: [ "setReminder", "setAutoRenew", ],
-    extra_keys: [],
+    extra_keys: [ "version" ],
     record_on_release: true,
   },
 };
@@ -70,6 +76,13 @@ export class Telemetry extends Component {
     browser.telemetry.registerScalars(TELEMETRY_CATEGORY, TELEMETRY_SCALARS).catch(e => {
       console.error("Failed to register telemetry scalars!", e);
     });
+
+    this.version = "";
+  }
+
+  async init() {
+    const self = await browser.management.getSelf();
+    this.version = self.version;
   }
 
   async onInstalled(details) {
@@ -95,8 +108,13 @@ export class Telemetry extends Component {
       return;
     }
 
+    const extraValues = {
+      version: this.version,
+      ...extra
+    };
+
     // eslint-disable-next-line verify-await/check
-    browser.telemetry.recordEvent(TELEMETRY_CATEGORY, category, event, value, extra).catch(e => {
+    browser.telemetry.recordEvent(TELEMETRY_CATEGORY, category, event, value, extraValues).catch(e => {
       console.error("Telemetry.recordEvent failed", e);
     });
   }
