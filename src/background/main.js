@@ -333,6 +333,11 @@ class Main {
     }
   }
 
+  async onWakeUp() {
+    log("wakeup!");
+    this.net.increaseConnectionIsolation();
+  }
+
   async onCaptivePortalStateChanged(state) {
     log(`captive portal status: ${state}`);
 
@@ -585,6 +590,9 @@ class Main {
 
       case "logRequired":
         return await this.logger.syncGetLogs();
+
+      case "wakeUp":
+        return this.onWakeUp();
 
       default:
         console.error("Invalid event: " + type);
