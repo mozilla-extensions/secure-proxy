@@ -5,6 +5,11 @@ export class Connectivity extends Component {
     super(receiver);
 
     // proxy setting change observer
+    browser.experiments.proxyutils.onWakeUp.addListener(async _ => {
+      return this.sendMessage("wakeUp");
+    });
+
+    // proxy setting change observer
     browser.experiments.proxyutils.onChanged.addListener(async _ => {
       return this.sendMessage("proxySettingsChanged");
     });

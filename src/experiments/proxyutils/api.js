@@ -465,6 +465,18 @@ this.proxyutils = class extends ExtensionAPI {
             }
           }).api(),
 
+          // eslint-disable-next-line verify-await/check
+          onWakeUp: new EventManager({
+            context,
+            name: "proxyutils.onWakeUp",
+            register: fire => {
+              let observer = _ => fire.async();
+              Services.prefs.addObserver("wake_notification", observer);
+              return () => {
+                Services.prefs.removeObserver("wake_notification", observer);
+              };
+            }
+          }).api(),
           async showPrompt(message, isWarning) {
             const selector = "#secure-proxy_mozilla_com-browser-action";
             ConfirmationHint.syncShow(selector, message, {isWarning});

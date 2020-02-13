@@ -22,6 +22,12 @@
             "description": "The connectivity status"
           }
         ]
+      },
+      {
+        "name": "onWakeUp",
+        "type": "function",
+        "description": "Fired when the computer is resumed after a suspend",
+        "parameters": []
       }
     ],
     "functions": [
