@@ -145,7 +145,7 @@ export class Passes extends Component {
     await browser.storage.local.set({unlimitedSurvey: true});
     await browser.tabs.create({
       url: "https://qsurvey.mozilla.com/s3/fpn-fitness-checkup",
-      active: true,
+      active: false,
     });
   }
 }
