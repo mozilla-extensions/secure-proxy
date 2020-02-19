@@ -38,6 +38,7 @@ export class Passes extends Component {
     }
 
     this.syncSchedulePassCheck();
+    this.maybeScheduleUnlimitedSurvey();
   }
 
   syncAreUnlimited() {
@@ -82,6 +83,7 @@ export class Passes extends Component {
     }
 
     this.syncSchedulePassCheck();
+    this.maybeScheduleUnlimitedSurvey();
   }
 
   syncSchedulePassCheck() {
@@ -125,5 +127,25 @@ export class Passes extends Component {
 
     log("Force a new authentication for un update");
     await this.sendMessage("authenticationNeeded");
+  }
+
+  async maybeScheduleUnlimitedSurvey() {
+    const {totalPasses} = await browser.storage.local.get("totalPasses");
+    if (totalPasses === undefined || !this.syncAreUnlimited()) {
+      log("No unlimited survey for unauthenticated users or limited");
+      return;
+    }
+
+    const {unlimitedSurvey} = await browser.storage.local.get("unlimitedSurvey");
+    if (unlimitedSurvey) {
+      log("Unlimited survey already shown");
+      return;
+    }
+
+    await browser.storage.local.set({unlimitedSurvey: true});
+    await browser.tabs.create({
+      url: "https://qsurvey.mozilla.com/s3/fpn-fitness-checkup",
+      active: true,
+    });
   }
 }
