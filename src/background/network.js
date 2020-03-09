@@ -449,6 +449,7 @@ export class Network extends Component {
         excludedDomains: excludedDomains.join(","),
         confirmationNS: DOH_SKIP_CONFIRMATION_NS,
         requestTimeout: DOH_REQUEST_TIMEOUT,
+        fetchOffMainThread: false,
       }
     });
 

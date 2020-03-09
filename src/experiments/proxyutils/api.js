@@ -205,6 +205,7 @@ ExtensionPreferencesManager.addSetting("secureProxy.DNSoverHTTP", {
     "network.trr.confirmationNS",
     "network_trr_request_timeout_ms",
     "network.trr.request_timeout_mode_trronly_ms",
+    "network.trr.fetch_off_main_thread",
   ],
 
   setCallback(value) {
@@ -216,6 +217,7 @@ ExtensionPreferencesManager.addSetting("secureProxy.DNSoverHTTP", {
       "network.trr.confirmationNS": value.confirmationNS,
       "network_trr_request_timeout_ms": value.requestTimeout,
       "network.trr.request_timeout_mode_trronly_ms": value.requestTimeout,
+      "network.trr.fetch_off_main_thread": value.fetchOffMainThread,
     };
   },
 });
