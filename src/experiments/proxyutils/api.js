@@ -336,6 +336,7 @@ this.proxyutils = class extends ExtensionAPI {
                   // DNSoverHTTP getter is not actually used.
                   requestTimeout: Services.prefs.getIntPref("network_trr_request_timeout_ms") ||
                                   Services.prefs.getIntPref("network_trr_request_timeout_mode_trronly_ms"),
+                  fetchOffMainThread: Services.prefs.getBoolPref("network.trr.fetch_off_main_thread"),
                 };
               },
               undefined,
@@ -403,6 +404,7 @@ this.proxyutils = class extends ExtensionAPI {
                     excludedDomains,
                     confirmationNS: details.value.confirmationNS,
                     requestTimeout: details.value.requestTimeout,
+                    fetchOffMainThread: details.value.fetchOffMainThread,
                   }
                 );
               },
