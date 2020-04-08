@@ -35,6 +35,6 @@
     "eslint-plugin-prettier": "^3.1.2",
     "eslint-plugin-verify-await": "git+ssh://git@github.com/jonathanKingston/eslint-plugin-verify-await.git",
     "prettier": "^1.19.1",
-    "web-ext": "^3.2.0"
+    "web-ext": "^3.2.1"
   }
 }
