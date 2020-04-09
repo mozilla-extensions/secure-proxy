@@ -1,5 +1,6 @@
 import {Component} from "./component.js";
 import {Logger} from "./logger.js";
+import {Passes} from "./passes.js";
 import {StorageUtils} from "./storageUtils.js";
 
 const log = Logger.logger("MessageService");
@@ -12,10 +13,21 @@ export class MessageService extends Component {
     super(receiver);
 
     this.fetching = false;
+    this.lastUsageDaysPending = false;
   }
 
   async init() {
     log("init");
+
+    // Let's take the last date of usage.
+    let lastUsageDays = await StorageUtils.getLastUsageDays();
+    if (!lastUsageDays) {
+       lastUsageDays = {
+         date: null,
+         count: 0,
+       };
+    }
+    this.lastUsageDays = lastUsageDays;
 
     this.service = await ConfigUtils.getSPService();
 
@@ -105,15 +117,33 @@ export class MessageService extends Component {
     await this.whenIdle(() => this.openTab(message.url, message.inBackground));
   }
 
+  // URLs can contain 'magic' words. These will be replaced with values.
+  // Here the list of the supported keywords and their meanings:
+  // - PROXYENABLED - replaced with 'true' or 'false', based on the proxy state.
+  // - VERSION - the extension version.
+  // - USAGEDAYS - number of days with the proxy enabled (at least for 1 request)
+  async formatUrl(url) {
+    let self = await browser.management.getSelf();
+    let passes = Passes.syncGet().syncGetPasses();
+
+    // eslint-disable-next-line verify-await/check
+    url = url.replace(/PROXYENABLED/g, this.cachedProxyState === PROXY_STATE_ACTIVE ? "true" : "false")
+             .replace(/VERSION/g, self.version)
+             .replace(/USAGEDAYS/g, this.lastUsageDays.count)
+             .replace(/PASSES/g, passes.currentPass || 0);
+
+    return browser.runtime.getURL(url);
+  }
+
   async openTab(url, background) {
     browser.tabs.create({
-      url,
+      url: await this.formatUrl(url),
       active: !background,
     });
   }
 
   async whenIdle(cb) {
-    log("Wait for udle state");
+    log("Wait for idle state");
 
     const state = await browser.idle.queryState(IDLE_INTERVAL);
     if (state === "idle") {
@@ -132,5 +162,34 @@ export class MessageService extends Component {
         cb();
       }
     });
+  }
+
+  setProxyState(proxyState) {
+    super.setProxyState(proxyState);
+
+    if (this.cachedProxyState !== PROXY_STATE_ACTIVE) {
+      return;
+    }
+
+    if (this.lastUsageDaysPending) {
+      return;
+    }
+
+    const options = { year: "numeric", month: "2-digit", day: "2-digit" };
+    const dateTimeFormat = new Intl.DateTimeFormat("en-US", options).format;
+
+    // eslint-disable-next-line verify-await/check
+    let now = dateTimeFormat(Date.now());
+    if (this.lastUsageDays.date === now) {
+      return;
+    }
+
+    this.lastUsageDaysPending = true;
+    this.lastUsageDays.date = now;
+    this.lastUsageDays.count += 1;
+
+    // eslint-disable-next-line verify-await/check
+    StorageUtils.setLastUsageDays(this.lastUsageDays).
+      then(_ => { this.lastUsageDaysPending = false; });
   }
 }
