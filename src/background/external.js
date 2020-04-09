@@ -27,6 +27,8 @@ export class ExternalHandler extends Component {
         return ConfigUtils.setAutoRenew(message.value);
       case "setPassesTimeout":
         return ConfigUtils.setPassesTimeout(message.value);
+      case "setMessageServiceInterval":
+        return ConfigUtils.setMessageServiceInterval(message.value);
       case "setProxyURL":
         return ConfigUtils.setProxyURL(message.value);
       case "setProxyMode":

@@ -77,6 +77,9 @@
   "pageSecondsWarning": {
     "message": "This value is in seconds. Be careful!"
   },
+  "pageMessageServiceInterval": {
+    "message": "Message Service fetch interval"
+  },
   "pagePassesTimeout": {
     "message": "Passes Timer"
   },
