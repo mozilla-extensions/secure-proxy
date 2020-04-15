@@ -189,6 +189,16 @@ class Page {
     if (config.version < 12) {
       passesTimeout.disabled = true;
     }
+
+    const messageServiceInterval = document.getElementById("messageServiceInterval");
+    messageServiceInterval.value = config.messageServiceInterval;
+    messageServiceInterval.onchange = _ => {
+      // eslint-disable-next-line verify-await/check
+      browser.runtime.sendMessage({ type: "setMessageServiceInterval", value: messageServiceInterval.value });
+    };
+    if (config.version < 22) {
+      messageServiceInterval.disabled = true;
+    }
   }
 
   getTranslation(stringName, ...args) {

@@ -81,6 +81,9 @@ const DEFAULT_AUTORENEW = false;
 const DOH_URI = "https://mozilla.cloudflare-dns.com/dns-query";
 const DOH_BOOTSTRAP_ADDRESS = "1.1.1.1";
 
+// Message service fetch in seconds.
+const DEFAULT_MESSAGE_SERVICE_INTERVAL = 7200;
+
 const ConfigUtils = {
   async setProxyURL(proxyURL) {
     await browser.storage.local.set({proxyURL});
@@ -148,6 +151,14 @@ const ConfigUtils = {
     return autorenew === undefined ? DEFAULT_AUTORENEW : autorenew;
   },
 
+  async getMessageServiceInterval() {
+    return await this.getStorageKey("messageServiceInterval") || DEFAULT_MESSAGE_SERVICE_INTERVAL;
+  },
+
+  async setMessageServiceInterval(messageServiceInterval) {
+    await browser.storage.local.set({messageServiceInterval});
+  },
+
   async getCurrentConfig() {
     let self = await browser.management.getSelf();
 
@@ -165,6 +176,7 @@ const ConfigUtils = {
       passesTimeout: await this.getPassesTimeout(),
       reminder: await this.getReminder(),
       autorenew: await this.getAutoRenew(),
+      messageServiceInterval: await this.getMessageServiceInterval(),
     };
   },
 

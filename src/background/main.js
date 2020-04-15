@@ -4,6 +4,7 @@ import {constants} from "./constants.js";
 import {ExternalHandler} from "./external.js";
 import {FxAUtils} from "./fxa.js";
 import {Logger} from "./logger.js";
+import {MessageService} from "./messageService.js";
 import {MobileEvents} from "./mobileEvents.js";
 import {Network} from "./network.js";
 import {OfflineManager} from "./offline.js";
@@ -45,6 +46,7 @@ class Main {
     this.connectivity = new Connectivity(this);
     this.externalHandler = new ExternalHandler(this);
     this.fxa = new FxAUtils(this);
+    this.messageService = new MessageService(this);
     this.mobileEvents = new MobileEvents(this);
     this.net = new Network(this);
     this.offlineManager = new OfflineManager(this);
@@ -474,7 +476,17 @@ class Main {
 
   syncAuthCompletedWithPass() {
     this.setProxyState(PROXY_STATE_INACTIVE);
+
+    // Fetch messages after the authentication.
+    this.messageService.maybeFetchMessages();
+
     return this.ui.update(false /* no toast here */);
+  }
+
+  async tokenGenerated() {
+    // Fetch messages when a new pass is consumed.
+    this.messageService.maybeFetchMessages();
+    return this.maybeActivate("tokenGenerated");
   }
 
   async passAvailable() {
@@ -586,7 +598,7 @@ class Main {
         return this.fxa.setAutoRenew(data.value);
 
       case "tokenGenerated":
-        return this.maybeActivate("tokenGenerated");
+        return this.tokenGenerated();
 
       case "logRequired":
         return await this.logger.syncGetLogs();
