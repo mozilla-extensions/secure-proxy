@@ -3,6 +3,7 @@ import {Connectivity} from "./connectivity.js";
 import {constants} from "./constants.js";
 import {ExternalHandler} from "./external.js";
 import {FxAUtils} from "./fxa.js";
+import {IPInfo} from "./ipinfo.js";
 import {Logger} from "./logger.js";
 import {MessageService} from "./messageService.js";
 import {MobileEvents} from "./mobileEvents.js";
@@ -55,6 +56,7 @@ class Main {
     this.survey = new Survey(this);
     this.telemetry = new Telemetry(this);
     this.ui = new UI(this);
+    this.ipinfo = new IPInfo(this);
   }
 
   async init() {
@@ -415,6 +417,11 @@ class Main {
   }
 
   syncSkipProxy(requestInfo, url) {
+    // eslint-disable-next-line verify-await/check
+    if (this.ipinfo.isIpInfoUrl(url)) {
+      return false;
+    }
+
     // eslint-disable-next-line verify-await/check
     if (this.fxa.isAuthUrl(url)) {
       return true;
