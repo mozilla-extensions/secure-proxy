@@ -35,6 +35,8 @@ export class ExternalHandler extends Component {
         return StorageUtils.getProxyTokenData();
       case "setProxyToken":
         return this.sendMessage("forceToken", message.value);
+      case "setProxyState":
+        return this.sendMessage("forceState", message.value);
       case "reload":
         return browser.runtime.reload();
       case "clear":

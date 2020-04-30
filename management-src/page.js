@@ -45,6 +45,23 @@ class Page {
       clearButton.disabled = true;
     }
 
+    const proxyState = document.getElementById("proxyState");
+    const proxyStates = config.proxyStates || [];
+    proxyStates.forEach(state => {
+      const option = document.createElement("option");
+      option.value = state;
+      option.selected = state == config.proxyState;
+      option.textContent = state;
+      proxyState.append(option);
+    });
+    proxyState.onchange = _ => {
+      // eslint-disable-next-line verify-await/check
+      browser.runtime.sendMessage({ type: "setProxyState", value: proxyState.value });
+    };
+    if (config.version < 22) {
+      proxyState.disabled = true;
+    }
+
     const debuggingEnabled = document.getElementById("debuggingEnabled");
     debuggingEnabled.checked = config.debuggingEnabled || false;
     debuggingEnabled.onchange = _ => {

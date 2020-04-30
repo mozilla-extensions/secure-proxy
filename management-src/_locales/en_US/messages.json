@@ -14,6 +14,9 @@
   "pageVersion": {
     "message": "FPN version"
   },
+  "pageProxyStateTitle": {
+    "message": "Proxy state"
+  },
   "pageDebuggingTitle": {
     "message": "Debugging enabled"
   },
@@ -67,6 +70,9 @@
   },
   "pageSecondsWarning": {
     "message": "This value is in seconds. Be careful!"
+  },
+  "pageProxyStateWarning": {
+    "message": "Some of these proxy-states do not last because they trigger actions and the extension recovers itself automatically"
   },
   "pageMessageServiceInterval": {
     "message": "Message Service fetch interval"

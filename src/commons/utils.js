@@ -126,6 +126,10 @@ const ConfigUtils = {
     return await this.getStorageKey("onboardingShown") || false;
   },
 
+  async getProxyState() {
+    return await this.getStorageKey("proxyState");
+  },
+
   async getMessageServiceInterval() {
     return await this.getStorageKey("messageServiceInterval") || DEFAULT_MESSAGE_SERVICE_INTERVAL;
   },
@@ -146,6 +150,23 @@ const ConfigUtils = {
       debuggingEnabled: await this.getDebuggingEnabled(),
       messageServiceInterval: await this.getMessageServiceInterval(),
       onboardingShown: await this.getOnboardingShown(),
+      proxyState: await this.getProxyState(),
+      proxyStates: [
+        PROXY_STATE_LOADING,
+        PROXY_STATE_OFFLINE,
+        PROXY_STATE_CAPTIVE,
+        PROXY_STATE_UNAUTHENTICATED,
+        PROXY_STATE_INACTIVE,
+        PROXY_STATE_ACTIVE,
+        PROXY_STATE_CONNECTING,
+        PROXY_STATE_OTHERINUSE,
+        PROXY_STATE_PROXYERROR,
+        PROXY_STATE_PROXYAUTHFAILED,
+        PROXY_STATE_AUTHFAILURE,
+        PROXY_STATE_GEOFAILURE,
+        PROXY_STATE_PAYMENTREQUIRED,
+        PROXY_STATE_ONBOARDING,
+      ],
     };
   },
 

@@ -552,6 +552,9 @@ class Main {
       case "forceToken":
         return this.fxa.forceToken(data);
 
+      case "forceState":
+        return this.setProxyState(data);
+
       case "managerAccountURL":
         return this.fxa.manageAccountURL();
 
