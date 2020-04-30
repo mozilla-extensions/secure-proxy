@@ -145,6 +145,12 @@ class Main {
       return;
     }
 
+    // If we are showing the onboarding, let's keep this state.
+    if (proxyState === PROXY_STATE_ONBOARDING) {
+      this.setProxyState(PROXY_STATE_ONBOARDING);
+      return;
+    }
+
     // Something else is in use.
     if (await this.hasProxyInUse()) {
       this.setProxyState(PROXY_STATE_OTHERINUSE);
@@ -215,6 +221,7 @@ class Main {
         this.proxyState !== PROXY_STATE_ACTIVE &&
         this.proxyState !== PROXY_STATE_INACTIVE &&
         this.proxyState !== PROXY_STATE_OFFLINE &&
+        this.proxyState !== PROXY_STATE_ONBOARDING &&
         this.proxyState !== PROXY_STATE_PAYMENTREQUIRED &&
         this.proxyState !== PROXY_STATE_PROXYERROR &&
         this.proxyState !== PROXY_STATE_PROXYAUTHFAILED &&
@@ -429,8 +436,10 @@ class Main {
   }
 
   async maybeActivate(reason) {
-    // If the proxy is off, we should not go back online.
-    if (this.proxyState === PROXY_STATE_INACTIVE) {
+    // If the proxy is off or we are still onboarding, we should not go back
+    // online.
+    if (this.proxyState === PROXY_STATE_INACTIVE ||
+        this.proxyState === PROXY_STATE_ONBOARDING) {
       return;
     }
 
@@ -457,11 +466,26 @@ class Main {
   }
 
   syncAuthCompleted() {
-    this.setProxyState(PROXY_STATE_INACTIVE);
+    log("Authentication completed");
+
+    if (StorageUtils.hasOnboardingShown()) {
+      log("Onboarding shown");
+      this.setProxyState(PROXY_STATE_ONBOARDING);
+    } else {
+      this.setProxyState(PROXY_STATE_INACTIVE);
+    }
 
     // Fetch messages after the authentication.
     this.messageService.maybeFetchMessages();
 
+    return this.ui.update(false /* no toast here */);
+  }
+
+  async onboardingEnd() {
+    log("Onboarding completed");
+    await StorageUtils.setOnboardingShown();
+
+    this.setProxyState(PROXY_STATE_INACTIVE);
     return this.ui.update(false /* no toast here */);
   }
 
@@ -557,6 +581,9 @@ class Main {
 
       case "logRequired":
         return await this.logger.syncGetLogs();
+
+      case "onboardingEnd":
+        return this.onboardingEnd();
 
       case "wakeUp":
         return this.onWakeUp();

@@ -299,6 +299,7 @@ export class Network extends Component {
         this.cachedProxyState === PROXY_STATE_INACTIVE ||
         this.cachedProxyState === PROXY_STATE_CONNECTING ||
         this.cachedProxyState === PROXY_STATE_CAPTIVE ||
+        this.cachedProxyState === PROXY_STATE_ONBOARDING ||
         this.cachedProxyState === PROXY_STATE_OTHERINUSE) {
       return false;
     }

@@ -38,22 +38,6 @@ export const StorageUtils = {
     return this.getStorageKey("profileData");
   },
 
-  async getSurveyInitialTime() {
-    return this.getStorageKey("surveyInitialTime");
-  },
-
-  async setSurveyInitialTime(surveyInitialTime) {
-    await browser.storage.local.set({surveyInitialTime});
-  },
-
-  async getLastSurvey() {
-    return this.getStorageKey("lastSurvey");
-  },
-
-  async setLastSurvey(lastSurvey) {
-    await browser.storage.local.set({lastSurvey});
-  },
-
   async getLastUsageDays() {
     return this.getStorageKey("lastUsageDays");
   },
@@ -64,6 +48,14 @@ export const StorageUtils = {
 
   async getFxaFlowParams() {
     return this.getStorageKey("fxaFlowParams");
+  },
+
+  async hasOnboardingShown() {
+    return this.getStorageKey("onboardingShown") || false;
+  },
+
+  async setOnboardingShown() {
+    await browser.storage.local.set({onboardingShown: true});
   },
 
   async getStorageKey(key) {

@@ -39,6 +39,9 @@ const PROXY_STATE_GEOFAILURE = "geoFailure";
 // Payment is required (this is the state after a FXA_PAYMENT_REQUIRED response)
 const PROXY_STATE_PAYMENTREQUIRED = "paymentRequired";
 
+// Onboarding state
+const PROXY_STATE_ONBOARDING = "onboarding";
+
 // FXA network error code.
 const FXA_ERR_NETWORK = "networkError";
 

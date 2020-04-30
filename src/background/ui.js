@@ -120,6 +120,11 @@ export class UI extends Component {
         case "logRequired":
           this.logRequired();
           break;
+
+        case "onboardingEnd":
+          this.sendMessage("onboardingEnd");
+          break;
+
       }
     });
 

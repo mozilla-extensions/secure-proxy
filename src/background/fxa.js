@@ -64,9 +64,6 @@ export class FxAUtils extends Component {
 
     await this.wellKnownData.init();
 
-    // Let's see if we have to request a new token, but without waiting for the
-    // result.
-    // eslint-disable-next-line verify-await/check
     const data = await this.maybeObtainToken();
     if (data.state === FXA_PAYMENT_REQUIRED) {
       log("We were active, but not we need a new token");
