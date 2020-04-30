@@ -67,30 +67,7 @@
   "popupToggleButtonLabel": {
     "message": "Toggle proxy state"
   },
-  "popupVPNFooter": {
-    "message": "Looking for a VPN?"
-  },
-  "popupVPNLink": {
-    "message": "Join the waitlist"
-  },
 
-  "toastLastPassAvailable": {
-    "message": "You have 1 new Firefox Private Network pass!"
-  },
-  "toastPassesAvailable": {
-    "message": "You have $number$ new Firefox Private Network passes!",
-    "placeholders": {
-      "number" : {
-        "content" : "$1"
-      }
-    }
-  },
-  "toastLastPassExpired": {
-    "message": "You've used all your free passes for this month."
-  },
-  "toastPassExpired": {
-    "message": "Pass expired. Firefox Private Network is off."
-  },
   "toastProxyOff": {
     "message": "Firefox Private Network is off."
   },
@@ -99,15 +76,6 @@
   },
   "toastWarning": {
     "message": "Firefox Private Network needs your attention!"
-  },
-  "toastReminderAutoStartOFF": {
-    "message": "5 minutes left. Firefox Private Network will turn off when this pass expires."
-  },
-  "toastReminderAutoStartON": {
-    "message": "5 minutes left. Next pass auto-starts after this one expires."
-  },
-  "toastReminderAutoStartONNoPasses": {
-    "message": "5 minutes left. Firefox Private Network will turn off when this pass expires."
   },
 
   "viewAuthFailure": {
@@ -133,36 +101,6 @@
   },
   "viewMainInactive": {
     "message": "Private Network is not protecting your Firefox connection. Websites, ad trackers, and your internet service provider may be able to see your online activity."
-  },
-  "viewMainInactiveWithoutPasses": {
-    "message": "You’ll receive 12 new passes at the beginning of next month. For unlimited protection, join the waitlist to upgrade to the full-device VPN."
-  },
-  "viewMainVPNButton": {
-    "message": "Join the Waitlist"
-  },
-  "viewMainPassAvailable": {
-    "message": "Free passes left this month"
-  },
-  "viewMainActiveSubPassAutoStartON": {
-    "message": "Passes expire after one hour and cannot be paused or stopped. A new pass will automatically start after this one expires. Turn off auto-start in "
-  },
-  "viewMainActiveSubPassAutoStartOFF": {
-    "message": "Passes expire after one hour and cannot be paused or stopped. To have your next pass start after this one expires, turn on auto-start in "
-  },
-  "viewMainInactiveSubPassAutoStartON": {
-    "message": "Passes expire after one hour and cannot be paused or stopped. New passes start automatically. Turn off auto-start in "
-  },
-  "viewMainInactiveSubPassAutoStartOFF": {
-    "message": "Passes expire after one hour and cannot be paused or stopped. To automatically start the next pass after one expires, go to "
-  },
-  "viewMainSubSettings": {
-    "message": "Settings"
-  },
-  "viewMainSubSettingsPost": {
-    "message": "."
-  },
-  "viewMainSubPassLeft": {
-    "message": "Turn on Firefox Private Network to use a pass. This adds another layer of protection to your Firefox browsing and keeps your real location hidden."
   },
   "viewOffline": {
     "message": "You are offline. Check your network connection and try again."
@@ -193,18 +131,6 @@
   },
   "viewSettings-termsAndConditionsLink": {
     "message": "Terms & Conditions"
-  },
-  "viewSettings-autorenew": {
-    "message": "Auto-Start Passes"
-  },
-  "viewSettings-autorenewSub": {
-    "message": "Automatically start next pass after one expires."
-  },
-  "viewSettings-reminder": {
-    "message": "5-Minute Reminder"
-  },
-  "viewSettings-reminderSub": {
-    "message": "Send notification 5 minutes before a pass expires."
   },
 
   "loadingError": {

@@ -3,7 +3,6 @@
 
 import {Component} from "./component.js";
 import {Logger} from "./logger.js";
-import {Passes} from "./passes.js";
 import {StorageUtils} from "./storageUtils.js";
 import {WellKnownData} from "./wellKnownData.js";
 
@@ -20,8 +19,6 @@ const FXA_CDN_DOMAINS = [
 // If the token generation fails for network errors, when should we try again?
 const NEXT_TRY_TIME = 300; // 5 minutes in secs.
 
-const NOTIFY_TIME = 300; // 5 minutes in secs.
-
 export class FxAUtils extends Component {
   constructor(receiver) {
     super(receiver);
@@ -35,7 +32,6 @@ export class FxAUtils extends Component {
     this.nextExpireTime = 0;
 
     this.tokenGenerationTimerId = 0;
-    this.notifyExpirationTimerId = 0;
 
     this.dohHostnames = [];
 
@@ -50,7 +46,6 @@ export class FxAUtils extends Component {
   async init() {
     this.service = await ConfigUtils.getSPService();
     this.proxyURL = await ConfigUtils.getProxyURL();
-    this.autoRenew = await StorageUtils.getAutoRenew();
 
     const prefs = await browser.experiments.proxyutils.settings.get({});
 
@@ -77,7 +72,7 @@ export class FxAUtils extends Component {
       log("We were active, but not we need a new token");
       // We don't want to wait here to avoid a deadlock.
       // eslint-disable-next-line verify-await/check
-      this.sendMessage("pass-needed-at-startup");
+      this.sendMessage("payment-required-at-startup");
     }
   }
 
@@ -93,36 +88,14 @@ export class FxAUtils extends Component {
     // in order to regenerate them.
     await StorageUtils.setStateTokenAndProfileData(data.stateToken, data.profileData);
 
-    // Let's update the passes.
-    await this.updatePasses(data);
-
-    // If we have passes, we need to inform the UI that tokens are not going to
-    // be generated.
-    if (!Passes.syncGet().syncAreUnlimited()) {
-      // We don't want to wait here. It would be a deadlock.
-      // eslint-disable-next-line verify-await/check
-      this.sendMessage("authCompletedWithPass");
-      return { state: FXA_OK };
-    }
-
-    // Let's obtain the token immediately only if we have unlimited passes.
-    // Let's obtain the proxy token data. This method will dispatch a
-    // "tokenGenerated" event.
-    const result = await this.maybeObtainToken();
-    if (this.syncStateError(result)) {
-      return { state: FXA_ERR_AUTH };
-    }
-
+    // We don't want to wait here. It would be a deadlock.
+    // eslint-disable-next-line verify-await/check
+    this.sendMessage("authCompleted");
     return { state: FXA_OK };
   }
 
-  async updatePasses(data) {
-    log("Update pass report");
-    await Passes.syncGet().setPasses(data.currentPass, data.totalPasses);
-  }
-
-  async maybeObtainToken(createIfNeeded = false) {
-    log(`maybe request a token and profile data - createIfNeeded: ${createIfNeeded}`);
+  async maybeObtainToken() {
+    log("maybe request a token and profile data");
 
     if (this.requestingToken) {
       log("token request in progress. Let's wait.");
@@ -130,7 +103,7 @@ export class FxAUtils extends Component {
     }
 
     this.requestingToken = true;
-    const result = await this.maybeObtainTokenInternal(createIfNeeded);
+    const result = await this.maybeObtainTokenInternal();
     this.requestingToken = false;
 
     // Let's take all the ops and execute them.
@@ -142,11 +115,10 @@ export class FxAUtils extends Component {
     return result;
   }
 
-  async maybeObtainTokenInternal(createIfNeeded) {
+  async maybeObtainTokenInternal() {
     log("maybe generate proxy token");
 
     clearTimeout(this.tokenGenerationTimerId);
-    clearTimeout(this.notifyExpirationTimerId);
 
     // Not authenticated yet.
     const stateTokenData = await StorageUtils.getStateTokenData();
@@ -175,15 +147,6 @@ export class FxAUtils extends Component {
 
     if (!tokenData) {
       log("generating token");
-
-      // If the creation is not wanted, we continue only if passes are
-      // unlimited or we are in auto-renew.
-      if (!createIfNeeded) {
-        if (!Passes.syncGet().syncAreUnlimited() && !this.autoRenew) {
-          return { state: FXA_PAYMENT_REQUIRED };
-        }
-      }
-
       const data = await this.generateToken();
       if (this.syncStateError(data)) {
         return data;
@@ -201,11 +164,6 @@ export class FxAUtils extends Component {
     log(`token expires in ${minDiff}`);
 
     this.tokenGenerationTimerId = setTimeout(async _ => this.scheduledTokenGeneration(), minDiff * 1000);
-
-    // Notification when the token is about to expire.
-    if (minDiff > NOTIFY_TIME) {
-      this.notifyExpirationTimerId = setTimeout(async _ => this.showNotifyExpiration(), (minDiff - NOTIFY_TIME) * 1000);
-    }
 
     this.nextExpireTime = tokenData.received_at + tokenData.expires_in;
 
@@ -265,13 +223,6 @@ export class FxAUtils extends Component {
       return;
     }
 
-    // We need a new pass.
-    if (!Passes.syncGet().syncAreUnlimited() && !this.autoRenew) {
-      Passes.syncGet().syncPassNeeded();
-      return;
-    }
-
-    // Unlimited.
     const result = await this.maybeObtainToken();
     if (this.syncStateError(result)) {
       log("token generation failed");
@@ -282,53 +233,6 @@ export class FxAUtils extends Component {
         setTimeout(async _ => this.scheduledTokenGeneration(), NEXT_TRY_TIME * 1000);
       }
     }
-  }
-
-  async obtainProxyInfo() {
-    const stateTokenData = await StorageUtils.getStateTokenData();
-    if (!stateTokenData) {
-      return { state: FXA_ERR_AUTH };
-    }
-
-    const headers = new Headers();
-    // eslint-disable-next-line verify-await/check
-    headers.append("Content-Type", "application/json");
-
-    const request = new Request(this.service + "browser/oauth/info", {
-      method: "POST",
-      headers,
-      body: JSON.stringify({
-        state_token: stateTokenData,
-      }),
-    });
-
-    try {
-      let resp = await fetch(request, {cache: "no-cache"});
-      if (resp.status >= 500 && resp.status <= 599) {
-        return { state: FXA_ERR_NETWORK };
-      }
-
-      if (resp.status !== 200) {
-        return { state: FXA_ERR_AUTH };
-      }
-
-      const json = await resp.json();
-      const data = this.syncJsonToInfo(json);
-
-      return {
-        state: FXA_OK,
-        ...data,
-      };
-    } catch (e) {
-      return { state: FXA_ERR_NETWORK };
-    }
-  }
-
-  syncJsonToInfo(json) {
-    return {
-      currentPass: json.current_pass,
-      totalPasses: json.total_passes,
-    };
   }
 
   async generateToken() {
@@ -360,9 +264,6 @@ export class FxAUtils extends Component {
       }
 
       const json = await resp.json();
-
-      // Let's update the current pass values.
-      await this.updatePasses(this.syncJsonToInfo(json));
 
       if (resp.status === 402) {
         return { state: FXA_PAYMENT_REQUIRED };
@@ -493,12 +394,10 @@ export class FxAUtils extends Component {
       }
 
       const json = await resp.json();
-      const data = this.syncJsonToInfo(json);
 
       return {
         state: FXA_OK,
         profileData: json.profile_data,
-        ...data,
       };
     } catch (e) {
       return { state: FXA_ERR_NETWORK };
@@ -521,15 +420,7 @@ export class FxAUtils extends Component {
       return this.cachedProxyTokenValue;
     }
 
-    // Let's obtain the token immediately only if passes are unlimited or we
-    // are in auto-renew.
-    if (Passes.syncGet().syncAreUnlimited() || this.autoRenew) {
-      // We don't care about the cached values. Maybe they are the old ones.
-      return this.maybeObtainToken().then(_ => this.cachedProxyTokenValue);
-    }
-
-    // No proxy here.
-    return null;
+    return this.maybeObtainToken().then(_ => this.cachedProxyTokenValue);
   }
 
   async forceToken(data) {
@@ -629,16 +520,6 @@ export class FxAUtils extends Component {
     return hashHex.substr(0, 16);
   }
 
-  async passAvailabilityCheck() {
-    const data = await this.obtainProxyInfo();
-    if (this.syncStateError(data)) {
-      // We don't care about this error.
-      return;
-    }
-
-    await this.updatePasses(data);
-  }
-
   async receiveCode(object) {
     const data = await this.completeAuthentication(object.statusCode, object.authCode);
     if (this.syncStateError(data)) {
@@ -646,39 +527,14 @@ export class FxAUtils extends Component {
     }
 
     await StorageUtils.setStateTokenAndProfileData(object.statusCode, data.profileData);
-    await this.updatePasses(data);
 
     // Let's obtain the token immediately only if the migration is not
     // completed or the user is subscribed.
-    if (!Passes.syncGet().syncIsMigrationCompleted() ||
-        Passes.syncGet().syncAreUnlimited()) {
-      // Let's obtain the proxy token data. This method will dispatch a
-      // "tokenGenerated" event.
-      const result = await this.maybeObtainToken();
-      if (this.syncStateError(result)) {
-        return { state: FXA_ERR_AUTH };
-      }
+    const result = await this.maybeObtainToken();
+    if (this.syncStateError(result)) {
+      return { state: FXA_ERR_AUTH };
     }
 
     return { state: FXA_OK };
-  }
-
-  async showNotifyExpiration() {
-    log("Show notify expiration");
-
-    if (Passes.syncGet().syncAreUnlimited()) {
-      return;
-    }
-
-    if (!(await StorageUtils.getReminder())) {
-      return;
-    }
-
-    await this.sendMessage("showReminder");
-  }
-
-  async setAutoRenew(value) {
-    this.autoRenew = value;
-    return StorageUtils.setAutoRenew(value);
   }
 }

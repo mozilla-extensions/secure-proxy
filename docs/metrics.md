@@ -99,8 +99,8 @@ The **methods** are:
    1. `connecting`: the proxy is unreachable during the connecting phase.
    1. `proxyDown`: the proxy seems unreachable.
 1. `state` fires when the proxy state changes
-   1. `proxyEnabled`: the proxy is enabled by user-interaction. **value**: toggleButton or stateButton. **extra**: passes, with the number of consumed passes; version, the extension version. (user-interaction)
-   1. `proxyDisabled`: the proxy is disabled by user-interaction. **value**: toggleButton or stateButton. **extra**: passes, with the number of consumed passes; version, the extension version. (user-interaction)
+   1. `proxyEnabled`: the proxy is enabled by user-interaction. **value**: toggleButton or stateButton. **extra**: version, the extension version. (user-interaction)
+   1. `proxyDisabled`: the proxy is disabled by user-interaction. **value**: toggleButton or stateButton. **extra**: version, the extension version. (user-interaction)
 1. `settings_url_clicks` fires when the user interacts with the settings view. **objects**:
    1. `manageAccount`: the user clicks on the manage account URL. (user-interaction)
    1. `helpAndSupport`: the user clicks on the help & support URL. (user-interaction)
@@ -108,12 +108,8 @@ The **methods** are:
    1. `privacyPolicy`: the user clicks on privacy & policy URL. (user-interaction)
    1. `termsAndConditions`: the user clicks on terms & conditions URL. (user-interaction)
    1. `giveUsFeedback`: the user clicks on give-us-a-feedback URL (user-interaction)
-1. `settings` fires when the user changes some of settings. **objects**:
-   1. `setReminder`: the reminder setting has changed. (user-interaction)
-   1. `setAutoRenew`: the auto-renew setting has changed. (user-interaction)
 1. `upsell_clicks` fires when the user clicks on one of the upsell entrypoints. **objects**:
    1. `footer`: footer link. (user-interaction)
-   1. `expired`: link when the passes are all consumed. (user-interaction)
 
 
 ### scalar Registration and Recording

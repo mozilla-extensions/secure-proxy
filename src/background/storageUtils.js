@@ -66,24 +66,6 @@ export const StorageUtils = {
     return this.getStorageKey("fxaFlowParams");
   },
 
-  async getReminder() {
-    const reminder = await this.getStorageKey("reminder");
-    return reminder === undefined ? DEFAULT_REMINDER : reminder;
-  },
-
-  async setReminder(reminder) {
-    await browser.storage.local.set({reminder});
-  },
-
-  async getAutoRenew() {
-    const autorenew = await this.getStorageKey("autorenew");
-    return autorenew === undefined ? DEFAULT_AUTORENEW : autorenew;
-  },
-
-  async setAutoRenew(autorenew) {
-    await browser.storage.local.set({autorenew});
-  },
-
   async getStorageKey(key) {
     let data = await browser.storage.local.get([key]);
     return data[key];

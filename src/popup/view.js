@@ -36,9 +36,6 @@ export class View {
     introHeading.textContent = currentView.getTranslation(currentView.syncHeadingText(data));
     introHeading.addEventListener("click", currentView);
 
-    // Hide the countdown by default.
-    this.syncShowPassCountdown(false);
-
     let template = currentView.syncShow(data);
     if (template && template instanceof Template) {
       footer.addEventListener("click", currentView);
@@ -65,19 +62,12 @@ export class View {
     let toggleRow = document.getElementById("toggleRow");
     toggleRow.removeAttribute("hidden");
 
-    if (data.totalPasses === -1) {
-      // eslint-disable-next-line verify-await/check
-      toggleRow.classList.add("toggleRowBeta");
-    }
+    // eslint-disable-next-line verify-await/check
+    toggleRow.classList.add("toggleRowBeta");
 
     let toggleButton = document.getElementById("toggleButton");
     toggleButton.setAttribute("aria-label", currentView.getTranslation("popupToggleButtonLabel"));
     toggleButton.checked = state;
-  }
-
-  static syncShowPassCountdown(state) {
-    const countdown = document.getElementById("passCountdown");
-    countdown.hidden = !state;
   }
 
   static hideToggleButton() {

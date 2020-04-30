@@ -14,25 +14,10 @@
   "pageVersion": {
     "message": "FPN version"
   },
-  "pagePasses": {
-    "message": "Passes"
-  },
   "pageDebuggingTitle": {
     "message": "Debugging enabled"
   },
   "pageDebuggingValue": {
-    "message": "enabled"
-  },
-  "pageReminderTitle": {
-    "message": "Reminder enabled"
-  },
-  "pageReminderValue": {
-    "message": "enabled"
-  },
-  "pageAutoRenewTitle": {
-    "message": "Auto-renew pass enabled"
-  },
-  "pageAutoRenewValue": {
     "message": "enabled"
   },
   "pageProxyURLTitle": {
@@ -79,9 +64,6 @@
   },
   "pageMessageServiceInterval": {
     "message": "Message Service fetch interval"
-  },
-  "pagePassesTimeout": {
-    "message": "Passes Timer"
   },
   "pageProxyToken": {
     "message": "Proxy Token"

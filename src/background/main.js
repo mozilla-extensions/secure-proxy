@@ -9,7 +9,6 @@ import {MessageService} from "./messageService.js";
 import {MobileEvents} from "./mobileEvents.js";
 import {Network} from "./network.js";
 import {OfflineManager} from "./offline.js";
-import {Passes} from "./passes.js";
 import {ProxyDownChecker} from "./proxyDownChecker.js";
 import {ProxyStateObserver} from "./proxyStateObserver.js";
 import {StorageUtils} from "./storageUtils.js";
@@ -43,7 +42,6 @@ class Main {
 
     // All the modules, at the end.
     this.logger = new Logger(this);
-    this.passes = new Passes(this);
     this.connectivity = new Connectivity(this);
     this.externalHandler = new ExternalHandler(this);
     this.fxa = new FxAUtils(this);
@@ -127,19 +125,19 @@ class Main {
   }
 
   // Set this.proxyState based on the current settings.
-  async computeProxyState(createTokenIfNeeded = false) {
+  async computeProxyState() {
     log("computing status - currently: " + this.proxyState);
 
     let currentState = this.proxyState;
 
     // Let's compute the state.
-    await this.computeProxyStateInternal(createTokenIfNeeded);
+    await this.computeProxyStateInternal();
 
     log("computing status - final: " + this.proxyState);
     return currentState !== this.proxyState;
   }
 
-  async computeProxyStateInternal(createTokenIfNeeded) {
+  async computeProxyStateInternal() {
     // If all is disabled, we are inactive.
     let proxyState = await StorageUtils.getProxyState();
     if (proxyState === PROXY_STATE_INACTIVE) {
@@ -168,7 +166,7 @@ class Main {
     }
 
     // All seems good. Let's see if the proxy should enabled.
-    let data = await this.fxa.maybeObtainToken(createTokenIfNeeded);
+    let data = await this.fxa.maybeObtainToken();
     switch (data.state) {
       case FXA_OK:
         // Note that we are not waiting for this function. The code moves on.
@@ -186,7 +184,7 @@ class Main {
         return;
 
       case FXA_PAYMENT_REQUIRED:
-        this.syncPassNeeded();
+        this.syncPaymentRequired();
         return;
 
       default:
@@ -223,14 +221,12 @@ class Main {
       return;
     }
 
-    const passes = this.passes.syncGetPasses();
-
     let proxyState;
     if (value) {
-      this.telemetry.syncAddEvent("state", "proxyEnabled", telemetryReason, { passes: "" + passes.currentPass });
+      this.telemetry.syncAddEvent("state", "proxyEnabled", telemetryReason);
       proxyState = PROXY_STATE_CONNECTING;
     } else {
-      this.telemetry.syncAddEvent("state", "proxyDisabled", telemetryReason, { passes: "" + passes.currentPass });
+      this.telemetry.syncAddEvent("state", "proxyDisabled", telemetryReason);
       proxyState = PROXY_STATE_INACTIVE;
     }
 
@@ -242,7 +238,7 @@ class Main {
       await this.ui.update();
     }
 
-    await this.computeProxyState(true);
+    await this.computeProxyState();
 
     // Let's show the toast only if we were disabling the proxy or if all has
     // worked correctly.
@@ -316,17 +312,6 @@ class Main {
     }
   }
 
-  async authenticationNeeded() {
-    if (this.proxyState === PROXY_STATE_UNAUTHENTICATED) {
-      return;
-    }
-
-    this.setProxyState(PROXY_STATE_UNAUTHENTICATED);
-
-    await this.ui.update();
-    await this.ui.showWarningStatusPrompt();
-  }
-
   async onConnectivityChanged(connectivity) {
     log("connectivity changed!");
     this.net.increaseConnectionIsolation();
@@ -388,31 +373,28 @@ class Main {
 
     await this.ui.update();
 
-    // We try to recover only if unlimited.
-    if (this.passes.syncAreUnlimited()) {
-      const data = await this.fxa.maybeObtainToken();
-      switch (data.state) {
-        case FXA_OK:
-          // We are going to have a token-generated event.
-          break;
+    const data = await this.fxa.maybeObtainToken();
+    switch (data.state) {
+      case FXA_OK:
+        // We are going to have a token-generated event.
+        break;
 
-        case FXA_ERR_AUTH:
-          this.setProxyState(PROXY_STATE_UNAUTHENTICATED);
-          await StorageUtils.setStateTokenAndProfileData(null, null);
-          await this.ui.update();
-          break;
+      case FXA_ERR_AUTH:
+        this.setProxyState(PROXY_STATE_UNAUTHENTICATED);
+        await StorageUtils.setStateTokenAndProfileData(null, null);
+        await this.ui.update();
+        break;
 
-        case FXA_ERR_NETWORK:
-          // Something is wrong with FxA. No way to recover this scenario.
-          break;
+      case FXA_ERR_NETWORK:
+        // Something is wrong with FxA. No way to recover this scenario.
+        break;
 
-        case FXA_PAYMENT_REQUIRED:
-          // This should not really happen. Let's ignore this scenario.
-          break;
+      case FXA_PAYMENT_REQUIRED:
+        // This should not really happen. Let's ignore this scenario.
+        break;
 
-        default:
-          throw new Error("Invalid FXA error value!");
-      }
+      default:
+        throw new Error("Invalid FXA error value!");
     }
   }
 
@@ -465,23 +447,23 @@ class Main {
     await this.ui.update(false /* no toast here */);
   }
 
-  syncPassNeeded() {
+  syncPaymentRequired() {
     if (this.proxyState === PROXY_STATE_LOADING ||
         this.proxyState === PROXY_STATE_ACTIVE ||
         this.proxyState === PROXY_STATE_INACTIVE ||
         this.proxyState === PROXY_STATE_CONNECTING) {
       // It's time to disable everything...
       this.setProxyState(PROXY_STATE_INACTIVE);
-      this.ui.syncPassNeededToast();
+      // TODO
     }
   }
 
-  syncPassNeededAtStartup() {
+  syncPaymentRequiredAtStartup() {
     this.setProxyState(PROXY_STATE_INACTIVE);
     return this.ui.update(false /* no toast here */);
   }
 
-  syncAuthCompletedWithPass() {
+  syncAuthCompleted() {
     this.setProxyState(PROXY_STATE_INACTIVE);
 
     // Fetch messages after the authentication.
@@ -491,14 +473,9 @@ class Main {
   }
 
   async tokenGenerated() {
-    // Fetch messages when a new pass is consumed.
+    // Fetch messages when a new token is generated.
     this.messageService.maybeFetchMessages();
     return this.maybeActivate("tokenGenerated");
-  }
-
-  async passAvailable() {
-    this.ui.syncPassAvailableToast();
-    await this.survey.passReceived();
   }
 
   // Provides an async response in most cases
@@ -540,14 +517,11 @@ class Main {
       case "authenticationFailed":
         return this.authFailure(data);
 
-      case "authenticationNeeded":
-        return this.authenticationNeeded();
-
       case "authenticationRequired":
         return this.auth();
 
-      case "authCompletedWithPass":
-        return this.syncAuthCompletedWithPass();
+      case "authCompleted":
+        return this.syncAuthCompleted();
 
       case "captivePortalStateChanged":
         return this.onCaptivePortalStateChanged(data.state);
@@ -564,18 +538,8 @@ class Main {
       case "managerAccountURL":
         return this.fxa.manageAccountURL();
 
-      case "pass-available":
-        return this.passAvailable();
-
-      case "pass-availability-check":
-        return this.fxa.passAvailabilityCheck();
-
-      case "pass-needed":
-        this.syncPassNeeded();
-        return this.ui.update(false /* no toast here */);
-
-      case "pass-needed-at-startup":
-        return this.syncPassNeededAtStartup();
+      case "payment-required-at-startup":
+        return this.syncPaymentRequiredAtStartup();
 
       case "onlineDetected":
         return this.run();
@@ -594,15 +558,6 @@ class Main {
 
       case "sendCode":
         return this.fxa.receiveCode(data);
-
-      case "setReminder":
-        return StorageUtils.setReminder(data.value);
-
-      case "showReminder":
-        return this.ui.showReminder();
-
-      case "setAutoRenew":
-        return this.fxa.setAutoRenew(data.value);
 
       case "tokenGenerated":
         return this.tokenGenerated();
