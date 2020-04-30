@@ -9,7 +9,7 @@ tasks:
               branch: taskgraph
               revision: c78d65237c6ed064b9cbb3cd063b22e9e052a06a
           template:
-              repo: https://github.com/mozilla-releng/xpi-template
+              repo: https://github.com/mozilla-extensions/xpi-template
               branch: master
           trustDomain: xpi
           # XXX for private repos, uncomment this line, and comment out the next
