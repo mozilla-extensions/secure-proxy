@@ -12,11 +12,8 @@ taskgraph:
         template:
             name: "XPI template"
             project-regex: 'xpi-template'
-            # XXX
-            #default-repository: https://github.com/mozilla-extensions/xpi-template
-            #default-ref: master
-            default-repository: https://github.com/escapewindow/xpi-template
-            default-ref: shared-tc-dir
+            default-repository: https://github.com/mozilla-extensions/xpi-template
+            default-ref: master
             type: git
 
 workers:
