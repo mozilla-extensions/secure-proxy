@@ -119,7 +119,11 @@ const ConfigUtils = {
   },
 
   async getDebuggingEnabled() {
-    return await this.getStorageKey("debuggingEnabled") || true; //false;
+    return await this.getStorageKey("debuggingEnabled") || false;
+  },
+
+  async getOnboardingShown() {
+    return await this.getStorageKey("onboardingShown") || false;
   },
 
   async getMessageServiceInterval() {
@@ -141,6 +145,7 @@ const ConfigUtils = {
       proxyMode: await this.getProxyMode(),
       debuggingEnabled: await this.getDebuggingEnabled(),
       messageServiceInterval: await this.getMessageServiceInterval(),
+      onboardingShown: await this.getOnboardingShown(),
     };
   },
 

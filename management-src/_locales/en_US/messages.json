@@ -20,6 +20,12 @@
   "pageDebuggingValue": {
     "message": "enabled"
   },
+  "pageOnboardingShownTitle": {
+    "message": "Onboarding"
+  },
+  "pageOnboardingShownValue": {
+    "message": "shown"
+  },
   "pageProxyURLTitle": {
     "message": "Proxy URL"
   },

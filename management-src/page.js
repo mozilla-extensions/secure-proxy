@@ -52,6 +52,9 @@ class Page {
       browser.runtime.sendMessage({ type: "setDebuggingEnabled", value: debuggingEnabled.checked });
     };
 
+    const onboardingShown = document.getElementById("onboardingShown");
+    onboardingShown.checked = config.onboardingShown || false;
+
     const proxyURL = document.getElementById("proxyURL");
     proxyURL.value = config.proxyURL || "";
     proxyURL.onchange = _ => {
