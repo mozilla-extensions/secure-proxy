@@ -37,6 +37,8 @@ def tasks_from_manifest(config, jobs):
                 artifact_prefix = "xpi/build"
             else:
                 artifact_prefix = "public/build"
+            task.setdefault("attributes", {})
+            task["attributes"]["artifact-prefix"] = artifact_prefix
             env["ARTIFACT_PREFIX"] = artifact_prefix
             artifacts = task["worker"].setdefault("artifacts", [])
             artifacts.append(

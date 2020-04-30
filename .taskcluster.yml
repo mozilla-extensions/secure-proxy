@@ -9,12 +9,14 @@ tasks:
               branch: taskgraph
               revision: c78d65237c6ed064b9cbb3cd063b22e9e052a06a
           template:
-              repo: https://github.com/mozilla-extensions/xpi-template
+              repo: https://github.com/mozilla-releng/xpi-template
               branch: master
           trustDomain: xpi
           # XXX for private repos, uncomment this line, and comment out the next
           # githubCloneSecret: project/xpi/xpi-github-clone-ssh
           githubCloneSecret: ""
+          # XXX use "privileged" or "system" to enable signing
+          xpiSigningType: ""
       in:
           $if: 'tasks_for in ["github-pull-request", "github-push", "action", "cron"]'
           then:
@@ -179,6 +181,7 @@ tasks:
                                     XPI_HEAD_REF: '${head_branch}'
                                     XPI_HEAD_REV: '${head_sha}'
                                     XPI_REPOSITORY_TYPE: git
+                                    XPI_SIGNING_TYPE: '${xpiSigningType}'
                                     TEMPLATE_BASE_REPOSITORY: '${template.repo}'
                                     TEMPLATE_HEAD_REPOSITORY: '${template.repo}'
                                     TEMPLATE_HEAD_REV: '${template.branch}'

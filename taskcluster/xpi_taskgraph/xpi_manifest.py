@@ -46,7 +46,7 @@ def check_manifest(manifest_list):
     for k, v in xpi_names.items():
         if len(v) > 1:
             messages.append(
-                "Duplicate xpi name {} in directories {}\nTry renaming your subdirectories".format(
+                "Duplicate xpi name {} in directories {}\nTry renaming your xpis.".format(
                     k, v
                 )
             )
@@ -65,7 +65,7 @@ def get_manifest():
                 subdir_list.remove(dir_)
                 continue
         if "package.json" in file_list:
-            manifest = {"name": os.path.basename(dir_name), "tests": []}
+            manifest = {"tests": []}
             if "yarn.lock" in file_list:
                 manifest["install-type"] = "yarn"
             elif "package-lock.json" in file_list:
@@ -81,6 +81,7 @@ def get_manifest():
             for target in package_json.get("scripts", {}):
                 if target.startswith("test") or target.startswith("lint"):
                     manifest["tests"].append(target)
+            manifest["name"] = package_json["name"].lower()
             manifest_list.append(ReadOnlyDict(manifest))
     check_manifest(manifest_list[:])
     return tuple(manifest_list)

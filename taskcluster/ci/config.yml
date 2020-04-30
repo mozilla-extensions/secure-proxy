@@ -23,3 +23,11 @@ workers:
             implementation: docker-worker
             os: linux
             worker-type: 'b-linux'
+        dep-signing:
+            provisioner: scriptworker-k8s
+            implementation: scriptworker-signing
+            os: scriptworker
+            worker-type: xpi-t-signing
+
+scriptworker:
+    scope-prefix: project:xpi:releng
