@@ -7,8 +7,17 @@ tasks:
     - $let:
           taskgraph:
               branch: taskgraph
-              revision: 2b32db7d303dd175ed4c4abf5fcfe00c6c593acd
+              revision: c78d65237c6ed064b9cbb3cd063b22e9e052a06a
+          template:
+              # XXX uncomment to merge
+              # repo: https://github.com/mozilla-releng/xpi-template
+              # branch: master
+              repo: https://github.com/escapewindow/xpi-template
+              branch: shared-tc-dir
           trustDomain: xpi
+          # XXX for private repos, uncomment this line, and comment out the next
+          # githubCloneSecret: project/xpi/xpi-github-clone-ssh
+          githubCloneSecret: ""
       in:
           $if: 'tasks_for in ["github-pull-request", "github-push", "action", "cron"]'
           then:
@@ -173,12 +182,18 @@ tasks:
                                     XPI_HEAD_REF: '${head_branch}'
                                     XPI_HEAD_REV: '${head_sha}'
                                     XPI_REPOSITORY_TYPE: git
+                                    TEMPLATE_BASE_REPOSITORY: '${template.repo}'
+                                    TEMPLATE_HEAD_REPOSITORY: '${template.repo}'
+                                    TEMPLATE_HEAD_REV: '${template.branch}'
+                                    TEMPLATE_HEAD_REF: '${template.branch}'
+                                    TEMPLATE_REPOSITORY_TYPE: git
                                     TASKGRAPH_BASE_REPOSITORY: https://hg.mozilla.org/ci/taskgraph
                                     TASKGRAPH_HEAD_REPOSITORY: https://hg.mozilla.org/ci/${taskgraph.branch}
                                     TASKGRAPH_HEAD_REV: '${taskgraph.revision}'
                                     TASKGRAPH_REPOSITORY_TYPE: hg
-                                    REPOSITORIES: {$json: {xpi: "XPI Manifest", taskgraph: "Taskgraph"}}
+                                    REPOSITORIES: {$json: {xpi: "XPI Manifest", taskgraph: "Taskgraph", template: "XPI Template"}}
                                     HG_STORE_PATH: /builds/worker/checkouts/hg-store
+                                    GITHUB_CLONE_SECRET: '${githubCloneSecret}'
                                   - $if: 'tasks_for in ["github-pull-request"]'
                                     then:
                                         XPI_PULL_REQUEST_NUMBER: '${event.pull_request.number}'
@@ -201,6 +216,7 @@ tasks:
                           command:
                               - /usr/local/bin/run-task
                               - '--xpi-checkout=/builds/worker/checkouts/src'
+                              - '--template-checkout=/builds/worker/checkouts/template'
                               - '--taskgraph-checkout=/builds/worker/checkouts/taskgraph'
                               - '--task-cwd=/builds/worker/checkouts/src'
                               - '--'
@@ -213,10 +229,14 @@ tasks:
                                     then: >
                                         PIP_IGNORE_INSTALLED=0 pip install --user /builds/worker/checkouts/taskgraph &&
                                         cd /builds/worker/checkouts/src &&
+                                        rm -rf taskcluster &&
+                                        ln -s /builds/worker/checkouts/template/taskcluster taskcluster &&
                                         ln -s /builds/worker/artifacts artifacts &&
                                         ~/.local/bin/taskgraph action-callback
                                     else: >
                                         PIP_IGNORE_INSTALLED=0 pip install --user /builds/worker/checkouts/taskgraph &&
+                                        rm -rf taskcluster &&
+                                        ln -s /builds/worker/checkouts/template/taskcluster taskcluster &&
                                         ln -s /builds/worker/artifacts artifacts &&
                                         ~/.local/bin/taskgraph decision
                                         --pushlog-id='0'

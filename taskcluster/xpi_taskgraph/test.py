@@ -41,12 +41,10 @@ def test_tasks_from_manifest(config, jobs):
                     run["cwd"] = "{checkout}"
                 run["command"] = run["command"].format(target=target)
                 task["label"] = "t-{}-{}".format(target, xpi_name)
-                try:
-                    checkout_config["ssh_secret_name"] = config.graph_config[
-                        "github_clone_secret"
-                    ]
+                if env.get("GITHUB_CLONE_SECRET", ""):
+                    checkout_config["ssh_secret_name"] = env["GITHUB_CLONE_SECRET"]
                     artifact_prefix = "xpi/build"
-                except KeyError:
+                else:
                     artifact_prefix = "public/build"
                 env["ARTIFACT_PREFIX"] = artifact_prefix
                 yield task

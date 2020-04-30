@@ -8,6 +8,16 @@ taskgraph:
     repositories:
         xpi:
             name: "XPI source"
+            project-regex: '(?!xpi-template)'
+        template:
+            name: "XPI template"
+            project-regex: 'xpi-template'
+            # XXX
+            #default-repository: https://github.com/mozilla-extensions/xpi-template
+            #default-ref: master
+            default-repository: https://github.com/escapewindow/xpi-template
+            default-ref: shared-tc-dir
+            type: git
 
 workers:
     aliases:
@@ -16,6 +26,3 @@ workers:
             implementation: docker-worker
             os: linux
             worker-type: 'b-linux'
-
-# Uncomment if this is a private repo
-# github_clone_secret: project/xpi/xpi-github-clone-ssh

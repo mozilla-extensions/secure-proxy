@@ -32,12 +32,10 @@ def tasks_from_manifest(config, jobs):
             task["label"] = "build-{}".format(xpi_config["name"])
             env["XPI_NAME"] = xpi_config["name"]
             task.setdefault("extra", {})["xpi-name"] = xpi_config["name"]
-            try:
-                checkout_config["ssh_secret_name"] = config.graph_config[
-                    "github_clone_secret"
-                ]
+            if env.get("GITHUB_CLONE_SECRET", ""):
+                checkout_config["ssh_secret_name"] = env["GITHUB_CLONE_SECRET"]
                 artifact_prefix = "xpi/build"
-            except KeyError:
+            else:
                 artifact_prefix = "public/build"
             env["ARTIFACT_PREFIX"] = artifact_prefix
             artifacts = task["worker"].setdefault("artifacts", [])
