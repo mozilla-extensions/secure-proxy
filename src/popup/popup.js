@@ -97,6 +97,10 @@ async function init() {
         await View.setView("connecting", msg);
         return;
 
+      case PROXY_STATE_PAYMENTREQUIRED:
+        await View.setView("paymentRequired", msg);
+        return;
+
       default:
         await View.setView("error", "internalError");
     }

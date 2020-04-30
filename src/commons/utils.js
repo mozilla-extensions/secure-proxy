@@ -36,6 +36,9 @@ const PROXY_STATE_AUTHFAILURE = "authFailure";
 // Authentication failed because of geo-restrictions
 const PROXY_STATE_GEOFAILURE = "geoFailure";
 
+// Payment is required (this is the state after a FXA_PAYMENT_REQUIRED response)
+const PROXY_STATE_PAYMENTREQUIRED = "paymentRequired";
+
 // FXA network error code.
 const FXA_ERR_NETWORK = "networkError";
 

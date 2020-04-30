@@ -215,6 +215,7 @@ class Main {
         this.proxyState !== PROXY_STATE_ACTIVE &&
         this.proxyState !== PROXY_STATE_INACTIVE &&
         this.proxyState !== PROXY_STATE_OFFLINE &&
+        this.proxyState !== PROXY_STATE_PAYMENTREQUIRED &&
         this.proxyState !== PROXY_STATE_PROXYERROR &&
         this.proxyState !== PROXY_STATE_PROXYAUTHFAILED &&
         this.proxyState !== PROXY_STATE_CONNECTING) {
@@ -303,8 +304,7 @@ class Main {
         break;
 
       case FXA_PAYMENT_REQUIRED:
-        this.setProxyState(PROXY_STATE_INACTIVE);
-        await this.ui.update(false /* no toast here */);
+        this.syncPaymentRequired(false /* no toast here */);
         break;
 
       default:
@@ -448,19 +448,12 @@ class Main {
   }
 
   syncPaymentRequired() {
-    if (this.proxyState === PROXY_STATE_LOADING ||
-        this.proxyState === PROXY_STATE_ACTIVE ||
-        this.proxyState === PROXY_STATE_INACTIVE ||
-        this.proxyState === PROXY_STATE_CONNECTING) {
-      // It's time to disable everything...
-      this.setProxyState(PROXY_STATE_INACTIVE);
-      // TODO
-    }
+    this.setProxyState(PROXY_STATE_PAYMENTREQUIRED);
   }
 
-  syncPaymentRequiredAtStartup() {
-    this.setProxyState(PROXY_STATE_INACTIVE);
-    return this.ui.update(false /* no toast here */);
+  syncPaymentRequiredAtStartup(showToast = true) {
+    this.setProxyState(PROXY_STATE_PAYMENTREQUIRED);
+    return this.ui.update(showToast);
   }
 
   syncAuthCompleted() {
@@ -539,7 +532,7 @@ class Main {
         return this.fxa.manageAccountURL();
 
       case "payment-required-at-startup":
-        return this.syncPaymentRequiredAtStartup();
+        return this.syncPaymentRequired(false /* no toast here */);
 
       case "onlineDetected":
         return this.run();
