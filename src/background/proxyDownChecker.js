@@ -29,6 +29,7 @@ export class ProxyDownChecker extends Component {
 
     // The following proxy states are risky. More likely it's our fault.
     if (this.cachedProxyState === PROXY_STATE_PROXYAUTHFAILED ||
+        this.cachedProxyState === PROXY_STATE_PAYMENTREQUIRED ||
         this.cachedProxyState === PROXY_STATE_LOADING ||
         this.cachedProxyState === PROXY_STATE_UNAUTHENTICATED ||
         this.cachedProxyState === PROXY_STATE_GEOFAILURE ||

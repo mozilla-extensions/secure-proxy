@@ -1,7 +1,6 @@
 import {Component} from "./component.js";
 import {constants} from "./constants.js";
 import {Logger} from "./logger.js";
-import {Passes} from "./passes.js";
 import {StorageUtils} from "./storageUtils.js";
 
 const log = Logger.logger("UI");
@@ -15,7 +14,6 @@ const PRIVACY_POLICY_URL = "https://www.mozilla.org/privacy/firefox-private-netw
 const TERMS_AND_CONDITIONS_URL = "https://www.mozilla.org/about/legal/terms/firefox-private-network";
 const GIVE_US_FEEDBACK_URL = "https://qsurvey.mozilla.com/s3/fx-private-network-beta-feedback";
 const BETA_VPN_FOOTER_URL = "https://fpn.firefox.com/vpn?utm_medium=secure-proxy&utm_source=firefox-browser&utm_campaign=upgrade&utm_content=looking-for-vpn";
-const BETA_VPN_PASSES_EXPIRED_URL = "https://fpn.firefox.com/vpn?utm_medium=secure-proxy&utm_source=firefox-browser&utm_campaign=upgrade&utm_content=passes-expired";
 
 export class UI extends Component {
   constructor(receiver) {
@@ -115,28 +113,18 @@ export class UI extends Component {
           this.syncSendMessage("telemetryEvent", { category: "upsell_clicks", event: "footer" });
           break;
 
-        case "vpnLinkPassesExpired":
-          await this.openUrl(BETA_VPN_PASSES_EXPIRED_URL);
-          this.syncSendMessage("telemetryEvent", { category: "upsell_clicks", event: "expired" });
-          break;
-
         case "telemetryEvent":
           this.syncSendMessage("telemetryEvent", message.data);
-          break;
-
-        case "setReminder":
-          this.syncSendMessage("telemetryEvent", { category: "settings", event: message.type, extra: "" + message.data.value });
-          await this.sendMessage("setReminder", message.data);
-          break;
-
-        case "setAutoRenew":
-          this.syncSendMessage("telemetryEvent", { category: "settings", event: message.type, extra: "" + message.data.value });
-          await this.sendMessage("setAutoRenew", message.data);
           break;
 
         case "logRequired":
           this.logRequired();
           break;
+
+        case "onboardingEnd":
+          this.sendMessage("onboardingEnd");
+          break;
+
       }
     });
 
@@ -203,53 +191,6 @@ export class UI extends Component {
     await browser.experiments.proxyutils.showPrompt(this.getTranslation("toastWarning"), true);
   }
 
-  async syncPassNeededToast() {
-    if (this.currentPort) {
-      return;
-    }
-
-    const passes = Passes.syncGet().syncGetPasses();
-    const passesAvailable = passes.totalPasses - passes.currentPass;
-
-    if (passesAvailable === 0) {
-      // eslint-disable-next-line verify-await/check
-      browser.experiments.proxyutils.showPrompt(
-        this.getTranslation("toastLastPassExpired"), true);
-      return;
-    }
-
-    // eslint-disable-next-line verify-await/check
-    browser.experiments.proxyutils.showPrompt(
-      this.getTranslation("toastPassExpired"), true);
-  }
-
-  async syncPassAvailableToast() {
-    if (this.currentPort) {
-      return;
-    }
-
-    const passes = Passes.syncGet().syncGetPasses();
-    const passesAvailable = passes.totalPasses - passes.currentPass;
-
-    if (passesAvailable === 1) {
-      // eslint-disable-next-line verify-await/check
-      browser.experiments.proxyutils.showPrompt(
-        this.getTranslation("toastLastPassAvailable"), false);
-      return;
-    }
-
-    if (passesAvailable > 0) {
-      // eslint-disable-next-line verify-await/check
-      browser.experiments.proxyutils.showPrompt(
-        this.getTranslation("toastPassesAvailable", passesAvailable), false);
-      return;
-    }
-
-    // eslint-disable-next-line verify-await/check
-    browser.experiments.proxyutils.showPrompt(
-      this.getTranslation("toastLastPassExpired", passesAvailable), true);
-  }
-
   async update(showToast = true) {
     if (showToast) {
       await this.showStatusPrompt();
@@ -296,18 +237,12 @@ export class UI extends Component {
     log("Update the panel: ", this.currentPort);
     if (this.currentPort) {
       const profileData = await StorageUtils.getProfileData();
-      const dataPasses = Passes.syncGet().syncGetPasses();
       const tokenData = await StorageUtils.getProxyTokenData();
-      const reminder = await StorageUtils.getReminder();
-      const autorenew = await StorageUtils.getAutoRenew();
 
       return this.currentPort.postMessage({
         userInfo: profileData,
         proxyState: this.cachedProxyState,
-        ...dataPasses,
         tokenData,
-        reminder,
-        autorenew,
         logs,
       });
     }
@@ -327,27 +262,5 @@ export class UI extends Component {
 
   async openUrl(url) {
     await browser.tabs.create({url});
-  }
-
-  async showReminder() {
-    // No need to show the toast if the panel is visible.
-    if (this.currentPort) {
-      return;
-    }
-
-    const autorenew = await StorageUtils.getAutoRenew();
-    const dataPasses = Passes.syncGet().syncGetPasses();
-
-    let string;
-    if (!autorenew) {
-       string = "toastReminderAutoStartOFF";
-    } else if ((dataPasses.totalPasses - dataPasses.currentPass) === 0) {
-       string = "toastReminderAutoStartONNoPasses";
-    } else {
-       string = "toastReminderAutoStartON";
-    }
-
-    // eslint-disable-next-line verify-await/check
-    browser.experiments.proxyutils.showPrompt(this.getTranslation(string), true);
   }
 }

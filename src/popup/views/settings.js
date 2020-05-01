@@ -23,22 +23,6 @@ class ViewSettings extends View {
             </div>
           </a>
         </li>
-        <li id="passesSettings" hidden>
-          <ul>
-            <li>
-              <span>${this.getTranslation("viewSettings-autorenew")}</span>
-              <input type="checkbox" id="autorenew" class="toggleSettings" />
-            <li>
-              <span class="sub extraSub">${this.getTranslation("viewSettings-autorenewSub")}</span>
-            </li>
-            <li>
-              <span>${this.getTranslation("viewSettings-reminder")}</span>
-              <input type="checkbox" id="reminder" class="toggleSettings" />
-            <li>
-              <span class="sub">${this.getTranslation("viewSettings-reminderSub")}</span>
-            </li>
-          </ul>
-        </li>
         <li>
           <ul>
             <li><a href="#" class="link" id="helpAndSupport">${this.getTranslation("viewSettings-helpAndSupportLink")}</a></li>
@@ -55,14 +39,6 @@ class ViewSettings extends View {
     `;
   }
 
-  syncPostShow(data) {
-    if (data.totalPasses !== -1) {
-      document.getElementById("passesSettings").hidden = false;
-      document.getElementById("reminder").checked = data.reminder;
-      document.getElementById("autorenew").checked = data.autorenew;
-    }
-  }
-
   syncHeadingText() { return "introSettings"; }
 
   syncFooter() {
@@ -74,18 +50,6 @@ class ViewSettings extends View {
   }
 
   async handleClickEvent(e) {
-    if (e.target.id === "reminder") {
-      // eslint-disable-next-line verify-await/check
-      View.sendMessage("setReminder", { value: e.target.checked });
-      return;
-    }
-
-    if (e.target.id === "autorenew") {
-      // eslint-disable-next-line verify-await/check
-      View.sendMessage("setAutoRenew", { value: e.target.checked });
-      return;
-    }
-
     // eslint-disable-next-line verify-await/check
     if (["cloudflare", "helpAndSupport", "privacyPolicy", "termsAndConditions", "giveUsFeedback"].includes(e.target.id)) {
       await View.sendMessage(e.target.id);

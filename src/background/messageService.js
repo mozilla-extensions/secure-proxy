@@ -1,6 +1,5 @@
 import {Component} from "./component.js";
 import {Logger} from "./logger.js";
-import {Passes} from "./passes.js";
 import {StorageUtils} from "./storageUtils.js";
 
 const log = Logger.logger("MessageService");
@@ -124,13 +123,11 @@ export class MessageService extends Component {
   // - USAGEDAYS - number of days with the proxy enabled (at least for 1 request)
   async formatUrl(url) {
     let self = await browser.management.getSelf();
-    let passes = Passes.syncGet().syncGetPasses();
 
     // eslint-disable-next-line verify-await/check
     url = url.replace(/PROXYENABLED/g, this.cachedProxyState === PROXY_STATE_ACTIVE ? "true" : "false")
              .replace(/VERSION/g, self.version)
-             .replace(/USAGEDAYS/g, this.lastUsageDays.count)
-             .replace(/PASSES/g, passes.currentPass || 0);
+             .replace(/USAGEDAYS/g, this.lastUsageDays.count);
 
     return browser.runtime.getURL(url);
   }

@@ -1,12 +1,9 @@
 import {Component} from "./component.js";
-import {Passes} from "./passes.js";
-import {StorageUtils} from "./storageUtils.js";
 import {Logger} from "./logger.js";
 
 const log = Logger.logger("Survey");
 
-const SURVEY_UNLIMITED_UNINSTALL = "https://qsurvey.mozilla.com/s3/fx-private-network-beta-exit-survey?sub=no";
-const SURVEY_FREETIER_UNINSTALL = "https://qsurvey.mozilla.com/s3/Firefox-Private-Network-Exit-Survey-Phase-Two-Pass-Based";
+const SURVEY_UNINSTALL = "https://qsurvey.mozilla.com/s3/fx-private-network-beta-exit-survey?sub=no";
 
 // Onboarding/welcome page
 const ONBOARDING = "/pages/welcome.html";
@@ -20,7 +17,7 @@ export class Survey extends Component {
 
   async init() {
     log("init");
-    await this.setUninstallURL();
+    await browser.runtime.setUninstallURL(SURVEY_UNINSTALL);
   }
 
   async onInstalled(details) {
@@ -36,20 +33,5 @@ export class Survey extends Component {
       url,
       active: true,
     });
-  }
-
-  async passReceived() {
-    log("passes received");
-    await this.setUninstallURL();
-  }
-
-  async setUninstallURL() {
-    if (Passes.syncGet().syncAreUnlimited()) {
-      log("setting the uninstall URL: unlimited");
-      await browser.runtime.setUninstallURL(SURVEY_UNLIMITED_UNINSTALL);
-    } else {
-      log("setting the uninstall URL: limited");
-      await browser.runtime.setUninstallURL(SURVEY_FREETIER_UNINSTALL);
-    }
   }
 }

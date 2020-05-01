@@ -36,6 +36,12 @@ const PROXY_STATE_AUTHFAILURE = "authFailure";
 // Authentication failed because of geo-restrictions
 const PROXY_STATE_GEOFAILURE = "geoFailure";
 
+// Payment is required (this is the state after a FXA_PAYMENT_REQUIRED response)
+const PROXY_STATE_PAYMENTREQUIRED = "paymentRequired";
+
+// Onboarding state
+const PROXY_STATE_ONBOARDING = "onboarding";
+
 // FXA network error code.
 const FXA_ERR_NETWORK = "networkError";
 
@@ -67,15 +73,6 @@ const DEFAULT_FXA_OPENID = "https://accounts.firefox.com/.well-known/openid-conf
 
 // SPS configuration (final '/' is important!)
 const DEFAULT_SPS = "https://fpn.firefox.com/";
-
-// How often we check if we have new passes.
-const DEFAULT_PASSES_TIMEOUT = 21600; // 6 hours
-
-// Reminder enabled
-const DEFAULT_REMINDER = true;
-
-// Auto-renew enabled
-const DEFAULT_AUTORENEW = false;
 
 // DNS over HTTPS
 const DOH_URI = "https://mozilla.cloudflare-dns.com/dns-query";
@@ -125,30 +122,12 @@ const ConfigUtils = {
     return await this.getStorageKey("debuggingEnabled") || false;
   },
 
-  async setPassesTimeout(passesTimeout) {
-    await browser.storage.local.set({passesTimeout});
+  async getOnboardingShown() {
+    return await this.getStorageKey("onboardingShown") || false;
   },
 
-  async getPassesTimeout() {
-    return await this.getStorageKey("passesTimeout") || DEFAULT_PASSES_TIMEOUT;
-  },
-
-  async setReminder(reminder) {
-    await browser.storage.local.set({reminder});
-  },
-
-  async getReminder() {
-    let reminder = await this.getStorageKey("reminder");
-    return reminder === undefined ? DEFAULT_REMINDER : reminder;
-  },
-
-  async setAutoRenew(autorenew) {
-    await browser.storage.local.set({autorenew});
-  },
-
-  async getAutoRenew() {
-    let autorenew = await this.getStorageKey("autorenew");
-    return autorenew === undefined ? DEFAULT_AUTORENEW : autorenew;
+  async getProxyState() {
+    return await this.getStorageKey("proxyState");
   },
 
   async getMessageServiceInterval() {
@@ -169,14 +148,25 @@ const ConfigUtils = {
       proxyURL: await this.getProxyURL(),
       proxyMode: await this.getProxyMode(),
       debuggingEnabled: await this.getDebuggingEnabled(),
-      // eslint-disable-next-line verify-await/check
-      currentPass: parseInt(await this.getStorageKey("currentPass"), 10),
-      // eslint-disable-next-line verify-await/check
-      totalPasses: parseInt(await this.getStorageKey("totalPasses"), 10),
-      passesTimeout: await this.getPassesTimeout(),
-      reminder: await this.getReminder(),
-      autorenew: await this.getAutoRenew(),
       messageServiceInterval: await this.getMessageServiceInterval(),
+      onboardingShown: await this.getOnboardingShown(),
+      proxyState: await this.getProxyState(),
+      proxyStates: [
+        PROXY_STATE_LOADING,
+        PROXY_STATE_OFFLINE,
+        PROXY_STATE_CAPTIVE,
+        PROXY_STATE_UNAUTHENTICATED,
+        PROXY_STATE_INACTIVE,
+        PROXY_STATE_ACTIVE,
+        PROXY_STATE_CONNECTING,
+        PROXY_STATE_OTHERINUSE,
+        PROXY_STATE_PROXYERROR,
+        PROXY_STATE_PROXYAUTHFAILED,
+        PROXY_STATE_AUTHFAILURE,
+        PROXY_STATE_GEOFAILURE,
+        PROXY_STATE_PAYMENTREQUIRED,
+        PROXY_STATE_ONBOARDING,
+      ],
     };
   },
 

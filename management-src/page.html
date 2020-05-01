@@ -15,8 +15,12 @@
         <td id="version"></td>
       </tr>
       <tr>
-        <th class="column" data-l10n="pagePasses"></th>
-        <td id="passes"></td>
+        <th class="column" data-l10n="pageProxyStateTitle"></th>
+        <td>
+          <select id="proxyState">
+          </select>
+          <span data-l10n="pageProxyStateWarning"></span>
+        </td>
       </tr>
       <tr>
         <th class="column" data-l10n="pageDebuggingTitle"></th>
@@ -26,17 +30,10 @@
         </td>
       </tr>
       <tr>
-        <th class="column" data-l10n="pageReminderTitle"></th>
+        <th class="column" data-l10n="pageOnboardingShownTitle"></th>
         <td>
-          <input type="checkbox" id="reminderEnabled" />
-          <label for="reminderEnabled" data-l10n="pageReminderValue"></label>
-        </td>
-      </tr>
-      <tr>
-        <th class="column" data-l10n="pageAutoRenewTitle"></th>
-        <td>
-          <input type="checkbox" id="autorenewEnabled" />
-          <label for="autorenewEnabled" data-l10n="pageAutoRenewValue"></label>
+          <input type="checkbox" readonly id="onboardingShown" />
+          <label for="onboardingShown" data-l10n="pageOnboardingShownValue"></label>
         </td>
       </tr>
       <tr>
@@ -84,13 +81,6 @@
         <td>
           <textarea id="proxyToken"></textarea>
           <button data-l10n="pageTokenSubmit" id="proxySubmit"></button>
-        </td>
-      </tr>
-      <tr>
-        <th class="column" data-l10n="pagePassesTimeout"></th>
-        <td>
-          <input type="number" id="passesTimeout" />
-          <span data-l10n="pageSecondsWarning"></span>
         </td>
       </tr>
       <tr>

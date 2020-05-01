@@ -21,12 +21,6 @@ export class ExternalHandler extends Component {
         return ConfigUtils.getCurrentConfig();
       case "setDebuggingEnabled":
         return ConfigUtils.setDebuggingEnabled(message.value);
-      case "setReminder":
-        return ConfigUtils.setReminder(message.value);
-      case "setAutoRenew":
-        return ConfigUtils.setAutoRenew(message.value);
-      case "setPassesTimeout":
-        return ConfigUtils.setPassesTimeout(message.value);
       case "setMessageServiceInterval":
         return ConfigUtils.setMessageServiceInterval(message.value);
       case "setProxyURL":
@@ -41,6 +35,8 @@ export class ExternalHandler extends Component {
         return StorageUtils.getProxyTokenData();
       case "setProxyToken":
         return this.sendMessage("forceToken", message.value);
+      case "setProxyState":
+        return this.sendMessage("forceState", message.value);
       case "reload":
         return browser.runtime.reload();
       case "clear":

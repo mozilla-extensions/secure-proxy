@@ -14,8 +14,8 @@
   "pageVersion": {
     "message": "FPN version"
   },
-  "pagePasses": {
-    "message": "Passes"
+  "pageProxyStateTitle": {
+    "message": "Proxy state"
   },
   "pageDebuggingTitle": {
     "message": "Debugging enabled"
@@ -23,17 +23,11 @@
   "pageDebuggingValue": {
     "message": "enabled"
   },
-  "pageReminderTitle": {
-    "message": "Reminder enabled"
+  "pageOnboardingShownTitle": {
+    "message": "Onboarding"
   },
-  "pageReminderValue": {
-    "message": "enabled"
-  },
-  "pageAutoRenewTitle": {
-    "message": "Auto-renew pass enabled"
-  },
-  "pageAutoRenewValue": {
-    "message": "enabled"
+  "pageOnboardingShownValue": {
+    "message": "shown"
   },
   "pageProxyURLTitle": {
     "message": "Proxy URL"
@@ -77,11 +71,11 @@
   "pageSecondsWarning": {
     "message": "This value is in seconds. Be careful!"
   },
+  "pageProxyStateWarning": {
+    "message": "Some of these proxy-states do not last because they trigger actions and the extension recovers itself automatically"
+  },
   "pageMessageServiceInterval": {
     "message": "Message Service fetch interval"
-  },
-  "pagePassesTimeout": {
-    "message": "Passes Timer"
   },
   "pageProxyToken": {
     "message": "Proxy Token"

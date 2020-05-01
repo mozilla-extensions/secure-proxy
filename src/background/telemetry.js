@@ -16,7 +16,7 @@ const TELEMETRY_EVENTS = {
   "state": {
     methods: [ "state" ],
     objects: [ "proxyEnabled", "proxyDisabled", ],
-    extra_keys: [ "passes", "version" ],
+    extra_keys: [ "version" ],
     record_on_release: true,
   },
   "authentication": {
@@ -40,13 +40,7 @@ const TELEMETRY_EVENTS = {
   },
   "upsellClicks": {
     methods: [ "upsell_clicks" ],
-    objects: [ "footer", "expired" ],
-    extra_keys: [ "version" ],
-    record_on_release: true,
-  },
-  "settings": {
-    methods: [ "settings" ],
-    objects: [ "setReminder", "setAutoRenew", ],
+    objects: [ "footer" ],
     extra_keys: [ "version" ],
     record_on_release: true,
   },

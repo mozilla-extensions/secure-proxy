@@ -38,22 +38,6 @@ export const StorageUtils = {
     return this.getStorageKey("profileData");
   },
 
-  async getSurveyInitialTime() {
-    return this.getStorageKey("surveyInitialTime");
-  },
-
-  async setSurveyInitialTime(surveyInitialTime) {
-    await browser.storage.local.set({surveyInitialTime});
-  },
-
-  async getLastSurvey() {
-    return this.getStorageKey("lastSurvey");
-  },
-
-  async setLastSurvey(lastSurvey) {
-    await browser.storage.local.set({lastSurvey});
-  },
-
   async getLastUsageDays() {
     return this.getStorageKey("lastUsageDays");
   },
@@ -66,22 +50,12 @@ export const StorageUtils = {
     return this.getStorageKey("fxaFlowParams");
   },
 
-  async getReminder() {
-    const reminder = await this.getStorageKey("reminder");
-    return reminder === undefined ? DEFAULT_REMINDER : reminder;
+  async hasOnboardingShown() {
+    return this.getStorageKey("onboardingShown") || false;
   },
 
-  async setReminder(reminder) {
-    await browser.storage.local.set({reminder});
-  },
-
-  async getAutoRenew() {
-    const autorenew = await this.getStorageKey("autorenew");
-    return autorenew === undefined ? DEFAULT_AUTORENEW : autorenew;
-  },
-
-  async setAutoRenew(autorenew) {
-    await browser.storage.local.set({autorenew});
+  async setOnboardingShown() {
+    await browser.storage.local.set({onboardingShown: true});
   },
 
   async getStorageKey(key) {

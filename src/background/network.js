@@ -1,7 +1,6 @@
 import {Component} from "./component.js";
 import {constants} from "./constants.js";
 import {Logger} from "./logger.js";
-import {Passes} from "./passes.js";
 
 const log = Logger.logger("Network");
 
@@ -241,10 +240,7 @@ export class Network extends Component {
     // obtain the token or a Promise which will be resolved with the token,
     // eventually.
     let token = this.syncSendMessage("askForProxyToken");
-
-    // No token found! We need to consume a new pass.
     if (!token) {
-      Passes.syncGet().syncPassNeeded();
       return {type: "direct"};
     }
 
@@ -303,6 +299,7 @@ export class Network extends Component {
         this.cachedProxyState === PROXY_STATE_INACTIVE ||
         this.cachedProxyState === PROXY_STATE_CONNECTING ||
         this.cachedProxyState === PROXY_STATE_CAPTIVE ||
+        this.cachedProxyState === PROXY_STATE_ONBOARDING ||
         this.cachedProxyState === PROXY_STATE_OTHERINUSE) {
       return false;
     }
@@ -366,6 +363,7 @@ export class Network extends Component {
     if (this.cachedProxyState !== PROXY_STATE_ACTIVE &&
         this.cachedProxyState !== PROXY_STATE_OFFLINE &&
         this.cachedProxyState !== PROXY_STATE_PROXYERROR &&
+        this.cachedProxyState !== PROXY_STATE_PAYMENTREQUIRED &&
         this.cachedProxyState !== PROXY_STATE_PROXYAUTHFAILED) {
       console.error("In which state are we?!?");
     }
