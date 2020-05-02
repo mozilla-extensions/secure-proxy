@@ -79,7 +79,7 @@ def get_manifest():
             with open(os.path.join(dir_name, "package.json")) as fh:
                 package_json = json.load(fh)
             for target in package_json.get("scripts", {}):
-                if target.startswith("test") or target.startswith("lint"):
+                if target.startswith("test") or target == "lint":
                     manifest["tests"].append(target)
             manifest["name"] = package_json["name"].lower()
             manifest_list.append(ReadOnlyDict(manifest))
