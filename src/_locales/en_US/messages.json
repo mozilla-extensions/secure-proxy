@@ -42,8 +42,8 @@
   "introHeading": {
     "message": "Firefox Private Network"
   },
-  "introSettings": {
-    "message": "Settings"
+  "introHeadingLite": {
+    "message": "Lite"
   },
 
   "popupPoweredBy": {

@@ -33,8 +33,11 @@ export class View {
     footer.toggleAttribute("hidden", true);
 
     let introHeading = document.getElementById("introHeading");
-    introHeading.textContent = currentView.getTranslation(currentView.syncHeadingText(data));
     introHeading.addEventListener("click", currentView);
+    let introHeadingText = document.getElementById("introHeadingText");
+    introHeadingText.textContent = currentView.getTranslation("introHeading");
+    let introHeadingLite = document.getElementById("introHeadingLite");
+    introHeadingLite.textContent = currentView.getTranslation("introHeadingLite");
 
     let template = currentView.syncShow(data);
     if (template && template instanceof Template) {
@@ -107,11 +110,6 @@ export class View {
   static close() {
     // eslint-disable-next-line verify-await/check
     close();
-  }
-
-  // To be overwritten with a string for the header
-  syncHeadingText(data) {
-    return "introHeading";
   }
 
   // To be overwritten to return an escaped template if the panel should have one

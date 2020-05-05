@@ -39,8 +39,6 @@ class ViewSettings extends View {
     `;
   }
 
-  syncHeadingText() { return "introSettings"; }
-
   syncFooter() {
     return escapedTemplate`
       <span id="poweredBy">${this.getTranslation("popupPoweredBy")}</span>
