@@ -3,8 +3,6 @@ import {View} from "../view.js";
 // Login view.
 class ViewLogin extends View {
   syncShow(data) {
-    View.setState("login", {label: this.getTranslation("heroProxyLogin")});
-
     let text;
     let mode;
 
@@ -20,17 +18,15 @@ class ViewLogin extends View {
     }
 
     return escapedTemplate`
-    <p data-mode="${mode}">
-      ${this.getTranslation(text)}
-    </p>
-    <button id="authButton" class="primary">
-      ${this.getTranslation("viewLoginButton")}
-    </button>`;
-  }
-
-  async stateButtonHandler() {
-    await View.sendMessage("authenticate");
-    View.close();
+    <div class="content-icon login-icon"></div>
+    <div>
+      <p data-mode="${mode}">
+        ${this.getTranslation(text)}
+      </p>
+      <button id="authButton" class="primary">
+        ${this.getTranslation("viewLoginButton")}
+      </button>
+    </div>`;
   }
 
   handleClickEvent(e) {

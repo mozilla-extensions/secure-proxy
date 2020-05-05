@@ -1,23 +1,32 @@
 import {View} from "../view.js";
+import {animateGlobe} from "../animations.js";
 
-// This is the first view to be shown.
 class ViewConnecting extends View {
-  syncShow(data) {
-    View.setState("connecting", {label: this.getTranslation("heroProxyConnecting")});
-    View.showToggleButton(data, true);
+  constructor() {
+    super();
 
-    return escapedTemplate`
-    <p>
-      ${this.getTranslation("viewConnecting")}
-    </p>`;
+    this.animating = false;
   }
 
-  toggleButtonClicked() {
-    // eslint-disable-next-line verify-await/check
-    View.sendMessage("setEnabledState", {
-      enabledState: true,
-      reason: "toggleButton",
-    });
+  get stateInfo() {
+    return {
+      name: "connecting",
+      content: escapedTemplate`
+        <h2>${this.getTranslation("headingConnecting")}</h2>
+        <h3>${this.getTranslation("subheadingConnecting")}</h3>
+      `
+    };
+  }
+
+  syncPostShow() {
+    // There may be multiple "connecting" events coming from
+    // the background, so we need to debounce the animation
+    // to avoid starting it several times.
+    if (!this.animating) {
+      animateGlobe([0, 15]);
+      this.animating = true;
+      setTimeout(() => this.animating = false, 500);
+    }
   }
 }
 

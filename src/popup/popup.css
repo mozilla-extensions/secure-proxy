@@ -47,11 +47,12 @@
 }
 
 body {
+  background: var(--grey-10);
   color: var(--black);
   inline-size: 320px;
   font-size: var(--body-font-size);
   line-height: 22px;
-  min-block-size: 490px;
+  min-block-size: 368px;
   overflow-inline: hidden;
 }
 
@@ -135,14 +136,33 @@ button.primary:enabled:hover:active {
   margin-inline-start: -22px;
 }
 
+#state,
 #content {
-  inline-size: 320px;
-  flex: 1;
+  block-size: 316px;
+  inline-size: -moz-available;
+  background-color: #fff;
+  border-radius: 4px;
+  box-shadow: 0px 1px 4px rgba(12, 12, 13, 0.1);
+  margin: 0 var(--edge-padding) var(--edge-padding);
+  overflow: hidden;
+  position: relative;
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  transition: background-color 250ms ease-in-out;
+}
+
+#content {
+  padding: calc(2 * var(--edge-padding));
 }
 
 #content p {
-  padding: var(--edge-padding);
-  padding-block-start: var(--edge-padding);
+  padding: var(--edge-padding) 0;
+  text-align: center;
+}
+
+#content h2 {
+  text-align: center;
 }
 
 #content p[data-mode="warning"] {
@@ -187,7 +207,6 @@ header {
   font-weight: bold;
   display: flex;
   position: relative;
-  border-block-end: 1px solid #e6e6e6;
 }
 
 header button {
@@ -257,18 +276,63 @@ header button {
   visibility: hidden !important;
 }
 
+#onboarding .card {
+  display: contents;
+}
+
+#content .close-button {
+  background: var(--button-background) url("/img/close.svg") 50% / 16px no-repeat;
+  background-size: 12px 12px;
+  top: var(--edge-padding);
+  right: var(--edge-padding);
+  --button-background: transparent;
+  position: absolute;
+  box-sizing: content-box;
+  block-size: 16px;
+  inline-size: 16px;
+  flex: 0 0 16px;
+  min-height: auto;
+  align-self: center;
+  display: block;
+  border: none;
+  padding: 4px;
+  border-radius: 2px;
+}
+
+#content .close-button:hover {
+  --button-background: var(--grey-20);
+}
+
+#state {
+  justify-content: center;
+}
+
+#stateIcon {
+  width: 80px;
+  height: 80px;
+  margin: 0 auto;
+}
+
 #stateButton {
+  width: 60px;
+  height: 32px;
+  border-radius: 16px;
+  display: block;
   position: relative;
-  block-size: 81px;
-  inline-size: 81px;
-  border-radius: 100%;
-  font-size: 20px;
+  transition: opacity 250ms ease-in-out;
+  margin-top: 20px;
+}
+
+#stateButton::before {
   background-color: #fff;
-  display: inline;
-  margin: auto auto;
-  border: 1px solid #29C1A1;
-  text-align: center;
-  font-weight: bold;
+  block-size: 24px;
+  border-radius: 12px;
+  content: "";
+  inline-size: 24px;
+  left: 4px;
+  position: absolute;
+  top: 4px;
+  transition: transform 125ms ease-in-out;
 }
 
 #stateButton::-moz-focus-inner {
@@ -276,121 +340,83 @@ header button {
   border: 0;
 }
 
-@keyframes stateButton-hover {
-  0.00% {transform: scale(1);}
-  17.24% {transform: scale(1.2382);}
-  37.93% {transform: scale(1.1938);}
-  58.62% {transform: scale(1.2009999999999998);}
-  79.31% {transform: scale(1.1998);}
-  100.00% {transform: scale(1.2);}
-}
-
-#stateButton:hover {
-  animation: stateButton-hover;
-  animation-duration: 1.75s;
-  animation-fill-mode: both;
-  animation-direction: alternate;
-  animation-timing-function: cubic-bezier(0.445,  0.050, 0.550, 0.950);
-}
-
-@keyframes stateButton-connecting {
-  0.00% {transform: scale(1);}
-  14.77% {transform: scale(0.11079999999999998);}
-  31.81% {transform: scale(0.3464);}
-  48.86% {transform: scale(0.28859999999999997);}
-  65.91% {transform: scale(0.3028);}
-  82.95% {transform: scale(0.2993);}
-  100.00% {transform: scale(0.30019999999999997);}
+[data-state="connecting"] #stateButton::before,
+[data-state="enabled"] #stateButton::before {
+  transform: translateX(28px);
 }
 
 [data-state="connecting"] #stateButton {
-  animation: stateButton-connecting;
-  animation-duration: 1.65s;
-  animation-fill-mode: both;
-  animation-timing-function: cubic-bezier(0.445,  0.050, 0.550, 0.950);
+  background: #3fe1b0;
+  opacity: 0.5;
 }
 
-[data-state="disabled"] #stateButton,
-[data-state="connecting"] #stateButton {
-  border: 0 none;
-}
-
-[data-state="login"] #stateButton {
-  background: url('/img/hero-account.svg') 0 0 / cover;
-  border: 0 none;
+[data-state="enabled"] #stateButton {
+  background: #3fe1b0;
 }
 
 [data-state="disabled"] #stateButton {
-  background-color: #bbb8c2;
-  font-size: 25px;
+  background-color: rgba(12, 12, 13, 0.4);
 }
 
-#state {
-  background: var(--ink-90) url('/img/background-loading.png') 0 0 / cover;
-  block-size: 200px;
-  display: flex;
-  overflow: hidden;
-  width: 320px;
-  height: 200px;
-  position: relative;
+[data-state="disabling"] #stateButton {
+  background: rgba(12, 12, 13, 0.2);
+}
+
+#stateAnimation {
+  bottom: 0;
+  left: 0;
+  position: absolute;
+  right: 0;
+  top: -141px;
+}
+
+#stateContent {
+  margin-top: 24px;
+  height: 64px;
+}
+
+#stateContent h2 {
+  color: rgba(12, 12, 13, 0.8);
+  font-size: 22px;
+  font-weight: 400;
+  line-height: 32px;
+  margin: 0 0 4px;
+  text-align: center;
+}
+
+#stateContent h3 {
+  color: rgba(12, 12, 13, 0.6);
+  font-size: 15px;
+  font-weight: 400;
+  line-height: 22px;
+  margin: 0;
+  text-align: center;
+}
+
+#stateContent h2,
+#stateContent h3 {
+  transition: color 125ms;
+}
+
+[data-state="enabled"] #stateContent h2 {
+  color: white;
+}
+
+[data-state="enabled"] #stateContent h3 {
+  color: rgba(255, 255, 255, 0.8);
 }
 
 [data-state="hidden"]#state {
   display: none;
 }
 
-[data-state="login"]#state {
-  background: var(--ink-90) url('/img/background-off.png') 0 0 / cover;
-}
-
-[data-state="disabled"]#state {
-  background: var(--ink-90) url('/img/background-off.png') 0 0 / cover;
-  color: #291d4f;
-}
-
-[data-state="connecting"]#state {
-  background: var(--ink-90) url('/img/background-loading.png') 0 0 / cover;
-}
-
 [data-state="enabled"]#state {
-  background: var(--ink-90) url('/img/background-on.png') 0 0 / cover;
-}
-
-@keyframes circle-effect {
-  0.00% {transform: scale(1); opacity: 1;}
-  100.00% {transform: scale(4); opacity: 0;}
-}
-
-[data-state="enabled"] .enabled-circle {
-  width: 80px;
-  height: 80px;
-  box-shadow: 0px 0px 1px #00c8d7;
-  /* container width (320px) / 2 - self width (80px) / 2 */
-  left: 120px;
-  /* container height (200px) / 2 - self height (80px) / 2 */
-  top: 60px;
-  border-radius: 100%;
-  position: absolute;
-  animation: circle-effect;
-  animation-iteration-count: infinite;
-  animation-duration: 4s;
-  animation-timing-function: cubic-bezier(0.445,  0.050, 0.550, 0.950);
+  background-color: #321c64;
+  color: #fff;
 }
 
 #settingsLink, #vpnLinkFooter {
   font-weight: 500;
-}
-
-#enabled-circle-2 {
-  animation-delay: 1s;
-}
-
-#enabled-circle-3 {
-  animation-delay: 2s;
-}
-
-#enabled-circle-4 {
-  animation-delay: 3s;
 }
 
 .settingsMenu {
@@ -422,10 +448,6 @@ header button {
 
 .settingsMenu .sub {
   padding-block-start: 0px;
-}
-
-.settingsMenu .toggleSettings {
-  margin-inline-end: var(--edge-padding);
 }
 
 .settingsMenu a:hover {
@@ -512,66 +534,21 @@ footer {
   display: flex;
 }
 
-#toggleRow {
-  padding-block-start: 8px;
-  padding-block-end: 4px;
-  padding-inline-start: var(--edge-padding);
-  padding-inline-end: var(--edge-padding);
-  border-block-start: 1px solid #e4e4e4;
-  display: flex;
+.content-icon {
+  height: 80px;
+  width: 80px;
+  background-size: 80px 80px;
+  margin-bottom: 24px;
+  flex: 1;
 }
 
-.toggleRowBeta {
-  padding-block-end: 8px !important;
-  border-block-end: 1px solid #e4e4e4;
+.login-icon,
+.loading-icon {
+  background: url("/img/icon.svg") center center no-repeat;
 }
 
-.toggleSettings {
-  -moz-appearance: none;
-  align-self: center;
-  margin-inline-start: auto;
-  box-sizing: border-box;
-  min-width: 26px;
-  border-radius: 10px;
-  background-color: #F9F9FA;
-  border: 1px solid rgba(24, 26, 27, 0.14);
-  padding: 2px;
-  padding-inline-end: 0;
-  transition: padding .2s ease;
-}
-
-.toggleSettings:checked {
-  background-color: #0060DF;
-  /* Push the toggle to the right. */
-  padding-inline-start: 12px;
-}
-
-.toggleSettings:checked:hover {
-  background-color: #003EAA;
-}
-
-.toggleSettings:checked:hover:active {
-  background-color: #002275;
-}
-
-.toggleSettings:not(:checked):hover {
-  background-color: #C9C9CA;
-}
-
-.toggleSettings:not(:checked):hover:active {
-  background-color: #B1B1B2;
-}
-
-.toggleSettings::before {
-  position: relative;
-  display: block;
-  content: "";
-  width: 10px;
-  height: 10px;
-  border-radius: 10px;
-  background: white;
-  outline: 1px solid rgba(24, 26, 27, 0.14);
-  -moz-outline-radius: 11px;
+.loading-icon {
+  animation: fade alternate-reverse 2000ms ease-in-out infinite;
 }
 
 #poweredBy {

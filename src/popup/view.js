@@ -39,11 +39,34 @@ export class View {
     let introHeadingLite = document.getElementById("introHeadingLite");
     introHeadingLite.textContent = currentView.getTranslation("introHeadingLite");
 
+    // eslint-disable-next-line verify-await/check
+    document.body.classList.remove("loading");
+
+    let stateElement = document.getElementById("state");
+    stateElement.toggleAttribute("hidden", true);
+    content.toggleAttribute("hidden", true);
+
+    let info = currentView.stateInfo;
+    if (info) {
+      let stateElement = document.getElementById("state");
+      stateElement.setAttribute("data-state", info.name);
+      stateElement.removeAttribute("hidden");
+
+      let template = info.content;
+      if (template && template instanceof Template) {
+        let stateContent = document.getElementById("stateContent");
+        template.syncRenderTo(stateContent);
+      }
+      currentView.syncPostShow(data);
+      return;
+    }
+
     let template = currentView.syncShow(data);
     if (template && template instanceof Template) {
       footer.addEventListener("click", currentView);
       footer.addEventListener("dragstart", currentView);
 
+      content.toggleAttribute("hidden", false);
       content.addEventListener("click", currentView);
       content.addEventListener("submit", currentView);
       content.addEventListener("dragstart", currentView);
@@ -56,30 +79,6 @@ export class View {
       footerTemplate.syncRenderTo(footer);
       footer.toggleAttribute("hidden", false);
     }
-
-    // eslint-disable-next-line verify-await/check
-    document.body.classList.remove("loading");
-  }
-
-  static showToggleButton(data, state) {
-    let toggleRow = document.getElementById("toggleRow");
-    toggleRow.removeAttribute("hidden");
-
-    // eslint-disable-next-line verify-await/check
-    toggleRow.classList.add("toggleRowBeta");
-
-    let toggleButton = document.getElementById("toggleButton");
-    toggleButton.setAttribute("aria-label", currentView.getTranslation("popupToggleButtonLabel"));
-    toggleButton.checked = state;
-  }
-
-  static hideToggleButton() {
-    let toggleRow = document.getElementById("toggleRow");
-    toggleRow.toggleAttribute("hidden", true);
-  }
-
-  static onToggleButtonClicked(e) {
-    currentView.toggleButtonClicked(e);
   }
 
   static showBack(shouldShow) {
@@ -97,8 +96,12 @@ export class View {
   static setState(state, stateButtonSettings = {}) {
     let stateElement = document.getElementById("state");
     stateElement.setAttribute("data-state", state);
+    stateElement.removeAttribute("hidden");
+
+    let content = document.getElementById("content");
+    content.toggleAttribute("hidden", true);
+
     let stateButtonElement = document.getElementById("stateButton");
-    stateButtonElement.textContent = stateButtonSettings.text || "";
     if (stateButtonSettings.label) {
       stateButtonElement.setAttribute("aria-label", stateButtonSettings.label);
     } else {
@@ -161,9 +164,6 @@ export class View {
 
   // To be overwritten if needed.
   syncPostShow() {}
-
-  // To be overwritten if needed.
-  toggleButtonClicked(e) {}
 
   // Helper method to receive translated string.
   getTranslation(stringName, ...args) {

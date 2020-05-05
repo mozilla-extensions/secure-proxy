@@ -5,6 +5,7 @@
     <link rel="stylesheet" href="popup.css" />
     <script src="/commons/template.js" defer></script>
     <script src="/commons/utils.js" defer></script>
+    <script src="/vendor/lottie.js" defer></script>
     <script src="popup.js" type="module"></script>
   </head>
   <body class="loading">
@@ -16,19 +17,18 @@
       </h1>
       <button id="settingsButton" hidden></button>
     </header>
-    <div id="state">
-      <!-- Helper elements for the enabled effect -->
-      <div class="enabled-circle" id="enabled-circle-1"></div>
-      <div class="enabled-circle" id="enabled-circle-2"></div>
-      <div class="enabled-circle" id="enabled-circle-3"></div>
-      <div class="enabled-circle" id="enabled-circle-4"></div>
-      <button id="stateButton"></button>
+    <main id="content">
+    </main>
+    <div id="state" hidden>
+      <div id="stateAnimation">
+      </div>
+      <div id="stateIcon">
+      </div>
+      <div id="stateContent">
+      </div>
+      <div id="stateButton">
+      </div>
     </div>
-    <div id="toggleRow" hidden>
-      <span data-l10n="popupToggleButton"></span>
-      <input type="checkbox" class="toggleSettings" id="toggleButton" />
-    </div>
-    <main id="content"></main>
     <footer>
     </footer>
   </body>

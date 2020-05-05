@@ -99,8 +99,8 @@ The **methods** are:
    1. `connecting`: the proxy is unreachable during the connecting phase.
    1. `proxyDown`: the proxy seems unreachable.
 1. `state` fires when the proxy state changes
-   1. `proxyEnabled`: the proxy is enabled by user-interaction. **value**: toggleButton or stateButton. **extra**: version, the extension version. (user-interaction)
-   1. `proxyDisabled`: the proxy is disabled by user-interaction. **value**: toggleButton or stateButton. **extra**: version, the extension version. (user-interaction)
+   1. `proxyEnabled`: the proxy is enabled by user-interaction. **value**: only stateButton for now. **extra**: version, the extension version. (user-interaction)
+   1. `proxyDisabled`: the proxy is disabled by user-interaction. **value**: only stateButton for now. **extra**: version, the extension version. (user-interaction)
 1. `settings_url_clicks` fires when the user interacts with the settings view. **objects**:
    1. `manageAccount`: the user clicks on the manage account URL. (user-interaction)
    1. `helpAndSupport`: the user clicks on the help & support URL. (user-interaction)

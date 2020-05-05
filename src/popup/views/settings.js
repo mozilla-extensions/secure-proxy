@@ -7,8 +7,6 @@ class ViewSettings extends View {
   syncShow(data) {
     View.showBack(true);
     View.showSettings(false);
-    View.hideToggleButton();
-    View.setState("hidden");
 
     this.headerClicks = 0;
 
