@@ -16,17 +16,54 @@
     "message": "Firefox Private Network is inactive"
   },
 
-  "heroProxyOff": {
-    "message": "OFF"
+  "headingOff": {
+    "message": "Private Network is off"
   },
-  "heroProxyOn": {
-    "message": "ON"
+  "subheadingOff": {
+    "message": "Enable to mask your IP and location."
   },
-  "heroProxyLogin": {
-    "message": "Login"
+  "headingOn": {
+    "message": "Private Network is on"
   },
-  "heroProxyConnecting": {
-    "message": "Connecting"
+  "subheadingOn": {
+    "message": "Your IP and location are protected."
+  },
+  "headingConnecting": {
+    "message": "Connecting…"
+  },
+  "subheadingConnecting": {
+    "message": "You will be protected shortly."
+  },
+
+  "onboardingHeaderStep1": {
+    "message": "Throw off trackers"
+  },
+  "onboardingDescriptionStep1": {
+    "message": "Mask your location so websites can't use it to profile you, target you with ads or sell what they know about you to data collectors."
+  },
+  "onboardingHeaderStep2": {
+    "message": "Cover your steps"
+  },
+  "onboardingDescriptionStep2": {
+    "message": "Firefox Private Network protects you against eavesdroppers and internet service providers that collect your browsing data."
+  },
+  "onboardingHeaderStep3": {
+    "message": "Keep it simple"
+  },
+  "onboardingDescriptionStep3": {
+    "message": "Turn it on with a click and browse as normal."
+  },
+  "onboardingDescriptionStep3": {
+    "message": "Turn it on with a click and browse as normal."
+  },
+  "onboardingNext": {
+    "message": "Next"
+  },
+  "onboardingDone": {
+    "message": "Got it"
+  },
+  "onboardingCloseButtonLabel": {
+    "message": "Close Onboarding"
   },
 
   "injectedModalHeading": {
@@ -55,17 +92,11 @@
   "popupCloudflareRT": {
     "message": "®"
   },
-  "popupToggleButton": {
-    "message": "Firefox Private Network"
-  },
   "popupSettingsButtonLabel": {
     "message": "Settings"
   },
   "popupBackButtonLabel": {
     "message": "Back"
-  },
-  "popupToggleButtonLabel": {
-    "message": "Toggle proxy state"
   },
 
   "toastProxyOff": {
@@ -88,7 +119,7 @@
     "message": "At this time, Firefox Private Network is not available in your region. You must be in the United States to complete the setup process."
   },
   "viewLoading": {
-    "message": "Establishing connection to Firefox Private Network. This should take just a few more moments."
+    "message": "Loading…"
   },
   "viewLoginMessage":{
     "message": "To start using Private Network, sign in to your Firefox account or create one."

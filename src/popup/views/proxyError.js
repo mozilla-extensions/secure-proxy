@@ -8,23 +8,6 @@ class ViewProxyError extends View {
       <p id="proxyError">${this.getTranslation("viewMainProxyError")}</p>
     `;
   }
-
-  syncPostShow(data) {
-    View.showToggleButton(data, true);
-    View.setState("disabled", {text: this.getTranslation("heroProxyOff")});
-  }
-
-  toggleButtonClicked(e) {
-    // eslint-disable-next-line verify-await/check
-    View.sendMessage("setEnabledState", {
-      enabledState: false,
-      reason: (typeof e === "string") ? e : "toggleButton",
-    });
-  }
-
-  stateButtonHandler() {
-    this.toggleButtonClicked("stateButton");
-  }
 }
 
 const view = new ViewProxyError();

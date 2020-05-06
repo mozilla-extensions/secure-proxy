@@ -51,6 +51,7 @@ module.exports = {
     "verify-await"
   ],
   root: true,
+  ignorePatterns: ["vendor/", "node_modules/"],
   rules: {
     "verify-await/check": ["error", {
       "namedStaticMembers": [

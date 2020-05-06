@@ -39,9 +39,6 @@ async function init() {
   let stateButton = document.getElementById("stateButton");
   stateButton.addEventListener("click", _ => View.onStateButton());
 
-  let toggleButton = document.getElementById("toggleButton");
-  toggleButton.addEventListener("click", e => View.onToggleButtonClicked(e));
-
   port.onMessage.addListener(async msg => {
     if (timeoutId) {
       clearTimeout(timeoutId);
@@ -80,7 +77,8 @@ async function init() {
         return;
 
       case PROXY_STATE_INACTIVE:
-        // fall through
+        await View.setView("disabled", msg);
+        return;
       case PROXY_STATE_ACTIVE:
         await View.setView("main", msg);
         return;

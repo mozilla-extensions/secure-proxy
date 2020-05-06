@@ -3,11 +3,10 @@ import {View} from "../view.js";
 // This is the first view to be shown.
 class ViewLoading extends View {
   syncShow() {
-    View.setState("connecting", {label: this.getTranslation("heroProxyConnecting")});
     return escapedTemplate`
-    <p>
-      ${this.getTranslation("viewLoading")}
-    </p>`;
+    <div class="loading-icon"></div>
+      <h2>${this.getTranslation("viewLoading")}</h2>
+    </div>`;
   }
 }
 
