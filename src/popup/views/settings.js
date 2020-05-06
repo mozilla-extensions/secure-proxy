@@ -34,14 +34,11 @@ class ViewSettings extends View {
           </ul>
         </li>
       </ul>
-    `;
-  }
-
-  syncFooter() {
-    return escapedTemplate`
-      <span id="poweredBy">${this.getTranslation("popupPoweredBy")}</span>
-      <a href="#" class="link" id="cloudflare">${this.getTranslation("popupCloudflare")}</a>
-      <span>${this.getTranslation("popupCloudflareRT")}</span>
+      <footer>
+        <span id="poweredBy">${this.getTranslation("popupPoweredBy")}</span>
+        <a href="#" class="link" id="cloudflare">${this.getTranslation("popupCloudflare")}</a>
+        <span>${this.getTranslation("popupCloudflareRT")}</span>
+      </footer>
     `;
   }
 

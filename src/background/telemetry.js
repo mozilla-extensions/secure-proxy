@@ -40,7 +40,7 @@ const TELEMETRY_EVENTS = {
   },
   "upsellClicks": {
     methods: [ "upsell_clicks" ],
-    objects: [ "footer" ],
+    objects: [ "paymentRequired" ],
     extra_keys: [ "version" ],
     record_on_release: true,
   },

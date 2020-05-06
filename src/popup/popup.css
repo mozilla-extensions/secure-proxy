@@ -1,6 +1,5 @@
 :root {
   --heading-font-size: 15px;
-  --footer-font-size: 15px;
   --body-font-size: 15px;
   --edge-padding: 8px;
 
@@ -138,7 +137,7 @@ button.primary:enabled:hover:active {
 
 #state,
 #content {
-  block-size: 316px;
+  min-block-size: 316px;
   inline-size: -moz-available;
   background-color: #fff;
   border-radius: 4px;
@@ -395,35 +394,34 @@ header button {
   color: #fff;
 }
 
-#settingsLink, #vpnLinkFooter {
+#settingsLink {
   font-weight: 500;
 }
 
 .settingsMenu {
   padding: 0;
+  width: -moz-available;
 }
 
-.settingsMenu a {
+footer,
+.settingsMenu a,
+.settingsMenu span {
   display: flex;
   width: 100%;
   color: black;
   text-decoration: none;
   padding-block-start: 13px;
   padding-block-end: 13px;
-  padding-inline-start: var(--edge-padding);
-  padding-inline-end: var(--edge-padding);
+  padding-inline-start: calc(2 * var(--edge-padding));
+  padding-inline-end: calc(2 * var(--edge-padding));
   list-style: none;
 }
 
 .settingsMenu span {
-  display: flex;
-  color: black;
-  text-decoration: none;
   padding-block-start: 4px;
   padding-block-end: 4px;
   padding-inline-start: var(--edge-padding);
   padding-inline-end: var(--edge-padding);
-  list-style: none;
 }
 
 .settingsMenu .sub {
@@ -439,6 +437,10 @@ header button {
   align-self: center;
   block-size: 32px;
   inline-size: 32px;
+}
+
+.settingsMenu strong {
+  padding-inline-start: var(--edge-padding);
 }
 
 .settingsMenu .manage {
@@ -497,17 +499,6 @@ header button {
   margin-inline-start: auto;
 }
 
-footer {
-  font-size: var(--footer-font-size);
-  padding-inline-start: var(--edge-padding);
-  padding-inline-end: var(--edge-padding);
-  padding-block-start: 14px;
-  padding-block-end: 14px;
-  border-block-start: 1px solid #e4e4e4;
-  background: #f9f9fb;
-  display: flex;
-}
-
 .linkRow {
   padding: 10px var(--edge-padding);
   border-block-start: 1px solid #e4e4e4;
@@ -522,10 +513,35 @@ footer {
   flex: 1;
 }
 
+#content[data-name=loading ]{
+  display: flex;
+  justify-content: center;
+  background-color: #321c64;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+#content[data-name=settings] {
+ margin: 0;
+ padding: 0;
+ align-items: start;
+ background: none;
+ box-shadow: none;
+}
+
 .login-icon,
 .loading-icon {
   background: url("/img/icon.svg") center center no-repeat;
   background-size: contain;
+}
+
+@keyframes fade {
+  0% {
+    opacity: 1;
+  }
+
+  100% {
+    opacity: 0.5;
+  }
 }
 
 .loading-icon {

@@ -4,9 +4,9 @@ import {View} from "../view.js";
 class ViewLoading extends View {
   syncShow() {
     return escapedTemplate`
-    <div class="loading-icon"></div>
-      <h2>${this.getTranslation("viewLoading")}</h2>
-    </div>`;
+    <div class="content-icon loading-icon"></div>
+    <h2>${this.getTranslation("viewLoading")}</h2>
+    `;
   }
 }
 

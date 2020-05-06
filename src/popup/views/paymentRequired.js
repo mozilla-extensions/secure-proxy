@@ -4,8 +4,17 @@ import {View} from "../view.js";
 class ViewPaymentRequired extends View {
   syncShow(data) {
     return escapedTemplate`
-      <p>PAYMENT REQUIRED</p>
-    `;
+      <div class="content-icon login-icon"></div>
+      <p>${this.getTranslation("viewPaymentRequired")}</p>
+      <button class="primary" id="paymentButton">Continue</button>
+      `;
+  }
+
+  handleClickEvent(e) {
+    if (e.target.id === "paymentButton") {
+      View.sendMessage("openSubscriptionLink");
+      View.close();
+    }
   }
 }
 

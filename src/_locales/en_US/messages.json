@@ -118,6 +118,9 @@
   "viewGeoFailure": {
     "message": "At this time, Firefox Private Network is not available in your region. You must be in the United States to complete the setup process."
   },
+  "viewPaymentRequired": {
+    "message": "Please subscribe to use Firefox Private Network"
+  },
   "viewLoading": {
     "message": "Loading…"
   },
@@ -134,19 +137,19 @@
     "message": "Leave Feedback"
   },
   "viewSettings-helpAndSupportLink": {
-    "message": "Help & Support"
+    "message": "Contact Support"
   },
   "viewSettings-manageAccountButton": {
-    "message": "Manage Account"
+    "message": "Manage Subscription"
   },
   "viewSettings-manageAccountLink": {
-    "message": "Manage Account"
+    "message": "Manage Subscription"
   },
   "viewSettings-privacyPolicyLink": {
-    "message": "Privacy Policy"
+    "message": "Privacy Notice"
   },
   "viewSettings-termsAndConditionsLink": {
-    "message": "Terms & Conditions"
+    "message": "Terms of Service"
   },
 
   "offline": {

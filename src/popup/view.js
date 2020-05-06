@@ -13,7 +13,6 @@ export class View {
       this.syncRegisterView(view.default, name);
     }
     let content = document.getElementById("content");
-    let footer = document.querySelector("footer");
     let stateElement = document.getElementById("state");
     // eslint-disable-next-line verify-await/check
     let view = views.get(name);
@@ -23,7 +22,6 @@ export class View {
     }
 
     if (currentView) {
-      footer.removeEventListener("click", currentView);
       content.removeEventListener("click", currentView);
       content.removeEventListener("submit", currentView);
     }
@@ -31,7 +29,6 @@ export class View {
     currentView = view;
     // Clear the display always.
     content.innerHTML = "";
-    footer.toggleAttribute("hidden", true);
 
     let introHeading = document.getElementById("introHeading");
     introHeading.addEventListener("click", currentView);
@@ -59,9 +56,8 @@ export class View {
 
     let template = currentView.syncShow(data);
     if (template && template instanceof Template) {
+      content.setAttribute("data-name", name);
       content.toggleAttribute("hidden", false);
-      footer.addEventListener("click", currentView);
-      footer.addEventListener("dragstart", currentView);
 
       content.addEventListener("click", currentView);
       content.addEventListener("submit", currentView);
@@ -72,12 +68,6 @@ export class View {
     }
 
     currentView.syncPostShow(data, content);
-
-    let footerTemplate = currentView.syncFooter(data);
-    if (footerTemplate && footerTemplate instanceof Template) {
-      footerTemplate.syncRenderTo(footer);
-      footer.toggleAttribute("hidden", false);
-    }
   }
 
   static showBack(shouldShow) {
@@ -148,11 +138,6 @@ export class View {
 
   // Override to display content from an escaped template.
   syncShow() { }
-
-  // To be overwritten if needed.
-  syncFooter(data) {
-    return null;
-  }
 
   // To be overwritten if needed.
   syncPostShow() {}
