@@ -127,21 +127,6 @@
   "viewLoginButton":{
     "message": "Continue"
   },
-  "viewMainActive": {
-    "message": "Your connection is secure, and your location is hidden from websites and trackers, making it tougher for those annoying targeted ads to follow you around online."
-  },
-  "viewMainInactive": {
-    "message": "Private Network is not protecting your Firefox connection. Websites, ad trackers, and your internet service provider may be able to see your online activity."
-  },
-  "viewOffline": {
-    "message": "You are offline. Check your network connection and try again."
-  },
-  "viewOtherInUse": {
-    "message": "You cannot use Firefox Private Network because you are using a custom proxy setting."
-  },
-  "viewMainProxyError": {
-    "message": "Firefox Private Network encountered an unknown issue. Try turning it off, then on again."
-  },
   "viewSettings-accountLabel": {
     "message": "Firefox Account"
   },
@@ -164,10 +149,18 @@
     "message": "Terms & Conditions"
   },
 
+  "offline": {
+    "message": "You are offline. Check your network connection and try again."
+  },
+  "otherInUse": {
+    "message": "You cannot use Firefox Private Network because you are using a custom proxy setting."
+  },
+  "proxyError": {
+    "message": "Firefox Private Network encountered an unknown issue. Try turning it off, then on again."
+  },
   "loadingError": {
     "message": "Connection timeout, check your internet connection."
   },
-
   "internalError": {
     "message": "Internal error!"
   }

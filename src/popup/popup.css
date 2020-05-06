@@ -165,26 +165,6 @@ button.primary:enabled:hover:active {
   text-align: center;
 }
 
-#content p[data-mode="warning"] {
-  position: relative;
-  padding-inline-start: 40px;
-  background-color: var(--error);
-  border-radius: 4px;
-  margin: var(--edge-padding);
-  padding-inline-start: 32px !important;
-}
-
-#content p[data-mode="warning"]::before {
-  position: absolute;
-  inset-block-start: 18px;
-  content: "";
-  display: inline-block;
-  block-size: 16px;
-  inline-size: 16px;
-  background: url("/img/i-warning16.svg");
-  margin-inline-start: -22px;
-}
-
 #content .sub {
   font-weight: normal;
   color: var(--grey-90-a60);
@@ -535,7 +515,7 @@ footer {
 }
 
 .content-icon {
-  height: 80px;
+  min-height: 80px;
   width: 80px;
   background-size: 80px 80px;
   margin-bottom: 24px;
@@ -545,6 +525,7 @@ footer {
 .login-icon,
 .loading-icon {
   background: url("/img/icon.svg") center center no-repeat;
+  background-size: contain;
 }
 
 .loading-icon {
@@ -592,15 +573,19 @@ footer {
   text-decoration: none;
 }
 
-#proxyError {
+#proxyError,
+#content p[data-mode="warning"] {
   background-color: var(--error);
   border-radius: 4px;
-  margin: var(--edge-padding);
+  margin: 0 var(--edge-padding) var(--edge-padding);
+  padding: var(--edge-padding);
+  padding-inline-start: 32px;
   position: relative;
-  padding-inline-start: 32px !important;
+  display: flex;
 }
 
-#proxyError::before {
+#proxyError::before,
+#content p[data-mode="warning"]::before {
   position: absolute;
   content: "";
   display: inline-block;
@@ -608,4 +593,5 @@ footer {
   inline-size: 16px;
   background: url("/img/i-warning16.svg");
   margin-inline-start: -22px;
+  inset-block-start: calc(1.4 * var(--edge-padding));
 }

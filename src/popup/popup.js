@@ -49,6 +49,7 @@ async function init() {
 
     View.showSettings(!!msg.userInfo);
     View.showBack(false);
+    View.hideError();
 
     // We received some logs to download.
     if (Array.isArray(msg.logs)) {
@@ -68,14 +69,6 @@ async function init() {
         await View.setView("login", msg);
         return;
 
-      case PROXY_STATE_CAPTIVE:
-        await View.setView("captive", msg);
-        return;
-
-      case PROXY_STATE_OTHERINUSE:
-        await View.setView("otherInUse", msg);
-        return;
-
       case PROXY_STATE_INACTIVE:
         await View.setView("disabled", msg);
         return;
@@ -83,12 +76,23 @@ async function init() {
         await View.setView("main", msg);
         return;
 
+      case PROXY_STATE_PROXYAUTHFAILED:
+        await View.setError("proxyError");
+        await View.setView("disabled", msg);
+        return;
+
+      case PROXY_STATE_CAPTIVE:
+        await View.setError("offline");
+        await View.setView("disabled", msg);
+        return;
+
+      case PROXY_STATE_OTHERINUSE:
+        // fall through
       case PROXY_STATE_PROXYERROR:
         // fall through
-      case PROXY_STATE_PROXYAUTHFAILED:
-        // fall through
       case PROXY_STATE_OFFLINE:
-        await View.setView("proxyError", msg);
+        await View.setError(msg.proxyState);
+        await View.setView("disabled", msg);
         return;
 
       case PROXY_STATE_CONNECTING:
@@ -104,7 +108,8 @@ async function init() {
         return;
 
       default:
-        await View.setView("error", "internalError");
+        await View.setError("internalError");
+        await View.setView("disabled", msg);
     }
   });
 }
