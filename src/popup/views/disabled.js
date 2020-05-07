@@ -3,10 +3,6 @@ import {View} from "../view.js";
 import {animateGlobe, animateRings} from "../animations.js";
 
 class ViewDisabled extends View {
-  constructor() {
-    super();
-  }
-
   get stateInfo() {
     return {
       name: "disabled",

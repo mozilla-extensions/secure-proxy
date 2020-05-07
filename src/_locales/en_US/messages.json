@@ -118,6 +118,9 @@
   "viewGeoFailure": {
     "message": "At this time, Firefox Private Network is not available in your region. You must be in the United States to complete the setup process."
   },
+  "viewPaymentRequired": {
+    "message": "Please subscribe to use Firefox Private Network"
+  },
   "viewLoading": {
     "message": "Loading…"
   },
@@ -127,21 +130,6 @@
   "viewLoginButton":{
     "message": "Continue"
   },
-  "viewMainActive": {
-    "message": "Your connection is secure, and your location is hidden from websites and trackers, making it tougher for those annoying targeted ads to follow you around online."
-  },
-  "viewMainInactive": {
-    "message": "Private Network is not protecting your Firefox connection. Websites, ad trackers, and your internet service provider may be able to see your online activity."
-  },
-  "viewOffline": {
-    "message": "You are offline. Check your network connection and try again."
-  },
-  "viewOtherInUse": {
-    "message": "You cannot use Firefox Private Network because you are using a custom proxy setting."
-  },
-  "viewMainProxyError": {
-    "message": "Firefox Private Network encountered an unknown issue. Try turning it off, then on again."
-  },
   "viewSettings-accountLabel": {
     "message": "Firefox Account"
   },
@@ -149,25 +137,33 @@
     "message": "Leave Feedback"
   },
   "viewSettings-helpAndSupportLink": {
-    "message": "Help & Support"
+    "message": "Contact Support"
   },
   "viewSettings-manageAccountButton": {
-    "message": "Manage Account"
+    "message": "Manage Subscription"
   },
   "viewSettings-manageAccountLink": {
-    "message": "Manage Account"
+    "message": "Manage Subscription"
   },
   "viewSettings-privacyPolicyLink": {
-    "message": "Privacy Policy"
+    "message": "Privacy Notice"
   },
   "viewSettings-termsAndConditionsLink": {
-    "message": "Terms & Conditions"
+    "message": "Terms of Service"
   },
 
+  "offline": {
+    "message": "You are offline. Check your network connection and try again."
+  },
+  "otherInUse": {
+    "message": "You cannot use Firefox Private Network because you are using a custom proxy setting."
+  },
+  "proxyError": {
+    "message": "Firefox Private Network encountered an unknown issue. Try turning it off, then on again."
+  },
   "loadingError": {
     "message": "Connection timeout, check your internet connection."
   },
-
   "internalError": {
     "message": "Internal error!"
   }

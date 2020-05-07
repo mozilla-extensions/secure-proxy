@@ -13,7 +13,7 @@ export class View {
       this.syncRegisterView(view.default, name);
     }
     let content = document.getElementById("content");
-    let footer = document.querySelector("footer");
+    let stateElement = document.getElementById("state");
     // eslint-disable-next-line verify-await/check
     let view = views.get(name);
     if (!(view instanceof View)) {
@@ -22,7 +22,6 @@ export class View {
     }
 
     if (currentView) {
-      footer.removeEventListener("click", currentView);
       content.removeEventListener("click", currentView);
       content.removeEventListener("submit", currentView);
     }
@@ -30,7 +29,6 @@ export class View {
     currentView = view;
     // Clear the display always.
     content.innerHTML = "";
-    footer.toggleAttribute("hidden", true);
 
     let introHeading = document.getElementById("introHeading");
     introHeading.addEventListener("click", currentView);
@@ -42,13 +40,8 @@ export class View {
     // eslint-disable-next-line verify-await/check
     document.body.classList.remove("loading");
 
-    let stateElement = document.getElementById("state");
-    stateElement.toggleAttribute("hidden", true);
-    content.toggleAttribute("hidden", true);
-
     let info = currentView.stateInfo;
     if (info) {
-      let stateElement = document.getElementById("state");
       stateElement.setAttribute("data-state", info.name);
       stateElement.removeAttribute("hidden");
 
@@ -57,28 +50,24 @@ export class View {
         let stateContent = document.getElementById("stateContent");
         template.syncRenderTo(stateContent);
       }
-      currentView.syncPostShow(data);
-      return;
+    } else {
+      stateElement.toggleAttribute("hidden", true);
     }
 
     let template = currentView.syncShow(data);
     if (template && template instanceof Template) {
-      footer.addEventListener("click", currentView);
-      footer.addEventListener("dragstart", currentView);
-
+      content.setAttribute("data-name", name);
       content.toggleAttribute("hidden", false);
+
       content.addEventListener("click", currentView);
       content.addEventListener("submit", currentView);
       content.addEventListener("dragstart", currentView);
       template.syncRenderTo(content);
-      currentView.syncPostShow(data, content);
+    } else {
+      content.toggleAttribute("hidden", true);
     }
 
-    let footerTemplate = currentView.syncFooter(data);
-    if (footerTemplate && footerTemplate instanceof Template) {
-      footerTemplate.syncRenderTo(footer);
-      footer.toggleAttribute("hidden", false);
-    }
+    currentView.syncPostShow(data, content);
   }
 
   static showBack(shouldShow) {
@@ -93,20 +82,15 @@ export class View {
     settingsElement.toggleAttribute("hidden", !shouldShow);
   }
 
-  static setState(state, stateButtonSettings = {}) {
-    let stateElement = document.getElementById("state");
-    stateElement.setAttribute("data-state", state);
-    stateElement.removeAttribute("hidden");
+  static setError(error) {
+    let errorElement = document.getElementById("proxyError");
+    errorElement.removeAttribute("hidden");
+    errorElement.textContent = currentView.getTranslation(error);
+  }
 
-    let content = document.getElementById("content");
-    content.toggleAttribute("hidden", true);
-
-    let stateButtonElement = document.getElementById("stateButton");
-    if (stateButtonSettings.label) {
-      stateButtonElement.setAttribute("aria-label", stateButtonSettings.label);
-    } else {
-      stateButtonElement.removeAttribute("aria-label");
-    }
+  static hideError() {
+    let errorElement = document.getElementById("proxyError");
+    errorElement.toggleAttribute("hidden", true);
   }
 
   // Closes the popup
@@ -152,15 +136,8 @@ export class View {
   // Override if you want to handle events
   handleClickEvent() {}
 
-  // This must be overwritten by views.
-  syncShow() {
-    console.error("Each view should implement syncShow() method!");
-  }
-
-  // To be overwritten if needed.
-  syncFooter(data) {
-    return null;
-  }
+  // Override to display content from an escaped template.
+  syncShow() { }
 
   // To be overwritten if needed.
   syncPostShow() {}

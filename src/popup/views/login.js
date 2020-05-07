@@ -19,14 +19,13 @@ class ViewLogin extends View {
 
     return escapedTemplate`
     <div class="content-icon login-icon"></div>
-    <div>
-      <p data-mode="${mode}">
-        ${this.getTranslation(text)}
-      </p>
-      <button id="authButton" class="primary">
-        ${this.getTranslation("viewLoginButton")}
-      </button>
-    </div>`;
+    <p data-mode="${mode}">
+      ${this.getTranslation(text)}
+    </p>
+    <button id="authButton" class="primary">
+      ${this.getTranslation("viewLoginButton")}
+    </button>
+    `;
   }
 
   handleClickEvent(e) {

@@ -13,7 +13,7 @@ const CLOUDFLARE_URL = "https://www.cloudflare.com/";
 const PRIVACY_POLICY_URL = "https://www.mozilla.org/privacy/firefox-private-network";
 const TERMS_AND_CONDITIONS_URL = "https://www.mozilla.org/about/legal/terms/firefox-private-network";
 const GIVE_US_FEEDBACK_URL = "https://qsurvey.mozilla.com/s3/fx-private-network-beta-feedback";
-const BETA_VPN_FOOTER_URL = "https://fpn.firefox.com/vpn?utm_medium=secure-proxy&utm_source=firefox-browser&utm_campaign=upgrade&utm_content=looking-for-vpn";
+const SUBSCRIPTION_URL = "https://fpn.firefox.com/vpn?utm_medium=secure-proxy&utm_source=firefox-browser&utm_campaign=upgrade&utm_content=looking-for-vpn";
 
 export class UI extends Component {
   constructor(receiver) {
@@ -108,9 +108,9 @@ export class UI extends Component {
           this.syncSendMessage("telemetryEvent", { category: "settings_url_clicks", event: message.type });
           break;
 
-        case "vpnLinkFooter":
-          await this.openUrl(BETA_VPN_FOOTER_URL);
-          this.syncSendMessage("telemetryEvent", { category: "upsell_clicks", event: "footer" });
+        case "openSubscriptionLink":
+          await this.openUrl(SUBSCRIPTION_URL);
+          this.syncSendMessage("telemetryEvent", { category: "upsell_clicks", event: "paymentRequired" });
           break;
 
         case "telemetryEvent":

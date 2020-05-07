@@ -109,7 +109,7 @@ The **methods** are:
    1. `termsAndConditions`: the user clicks on terms & conditions URL. (user-interaction)
    1. `giveUsFeedback`: the user clicks on give-us-a-feedback URL (user-interaction)
 1. `upsell_clicks` fires when the user clicks on one of the upsell entrypoints. **objects**:
-   1. `footer`: footer link. (user-interaction)
+   1. `paymentRequired`: payment required page. (user-interaction)
 
 
 ### scalar Registration and Recording
