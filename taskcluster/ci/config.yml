@@ -5,6 +5,7 @@ task-priority: lowest
 
 taskgraph:
     register: xpi_taskgraph:register
+    decision-parameters: 'xpi_taskgraph.parameters:get_decision_parameters'
     repositories:
         xpi:
             name: "XPI source"

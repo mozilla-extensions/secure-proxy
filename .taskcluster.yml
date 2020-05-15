@@ -2,21 +2,23 @@
 version: 1
 reporting: checks-v1
 policy:
-    pullRequests: public
+    pullRequests: collaborators
 tasks:
     - $let:
+          # XXX Set to `true` for private repos
+          privateRepo: false
+          # XXX use "privileged" or "system" to enable dep-signing on push / PR.
+          #     This only works for public repos for now. Release builds off
+          #     shipit will get signing for both public and private repos.
+          xpiSigningType: ""
+          # The below doesn't need changing on initial repo setup
           taskgraph:
               branch: taskgraph
-              revision: c78d65237c6ed064b9cbb3cd063b22e9e052a06a
+              revision: 7dde9ce7740068d7b73218976343a28fc99be847
           template:
               repo: https://github.com/mozilla-extensions/xpi-template
               branch: master
           trustDomain: xpi
-          # XXX for private repos, uncomment this line, and comment out the next
-          # githubCloneSecret: project/xpi/xpi-github-clone-ssh
-          githubCloneSecret: ""
-          # XXX use "privileged" or "system" to enable signing
-          xpiSigningType: ""
       in:
           $if: 'tasks_for in ["github-pull-request", "github-push", "action", "cron"]'
           then:
@@ -32,24 +34,6 @@ tasks:
                           else:
                               $if: 'tasks_for in ["cron", "action"]'
                               then: '${tasks_for}@noreply.mozilla.org'
-                  baseRepoUrl:
-                      $if: 'tasks_for == "github-push"'
-                      then: '${event.repository.html_url}'
-                      else:
-                          $if: 'tasks_for == "github-pull-request"'
-                          then: '${event.pull_request.base.repo.html_url}'
-                          else:
-                              $if: 'tasks_for in ["cron", "action"]'
-                              then: '${repository.url}'
-                  repoUrl:
-                      $if: 'tasks_for == "github-push"'
-                      then: '${event.repository.html_url}'
-                      else:
-                          $if: 'tasks_for == "github-pull-request"'
-                          then: '${event.pull_request.head.repo.html_url}'
-                          else:
-                              $if: 'tasks_for in ["cron", "action"]'
-                              then: '${repository.url}'
                   project:
                       $if: 'tasks_for == "github-push"'
                       then: '${event.repository.name}'
@@ -66,11 +50,8 @@ tasks:
                           $if: 'tasks_for == "github-push"'
                           then: ${event.ref}
                           else:
-                              $if: 'tasks_for == "cron"'
+                              $if: 'tasks_for in ["cron", "action"]'
                               then: '${push.branch}'
-                              else:
-                                  $if: 'tasks_for == "action"'
-                                  then: 'refs/heads/master'  # TODO fix
                   head_sha:
                       $if: 'tasks_for == "github-push"'
                       then: '${event.after}'
@@ -86,6 +67,56 @@ tasks:
                       else:
                           $if: 'tasks_for in ["cron", "action"]'
                           then: '${ownTaskId}'
+                  repoFullName:
+                      $if: 'tasks_for in "github-push"'
+                      then: '${event.repository.full_name}'
+                      else:
+                          $if: 'tasks_for == "github-pull-request"'
+                          then: '${event.pull_request.base.repo.full_name}'
+                          else:
+                              $if: 'tasks_for in ["cron", "action"]'
+                              # Trim https://github.com/
+                              then: '${repository.url[19:]}'
+                  baseRepoUrl:
+                      $if: '!privateRepo'  # public repo
+                      then:
+                          $if: 'tasks_for == "github-push"'
+                          then: '${event.repository.html_url}'
+                          else:
+                              $if: 'tasks_for == "github-pull-request"'
+                              then: '${event.pull_request.base.repo.html_url}'
+                              else:
+                                  $if: 'tasks_for in ["cron", "action"]'
+                                  then: '${repository.url}'
+                      else:
+                          $if: 'tasks_for == "github-push"'
+                          then: '${event.repository.ssh_url}'
+                          else:
+                              $if: 'tasks_for == "github-pull-request"'
+                              then: '${event.pull_request.base.repo.ssh_url}'
+                              else:
+                                  $if: 'tasks_for in ["cron", "action"]'
+                                  then: '${repository.url}'
+                  repoUrl:
+                      $if: '!privateRepo'  # public repo
+                      then:
+                          $if: 'tasks_for == "github-push"'
+                          then: '${event.repository.html_url}'
+                          else:
+                              $if: 'tasks_for == "github-pull-request"'
+                              then: '${event.pull_request.head.repo.html_url}'
+                              else:
+                                  $if: 'tasks_for in ["cron", "action"]'
+                                  then: '${repository.url}'
+                      else:
+                          $if: 'tasks_for == "github-push"'
+                          then: '${event.repository.ssh_url}'
+                          else:
+                              $if: 'tasks_for == "github-pull-request"'
+                              then: '${event.pull_request.base.repo.ssh_url}'
+                              else:
+                                  $if: 'tasks_for in ["cron", "action"]'
+                                  then: '${repository.url}'
               in:
                   $let:
                       level: 1
@@ -106,7 +137,13 @@ tasks:
                       metadata:
                           $merge:
                               - owner: "${ownerEmail}"
-                                source: '${repoUrl}/raw/${head_sha}/.taskcluster.yml'
+                              - $if: '!privateRepo'  # public repo
+                                then:
+                                    source: '${repoUrl}/raw/${head_sha}/.taskcluster.yml'
+                                else:
+                                    # XXX revisit after https://github.com/taskcluster/taskcluster/pull/2812
+                                    #     is deployed to the firefoxci cluster.
+                                    source: 'https://github.com/${repoUrl[15:-4]}/raw/${head_sha}/.taskcluster.yml'
                               - $if: 'tasks_for in ["github-push", "github-pull-request"]'
                                 then:
                                     name: "Decision Task"
@@ -153,19 +190,22 @@ tasks:
                                           then: {$eval: 'head_branch[11:]'}
                                           else: ${head_branch}
                               in:
-                                  - 'assume:repo:${repoUrl[8:]}:branch:${short_head_branch}'
+                                  - 'assume:repo:github.com/${repoFullName}:branch:${short_head_branch}'
+
 
                           else:
                               $if: 'tasks_for == "github-pull-request"'
                               then:
-                                  - 'assume:repo:github.com/${event.pull_request.base.repo.full_name}:pull-request'
+                                  - 'assume:repo:github.com/${repoFullName}:pull-request'
+
                               else:
                                   $if: 'tasks_for == "action"'
                                   then:
                                       # when all actions are hooks, we can calculate this directly rather than using a variable
                                       - '${action.repo_scope}'
                                   else:
-                                      - 'assume:repo:${repoUrl[8:]}:cron:${cron.job_name}'
+                                      - 'assume:repo:github.com/${repoFullName}:cron:${cron.job_name}'
+
 
                       requires: all-completed
                       priority: lowest
@@ -193,7 +233,9 @@ tasks:
                                     TASKGRAPH_REPOSITORY_TYPE: hg
                                     REPOSITORIES: {$json: {xpi: "XPI Manifest", taskgraph: "Taskgraph", template: "XPI Template"}}
                                     HG_STORE_PATH: /builds/worker/checkouts/hg-store
-                                    GITHUB_CLONE_SECRET: '${githubCloneSecret}'
+                                  - $if: 'privateRepo'
+                                    then:
+                                        XPI_SSH_SECRET_NAME: project/xpi/xpi-github-clone-ssh
                                   - $if: 'tasks_for in ["github-pull-request"]'
                                     then:
                                         XPI_PULL_REQUEST_NUMBER: '${event.pull_request.number}'
@@ -209,7 +251,7 @@ tasks:
                           # Note: This task is built server side without the context or tooling that
                           # exist in tree so we must hard code the hash
                           image:
-                              mozillareleases/taskgraph:decision-bd477b55732fc5f5d55a78e6162355af8bc81805b415a9ea8dbe42c020f840db
+                              mozillareleases/taskgraph:decision-21bef1bc0f11e62c7a23384584f9f8f0d96e95eef192e5bb599fc82ba55c81a7@sha256:d29af306b09cd00a63f982e8caeb53dbec7efd7bb3ae64ce3cef9cd889b750e6
 
                           maxRunTime: 1800
 

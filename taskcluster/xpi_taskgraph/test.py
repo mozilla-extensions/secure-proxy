@@ -41,8 +41,8 @@ def test_tasks_from_manifest(config, jobs):
                     run["cwd"] = "{checkout}"
                 run["command"] = run["command"].format(target=target)
                 task["label"] = "t-{}-{}".format(target, xpi_name)
-                if env.get("GITHUB_CLONE_SECRET", ""):
-                    checkout_config["ssh_secret_name"] = env["GITHUB_CLONE_SECRET"]
+                if env.get("XPI_SSH_SECRET_NAME", ""):
+                    checkout_config["ssh_secret_name"] = env["XPI_SSH_SECRET_NAME"]
                     artifact_prefix = "xpi/build"
                 else:
                     artifact_prefix = "public/build"
