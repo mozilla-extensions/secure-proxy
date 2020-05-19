@@ -556,7 +556,10 @@ class Main {
         return this.setProxyState(data);
 
       case "managerAccountURL":
-        return this.fxa.manageAccountURL();
+        return this.fxa.fxAccountURL();
+
+      case "accountSupportURL":
+        return this.fxa.fxAccountURL("support");
 
       case "payment-required-at-startup":
         return this.syncPaymentRequired(false /* no toast here */);

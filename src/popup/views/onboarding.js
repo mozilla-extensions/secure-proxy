@@ -5,21 +5,21 @@ class ViewOnboarding extends View {
     return escapedTemplate`
       <button id="onboardingCloseButton" class="close-button" aria-label="${this.getTranslation("onboardingCloseButtonLabel")}"></button>
       <div class="card">
-        <div class="content-icon"></div>
+        <div class="content-icon icon-1"></div>
         <div>
           <h2>${this.getTranslation("onboardingHeaderStep1")}</h2>
           <p>${this.getTranslation("onboardingDescriptionStep1")}</p>
         </div>
       </div>
       <div class="card" hidden>
-        <div class="content-icon"></div>
+        <div class="content-icon icon-2"></div>
         <div>
           <h2>${this.getTranslation("onboardingHeaderStep2")}</h2>
           <p>${this.getTranslation("onboardingDescriptionStep2")}</p>
         </div>
       </div>
       <div class="card" hidden>
-        <div class="content-icon"></div>
+        <div class="content-icon icon-3"></div>
         <div>
           <h2>${this.getTranslation("onboardingHeaderStep3")}</h2>
           <p>${this.getTranslation("onboardingDescriptionStep3")}</p>

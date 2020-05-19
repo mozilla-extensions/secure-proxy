@@ -451,11 +451,11 @@ export class FxAUtils extends Component {
     return excludedDomains.concat(FXA_CDN_DOMAINS);
   }
 
-  async manageAccountURL() {
+  async fxAccountURL(path = "settings") {
     let contentServer = await this.wellKnownData.getIssuerEndpoint();
 
     let profileData = await StorageUtils.getProfileData();
-    let url = new URL(contentServer + "/settings");
+    let url = new URL(`${contentServer}/${path}`);
     // eslint-disable-next-line verify-await/check
     url.searchParams.set("uid", profileData.uid);
     // eslint-disable-next-line verify-await/check
@@ -464,6 +464,7 @@ export class FxAUtils extends Component {
     url.searchParams.set("entrypoint", "secure-proxy-desktop-settings");
     return url.href;
   }
+
 
   async prefetchWellKnownData() {
     return this.wellKnownData.fetch();

@@ -83,6 +83,11 @@ export class UI extends Component {
           this.syncSendMessage("telemetryEvent", { category: "settings_url_clicks", event: message.type });
           break;
 
+        case "contactUs":
+          await this.openUrl(await this.sendMessage("accountSupportURL"));
+          this.syncSendMessage("telemetryEvent", { category: "settings_url_clicks", event: message.type });
+          break;
+
         case "helpAndSupport":
           await this.formatAndOpenURL(HELP_AND_SUPPORT_URL);
           this.syncSendMessage("telemetryEvent", { category: "settings_url_clicks", event: message.type });

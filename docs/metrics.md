@@ -4,13 +4,14 @@ _Last Updated: Dec 03, 2019_
 
 <!-- TOC depthFrom:2 depthTo:6 withLinks:1 updateOnSave:1 orderedList:0 -->
 
-- [Analysis](#analysis)
-- [Collection](#collection)
-	- [Event Registration and Recording](#event-registration-and-recording)
-	- [Scalar Registration and Recording](#scalar-registration-and-recording)
-- [List of Planned Metrics Events](#list-of-planned-metrics-events)
-- [List of Planned Metrics Scalars](#list-of-planned-metrics-scalars)
-- [References](#references)
+- [Secure-Proxy telemetry events](#secure-proxy-telemetry-events)
+  - [Analysis](#analysis)
+  - [Collection](#collection)
+    - [Event Registration and Recording](#event-registration-and-recording)
+  - [List of Planned Events](#list-of-planned-events)
+    - [scalar Registration and Recording](#scalar-registration-and-recording)
+  - [List of Planned Scalars](#list-of-planned-scalars)
+  - [References](#references)
 
 <!-- /TOC -->
 
@@ -103,6 +104,7 @@ The **methods** are:
    1. `proxyDisabled`: the proxy is disabled by user-interaction. **value**: only stateButton for now. **extra**: version, the extension version. (user-interaction)
 1. `settings_url_clicks` fires when the user interacts with the settings view. **objects**:
    1. `manageAccount`: the user clicks on the manage account URL. (user-interaction)
+   1. `contactUs`: the user clicks on the contact us URL. (user-interaction)
    1. `helpAndSupport`: the user clicks on the help & support URL. (user-interaction)
    1. `cloudflare`: the user clicks on the Cloudflare URL. (user-interaction)
    1. `privacyPolicy`: the user clicks on privacy & policy URL. (user-interaction)
