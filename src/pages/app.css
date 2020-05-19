@@ -75,11 +75,18 @@ body {
   --inkLight: rgba(227, 225, 230, 1);
   --lightGrey: rgba(249, 249, 249, 1);
   --transparentGrey: rgba(24, 24, 24, 0.75);
-  --header-background-color: #073072;
+  --background-color: #09224a;
+  --white: #fff;
+  --white-80: rgba(255, 255, 255, .8);
+  --nav-browser-gradient: radial-gradient(
+    100% 100% at 100% 0%,
+    #0060df 0%,
+    #3fe1b0 100%
+  );
 
   margin: 0;
   padding: 0;
-  color: var(--ink);
+  color: var(--white);
   scroll-behavior: smooth;
   font-family: "Inter UI", -apple-system, BlinkMacSystemFont, "Segoe UI", "Open Sans", "Helvetica Neue", sans-serif;
   font-weight: 400;
@@ -95,10 +102,9 @@ body {
 }
 
 header {
-  background-color: var(--header-background-color);
+  background-color: var(--background-color);
   display: flex;
   flex-direction: column;
-  position: fixed;
   width: 100%;
   z-index: 2;
 }
@@ -119,10 +125,25 @@ header {
 }
 
 h1 {
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background: var(--nav-browser-gradient);
+  background-clip: text;
   font-size: var(--mainHeadlineFontSize);
   line-height: 1.1;
-  word-break: keep-all;
   margin: auto;
+  word-break: keep-all;
+}
+
+.document-header {
+  align-items: center;
+  display: flex;
+  flex-direction:column;
+  text-align: center;
+}
+
+.document-header p {
+  max-width: 640px;
 }
 
 main {
@@ -131,16 +152,16 @@ main {
 
 h1,
 .main-subhead {
-  max-width: 900px;
   margin-left: auto;
   margin-right: auto;
+  max-width: 900px;
 }
 
 .logo {
   background-image: url("img/fpn-logo.svg");
   background-repeat: no-repeat;
-  background-size: auto;
   background-size: 286px;
+  background-size: auto;
   display: inline-block;
   height: 48px;
   padding-left: 38px;
@@ -152,20 +173,22 @@ h1,
 }
 
 .document {
-  background-color: var(--lightPurple);
+  background-color: var(--background-color);
   margin: 0 auto;
   padding: 7.5rem auto 0;
 }
 
 .document-content {
-  margin: 7.5rem auto 0;
+  margin: 1rem auto 0;
   max-width: 640px;
   width: 72%;
 }
 
 .document-figure {
-  margin: 2rem 0;
+  margin: 1rem 2rem;
   overflow: hidden;
+  background: var(--blue05);
+  max-width: 640px;
 }
 
 .document-figure img {
@@ -186,18 +209,29 @@ h1,
   margin: 2.5rem auto 0 auto;
 }
 
-.document p {
-  color: var(--darkGrey);
+.document p,
+.document li {
+  color: var(--white-80);
   font-size: 0.97rem;
   line-height: 2;
   opacity: 0.9;
 }
 
+.document p.large {
+  font-size: 24px;
+  line-height: 32px;
+  margin-top: 12px;
+}
+
+.document a {
+  color: var(--white);
+}
+
 .row {
-  max-width: 1200px;
-  width: var(--rowWidth);
-  padding: var(--rowPadding);
   margin: auto;
+  max-width: 1200px;
+  padding: var(--rowPadding);
+  width: var(--rowWidth);
 }
 
 .h-padding {
@@ -244,14 +278,6 @@ h1,
   background-position: center center;
 }
 
-.bg-white {
-  background: rgba(255, 255, 255, 1);
-}
-
-.bg-dark {
-  background: var(--ink);
-}
-
 .settings-icon {
   background-image: url("img/settings.svg");
   background-size: 16px 16px;
@@ -271,11 +297,15 @@ h1,
   height: 2.5rem;
 }
 
+footer {
+  background-color: var(--background-color);
+}
+
 .blue-link,
 .footer-link {
   border-radius: 2px;
   text-decoration: none;
-  color: var(--blue03);
+  color: var(--white);
   transition: all 0.3s ease;
 }
 
@@ -406,4 +436,12 @@ span .menu , span .button, li em, .wiki-image {
   border-style: solid;
   border-width: 1px 28px;
   border-radius: 28px;
+  color: var(--ink);
+  margin-top: 1rem;
 }
+
+#instruction p {
+  color: var(--ink);
+}
+
+
