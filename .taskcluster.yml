@@ -7,9 +7,10 @@ tasks:
     - $let:
           # XXX Set to `true` for private repos
           privateRepo: false
-          # XXX use "privileged" or "system" to enable dep-signing on push / PR.
-          #     This only works for public repos for now. Release builds off
-          #     shipit will get signing for both public and private repos.
+          # XXX use "privileged", "system", or "mozillaonline-privileged" to
+          #     enable signing on push/PR. Note, this only works for public
+          #     repos for now. Release builds off shipit will get signing for
+          #     both public and private repos.
           xpiSigningType: ""
           # The below doesn't need changing on initial repo setup
           taskgraph:

@@ -21,6 +21,7 @@ transforms = TransformSequence()
 FORMATS = {
     "privileged": "privileged_webextension",
     "system": "system_addon",
+    "mozillaonline-privileged": "privileged_webextension",
 }
 
 
