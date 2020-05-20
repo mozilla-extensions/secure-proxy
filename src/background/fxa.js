@@ -71,6 +71,13 @@ export class FxAUtils extends Component {
       // eslint-disable-next-line verify-await/check
       this.sendMessage("payment-required-at-startup");
     }
+
+    if (data.state === FXA_DEVICE_LIMIT) {
+      log("We were active, but too many devices");
+      // We don't want to wait here to avoid a deadlock.
+      // eslint-disable-next-line verify-await/check
+      this.sendMessage("device-limit-at-startup");
+    }
   }
 
   async authenticate() {
@@ -256,15 +263,19 @@ export class FxAUtils extends Component {
         return { state: FXA_ERR_NETWORK };
       }
 
-      if (resp.status !== 201 && resp.status !== 402) {
+      if (resp.status === 402) {
+        return { state: FXA_PAYMENT_REQUIRED };
+      }
+
+      if (resp.status === 429) {
+        return { state: FXA_DEVICE_LIMIT };
+      }
+
+      if (resp.status !== 201) {
         return { state: FXA_ERR_AUTH };
       }
 
       const json = await resp.json();
-
-      if (resp.status === 402) {
-        return { state: FXA_PAYMENT_REQUIRED };
-      }
 
       // Let's store when this token has been received.
       // eslint-disable-next-line verify-await/check

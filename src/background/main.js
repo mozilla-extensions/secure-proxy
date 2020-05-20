@@ -193,6 +193,10 @@ class Main {
         this.syncPaymentRequired();
         return;
 
+      case FXA_DEVICE_LIMIT:
+        this.syncDeviceLimit();
+        return;
+
       default:
         throw new Error("Invalid FXA error value!");
     }
@@ -223,6 +227,7 @@ class Main {
         this.proxyState !== PROXY_STATE_OFFLINE &&
         this.proxyState !== PROXY_STATE_ONBOARDING &&
         this.proxyState !== PROXY_STATE_PAYMENTREQUIRED &&
+        this.proxyState !== PROXY_STATE_DEVICELIMIT &&
         this.proxyState !== PROXY_STATE_PROXYERROR &&
         this.proxyState !== PROXY_STATE_PROXYAUTHFAILED &&
         this.proxyState !== PROXY_STATE_CONNECTING) {
@@ -314,6 +319,10 @@ class Main {
         this.syncPaymentRequired(false /* no toast here */);
         break;
 
+      case FXA_DEVICE_LIMIT:
+        this.syncDeviceLimit(false /* no toast here */);
+        break;
+
       default:
         throw new Error("Invalid FXA error code!", data);
     }
@@ -400,6 +409,10 @@ class Main {
         // This should not really happen. Let's ignore this scenario.
         break;
 
+      case FXA_DEVICE_LIMIT:
+        // This should not really happen. Let's ignore this scenario.
+        break;
+
       default:
         throw new Error("Invalid FXA error value!");
     }
@@ -456,12 +469,13 @@ class Main {
     await this.ui.update(false /* no toast here */);
   }
 
-  syncPaymentRequired() {
+  syncPaymentRequired(showToast = true) {
     this.setProxyState(PROXY_STATE_PAYMENTREQUIRED);
+    return this.ui.update(showToast);
   }
 
-  syncPaymentRequiredAtStartup(showToast = true) {
-    this.setProxyState(PROXY_STATE_PAYMENTREQUIRED);
+  syncDeviceLimit(showToast = true) {
+    this.setProxyState(PROXY_STATE_DEVICELIMIT);
     return this.ui.update(showToast);
   }
 
@@ -560,6 +574,9 @@ class Main {
 
       case "payment-required-at-startup":
         return this.syncPaymentRequired(false /* no toast here */);
+
+      case "device-limit-at-startup":
+        return this.syncDeviceLimit(false /* no toast here */);
 
       case "onlineDetected":
         return this.run();
