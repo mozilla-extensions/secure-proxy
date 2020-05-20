@@ -364,6 +364,7 @@ export class Network extends Component {
         this.cachedProxyState !== PROXY_STATE_OFFLINE &&
         this.cachedProxyState !== PROXY_STATE_PROXYERROR &&
         this.cachedProxyState !== PROXY_STATE_PAYMENTREQUIRED &&
+        this.cachedProxyState !== PROXY_STATE_DEVICELIMIT &&
         this.cachedProxyState !== PROXY_STATE_PROXYAUTHFAILED) {
       console.error("In which state are we?!?");
     }
