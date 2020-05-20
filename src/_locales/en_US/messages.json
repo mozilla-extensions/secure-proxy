@@ -139,8 +139,11 @@
   "viewSettings-giveUsFeedbackLink": {
     "message": "Leave Feedback"
   },
+  "viewSettings-contactUsLink": {
+    "message": "Contact Us"
+  },
   "viewSettings-helpAndSupportLink": {
-    "message": "Contact Support"
+    "message": "Help & Support"
   },
   "viewSettings-manageAccountButton": {
     "message": "Manage Subscription"

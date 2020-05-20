@@ -1,3 +1,20 @@
+@font-face {
+  font-family: "Metropolis";
+  font-style: normal;
+  font-weight: 500;
+  src: url("../../pages/fonts/Metropolis-Medium.woff2") format("woff2");
+}
+
+@font-face {
+  font-family: "Inter UI";
+  font-style: normal;
+  font-weight: 400;
+  src:
+    url("../../pages/fonts/Inter-UI-Regular.woff2") format("woff2"),
+    url("../../pages/fonts/Inter-UI-Regular.woff") format("woff");
+}
+
+
 :root {
   --heading-font-size: 15px;
   --body-font-size: 15px;
@@ -50,9 +67,22 @@ body {
   color: var(--black);
   inline-size: 320px;
   font-size: var(--body-font-size);
+  font-family: "Inter", sans-serif;
   line-height: 22px;
   min-block-size: 368px;
   overflow-inline: hidden;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+button,
+.button {
+  font-family: "Metropolis", sans-serif;
+  font-weight: 500;
 }
 
 body.loading {
@@ -152,7 +182,7 @@ button.primary:enabled:hover:active {
 }
 
 #content {
-  padding: calc(2 * var(--edge-padding));
+  padding: var(--edge-padding);
 }
 
 #content p {
@@ -212,7 +242,7 @@ header button {
  line-height: 18px;
  text-align: center;
  text-transform: uppercase;
- margin: 1px 0 0 8px;
+ margin: 0 0 0 8px;
 }
 
 #settingsButton,
@@ -255,9 +285,27 @@ header button {
   visibility: hidden !important;
 }
 
-#onboarding .card {
+#content[data-name="onboarding"] .card {
   display: contents;
 }
+
+#content[data-name="onboarding"] .card .content-icon {
+  flex: 1;
+  width: 100%;
+}
+
+#content[data-name="onboarding"] .icon-1 {
+  background: url("/img/onboarding-1.svg") no-repeat center bottom;
+}
+
+#content[data-name="onboarding"] .icon-2 {
+  background: url("/img/onboarding-2.svg") no-repeat center bottom;
+}
+
+#content[data-name="onboarding"] .icon-3 {
+  background: url("/img/onboarding-3.svg") no-repeat center center;
+}
+
 
 #content .close-button {
   background: var(--button-background) url("/img/close.svg") 50% / 16px no-repeat;
@@ -444,16 +492,16 @@ footer,
 }
 
 .settingsMenu .manage {
-  padding-block-start: 6px;
+  padding-block-start: 0;
   padding-block-end: 8px;
 }
 
 .settingsMenu #manageAccount {
-  block-size: 50px;
+  block-size: 60px;
   padding-block-start: 0;
-  padding-block-end: 0;
+  padding-block-end: 4px;
   padding-inline-start: var(--edge-padding);
-  padding-inline-end: 8px;
+  padding-inline-end: 12px;
 }
 
 .settingsMenu .details {
@@ -546,6 +594,7 @@ footer,
 
 .loading-icon {
   animation: fade alternate-reverse 2000ms ease-in-out infinite;
+  flex: 0;
 }
 
 #poweredBy {
@@ -598,6 +647,7 @@ footer,
   padding-inline-start: 32px;
   position: relative;
   display: flex;
+  text-align: left;
 }
 
 #proxyError::before,
