@@ -121,6 +121,12 @@
   "viewDeviceLimit": {
     "message": "Turn off Firefox Private Network on another browser to use it here. It can be active on up to three browsers."
   },
+  "viewDeviceLimit2": {
+    "message": "(It may take up to 1 hour to take effect)"
+  },
+  "viewDeviceLimitButton":{
+    "message": "Try now"
+  },
   "viewDeviceLimitLink": {
     "message": "Learn more"
   },

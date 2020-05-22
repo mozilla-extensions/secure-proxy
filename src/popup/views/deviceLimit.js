@@ -8,6 +8,12 @@ class ViewDeviceLimit extends View {
         ${this.getTranslation("viewDeviceLimit")}
         <a href="#" id="link">${this.getTranslation("viewDeviceLimitLink")}</a>
       </p>
+      <p>
+        ${this.getTranslation("viewDeviceLimit2")}
+      </p>
+      <button id="tryNowButton" class="primary">
+        ${this.getTranslation("viewDeviceLimitButton")}
+      </button>
       `;
   }
 
@@ -15,6 +21,13 @@ class ViewDeviceLimit extends View {
     if (e.target.id === "link") {
       View.sendMessage("openDeviceLimitLink");
       View.close();
+    }
+
+    if (e.target.id === "tryNowButton") {
+      View.sendMessage("setEnabledState", {
+        enabledState: true,
+        reason: "stateButton",
+      });
     }
   }
 }
