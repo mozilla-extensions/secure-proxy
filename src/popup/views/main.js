@@ -70,8 +70,11 @@ class ViewMain extends View {
     }
 
     return escapedTemplate`
-      <span id="popupBeta">${this.getTranslation("popupVPNFooter")}</span>
-      <a href="#" class="link popupBetaLink" id="vpnLinkFooter">${this.getTranslation("popupVPNLink")}</a>
+      <span id="popupBeta">
+        ${this.getTranslation("popupBetaEnd")}
+        <a href="#" class="link popupBetaLink" id="betaEndLinkFooter">${this.getTranslation("popupBetaEndLink")}</a>
+        ${this.getTranslation("popupBetaEnd2")}
+      </span>
     `;
   }
 
@@ -104,7 +107,7 @@ class ViewMain extends View {
   }
 
   handleClickEvent(e) {
-    if (e.target.id === "vpnLinkPassesExpired" || e.target.id === "vpnLinkFooter") {
+    if (e.target.id === "vpnLinkPassesExpired" || e.target.id === "betaEndLinkFooter") {
       // eslint-disable-next-line verify-await/check
       View.sendMessage(e.target.id);
       View.close();

@@ -67,11 +67,14 @@
   "popupToggleButtonLabel": {
     "message": "Toggle proxy state"
   },
-  "popupVPNFooter": {
-    "message": "Looking for a VPN?"
+  "popupBetaEnd": {
+    "message": "Free beta ends soon."
   },
-  "popupVPNLink": {
-    "message": "Join the waitlist"
+  "popupBetaEndLink": {
+    "message": "Learn more"
+  },
+  "popupBetaEnd2": {
+    "message": "about the paid unlimited subscription."
   },
 
   "toastLastPassAvailable": {
