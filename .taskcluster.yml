@@ -144,7 +144,7 @@ tasks:
                                 else:
                                     # XXX revisit after https://github.com/taskcluster/taskcluster/pull/2812
                                     #     is deployed to the firefoxci cluster.
-                                    source: 'https://github.com/${repoUrl[15:-4]}/raw/${head_sha}/.taskcluster.yml'
+                                    source: 'ssh://github.com/${repoUrl[15:-4]}/raw/${head_sha}/.taskcluster.yml'
                               - $if: 'tasks_for in ["github-push", "github-pull-request"]'
                                 then:
                                     name: "Decision Task"
