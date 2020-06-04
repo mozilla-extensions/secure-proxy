@@ -34,8 +34,6 @@ export class View {
     introHeading.addEventListener("click", currentView);
     let introHeadingText = document.getElementById("introHeadingText");
     introHeadingText.textContent = currentView.getTranslation("introHeading");
-    let introHeadingLite = document.getElementById("introHeadingLite");
-    introHeadingLite.textContent = currentView.getTranslation("introHeadingLite");
 
     // eslint-disable-next-line verify-await/check
     document.body.classList.remove("loading");

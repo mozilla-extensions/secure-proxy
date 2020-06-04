@@ -160,12 +160,11 @@ h1,
 .logo {
   background-image: url("img/fpn-logo.svg");
   background-repeat: no-repeat;
-  background-size: 286px;
-  background-size: auto;
+  background-size: auto 48px;
   display: inline-block;
   height: 48px;
   padding-left: 38px;
-  width: 286px;
+  width: 400px;
 }
 
 .section {
