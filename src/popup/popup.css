@@ -231,20 +231,6 @@ header button {
   font-weight: 500;
 }
 
-#introHeadingLite {
- color: white;
- background: #321c64;
- border-radius: 4px;
- padding: 0 8px;
- font-style: normal;
- font-weight: 600;
- font-size: 11px;
- line-height: 18px;
- text-align: center;
- text-transform: uppercase;
- margin: 0 0 0 8px;
-}
-
 #settingsButton,
 #backButton {
   --button-background: transparent;
@@ -580,6 +566,9 @@ footer,
 .loading-icon {
   background: url("/img/icon.svg") center center no-repeat;
   background-size: contain;
+  background-size: 120px 120px;
+  width: 120px;
+  margin-bottom: 0;
 }
 
 @keyframes fade {

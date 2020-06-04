@@ -76,10 +76,6 @@
   "introHeading": {
     "message": "Firefox Private Network"
   },
-  "introHeadingLite": {
-    "message": "Lite"
-  },
-
   "popupPoweredBy": {
     "message": "Powered by "
   },
