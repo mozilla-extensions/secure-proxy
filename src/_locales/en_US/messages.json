@@ -36,25 +36,22 @@
   },
 
   "onboardingHeaderStep1": {
-    "message": "Throw off trackers"
-  },
-  "onboardingDescriptionStep1": {
-    "message": "Mask your location so websites can't use it to profile you, target you with ads or sell what they know about you to data collectors."
-  },
-  "onboardingHeaderStep2": {
     "message": "Cover your steps"
   },
-  "onboardingDescriptionStep2": {
+  "onboardingDescriptionStep1": {
     "message": "Firefox Private Network protects you against eavesdroppers and internet service providers that collect your browsing data."
   },
+  "onboardingHeaderStep2": {
+    "message": "Throw off trackers"
+  },
+  "onboardingDescriptionStep2": {
+    "message": "Mask your location so websites can't use it to profile you, target you with ads or sell what they know about you to data collectors."
+  },
   "onboardingHeaderStep3": {
-    "message": "Keep it simple"
+    "message": "Simple to use"
   },
   "onboardingDescriptionStep3": {
-    "message": "Turn it on with a click and browse as normal."
-  },
-  "onboardingDescriptionStep3": {
-    "message": "Turn it on with a click and browse as normal."
+    "message": "Click to turn on, and browse as normal. Firefox Private Network will keep you covered."
   },
   "onboardingNext": {
     "message": "Next"
@@ -120,6 +117,18 @@
   },
   "viewPaymentRequired": {
     "message": "Please subscribe to use Firefox Private Network"
+  },
+  "viewDeviceLimit": {
+    "message": "Turn off Firefox Private Network on another browser to use it here. It can be active on up to three browsers."
+  },
+  "viewDeviceLimit2": {
+    "message": "(It may take up to 1 hour to take effect)"
+  },
+  "viewDeviceLimitButton":{
+    "message": "Try now"
+  },
+  "viewDeviceLimitLink": {
+    "message": "Learn more"
   },
   "viewLoading": {
     "message": "Loading…"

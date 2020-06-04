@@ -71,6 +71,13 @@ export class FxAUtils extends Component {
       // eslint-disable-next-line verify-await/check
       this.sendMessage("payment-required-at-startup");
     }
+
+    if (data.state === FXA_DEVICE_LIMIT) {
+      log("We were active, but too many devices");
+      // We don't want to wait here to avoid a deadlock.
+      // eslint-disable-next-line verify-await/check
+      this.sendMessage("device-limit-at-startup");
+    }
   }
 
   async authenticate() {
@@ -256,15 +263,19 @@ export class FxAUtils extends Component {
         return { state: FXA_ERR_NETWORK };
       }
 
-      if (resp.status !== 201 && resp.status !== 402) {
+      if (resp.status === 402) {
+        return { state: FXA_PAYMENT_REQUIRED };
+      }
+
+      if (resp.status === 429) {
+        return { state: FXA_DEVICE_LIMIT };
+      }
+
+      if (resp.status !== 201) {
         return { state: FXA_ERR_AUTH };
       }
 
       const json = await resp.json();
-
-      if (resp.status === 402) {
-        return { state: FXA_PAYMENT_REQUIRED };
-      }
 
       // Let's store when this token has been received.
       // eslint-disable-next-line verify-await/check
@@ -451,11 +462,11 @@ export class FxAUtils extends Component {
     return excludedDomains.concat(FXA_CDN_DOMAINS);
   }
 
-  async manageAccountURL() {
+  async fxAccountURL(path = "settings") {
     let contentServer = await this.wellKnownData.getIssuerEndpoint();
 
     let profileData = await StorageUtils.getProfileData();
-    let url = new URL(contentServer + "/settings");
+    let url = new URL(`${contentServer}/${path}`);
     // eslint-disable-next-line verify-await/check
     url.searchParams.set("uid", profileData.uid);
     // eslint-disable-next-line verify-await/check
@@ -464,6 +475,7 @@ export class FxAUtils extends Component {
     url.searchParams.set("entrypoint", "secure-proxy-desktop-settings");
     return url.href;
   }
+
 
   async prefetchWellKnownData() {
     return this.wellKnownData.fetch();

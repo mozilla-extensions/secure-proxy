@@ -14,6 +14,7 @@ const PRIVACY_POLICY_URL = "https://www.mozilla.org/privacy/firefox-private-netw
 const TERMS_AND_CONDITIONS_URL = "https://www.mozilla.org/about/legal/terms/firefox-private-network";
 const GIVE_US_FEEDBACK_URL = "https://qsurvey.mozilla.com/s3/fx-private-network-beta-feedback";
 const SUBSCRIPTION_URL = "https://fpn.firefox.com/vpn?utm_medium=secure-proxy&utm_source=firefox-browser&utm_campaign=upgrade&utm_content=looking-for-vpn";
+const DEVICELIMIT_URL = "https://fpn.firefox.com/r/browser/devicelimit";
 
 export class UI extends Component {
   constructor(receiver) {
@@ -83,6 +84,11 @@ export class UI extends Component {
           this.syncSendMessage("telemetryEvent", { category: "settings_url_clicks", event: message.type });
           break;
 
+        case "contactUs":
+          await this.openUrl(await this.sendMessage("accountSupportURL"));
+          this.syncSendMessage("telemetryEvent", { category: "settings_url_clicks", event: message.type });
+          break;
+
         case "helpAndSupport":
           await this.formatAndOpenURL(HELP_AND_SUPPORT_URL);
           this.syncSendMessage("telemetryEvent", { category: "settings_url_clicks", event: message.type });
@@ -111,6 +117,10 @@ export class UI extends Component {
         case "openSubscriptionLink":
           await this.openUrl(SUBSCRIPTION_URL);
           this.syncSendMessage("telemetryEvent", { category: "upsell_clicks", event: "paymentRequired" });
+          break;
+
+        case "openDeviceLimitLink":
+          await this.openUrl(DEVICELIMIT_URL);
           break;
 
         case "telemetryEvent":

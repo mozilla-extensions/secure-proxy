@@ -39,6 +39,9 @@ const PROXY_STATE_GEOFAILURE = "geoFailure";
 // Payment is required (this is the state after a FXA_PAYMENT_REQUIRED response)
 const PROXY_STATE_PAYMENTREQUIRED = "paymentRequired";
 
+// Device limit reached
+const PROXY_STATE_DEVICELIMIT = "deviceLimit";
+
 // Onboarding state
 const PROXY_STATE_ONBOARDING = "onboarding";
 
@@ -53,6 +56,9 @@ const FXA_ERR_GEO = "authFailedByGeo";
 
 // FXA token generation requires payment.
 const FXA_PAYMENT_REQUIRED = "paymentRequired";
+
+// Device limit reached
+const FXA_DEVICE_LIMIT = "deviceLimit";
 
 // FXA all good!
 const FXA_OK = "ok";
@@ -165,6 +171,7 @@ const ConfigUtils = {
         PROXY_STATE_AUTHFAILURE,
         PROXY_STATE_GEOFAILURE,
         PROXY_STATE_PAYMENTREQUIRED,
+        PROXY_STATE_DEVICELIMIT,
         PROXY_STATE_ONBOARDING,
       ],
     };
