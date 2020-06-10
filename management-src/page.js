@@ -1,7 +1,7 @@
 const DEBUGGING_PROXY_URL = "https://proxy-staging.cloudflareclient.com:8001";
 const PRODUCTION_PROXY_URL = "https://firefox.factor11.cloudflareclient.com:2486";
 
-const DEBUGGING_FXA_OPENID = "https://stable.dev.lcip.org/.well-known/openid-configuration";
+const DEBUGGING_FXA_OPENID = "https://accounts.stage.mozaws.net/.well-known/openid-configuration";
 const PRODUCTION_FXA_OPENID = "https://accounts.firefox.com/.well-known/openid-configuration";
 
 const DEBUGGING_SPS = "https://guardian-dev.herokuapp.com/";
