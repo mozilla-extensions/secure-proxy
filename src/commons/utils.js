@@ -149,9 +149,9 @@ const ConfigUtils = {
 
     return {
       version: self.version,
-      fxaOpenID: await this.getFxaOpenID(),
-      sps: await this.getSPService(),
-      proxyURL: await this.getProxyURL(),
+      fxaOpenID: (await this.getFxaOpenID()).href,
+      sps: (await this.getSPService()).href,
+      proxyURL: (await this.getProxyURL()).href,
       proxyMode: await this.getProxyMode(),
       debuggingEnabled: await this.getDebuggingEnabled(),
       messageServiceInterval: await this.getMessageServiceInterval(),
