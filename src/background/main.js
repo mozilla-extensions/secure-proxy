@@ -442,10 +442,19 @@ class Main {
   }
 
   syncPanelShown() {
+    log("Panel shown");
+
     // This is done to make the authentication form appearing faster.
     // We ignore the response and just prefetch
     // eslint-disable-next-line verify-await/check
     this.fxa.prefetchWellKnownData();
+
+    // Maybe we are in payment-required or device-limite modes and we need to
+    // check if the server allows us to continue.
+    if (this.proxyState === PROXY_STATE_PAYMENTREQUIRED ||
+        this.proxyState === PROXY_STATE_DEVICELIMIT) {
+      this.fxa.maybeRecover();
+    }
   }
 
   async maybeActivate(reason) {
