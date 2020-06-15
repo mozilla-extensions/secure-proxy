@@ -300,6 +300,8 @@ export class Network extends Component {
         this.cachedProxyState === PROXY_STATE_CONNECTING ||
         this.cachedProxyState === PROXY_STATE_CAPTIVE ||
         this.cachedProxyState === PROXY_STATE_ONBOARDING ||
+        this.cachedProxyState === PROXY_STATE_PAYMENTREQUIRED ||
+        this.cachedProxyState === PROXY_STATE_DEVICELIMIT ||
         this.cachedProxyState === PROXY_STATE_OTHERINUSE) {
       return false;
     }
@@ -363,8 +365,6 @@ export class Network extends Component {
     if (this.cachedProxyState !== PROXY_STATE_ACTIVE &&
         this.cachedProxyState !== PROXY_STATE_OFFLINE &&
         this.cachedProxyState !== PROXY_STATE_PROXYERROR &&
-        this.cachedProxyState !== PROXY_STATE_PAYMENTREQUIRED &&
-        this.cachedProxyState !== PROXY_STATE_DEVICELIMIT &&
         this.cachedProxyState !== PROXY_STATE_PROXYAUTHFAILED) {
       console.error("In which state are we?!?");
     }

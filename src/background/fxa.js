@@ -546,4 +546,12 @@ export class FxAUtils extends Component {
 
     return { state: FXA_OK };
   }
+
+  async maybeRecover() {
+    log(`Maybe recover from the current state: ${this.cachedProxyState}`);
+    const data = await this.maybeObtainToken();
+    if (!this.syncStateError(data)) {
+      await this.sendMessage("enableProxy", {enabledState: false, reason: "recovering"});
+    }
+  }
 }
