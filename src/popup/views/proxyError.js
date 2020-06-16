@@ -40,6 +40,14 @@ class ViewProxyError extends View {
     }
   }
 
+  handleClickEvent(e) {
+    if (e.target.id === "settingsLink") {
+      const settingsButton = document.getElementById("settingsButton");
+      // eslint-disable-next-line verify-await/check
+      settingsButton.click();
+    }
+  }
+
   toggleButtonClicked(e) {
     // eslint-disable-next-line verify-await/check
     View.sendMessage("setEnabledState", {
