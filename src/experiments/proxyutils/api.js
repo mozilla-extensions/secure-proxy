@@ -135,24 +135,36 @@ let ConfirmationHint = {
   },
 
   get _panel() {
-    delete this._panel;
-    return this._panel = this._document.getElementById("confirmation-hint");
+    this._ensurePanel();
+    return this.__panel;
   },
 
   get _animationBox() {
+    this._ensurePanel();
     delete this._animationBox;
     return this._animationBox = this._document.getElementById("confirmation-hint-checkmark-animation-container");
   },
 
   get _message() {
+    this._ensurePanel();
     delete this._message;
     return this._message = this._document.getElementById("confirmation-hint-message");
   },
 
   get _description() {
+    this._ensurePanel();
     delete this._description;
     return this._description = this._document.getElementById("confirmation-hint-description");
   },
+
+  _ensurePanel() {
+    this.__panel = this._document.getElementById("confirmation-hint");
+    if (!this.__panel) {
+      let wrapper = this._document.getElementById("confirmation-hint-wrapper");
+      wrapper.replaceWith(wrapper.content);
+      this.__panel = this._document.getElementById("confirmation-hint");
+    }
+  }
 };
 
 function getStringPrefValue(pref) {
