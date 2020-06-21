@@ -565,10 +565,18 @@ footer,
 .login-icon,
 .loading-icon {
   background: url("/img/icon.svg") center center no-repeat;
-  background-size: contain;
   background-size: 120px 120px;
   width: 120px;
+  height: 120px;
+  min-height: 120px;
+}
+
+.login-icon {
   margin-bottom: 0;
+}
+
+.loading-icon {
+  margin-bottom: 24px;
 }
 
 @keyframes fade {
