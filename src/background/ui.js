@@ -13,7 +13,7 @@ const CLOUDFLARE_URL = "https://www.cloudflare.com/";
 const PRIVACY_POLICY_URL = "https://www.mozilla.org/privacy/firefox-private-network";
 const TERMS_AND_CONDITIONS_URL = "https://www.mozilla.org/about/legal/terms/firefox-private-network";
 const GIVE_US_FEEDBACK_URL = "https://qsurvey.mozilla.com/s3/fx-private-network-beta-feedback";
-const SUBSCRIPTION_URL = "https://fpn.firefox.com/";
+const SUBSCRIPTION_URL = "https://fpn.firefox.com/r/browser/subscriptionNeeded";
 const DEVICELIMIT_URL = "https://fpn.firefox.com/r/browser/devicelimit";
 
 export class UI extends Component {
