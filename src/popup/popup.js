@@ -59,7 +59,7 @@ async function init() {
 
     switch (msg.proxyState) {
       case PROXY_STATE_LOADING:
-        // We want to keep the 'loading' view.
+        await View.setView("loading");
         return;
       case PROXY_STATE_UNAUTHENTICATED:
         // fall through
