@@ -1,6 +1,7 @@
 *.swp
 *.swo
-node_modules/*
-dist/*
 management-src/web-ext-artifacts/*
 .DS_Store
+node_modules
+dist
+*.pyc
