@@ -13,6 +13,7 @@
     "md:spell": "npx markdown-spellcheck -a -n -x --en-us '*.md' 'docs/*.md'",
     "test": "echo \"Error: no test specified\" && exit 1",
     "package": "web-ext build",
+    "build": "web-ext build",
     "start": "web-ext run --verbose --pref devtools.console.stdout.chrome=true --pref devtools.console.stdout.content=true"
   },
   "repository": {
