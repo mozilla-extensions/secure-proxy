@@ -29,7 +29,6 @@ class Page {
 
     const reloadButton = document.getElementById("reload");
     reloadButton.onclick = _ => {
-      // eslint-disable-next-line verify-await/check
       browser.runtime.sendMessage({ type: "reload" });
     };
     if (config.version < 10) {
@@ -38,7 +37,6 @@ class Page {
 
     const clearButton = document.getElementById("clear");
     clearButton.onclick = _ => {
-      // eslint-disable-next-line verify-await/check
       browser.runtime.sendMessage({ type: "clear" });
     };
     if (config.version < 12) {
@@ -55,7 +53,6 @@ class Page {
       proxyState.append(option);
     });
     proxyState.onchange = _ => {
-      // eslint-disable-next-line verify-await/check
       browser.runtime.sendMessage({ type: "setProxyState", value: proxyState.value });
     };
     if (config.version < 22) {
@@ -65,7 +62,6 @@ class Page {
     const debuggingEnabled = document.getElementById("debuggingEnabled");
     debuggingEnabled.checked = config.debuggingEnabled || false;
     debuggingEnabled.onchange = _ => {
-      // eslint-disable-next-line verify-await/check
       browser.runtime.sendMessage({ type: "setDebuggingEnabled", value: debuggingEnabled.checked });
     };
 
@@ -75,7 +71,6 @@ class Page {
     const proxyURL = document.getElementById("proxyURL");
     proxyURL.value = config.proxyURL || "";
     proxyURL.onchange = _ => {
-      // eslint-disable-next-line verify-await/check
       browser.runtime.sendMessage({ type: "setProxyURL", value: proxyURL.value });
     };
     if (config.version < 10) {
@@ -85,21 +80,18 @@ class Page {
     const debuggingProxyURL = document.getElementById("debuggingProxyURL");
     debuggingProxyURL.onclick = _ => {
       proxyURL.value = DEBUGGING_PROXY_URL;
-      // eslint-disable-next-line verify-await/check
       browser.runtime.sendMessage({ type: "setProxyURL", value: DEBUGGING_PROXY_URL });
     };
 
     const productionProxyURL = document.getElementById("productionProxyURL");
     productionProxyURL.onclick = _ => {
       proxyURL.value = PRODUCTION_PROXY_URL;
-      // eslint-disable-next-line verify-await/check
       browser.runtime.sendMessage({ type: "setProxyURL", value: PRODUCTION_PROXY_URL });
     };
 
     const proxyMode = document.getElementById("proxyMode");
     proxyMode.value = config.proxyMode || "";
     proxyMode.onchange = _ => {
-      // eslint-disable-next-line verify-await/check
       browser.runtime.sendMessage({ type: "setProxyMode", value: proxyMode.value });
     };
     if (config.version < 15) {
@@ -109,7 +101,6 @@ class Page {
     const sps = document.getElementById("sps");
     sps.value = config.sps || "";
     sps.onchange = _ => {
-      // eslint-disable-next-line verify-await/check
       browser.runtime.sendMessage({ type: "setSPService", value: sps.value });
     };
     if (config.version < 10) {
@@ -119,21 +110,18 @@ class Page {
     const debuggingSPService = document.getElementById("debuggingSPService");
     debuggingSPService.onclick = _ => {
       sps.value = DEBUGGING_SPS;
-      // eslint-disable-next-line verify-await/check
       browser.runtime.sendMessage({ type: "setSPService", value: DEBUGGING_SPS });
     };
 
     const productionSPService = document.getElementById("productionSPService");
     productionSPService.onclick = _ => {
       sps.value = PRODUCTION_SPS;
-      // eslint-disable-next-line verify-await/check
       browser.runtime.sendMessage({ type: "setSPService", value: PRODUCTION_SPS });
     };
 
     const fxaOpenID = document.getElementById("fxaOpenID");
     fxaOpenID.value = config.fxaOpenID || "";
     fxaOpenID.onchange = _ => {
-      // eslint-disable-next-line verify-await/check
       browser.runtime.sendMessage({ type: "setFxaOpenID", value: fxaOpenID.value });
     };
     if (config.version < 10) {
@@ -143,14 +131,12 @@ class Page {
     const debuggingFxaOpenID = document.getElementById("debuggingFxaOpenID");
     debuggingFxaOpenID.onclick = _ => {
       fxaOpenID.value = DEBUGGING_FXA_OPENID;
-      // eslint-disable-next-line verify-await/check
       browser.runtime.sendMessage({ type: "setFxaOpenID", value: DEBUGGING_FXA_OPENID });
     };
 
     const productionFxaOpenID = document.getElementById("productionFxaOpenID");
     productionFxaOpenID.onclick = _ => {
       fxaOpenID.value = PRODUCTION_FXA_OPENID;
-      // eslint-disable-next-line verify-await/check
       browser.runtime.sendMessage({ type: "setFxaOpenID", value: PRODUCTION_FXA_OPENID });
     };
 
@@ -164,12 +150,9 @@ class Page {
     const proxySubmitButton = document.getElementById("proxySubmit");
     proxySubmitButton.onclick = _ => {
       try {
-        // eslint-disable-next-line verify-await/check
         const value = JSON.parse(proxyToken.value);
-        // eslint-disable-next-line verify-await/check
         browser.runtime.sendMessage({ type: "setProxyToken", value });
       } catch (e) {
-        // eslint-disable-next-line verify-await/check
         alert("Syntax invalid: " + e);
       }
     };
@@ -180,7 +163,6 @@ class Page {
     const messageServiceInterval = document.getElementById("messageServiceInterval");
     messageServiceInterval.value = config.messageServiceInterval;
     messageServiceInterval.onchange = _ => {
-      // eslint-disable-next-line verify-await/check
       browser.runtime.sendMessage({ type: "setMessageServiceInterval", value: messageServiceInterval.value });
     };
     if (config.version < 22) {

@@ -10,7 +10,6 @@ export class MobileEvents extends Component {
       return;
     }
 
-    // eslint-disable-next-line verify-await/check
     let port = browser.runtime.connectNative("mozacSecureProxy");
     port.onMessage.addListener(async message => {
       switch (message.action) {

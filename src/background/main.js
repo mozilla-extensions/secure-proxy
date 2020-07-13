@@ -74,7 +74,6 @@ class Main {
     if (RUN_TESTS) {
       try {
         let {Tester} = await import("../tests/background/tester.js");
-        // eslint-disable-next-line verify-await/check
         await Tester.run(this);
       } catch (e) {
         console.error("RUN_TESTS is true, but no tester.js included!");
@@ -176,7 +175,6 @@ class Main {
     switch (data.state) {
       case FXA_OK:
         // Note that we are not waiting for this function. The code moves on.
-        // eslint-disable-next-line verify-await/check
         this.testProxyConnection();
         return;
 
@@ -419,12 +417,10 @@ class Main {
   }
 
   syncSkipProxy(requestInfo, url) {
-    // eslint-disable-next-line verify-await/check
     if (this.ipinfo.isIpInfoUrl(url)) {
       return false;
     }
 
-    // eslint-disable-next-line verify-await/check
     if (this.fxa.isAuthUrl(url)) {
       return true;
     }
@@ -446,7 +442,6 @@ class Main {
 
     // This is done to make the authentication form appearing faster.
     // We ignore the response and just prefetch
-    // eslint-disable-next-line verify-await/check
     this.fxa.prefetchWellKnownData();
 
     // Maybe we are in payment-required or device-limite modes and we need to
@@ -547,7 +542,6 @@ class Main {
   syncProcessPendingEvents() {
     if (this.pendingEvents.length) {
       log(`Processing the first of ${this.pendingEvents.length} events`);
-      // eslint-disable-next-line verify-await/check
       this.pendingEvents.shift()();
     }
   }
@@ -612,7 +606,7 @@ class Main {
         return this.tokenGenerated();
 
       case "logRequired":
-        return await this.logger.syncGetLogs();
+        return this.logger.syncGetLogs();
 
       case "onboardingEnd":
         return this.onboardingEnd();
@@ -656,7 +650,6 @@ class Main {
   }
 
   registerObserver(observer) {
-    // eslint-disable-next-line verify-await/check
     this.observers.add(observer);
   }
 }

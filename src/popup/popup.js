@@ -8,17 +8,14 @@ async function init() {
   // Disable context menu.
   window.addEventListener("contextmenu", e => e.preventDefault());
 
-  // eslint-disable-next-line verify-await/check
   let port = browser.runtime.connect({name: "panel"});
   View.syncSetPort(port);
 
   // A new telemetry event for this panel.
-  // eslint-disable-next-line verify-await/check
   View.sendMessage("telemetryEvent", { category: "general", event: "panelShown"});
 
   let timeoutId = setTimeout(async _ => {
     await View.setView("error", "loadingError");
-    // eslint-disable-next-line verify-await/check
     View.sendMessage("telemetryEvent", { category: "general", event: "loadingError"});
   }, loadingTimeout);
 
@@ -28,7 +25,6 @@ async function init() {
   settingsButton.addEventListener("click", async () => {
     if (lastMessage && lastMessage.userInfo) {
       await View.setView("settings", lastMessage);
-      // eslint-disable-next-line verify-await/check
       View.sendMessage("telemetryEvent", { category: "general", event: "settingsShown"});
     }
   });
@@ -122,18 +118,15 @@ async function init() {
 if (document.readyState === "loading") {
   // We don't care about waiting for init to finish in this code
   document.addEventListener("DOMContentLoaded", () => {
-    // eslint-disable-next-line verify-await/check
     init();
   });
 } else {
-  // eslint-disable-next-line verify-await/check
   init();
 }
 
 // Disable middle click.
 window.addEventListener("auxclick", event => {
   if (event.button !== 0) {
-    // eslint-disable-next-line verify-await/check
     event.preventDefault();
   }
 });

@@ -44,7 +44,6 @@ class ViewSettings extends View {
   }
 
   async handleClickEvent(e) {
-    // eslint-disable-next-line verify-await/check
     if (["cloudflare", "contactUs", "helpAndSupport", "privacyPolicy", "termsAndConditions", "giveUsFeedback"].includes(e.target.id)) {
       await View.sendMessage(e.target.id);
       View.close();

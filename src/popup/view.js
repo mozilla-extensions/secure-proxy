@@ -7,14 +7,12 @@ let currentPort = null;
 export class View {
   // Static method to set the current view. The previous one will be dismissed.
   static async setView(name, data = null) {
-    // eslint-disable-next-line verify-await/check
     if (!views.has(name)) {
       let view = await import(`./views/${name}.js`);
       this.syncRegisterView(view.default, name);
     }
     let content = document.getElementById("content");
     let stateElement = document.getElementById("state");
-    // eslint-disable-next-line verify-await/check
     let view = views.get(name);
     if (!(view instanceof View)) {
       console.error("Invalid view name: " + name);
@@ -35,7 +33,6 @@ export class View {
     let introHeadingText = document.getElementById("introHeadingText");
     introHeadingText.textContent = currentView.getTranslation("introHeading");
 
-    // eslint-disable-next-line verify-await/check
     document.body.classList.remove("loading");
 
     let info = currentView.stateInfo;
@@ -93,7 +90,6 @@ export class View {
 
   // Closes the popup
   static close() {
-    // eslint-disable-next-line verify-await/check
     close();
   }
 
@@ -104,13 +100,11 @@ export class View {
   stateButtonHandler() { return null; }
 
   static onStateButton() {
-    // eslint-disable-next-line verify-await/check
     currentView.stateButtonHandler();
   }
 
   // This method stores a view in the view map.
   static syncRegisterView(view, name) {
-    // eslint-disable-next-line verify-await/check
     views.set(name, view);
   }
 
@@ -127,7 +121,6 @@ export class View {
       return;
     }
 
-    // eslint-disable-next-line verify-await/check
     this.handleClickEvent(e);
   }
 

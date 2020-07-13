@@ -133,7 +133,7 @@ const ConfigUtils = {
   },
 
   async getProxyState() {
-    return await this.getStorageKey("proxyState");
+    return this.getStorageKey("proxyState");
   },
 
   async getMessageServiceInterval() {

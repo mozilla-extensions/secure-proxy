@@ -44,7 +44,6 @@ export class ProxyDownChecker extends Component {
       return;
     }
 
-    // eslint-disable-next-line verify-await/check
     let now = Date.now();
     let nowInSecs = Math.floor(now / 1000);
     if ((this.lastCheckTime + PDC_TIME) > nowInSecs) {
@@ -63,7 +62,6 @@ export class ProxyDownChecker extends Component {
 
 
     // Don't await the response here
-    // eslint-disable-next-line verify-await/check
     this.runTestsHandler();
   }
 
@@ -78,7 +76,6 @@ export class ProxyDownChecker extends Component {
       log("All up or all down. We don't want to report this.");
     } finally {
       this.checking = false;
-      // eslint-disable-next-line verify-await/check
       this.lastCheckTime = Date.now();
     }
   }
@@ -89,7 +86,6 @@ export class ProxyDownChecker extends Component {
       // this failing.
       new Promise((resolve, reject) => {
         // We want to resolve in case of failure!
-        // eslint-disable-next-line verify-await/check
         ConnectionTester.run(this.receiver).then(reject, resolve);
       }),
 

@@ -23,7 +23,6 @@ export class UI extends Component {
     browser.runtime.onConnect.addListener(port => {
       if (port.name === "panel") {
         // is async but waiting for this is not important
-        // eslint-disable-next-line verify-await/check
         this.panelConnected(port);
         return;
       }
@@ -41,7 +40,6 @@ export class UI extends Component {
     // are at startup time and we don't want to annoy the user with the toast
     // message.
     if (!constants.isAndroid && !wasLoading && proxyState === PROXY_STATE_ACTIVE) {
-      // eslint-disable-next-line verify-await/check
       this.afterConnectionSteps();
     }
   }
@@ -134,7 +132,6 @@ export class UI extends Component {
         case "onboardingEnd":
           this.sendMessage("onboardingEnd");
           break;
-
       }
     });
 

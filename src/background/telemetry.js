@@ -61,12 +61,10 @@ export class Telemetry extends Component {
 
     log("Registering telemetry events");
 
-    // eslint-disable-next-line verify-await/check
     browser.telemetry.registerEvents(TELEMETRY_CATEGORY, TELEMETRY_EVENTS).catch(e => {
       console.error("Failed to register telemetry events!", e);
     });
 
-    // eslint-disable-next-line verify-await/check
     browser.telemetry.registerScalars(TELEMETRY_CATEGORY, TELEMETRY_SCALARS).catch(e => {
       console.error("Failed to register telemetry scalars!", e);
     });
@@ -107,7 +105,6 @@ export class Telemetry extends Component {
       ...extra
     };
 
-    // eslint-disable-next-line verify-await/check
     browser.telemetry.recordEvent(TELEMETRY_CATEGORY, category, event, value, extraValues).catch(e => {
       console.error("Telemetry.recordEvent failed", e);
     });
@@ -116,7 +113,6 @@ export class Telemetry extends Component {
   syncAddScalar(scalarName, value) {
     log(`Sending telemetry scalar: ${scalarName} - ${value}`);
 
-    // eslint-disable-next-line verify-await/check
     browser.telemetry.scalarAdd(TELEMETRY_CATEGORY + "." + scalarName, value).catch(e => {
       console.error("Telemetry.scalarAdd failed", e);
     });

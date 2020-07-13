@@ -1,4 +1,4 @@
-import {View} from '../view.js';
+import {View} from "../view.js";
 
 class ViewOnboarding extends View {
   syncShow() {
@@ -30,7 +30,7 @@ class ViewOnboarding extends View {
   }
 
   async handleClickEvent(e) {
-    if (e.target.id == "onboardingNextButton") {
+    if (e.target.id === "onboardingNextButton") {
       // Jump to the next card on clicking "next".
       let activeCard = document.querySelector(".card:not([hidden])");
       let nextCard = activeCard.nextElementSibling;
@@ -44,7 +44,7 @@ class ViewOnboarding extends View {
       }
       e.preventDefault();
     }
-    if (e.target.id == "onboardingDoneButton" || e.target.id == "onboardingCloseButton") {
+    if (e.target.id === "onboardingDoneButton" || e.target.id === "onboardingCloseButton") {
       await View.sendMessage("onboardingEnd");
       e.preventDefault();
     }

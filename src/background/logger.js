@@ -27,7 +27,7 @@ export class Logger extends Component {
       if (self) {
         self.logInternal(category, msg, rest);
       }
-    }
+    };
   }
 
   logInternal(category, msg, rest) {
@@ -42,7 +42,6 @@ export class Logger extends Component {
     };
     const dateTimeFormat = new Intl.DateTimeFormat("en-US", options).format;
 
-    // eslint-disable-next-line verify-await/check
     const now = dateTimeFormat(Date.now());
     const r = rest.map(r => JSON.stringify(r)).join(", ");
 

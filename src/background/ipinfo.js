@@ -24,7 +24,7 @@ export class IPInfo extends Component {
   }
 
   async init() {
-   log ("init");
+    log("init");
     this.service = await ConfigUtils.getSPService();
   }
 
@@ -71,7 +71,7 @@ export class IPInfo extends Component {
     try {
       let resp = await Promise.race([
         fetch(request, {cache: "no-cache"}),
-        new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 2000))
+        new Promise((_, reject) => setTimeout(() => reject(new Error("timeout")), 2000))
       ]);
 
       if (!resp || resp.status !== 200) {

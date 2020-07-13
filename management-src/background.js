@@ -7,6 +7,5 @@ browser.browserAction.onClicked.addListener(async _ => {
 });
 
 browser.runtime.onMessage.addListener((message, sender) => {
-  // eslint-disable-next-line verify-await/check
   return browser.runtime.sendMessage(EXTENSION_ID, message).catch(_ => null);
 });

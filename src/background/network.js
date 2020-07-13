@@ -12,7 +12,7 @@ const DOH_REQUEST_TIMEOUT = 30000; // 30 secs
 // Timeout between 1 network error and the next one.
 const NET_ERROR_TIMEOUT = 5000; // 5 seconds.
 
-const NET_ERROR_WARNING_TIMEOUT = 2000 // 2 seconds.
+const NET_ERROR_WARNING_TIMEOUT = 2000; // 2 seconds.
 
 // Telemetry host
 const TELEMETRY_HOST = "https://incoming.telemetry.mozilla.org";
@@ -76,7 +76,6 @@ export class Network extends Component {
 
     // Handle header errors before we render the response
     browser.webRequest.onHeadersReceived.addListener(async details => {
-      // eslint-disable-next-line verify-await/check
       let hasWarpError = !!details.responseHeaders.find((header) => {
         return header.name === "cf-warp-error" && header.value === "1";
       });
@@ -99,7 +98,6 @@ export class Network extends Component {
 
       // The proxy returns errors that are warped which we should show a real looking error page for
       // These only occur over http and we can't really handle sub resources
-      // eslint-disable-next-line verify-await/check
       if ([502, 407, 429].includes(details.statusCode) &&
           details.tabId &&
           details.type === "main_frame" &&
@@ -193,7 +191,6 @@ export class Network extends Component {
 
   syncDeactivateProxyRequestCallback() {
     if (this.requestListener) {
-      // eslint-disable-next-line verify-await/check
       browser.proxy.onRequest.removeListener(this.requestListener);
       this.requestListener = null;
       log("proxy.onRequest listener has been removed");
@@ -219,15 +216,12 @@ export class Network extends Component {
       return false;
     }
 
-    // eslint-disable-next-line verify-await/check
     return requestInfo.urlClassification.firstParty.includes("any_basic_tracking") ||
            this.syncIs3rdPartyTrackingRequest(requestInfo);
   }
 
   async proxyRequestCallback(requestInfo) {
-    // eslint-disable-next-line verify-await/check
     let shouldProxyRequest = this.shouldProxyRequest(requestInfo);
-    // eslint-disable-next-line verify-await/check
     let additionalConnectionIsolation = this.additionalConnectionIsolation(requestInfo);
 
     log(`proxy request for ${requestInfo.url} => ${shouldProxyRequest} - mode: ${this.proxyMode}`);
@@ -414,7 +408,6 @@ export class Network extends Component {
     }
 
     // Whitelisted.
-    // eslint-disable-next-line verify-await/check
     if (this.proxyPassthrough.has(url.hostname)) {
       return false;
     }
@@ -435,16 +428,13 @@ export class Network extends Component {
     // 2. The generation of tokens starts a new network request which will be
     //    processed as the previous point. This is deadlock.
     let excludedDomains = this.syncSendMessage("excludedDomains");
-    // eslint-disable-next-line verify-await/check
     excludedDomains.push(this.proxyHost);
 
-    // eslint-disable-next-line verify-await/check
     browser.experiments.proxyutils.DNSoverHTTP.set({
       value: {
         mode: DOH_MODE,
         uri: DOH_URI,
         bootstrapAddress: DOH_BOOTSTRAP_ADDRESS,
-        // eslint-disable-next-line verify-await/check
         excludedDomains: excludedDomains.join(","),
         confirmationNS: DOH_SKIP_CONFIRMATION_NS,
         requestTimeout: DOH_REQUEST_TIMEOUT,
@@ -453,48 +443,36 @@ export class Network extends Component {
     });
 
     if (browser.browserSettings.ftpProtocolEnabled) {
-      // eslint-disable-next-line verify-await/check
       browser.browserSettings.ftpProtocolEnabled.set({value: false});
     } else {
-      // eslint-disable-next-line verify-await/check
       browser.experiments.proxyutils.FTPEnabled.set({value: false});
     }
 
     try {
-      // eslint-disable-next-line verify-await/check
       browser.proxy.settings.set({value: {respectBeConservative: false}});
     } catch (e) {
       console.error("Proxy.settings.set failed");
     }
 
-    // eslint-disable-next-line verify-await/check
     browser.privacy.network.webRTCIPHandlingPolicy.set({value: "disable_non_proxied_udp" });
 
-    // eslint-disable-next-line verify-await/check
     browser.experiments.proxyutils.HTTPProxyRespectBeConservative.set({value: false});
-    // eslint-disable-next-line verify-await/check
     browser.experiments.proxyutils.TLSVersionMax.set({value: 4});
   }
 
   inactiveSteps() {
-    // eslint-disable-next-line verify-await/check
     browser.experiments.proxyutils.DNSoverHTTP.clear({});
-    // eslint-disable-next-line verify-await/check
     browser.experiments.proxyutils.FTPEnabled.clear({});
 
     try {
-      // eslint-disable-next-line verify-await/check
       browser.proxy.settings.clear({});
     } catch (e) {
       console.error("Proxy.settings.set failed");
     }
 
-    // eslint-disable-next-line verify-await/check
     browser.privacy.network.webRTCIPHandlingPolicy.clear({});
 
-    // eslint-disable-next-line verify-await/check
     browser.experiments.proxyutils.HTTPProxyRespectBeConservative.clear({});
-    // eslint-disable-next-line verify-await/check
     browser.experiments.proxyutils.TLSVersionMax.clear({});
   }
 
@@ -556,11 +534,8 @@ export class Network extends Component {
     if (!constants.isAndroid) {
       const proxySettings = await browser.proxy.settings.get({});
 
-      // eslint-disable-next-line verify-await/check
       this.proxyPassthrough.clear();
-      // eslint-disable-next-line verify-await/check
       proxySettings.value.passthrough.split(",").forEach(host => {
-        // eslint-disable-next-line verify-await/check
         this.proxyPassthrough.add(host.trim());
       });
     }
