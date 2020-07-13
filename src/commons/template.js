@@ -26,7 +26,6 @@ class Template {
   potentiallyEscape(value) {
     if (typeof value === "object") {
       if (value instanceof Array) {
-        // eslint-disable-next-line verify-await/check
         return value.map(val => this.potentiallyEscape(val)).join("");
       }
 
@@ -43,12 +42,9 @@ class Template {
   toString() {
     const result = [];
 
-    // eslint-disable-next-line verify-await/check
     for (const [i, string] of this.strings.entries()) {
-      // eslint-disable-next-line verify-await/check
       result.push(string);
       if (i < this.values.length) {
-        // eslint-disable-next-line verify-await/check
         result.push(this.potentiallyEscape(this.values[i]));
       }
     }

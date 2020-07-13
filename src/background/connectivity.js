@@ -30,7 +30,6 @@ export class Connectivity extends Component {
   async init() {
     if (await this.inCaptivePortal()) {
       // No await here!
-      // eslint-disable-next-line verify-await/check
       this.sendMessage("captivePortalStateChanged", {state: "locked_portal" });
     }
   }

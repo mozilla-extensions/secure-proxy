@@ -1,5 +1,3 @@
-/* eslint-disable verify-await/check */
-
 import {ConnectionTester} from "../../background/connection.js";
 import {Logger} from "../../background/logger.js";
 import {StorageUtils} from "../../background/storageUtils.js";

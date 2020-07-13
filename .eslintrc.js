@@ -48,59 +48,10 @@ module.exports = {
   },
   plugins: [
     "mozilla",
-    "verify-await"
   ],
   root: true,
   ignorePatterns: ["vendor/", "node_modules/"],
   rules: {
-    "verify-await/check": ["error", {
-      "namedStaticMembers": [
-        ["ChromeUtils", "import"],
-        ["e", "preventDefault"],
-        ["View", "close"],
-      ],
-      "syncFunctions": [
-        "getStringPrefValue",
-        "getTabOrActive",
-        "overrideProp",
-        "isProtocolSupported",
-        "isWebsocket",
-        "isLocal",
-      ],
-      "syncMethods": [
-        // Is async but we never care about awaiting
-        "openUrl",
-        "formatAndOpenURL",
-        // Static chrome code
-        "getCharPref",
-        "getIntPref",
-        "addObserver",
-        "removeObserver",
-        "openPopup",
-        "hidePopup",
-        "getSettingsAPI",
-        // Our code
-        "toggleButtonClicked",
-        "hideToggleButton",
-        "showToggleButton",
-        "showBack",
-        "showSettings",
-        "setState",
-        "contentScriptNotify",
-        "contentScriptConnected",
-        "informContentScripts",
-        "setProxyState",
-        "isTabExempt",
-        "removeExemptTab",
-        "setTabIcon",
-        "hasWellKnownData",
-        "inactiveSteps",
-        "increaseConnectionIsolation",
-        "potentiallyEscape",
-        "setOfflineAndStartRecoveringTimer",
-        "getTranslation",
-      ],
-    }],
     "prettier/prettier": "off",
 
     "comma-dangle": ["off", "never"],

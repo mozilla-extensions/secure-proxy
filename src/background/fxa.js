@@ -51,15 +51,12 @@ export class FxAUtils extends Component {
 
     try {
       const url = new URL(prefs.value.dohUri);
-      // eslint-disable-next-line verify-await/check
       this.dohHostnames.push(url.hostname);
     } catch (e) {
       // ignore
     }
 
-    // eslint-disable-next-line verify-await/check
     this.dohHostnames.push(new URL(DOH_URI).hostname);
-    // eslint-disable-next-line verify-await/check
     this.dohHostnames.push(DOH_BOOTSTRAP_ADDRESS);
 
     await this.wellKnownData.init();
@@ -68,14 +65,12 @@ export class FxAUtils extends Component {
     if (data.state === FXA_PAYMENT_REQUIRED) {
       log("We were active, but not we need a new token");
       // We don't want to wait here to avoid a deadlock.
-      // eslint-disable-next-line verify-await/check
       this.sendMessage("payment-required-at-startup");
     }
 
     if (data.state === FXA_DEVICE_LIMIT) {
       log("We were active, but too many devices");
       // We don't want to wait here to avoid a deadlock.
-      // eslint-disable-next-line verify-await/check
       this.sendMessage("device-limit-at-startup");
     }
   }
@@ -93,7 +88,6 @@ export class FxAUtils extends Component {
     await StorageUtils.setStateTokenAndProfileData(data.stateToken, data.profileData);
 
     // We don't want to wait here. It would be a deadlock.
-    // eslint-disable-next-line verify-await/check
     this.sendMessage("authCompleted");
     return { state: FXA_OK };
   }
@@ -113,7 +107,6 @@ export class FxAUtils extends Component {
     // Let's take all the ops and execute them.
     let ops = this.postTokenRequestOps;
     this.postTokenRequestOps = new Set();
-    // eslint-disable-next-line verify-await/check
     ops.forEach(value => value(result));
 
     return result;
@@ -132,7 +125,6 @@ export class FxAUtils extends Component {
 
     let tokenGenerated = false;
 
-    // eslint-disable-next-line verify-await/check
     let now = Date.now();
     let nowInSecs = Math.floor(now / 1000);
 
@@ -179,8 +171,6 @@ export class FxAUtils extends Component {
       // We cannot wait for this message because otherwise we create a bad
       // deadlock between the authentication process and the token generation
       // event.
-
-      // eslint-disable-next-line verify-await/check
       this.sendMessage("tokenGenerated");
     }
 
@@ -192,7 +182,6 @@ export class FxAUtils extends Component {
     log("Obtain state token");
 
     const headers = new Headers();
-    // eslint-disable-next-line verify-await/check
     headers.append("Content-Type", "application/json");
 
     const request = new Request(this.service + "browser/oauth/state", {
@@ -246,7 +235,6 @@ export class FxAUtils extends Component {
     }
 
     const headers = new Headers();
-    // eslint-disable-next-line verify-await/check
     headers.append("Content-Type", "application/json");
 
     const request = new Request(this.service + "browser/oauth/token", {
@@ -278,7 +266,6 @@ export class FxAUtils extends Component {
       const json = await resp.json();
 
       // Let's store when this token has been received.
-      // eslint-disable-next-line verify-await/check
       json.proxy_token.received_at = Math.floor(Date.now() / 1000);
 
       return {
@@ -293,7 +280,6 @@ export class FxAUtils extends Component {
 
   syncStateError(data) {
     if (!data || !data.state) {
-      // eslint-disable-next-line verify-await/check
       console.trace();
       throw new Error("Internal error!");
     }
@@ -330,7 +316,6 @@ export class FxAUtils extends Component {
     // get optional flow params for fxa metrics
     await this.maybeFetchFxaFlowParams();
 
-    /* eslint-disable verify-await/check */
     const endpoint = new URL(stateData.authorizationEndpoint);
     endpoint.searchParams.append("access_type", stateData.accessType);
     endpoint.searchParams.append("client_id", stateData.clientID);
@@ -346,7 +331,6 @@ export class FxAUtils extends Component {
       endpoint.searchParams.append("flow_id", this.fxaFlowParams.flowId);
       endpoint.searchParams.append("flow_begin_time", this.fxaFlowParams.flowBeginTime);
     }
-    /* eslint-enable verify-await/check */
 
     try {
       const redirectURL = await browser.identity.launchWebAuthFlow({
@@ -356,9 +340,7 @@ export class FxAUtils extends Component {
 
       const url = new URL(redirectURL);
       const data = {
-        // eslint-disable-next-line verify-await/check
         state: url.searchParams.get("state"),
-        // eslint-disable-next-line verify-await/check
         code: url.searchParams.get("code"),
       };
 
@@ -375,7 +357,6 @@ export class FxAUtils extends Component {
 
   async completeAuthentication(stateToken, fxaCode) {
     const headers = new Headers();
-    // eslint-disable-next-line verify-await/check
     headers.append("Content-Type", "application/json");
 
     const request = new Request(this.service + "browser/oauth/authenticate", {
@@ -413,7 +394,6 @@ export class FxAUtils extends Component {
   }
 
   syncIsRequestingToken() {
-    // eslint-disable-next-line verify-await/check
     let nowInSecs = Math.floor(Date.now() / 1000);
 
     return this.requestingToken ||
@@ -438,7 +418,6 @@ export class FxAUtils extends Component {
 
   isAuthUrl(url) {
     // Let's skip our authentication flow.
-    // eslint-disable-next-line verify-await/check
     if (url.href.startsWith(this.service + "browser/oauth")) {
       return true;
     }
@@ -448,7 +427,6 @@ export class FxAUtils extends Component {
     // token we try to do the DNS lookup, but DOH requires a valid token and we
     // start the generation of the token again...
     if (this.syncIsRequestingToken() &&
-        // eslint-disable-next-line verify-await/check
         this.dohHostnames.includes(url.hostname)) {
       return true;
     }
@@ -457,7 +435,6 @@ export class FxAUtils extends Component {
   }
 
   excludedDomains() {
-    // eslint-disable-next-line verify-await/check
     const excludedDomains = this.wellKnownData.excludedDomains();
     return excludedDomains.concat(FXA_CDN_DOMAINS);
   }
@@ -467,11 +444,8 @@ export class FxAUtils extends Component {
 
     let profileData = await StorageUtils.getProfileData();
     let url = new URL(`${contentServer}/${path}`);
-    // eslint-disable-next-line verify-await/check
     url.searchParams.set("uid", profileData.uid);
-    // eslint-disable-next-line verify-await/check
     url.searchParams.set("email", profileData.email);
-    // eslint-disable-next-line verify-await/check
     url.searchParams.set("entrypoint", "secure-proxy-desktop-settings");
     return url.href;
   }
@@ -485,7 +459,6 @@ export class FxAUtils extends Component {
     let stateTokenData = await StorageUtils.getStateTokenData();
     if (stateTokenData) {
       const headers = new Headers();
-      // eslint-disable-next-line verify-await/check
       headers.append("Content-Type", "application/json");
 
       const request = new Request(this.service + "browser/oauth/forget", {
@@ -518,14 +491,10 @@ export class FxAUtils extends Component {
   }
 
   async digestTokenValue(tokenValue) {
-    // eslint-disable-next-line verify-await/check
     const tokenValueUint8 = new TextEncoder().encode(tokenValue);
     const hashBuffer = await crypto.subtle.digest("SHA-256", tokenValueUint8);
-    // eslint-disable-next-line verify-await/check
     const hashArray = Array.from(new Uint8Array(hashBuffer));
-    // eslint-disable-next-line verify-await/check
     const hashHex = hashArray.map(b => b.toString(16).padStart(2, "0")).join("");
-    // eslint-disable-next-line verify-await/check
     return hashHex.substr(0, 16);
   }
 

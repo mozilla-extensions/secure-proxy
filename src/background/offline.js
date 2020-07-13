@@ -24,7 +24,6 @@ export class OfflineManager extends Component {
       return;
     }
 
-    // eslint-disable-next-line verify-await/check
     this.syncScheduleProxyConnection();
   }
 

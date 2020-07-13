@@ -61,7 +61,6 @@ export class MessageService extends Component {
     const stateTokenData = await StorageUtils.getStateTokenData();
     const headers = new Headers();
 
-    // eslint-disable-next-line verify-await/check
     headers.append("Content-Type", "application/json");
 
     const request = new Request(this.service + "browser/oauth/messages", {
@@ -124,7 +123,6 @@ export class MessageService extends Component {
   async formatUrl(url) {
     let self = await browser.management.getSelf();
 
-    // eslint-disable-next-line verify-await/check
     url = url.replace(/PROXYENABLED/g, this.cachedProxyState === PROXY_STATE_ACTIVE ? "true" : "false")
              .replace(/VERSION/g, self.version)
              .replace(/USAGEDAYS/g, this.lastUsageDays.count);
@@ -144,18 +142,14 @@ export class MessageService extends Component {
 
     const state = await browser.idle.queryState(IDLE_INTERVAL);
     if (state === "idle") {
-      // eslint-disable-next-line verify-await/check
       cb();
       return;
     }
 
-    // eslint-disable-next-line verify-await/check
     browser.idle.setDetectionInterval(IDLE_INTERVAL);
     browser.idle.onStateChanged.addListener(function listener(state) {
       if (state === "idle") {
-        // eslint-disable-next-line verify-await/check
         browser.idle.onStateChanged.removeListener(listener);
-        // eslint-disable-next-line verify-await/check
         cb();
       }
     });
@@ -175,7 +169,6 @@ export class MessageService extends Component {
     const options = { year: "numeric", month: "2-digit", day: "2-digit" };
     const dateTimeFormat = new Intl.DateTimeFormat("en-US", options).format;
 
-    // eslint-disable-next-line verify-await/check
     let now = dateTimeFormat(Date.now());
     if (this.lastUsageDays.date === now) {
       return;
@@ -185,7 +178,6 @@ export class MessageService extends Component {
     this.lastUsageDays.date = now;
     this.lastUsageDays.count += 1;
 
-    // eslint-disable-next-line verify-await/check
     StorageUtils.setLastUsageDays(this.lastUsageDays).
       then(_ => { this.lastUsageDaysPending = false; });
   }

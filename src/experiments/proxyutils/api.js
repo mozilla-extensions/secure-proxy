@@ -63,7 +63,6 @@ let ConfirmationHint = {
     this._message.textContent = messageContent;
 
     this._description.hidden = true;
-    // eslint-disable-next-line verify-await/check
     this._panel.classList.remove("with-description");
 
     if (options.hideArrow) {
@@ -71,14 +70,10 @@ let ConfirmationHint = {
     }
 
     // Bug https://github.com/mozilla/secure-proxy/issues/252
-    // eslint-disable-next-line verify-await/check
     this.setCSS("#0060ED", "#fff");
-    // eslint-disable-next-line verify-await/check
     this.setIcon();
     if (options.isWarning) {
-      // eslint-disable-next-line verify-await/check
       this.setCSS("#fff36e", "#0c0c0d");
-      // eslint-disable-next-line verify-await/check
       this.setIcon("chrome://global/skin/icons/warning.svg");
     }
 
@@ -88,9 +83,7 @@ let ConfirmationHint = {
 
       setTimeout(() => {
         this._panel.hidePopup(true);
-        // eslint-disable-next-line verify-await/check
         this.setCSS();
-        // eslint-disable-next-line verify-await/check
         this.setIcon();
       }, DURATION + 120);
     }, {once: true});
@@ -249,9 +242,7 @@ this.proxyutils = class extends ExtensionAPI {
     } = ChromeUtils.import("resource://gre/modules/Extension.jsm", null);
 
     function getTabOrActive(tabId) {
-      // eslint-disable-next-line verify-await/check
       let tab = tabId !== null ? tabTracker.getTab(tabId) : tabTracker.activeTab;
-      // eslint-disable-next-line verify-await/check
       if (!context.canAccessWindow(tab.ownerGlobal)) {
         throw new ExtensionError(
           tabId === null
@@ -366,9 +357,7 @@ this.proxyutils = class extends ExtensionAPI {
                 //   would be a deadlock.
                 // - a few localhost domains, because these cannot be resolved.
 
-                // eslint-disable-next-line verify-await/check
                 let domains = Services.prefs.getCharPref("network.trr.excluded-domains").split(",");
-                // eslint-disable-next-line verify-await/check
                 domains = domains.concat(details.value.excludedDomains.split(","));
 
                 [
@@ -380,7 +369,6 @@ this.proxyutils = class extends ExtensionAPI {
                     const cdu = getStringPrefValue(pref);
                     let hostname = new URL(cdu).hostname;
                     if (hostname) {
-                      // eslint-disable-next-line verify-await/check
                       domains.push(hostname);
                     }
                   } catch (err) {
@@ -389,19 +377,16 @@ this.proxyutils = class extends ExtensionAPI {
                 });
 
                 let localhostDomains = [ "localhost.localdomain", "localhost6.localdomain6", "localhost6"];
-                // eslint-disable-next-line verify-await/check
                 let excludedDomains = [...new Set(domains.concat(localhostDomains))].join(",");
 
                 // We don't overwrite custom URI pref.
                 let uri = details.value.uri;
-                // eslint-disable-next-line verify-await/check
                 if (Services.prefs.prefHasUserValue("network.trr.uri")) {
                   uri = Services.prefs.getCharPref("network.trr.uri");
                 }
 
                 // We don't overwrite custom bootstrap address pref.
                 let bootstrapAddress = details.value.bootstrapAddress;
-                // eslint-disable-next-line verify-await/check
                 if (Services.prefs.prefHasUserValue("network.trr.bootstrapAddress")) {
                   bootstrapAddress = Services.prefs.getCharPref("network.trr.bootstrapAddress");
                 }
@@ -444,7 +429,6 @@ this.proxyutils = class extends ExtensionAPI {
             }
           ),
 
-          // eslint-disable-next-line verify-await/check
           onChanged: new EventManager({
             context,
             name: "proxyutils.onChanged",
@@ -459,7 +443,6 @@ this.proxyutils = class extends ExtensionAPI {
             }
           }).api(),
 
-          // eslint-disable-next-line verify-await/check
           onConnectionChanged: new EventManager({
             context,
             name: "proxyutils.onConnectionChanged",
@@ -469,10 +452,8 @@ this.proxyutils = class extends ExtensionAPI {
                 if (gNetworkLinkService.linkStatusKnown) {
                   connectivity = gNetworkLinkService.isLinkUp;
                 }
-                /* eslint-disable verify-await/check */
                 // this method dispatches an async onConnectionChanged event - the name is unrelated to async/sync return value
                 fire.async(connectivity);
-                /* eslint-enable verify-await/check */
               };
               Services.obs.addObserver(observer, "network:link-status-changed");
               return () => {
@@ -481,7 +462,6 @@ this.proxyutils = class extends ExtensionAPI {
             }
           }).api(),
 
-          // eslint-disable-next-line verify-await/check
           onWakeUp: new EventManager({
             context,
             name: "proxyutils.onWakeUp",
@@ -504,16 +484,13 @@ this.proxyutils = class extends ExtensionAPI {
 
           async loadNetError(errorCode, url, tabId) {
             let nativeTab = getTabOrActive(tabId);
-            // eslint-disable-next-line verify-await/check
             let uri = Services.uriFixup.createExposableURI(Services.io.newURI(url));
             let errorEnum = "NS_ERROR_PROXY_BAD_GATEWAY";
             if (errorCode === 407 && errorCode === 429) {
               errorEnum = "NS_ERROR_UNKNOWN_PROXY_HOST";
             }
-            // eslint-disable-next-line verify-await/check
             const code = `let spec = "${uri.spec}"; let uri = Services.io.newURI(spec); docShell.displayLoadError(Cr.${errorEnum}, uri, docShell.failedChannel);`;
             const mm = nativeTab.linkedBrowser.messageManager;
-            // eslint-disable-next-line verify-await/check
             mm.loadFrameScript(`data:,${encodeURI(code)}`, false);
           },
 

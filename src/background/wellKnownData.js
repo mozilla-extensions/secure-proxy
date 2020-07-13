@@ -28,7 +28,6 @@ export class WellKnownData {
 
     // Let's see if we can fetch data now. But let's ignore the async return
     // value.
-    // eslint-disable-next-line verify-await/check
     this.fetch();
   }
 
@@ -47,7 +46,6 @@ export class WellKnownData {
   async fetch() {
     log("Fetching well-known data");
 
-    // eslint-disable-next-line verify-await/check
     let now = Date.now();
     let nowInSecs = Math.floor(now / 1000);
 
@@ -119,7 +117,6 @@ export class WellKnownData {
     if (this.hasWellKnownData()) {
       [FXA_ENDPOINT_PROFILE, FXA_ENDPOINT_TOKEN, FXA_ENDPOINT_ISSUER].forEach(e => {
         try {
-          // eslint-disable-next-line verify-await/check
           excludedDomains.push(new URL(this.syncGetEndpoint(e)).hostname);
         } catch (e) {}
       });
