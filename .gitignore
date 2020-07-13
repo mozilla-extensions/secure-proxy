@@ -5,3 +5,4 @@ management-src/web-ext-artifacts/*
 node_modules
 dist
 *.pyc
+yarn-error.log
