@@ -12,7 +12,7 @@ const DOH_REQUEST_TIMEOUT = 30000; // 30 secs
 // Timeout between 1 network error and the next one.
 const NET_ERROR_TIMEOUT = 5000; // 5 seconds.
 
-const NET_ERROR_WARNING_TIMEOUT = 2000 // 2 seconds.
+const NET_ERROR_WARNING_TIMEOUT = 2000; // 2 seconds.
 
 // Telemetry host
 const TELEMETRY_HOST = "https://incoming.telemetry.mozilla.org";

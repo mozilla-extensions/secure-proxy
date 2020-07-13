@@ -132,7 +132,6 @@ export class UI extends Component {
         case "onboardingEnd":
           this.sendMessage("onboardingEnd");
           break;
-
       }
     });
 

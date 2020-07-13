@@ -606,7 +606,7 @@ class Main {
         return this.tokenGenerated();
 
       case "logRequired":
-        return await this.logger.syncGetLogs();
+        return this.logger.syncGetLogs();
 
       case "onboardingEnd":
         return this.onboardingEnd();

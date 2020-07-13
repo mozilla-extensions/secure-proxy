@@ -27,7 +27,7 @@ export class Logger extends Component {
       if (self) {
         self.logInternal(category, msg, rest);
       }
-    }
+    };
   }
 
   logInternal(category, msg, rest) {
