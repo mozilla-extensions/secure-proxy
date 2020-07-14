@@ -16,9 +16,6 @@ import {Survey} from "./survey.js";
 import {Telemetry} from "./telemetry.js";
 import {UI} from "./ui.js";
 
-// If set to true, it imports tester.js and it execs the tests.
-const RUN_TESTS = false;
-
 const log = Logger.logger("Main");
 
 class Main {
@@ -69,16 +66,6 @@ class Main {
 
     // All good. Let's start.
     await this.firstRun();
-
-    // Let's start the testing, if we have to.
-    if (RUN_TESTS) {
-      try {
-        let {Tester} = await import("../tests/background/tester.js");
-        await Tester.run(this);
-      } catch (e) {
-        console.error("RUN_TESTS is true, but no tester.js included!");
-      }
-    }
 
     // Inititialization completed. Let's process any pending event received in
     // the meantime.
