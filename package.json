@@ -11,9 +11,10 @@
     "md": "npm run md:lint && npm run md:spell",
     "md:lint": "npx markdownlint-cli '*.md' 'docs/*.md'",
     "md:spell": "npx markdown-spellcheck -a -n -x --en-us '*.md' 'docs/*.md'",
-    "test": "echo \"Error: testing disabled\" && exit 0",
     "build": "web-ext build --filename secure-proxy.xpi",
-    "start": "web-ext run --verbose --pref devtools.console.stdout.chrome=true --pref devtools.console.stdout.content=true"
+    "start": "web-ext run --verbose --pref devtools.console.stdout.chrome=true --pref devtools.console.stdout.content=true",
+    "test": "echo \"Error: testing disabled\" && exit 0",
+    "test:ui": "test/setup-webext.sh && mocha ./test --no-deprecation"
   },
   "repository": {
     "type": "git",
@@ -27,13 +28,16 @@
   "homepage": "https://github.com/mozilla/secure-proxy#readme",
   "devDependencies": {
     "babel-eslint": "^10.1.0",
+    "dotenv": "^8.2.0",
     "eslint": "^6.8.0",
     "eslint-config-prettier": "^6.11.0",
     "eslint-plugin-fetch-options": "^0.0.5",
     "eslint-plugin-mozilla": "^2.4.0",
     "eslint-plugin-no-unsanitized": "^3.1.2",
     "eslint-plugin-prettier": "^3.1.4",
+    "mocha": "^8.0.1",
     "prettier": "^1.19.1",
+    "selenium-webdriver": "^4.0.0-alpha.7",
     "web-ext": "^4.3.0"
   }
 }
