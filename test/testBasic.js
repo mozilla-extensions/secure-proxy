@@ -265,8 +265,19 @@ describe("Secure-Proxy", function() {
     await buttonElm.click();
 
     const check = async () => {
-      let title = await eh.driver.findElement(By.css("h2"));
-      return (await title.getText()).includes("Private Network is on");
+      const title = await eh.driver.findElement(By.css("h2"));
+      if ((await title.getText()).includes("Private Network is on")) {
+        return true;
+      }
+
+      const ps = await eh.driver.findElements(By.css("p"));
+      for (let p of ps) {
+        if ((await p.getText()).includes("Turn off Firefox Private Network on another browser to use it here.")) {
+          return true;
+        }
+      }
+
+      return false;
     };
     await eh.driver.wait(() => check(), 10000);
   });
