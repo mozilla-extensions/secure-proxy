@@ -112,7 +112,10 @@ describe("Secure-Proxy", function() {
 
     eh.driver.switchTo().window(popupHandle);
 
-    const warning = await eh.driver.wait(until.elementLocated(By.css("p[data-mode='warning']")), 10000);
+    const warning = await eh.driver.wait(
+      until.elementLocated(By.css("p[data-mode='warning']")),
+      10000
+    );
     assert.ok(!!warning, "We have a warning element");
     assert.ok((await warning.getText()).includes("Sign in failed"));
 
@@ -272,7 +275,12 @@ describe("Secure-Proxy", function() {
 
       const ps = await eh.driver.findElements(By.css("p"));
       for (let p of ps) {
-        if ((await p.getText()).includes("Turn off Firefox Private Network on another browser to use it here.")) {
+        if (
+          (await p.getText()).includes(
+            "Turn off Firefox Private Network on another browser to use it here."
+          ) &&
+          (await p.isDisplayed())
+        ) {
           return true;
         }
       }

@@ -116,13 +116,14 @@ describe("Secure-Proxy - DeviceLimit", function() {
       await eh.waitForWindowClose(authHandle);
 
       eh.driver.switchTo().window(popupHandle);
-   }
+    }
   });
 
   it("Skip Onboarding", async () => {
     for (let eh of ehs) {
       const popupHandle = await eh.openPanel();
 
+      await eh.driver.setContext("content");
       let closeButton = await eh.waitForElement("onboardingCloseButton");
       await closeButton.click();
     }
@@ -154,7 +155,12 @@ describe("Secure-Proxy - DeviceLimit", function() {
 
         const ps = await eh.driver.findElements(By.css("p"));
         for (let p of ps) {
-          if ((await p.getText()).includes("Turn off Firefox Private Network on another browser to use it here.")) {
+          if (
+            (await p.getText()).includes(
+              "Turn off Firefox Private Network on another browser to use it here."
+            ) &&
+            (await p.isDisplayed())
+          ) {
             deviceLimitFound = true;
             return true;
           }
