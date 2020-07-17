@@ -148,10 +148,12 @@ describe("Secure-Proxy - DeviceLimit", function() {
       await buttonElm.click();
 
       const check = async () => {
-        const title = await eh.driver.findElement(By.css("h2"));
-        if ((await title.getText()).includes("Private Network is on")) {
-          return true;
-        }
+        try {
+          const title = await eh.driver.findElement(By.css("h2"));
+          if ((await title.getText()).includes("Private Network is on")) {
+            return true;
+          }
+        } catch(e) {}
 
         const ps = await eh.driver.findElements(By.css("p"));
         for (let p of ps) {
