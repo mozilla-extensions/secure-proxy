@@ -30,10 +30,6 @@ workflows:
   version: 2
   build-test:
     jobs:
-      - build-docker:
-          filters:
-            tags:
-              only: /.*/
       - test:
           filters:
             tags:
