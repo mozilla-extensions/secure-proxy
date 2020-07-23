@@ -3,11 +3,8 @@ const webdriver = require("selenium-webdriver"),
   Keys = webdriver.Key,
   until = webdriver.until;
 
-const { Command } = require("selenium-webdriver/lib/command");
-const firefox = require("selenium-webdriver/firefox");
-const fs = require("fs");
-
 const ExtensionHelper = require("./extension.js");
+const FirefoxHelper = require("./firefox.js");
 
 const assert = require("assert");
 
@@ -17,48 +14,7 @@ describe("Secure-Proxy", function() {
   this.timeout(2000000);
 
   before(async () => {
-    require("dotenv").config();
-
-    assert.ok(
-      fs.existsSync(".env"),
-      "The .env file exists. See .env-test-dist"
-    );
-    assert.ok(fs.existsSync(process.env.FIREFOX_PATH), "Firefox exists");
-    assert.ok(fs.existsSync(process.env.XPI_PATH), "The extension exists");
-
-    const options = new firefox.Options();
-    options.setPreference("xpinstall.signatures.required", false);
-    options.setPreference("extensions.install.requireBuiltInCerts", false);
-    options.setPreference("extensions.webapi.testing", true);
-    options.setPreference("extensions.legacy.enabled", true);
-    options.setPreference("extensions.experiments.enabled", true);
-    options.setBinary(process.env.FIREFOX_PATH);
-
-    const driver = await new webdriver.Builder()
-      .forBrowser("firefox")
-      .setFirefoxOptions(options)
-      .build();
-
-    const command = new Command("install addon")
-      .setParameter("path", process.env.XPI_PATH)
-      .setParameter("temporary", true);
-
-    await driver.execute(command);
-
-    await driver.setContext("chrome");
-    const addonUUID = await driver.executeScript(
-      "var Cu = Components.utils;" +
-        "const {WebExtensionPolicy} = Cu.getGlobalForObject(Cu.import(" +
-        '"resource://gre/modules/Extension.jsm", this));' +
-        "const extensions = WebExtensionPolicy.getActiveExtensions();" +
-        "for (let extension of extensions) {" +
-        '  if (extension.id === "secure-proxy@mozilla.com") {' +
-        "    return extension.mozExtensionHostname;" +
-        "  }" +
-        "}"
-    );
-
-    eh = new ExtensionHelper(driver, addonUUID);
+    eh = await FirefoxHelper.createDriver();
   });
 
   beforeEach(async () => {});
@@ -273,7 +229,7 @@ describe("Secure-Proxy", function() {
         if ((await title.getText()).includes("Private Network is on")) {
           return true;
         }
-      } catch(e) {}
+      } catch (e) {}
 
       const ps = await eh.driver.findElements(By.css("p"));
       for (let p of ps) {
