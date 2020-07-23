@@ -11,11 +11,6 @@ module.exports = class FirefoxHelper {
   static async createDrivers(number) {
     require("dotenv").config();
 
-    assert.ok(
-      fs.existsSync(".env"),
-      "The .env file exists. See .env-test-dist"
-    );
-
     assert.ok(fs.existsSync(process.env.FIREFOX_PATH), "Firefox exists");
     assert.ok(fs.existsSync(process.env.XPI_PATH), "The extension exists");
 
@@ -27,7 +22,7 @@ module.exports = class FirefoxHelper {
     options.setPreference("extensions.experiments.enabled", true);
     options.setBinary(process.env.FIREFOX_PATH);
 
-    if (process.env.HEADLESS === "y") {
+    if (process.env.HEADLESS) {
       options.headless();
     }
 
