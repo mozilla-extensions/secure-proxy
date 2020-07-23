@@ -14,7 +14,7 @@
     "build": "web-ext build --filename secure-proxy.xpi",
     "start": "web-ext run --verbose --pref devtools.console.stdout.chrome=true --pref devtools.console.stdout.content=true",
     "test": "echo \"Error: testing disabled\" && exit 0",
-    "experimentaltests": "test/setup-webext.sh && mocha ./test --no-deprecation"
+    "experimentaltests": "./test/fix_dependencies.sh && mocha ./test --no-deprecation"
   },
   "repository": {
     "type": "git",
