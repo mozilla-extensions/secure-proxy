@@ -54,7 +54,7 @@ class ViewSettings extends View {
       View.close();
     }
 
-    if (e.target.id === "introHeading" && ++this.headerClicks === LOG_DOWNLOAD_CLICKS) {
+    if (e.target.id === "introHeadingText" && ++this.headerClicks === LOG_DOWNLOAD_CLICKS) {
       await View.sendMessage("logRequired");
     }
 
