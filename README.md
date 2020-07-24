@@ -39,3 +39,7 @@ This module is licensed under the [Mozilla Public License, version 2.0][license-
 [coc-link]: docs/code_of_conduct.md
 [security-link]: docs/SECURITY.md
 [license-link]: /LICENSE
+
+## Test status
+
+![Secure-Proxy tests](https://github.com/mozilla-extensions/secure-proxy/workflows/Secure-Proxy%20tests/badge.svg)
