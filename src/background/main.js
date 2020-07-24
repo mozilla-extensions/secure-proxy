@@ -6,7 +6,6 @@ import {FxAUtils} from "./fxa.js";
 import {IPInfo} from "./ipinfo.js";
 import {Logger} from "./logger.js";
 import {MessageService} from "./messageService.js";
-import {MobileEvents} from "./mobileEvents.js";
 import {Network} from "./network.js";
 import {OfflineManager} from "./offline.js";
 import {ProxyDownChecker} from "./proxyDownChecker.js";
@@ -43,7 +42,6 @@ class Main {
     this.externalHandler = new ExternalHandler(this);
     this.fxa = new FxAUtils(this);
     this.messageService = new MessageService(this);
-    this.mobileEvents = new MobileEvents(this);
     this.net = new Network(this);
     this.offlineManager = new OfflineManager(this);
     this.proxyDownChecker = new ProxyDownChecker(this);
@@ -586,9 +584,6 @@ class Main {
       case "proxySettingsChanged":
         return this.proxySettingsChanged();
 
-      case "sendCode":
-        return this.fxa.receiveCode(data);
-
       case "tokenGenerated":
         return this.tokenGenerated();
 
@@ -639,7 +634,7 @@ class Main {
   registerObserver(observer) {
     this.observers.add(observer);
   }
-}
+};
 
 let main = new Main();
 main.init();

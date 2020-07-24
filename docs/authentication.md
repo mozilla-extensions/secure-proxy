@@ -22,25 +22,6 @@ To obtain the proxy token, SP sends an "Info request" to know if the user has
 available passes/tokens. If there are passes available, the SP sends a "New
 token request".
 
-# The secure-proxy authentication flow on Mobile
-
-On Mobile, the authentication flow is similar to the Desktop version described
-above, but it requires a new actor: the Secure-Proxy Mozilla Android
-Component (MozAC)
-
-The authentication flow is started by MozAC, which is responsible for the
-following steps:
-
-1. The MozAC requests an oauth state token from SPS.
-2. The MozAC starts the authentication, calling the FxA authorization endpoint, and passing the state token as a parameter.
-3. The MozAC obtains the fxa code from the FxA authorization endpoint.
-4. The MozAC sends the fxa code and the oauth state token to SP.
-
-The authentication flow will be completed by the extension as shown in the
-diagram, similar to the desktop version.
-
-![Diagram](authentication_mobile.svg)
-
 ## SPS REST API
 
 ### state token request
