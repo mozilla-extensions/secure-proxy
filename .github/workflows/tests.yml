@@ -1,0 +1,35 @@
+name: Secure-Proxy tests
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Install Node
+        uses: actions/setup-node@v1
+      - name: npm dependencies
+        run: npm install
+      - name: Create the XPI
+        run: npm run-script build
+      - name: Run the tests
+        shell: bash
+        run: PATH=$PATH:/tmp npm run experimentaltests
+        env:
+          ACCOUNT_EMAIL: ${{ secrets.ACCOUNT_EMAIL }}
+          ACCOUNT_PASSWD: ${{ secrets.ACCOUNT_PASSWD }}
+          ACCOUNT_EMAIL_SUB: ${{ secrets.ACCOUNT_EMAIL_SUB }}
+          ACCOUNT_PASSWD_SUB: ${{ secrets.ACCOUNT_PASSWD_SUB }}
+          FIREFOX_PATH: /tmp/firefox/firefox
+          XPI_PATH: /tmp/secure-proxy.xpi
+          HEADLESS: y
+          FXA_OPEN_ID: ${{ secrets.FXA_OPEN_ID }}
+          SPS: ${{ secrets.SPS }}
