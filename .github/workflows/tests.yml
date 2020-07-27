@@ -21,6 +21,8 @@ jobs:
       - name: Create the XPI
         run: npm run-script build
       - name: Run the tests
+        shell: bash
+        run: PATH=$PATH:/tmp npm run experimentaltests
         env:
           ACCOUNT_EMAIL: ${{ secrets.ACCOUNT_EMAIL }}
           ACCOUNT_PASSWD: ${{ secrets.ACCOUNT_PASSWD }}
@@ -31,4 +33,3 @@ jobs:
           HEADLESS: y
           FXA_OPEN_ID: ${{ secrets.FXA_OPEN_ID }}
           SPS: ${{ secrets.SPS }}
-          run: PATH=$PATH:/tmp npm run experimentaltests
