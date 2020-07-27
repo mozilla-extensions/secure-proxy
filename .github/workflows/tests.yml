@@ -1,0 +1,24 @@
+name: Secure-Proxy tests
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: npm dependencies
+        run: npm install
+      - name: Create the XPI
+        run: npm run-script build
+      - name: Run the tests
+        env:
+          FIREFOX_PATH: /tmp/firefox/firefox
+          XPI_PATH: /tmp/secure-proxy.xpi
+          HEADLESS: y
+        run: PATH=$PATH:/tmp npm run experimentaltests
