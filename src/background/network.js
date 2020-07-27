@@ -407,7 +407,7 @@ export class Network extends Component {
       return false;
     }
 
-    // Whitelisted.
+    // Allowed.
     if (this.proxyPassthrough.has(url.hostname)) {
       return false;
     }
