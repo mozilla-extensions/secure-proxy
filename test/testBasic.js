@@ -83,15 +83,19 @@ describe("Secure-Proxy", function() {
   it("Start the authentication", async () => {
     const popupHandle = await eh.openPanel();
 
+console.log("A");
     let authButton = await eh.waitForElement("authButton");
     assert.ok(!!authButton, "The authentication button exists");
 
+console.log("B");
     await authButton.click();
 
+console.log("C");
     const authHandle = await eh.waitForURL(
       "https://accounts.stage.mozaws.net/oauth/"
     );
 
+console.log("D");
     const emailField = await eh.driver.findElement(By.className("email"));
     assert.ok(!!emailField);
     await emailField.sendKeys(process.env.ACCOUNT_EMAIL);
@@ -112,6 +116,7 @@ describe("Secure-Proxy", function() {
 
     await eh.waitForWindowClose(authHandle);
 
+console.log("Z");
     eh.driver.switchTo().window(popupHandle);
   });
 

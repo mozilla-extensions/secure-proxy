@@ -41,26 +41,32 @@ describe("Secure-Proxy - on/off", function() {
       "https://accounts.stage.mozaws.net/oauth/"
     );
 
+console.log("A");
     const emailField = await eh.driver.findElement(By.className("email"));
     assert.ok(!!emailField);
     await emailField.sendKeys(process.env.ACCOUNT_EMAIL_ALLOW);
 
+console.log("B");
     let buttonElm = await eh.driver.findElement(By.id("submit-btn"));
     assert.ok(!!buttonElm);
     buttonElm.click();
 
+console.log("C");
     await eh.waitForURL("https://accounts.stage.mozaws.net/oauth/signin");
 
+console.log("E");
     const passwordField = await eh.driver.findElement(By.id("password"));
     assert.ok(!!passwordField);
     passwordField.sendKeys(process.env.ACCOUNT_PASSWD_ALLOW);
 
+console.log("F");
     buttonElm = await eh.driver.findElement(By.id("submit-btn"));
     assert.ok(!!buttonElm);
     await buttonElm.click();
 
     await eh.waitForWindowClose(authHandle);
 
+console.log("Z");
     eh.driver.switchTo().window(popupHandle);
   });
 
