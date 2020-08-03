@@ -28,6 +28,8 @@ jobs:
           ACCOUNT_PASSWD: ${{ secrets.ACCOUNT_PASSWD }}
           ACCOUNT_EMAIL_SUB: ${{ secrets.ACCOUNT_EMAIL_SUB }}
           ACCOUNT_PASSWD_SUB: ${{ secrets.ACCOUNT_PASSWD_SUB }}
+          ACCOUNT_EMAIL_ALLOW: ${{ secrets.ACCOUNT_EMAIL_ALLOW }}
+          ACCOUNT_PASSWD_ALLOW: ${{ secrets.ACCOUNT_PASSWD_ALLOW }}
           FIREFOX_PATH: /tmp/firefox/firefox
           XPI_PATH: /tmp/secure-proxy.xpi
           HEADLESS: y
