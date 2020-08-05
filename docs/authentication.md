@@ -60,9 +60,7 @@ Response:
 * Content-type: application/json
 * Body: ```{
   state: "ok",
-  proxy_token: <current token string if exists - null otherwise>,
-  current_pass: <-1 for unlimited>
-  total_passes: <-1 for unlimited>
+  proxy_token: <current token string if exists - null otherwise>
 }```
 
 Possible error codes:
@@ -82,9 +80,7 @@ Response:
 * Content-type: application/json
 * Body: ```{
   state: "ok",
-  proxy_token: <current token string if exists - null otherwise>,
-  current_pass: <-1 for unlimited>
-  total_passes: <-1 for unlimited>
+  proxy_token: <current token string if exists - null otherwise>
 }```
 
 Possibile error codes:
@@ -104,9 +100,7 @@ Response:
 * Content-type: application/json
 * body: ```{
   state: "ok",
-  proxy_token: <new token or null>,
-  current_pass: <-1 for unlimited>
-  total_passes: <-1 for unlimited>
+  proxy_token: <new token or null>
 }```
 
 Possibile error codes:
