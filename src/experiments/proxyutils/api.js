@@ -239,7 +239,7 @@ this.proxyutils = class extends ExtensionAPI {
       Management: {
         global: { tabTracker },
       },
-    } = ChromeUtils.import("resource://gre/modules/Extension.jsm", null);
+    } = ChromeUtils.import("resource://gre/modules/Extension.jsm");
 
     function getTabOrActive(tabId) {
       let tab = tabId !== null ? tabTracker.getTab(tabId) : tabTracker.activeTab;

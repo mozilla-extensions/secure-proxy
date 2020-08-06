@@ -257,7 +257,7 @@ export class UI extends Component {
   }
 
   getTranslation(stringName, ...args) {
-    if (args.length > 0) {
+    if (args.length !== 0) {
       return browser.i18n.getMessage(stringName, ...args);
     }
     return browser.i18n.getMessage(stringName);
