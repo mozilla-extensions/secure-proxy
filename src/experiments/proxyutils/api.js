@@ -29,6 +29,8 @@ XPCOMUtils.defineLazyServiceGetter(this, "gNetworkLinkService",
                                    "@mozilla.org/network/network-link-service;1",
                                    "nsINetworkLinkService");
 
+XPCOMUtils.defineLazyGlobalGetters(this, ["XMLHttpRequest"]);
+
 // eslint-disable-next-line mozilla/reject-importGlobalProperties
 Cu.importGlobalProperties(["URL"]);
 
@@ -480,6 +482,58 @@ this.proxyutils = class extends ExtensionAPI {
 
           async formatURL(url) {
             return Services.urlFormatter.formatURL(url);
+          },
+
+          async checkConnection(url) {
+            return new Promise((resolve, reject) => {
+              let xhr = new XMLHttpRequest();
+              xhr.open("GET", url, true);
+              // Prevent the request from reading from the cache.
+              xhr.channel.loadFlags |= Ci.nsIRequest.LOAD_BYPASS_CACHE;
+              // Prevent the request from writing to the cache.
+              xhr.channel.loadFlags |= Ci.nsIRequest.INHIBIT_CACHING;
+              // Prevent privacy leaks
+              xhr.channel.loadFlags |= Ci.nsIRequest.LOAD_ANONYMOUS;
+              // Use the system's resolver for this check
+              xhr.channel.setTRRMode(Ci.nsIRequest.TRR_DISABLED_MODE);
+              // We except this from being classified
+              xhr.channel.loadFlags |= Ci.nsIChannel.LOAD_BYPASS_URL_CLASSIFIER;
+              // Prevent HTTPS-Only Mode from upgrading the request.
+              xhr.channel.loadInfo.httpsOnlyStatus |= Ci.nsILoadInfo.HTTPS_ONLY_EXEMPT;
+              // Allow deprecated HTTP request from SystemPrincipal
+              xhr.channel.loadInfo.allowDeprecatedSystemRequests = true;
+
+              // We don't want to follow _any_ redirects
+              xhr.channel.QueryInterface(Ci.nsIHttpChannel).redirectionLimit = 0;
+
+              // bug 1666072 - firefox.com returns a HSTS header triggering a https upgrade
+              // but the upgrade triggers an internal redirect causing an incorrect locked
+              // portal notification. We exclude this request from STS.
+              xhr.channel.QueryInterface(Ci.nsIHttpChannel).allowSTS = false;
+
+              // The Cache-Control header is only interpreted by proxies and the
+              // final destination. It does not help if a resource is already
+              // cached locally.
+              xhr.setRequestHeader("Cache-Control", "no-cache");
+              // HTTP/1.0 servers might not implement Cache-Control and
+              // might only implement Pragma: no-cache
+              xhr.setRequestHeader("Pragma", "no-cache");
+
+              xhr.onerror = reject;
+              xhr.onreadystatechange = function(oEvent) {
+                if (xhr.readyState !== 4) {
+                  return;
+                }
+
+                if (xhr.status === 200) {
+                  resolve();
+                  return;
+                }
+
+                reject();
+              };
+              xhr.send();
+            });
           },
 
           async loadNetError(errorCode, url, tabId) {

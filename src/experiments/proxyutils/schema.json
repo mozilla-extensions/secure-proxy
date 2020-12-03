@@ -50,6 +50,19 @@
         ]
       },
       {
+        "name": "checkConnection",
+        "type": "function",
+        "async": true,
+        "description": "Fetch a testing URL.",
+        "parameters": [
+          {
+            "name": "url",
+            "type": "string",
+            "description": "the URL to fetch"
+          }
+        ]
+      },
+      {
         "name": "formatURL",
         "type": "function",
         "async": true,
