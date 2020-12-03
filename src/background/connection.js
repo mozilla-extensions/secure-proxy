@@ -19,16 +19,12 @@ export class ConnectionTester {
       });
       log("added proxy.onRequest listener for", CONNECTING_HTTP_REQUEST);
 
-      fetch(CONNECTING_HTTP_REQUEST, { cache: "no-cache" }).
-        then(r => {
-          if (r.status === 200) {
+      browser.experiments.proxyutils.checkConnection(CONNECTING_HTTP_REQUEST).
+        then(() => {
+            log("ConnectionTester succeeded to fetch the resource");
             resolve();
-            return;
-          }
-
-          reject();
-        }, e => {
-          log("ConnectionTester failed to fetch the resource", e);
+        }, () => {
+          log("ConnectionTester failed to fetch the resource");
           reject();
         });
     });
