@@ -8,6 +8,7 @@ import {Logger} from "./logger.js";
 import {MessageService} from "./messageService.js";
 import {Network} from "./network.js";
 import {OfflineManager} from "./offline.js";
+import {PrivacySettings} from "./privacySettings.js";
 import {ProxyDownChecker} from "./proxyDownChecker.js";
 import {ProxyStateObserver} from "./proxyStateObserver.js";
 import {StorageUtils} from "./storageUtils.js";
@@ -50,6 +51,7 @@ class Main {
     this.telemetry = new Telemetry(this);
     this.ui = new UI(this);
     this.ipinfo = new IPInfo(this);
+    this.privacySettings = new PrivacySettings(this);
   }
 
   async init() {
