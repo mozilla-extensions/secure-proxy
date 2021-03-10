@@ -4,23 +4,33 @@ import {Logger} from "./logger.js";
 const log = Logger.logger("PrivacySettings");
 
 // Make sure we have dFPI (or stronger) enabled.
-let enforceCookieIsolation = async () => {
+let enableCookieIsolation = async () => {
   const initialConfig = await browser.privacy.websites.cookieConfig.get({});
-  log(`initial privacy config: ${initialConfig}`);
-
-  if (initialConfig.value.behavior === "reject_trackers") {
+  if (["reject_trackers", "allow_all", "allow_visited"].includes(
+    initialConfig.value.behavior)) {
     // Cookie behavior is too weak. Let's upgrade to dFPI.
     await browser.privacy.websites.cookieConfig.set({
       value: {behavior: "reject_trackers_and_partition_foreign"}});
   }
-
-  const finalConfig = await browser.privacy.websites.cookieConfig.get({});
-  log(`final privacy config: ${finalConfig}`);
 };
 
+// Relinquish control of cookie settings.
+let resetCookieSettings = async () => {
+  await browser.privacy.websites.cookieConfig.clear({});
+};
+
+// Class to control the cookie settings when the proxy is enabled.
 export class PrivacySettings extends Component {
   constructor(receiver) {
     super(receiver);
-    browser.runtime.onInstalled.addListener(enforceCookieIsolation);
+  }
+
+  setProxyState(proxyState) {
+    log(`${proxyState}: proxyState`);
+    if (proxyState === PROXY_STATE_INACTIVE) {
+      resetCookieSettings();
+    } else {
+      enableCookieIsolation();
+    }
   }
 }
