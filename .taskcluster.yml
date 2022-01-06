@@ -5,12 +5,19 @@ policy:
     pullRequests: collaborators
 tasks:
     - $let:
+          # XXX Set to `true` for private repos
           privateRepo: false
+          # XXX Use
+          # `system` for system add-on,
+          # `privileged` for AMO or self-hosted privileged add-on,
+          # `mozillaonline-privileged` for Mozilla China add-on,
+          # `normandy-privileged` for normandy add-on
+          # to enable siging on push/PR.
           xpiSigningType: "privileged"
           # The below doesn't need changing on initial repo setup
           taskgraph:
               branch: taskgraph
-              revision: 7dde9ce7740068d7b73218976343a28fc99be847
+              revision: b6ecb0fd4e7e36437520f7359ab5b3ff59494c44
           template:
               repo: https://github.com/mozilla-extensions/xpi-template
               branch: master
@@ -137,8 +144,6 @@ tasks:
                                 then:
                                     source: '${repoUrl}/raw/${head_sha}/.taskcluster.yml'
                                 else:
-                                    # XXX revisit after https://github.com/taskcluster/taskcluster/pull/2812
-                                    #     is deployed to the firefoxci cluster.
                                     source: 'ssh://github.com/${repoUrl[15:-4]}/raw/${head_sha}/.taskcluster.yml'
                               - $if: 'tasks_for in ["github-push", "github-pull-request"]'
                                 then:
@@ -174,7 +179,6 @@ tasks:
                                     - "index.${trustDomain}.v2.${project}.revision.${head_sha}.taskgraph.decision"
                                 else: []
                       scopes:
-                          # `https://` is 8 characters so, ${repoUrl[8:]} is the repository without the protocol.
                           $if: 'tasks_for == "github-push"'
                           then:
                               $let:
@@ -265,14 +269,14 @@ tasks:
                                 in:
                                     $if: 'tasks_for == "action"'
                                     then: >
-                                        PIP_IGNORE_INSTALLED=0 pip install --user /builds/worker/checkouts/taskgraph &&
+                                        PIP_IGNORE_INSTALLED=0 pip3 install --user /builds/worker/checkouts/taskgraph &&
                                         cd /builds/worker/checkouts/src &&
                                         rm -rf taskcluster &&
                                         ln -s /builds/worker/checkouts/template/taskcluster taskcluster &&
                                         ln -s /builds/worker/artifacts artifacts &&
                                         ~/.local/bin/taskgraph action-callback
                                     else: >
-                                        PIP_IGNORE_INSTALLED=0 pip install --user /builds/worker/checkouts/taskgraph &&
+                                        PIP_IGNORE_INSTALLED=0 pip3 install --user /builds/worker/checkouts/taskgraph &&
                                         rm -rf taskcluster &&
                                         ln -s /builds/worker/checkouts/template/taskcluster taskcluster &&
                                         ln -s /builds/worker/artifacts artifacts &&
