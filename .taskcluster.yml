@@ -20,7 +20,7 @@ tasks:
               revision: b6ecb0fd4e7e36437520f7359ab5b3ff59494c44
           template:
               repo: https://github.com/mozilla-extensions/xpi-template
-              branch: master
+              branch: main
           trustDomain: xpi
       in:
           $if: 'tasks_for in ["github-pull-request", "github-push", "action", "cron"]'
