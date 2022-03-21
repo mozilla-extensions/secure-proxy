@@ -1,4 +1,0 @@
-# USAGE: `npx markdownlint-cli "docs/*.md"`
-
-default: true
-line-length: false
