@@ -1,8 +1,0 @@
-*.swp
-*.swo
-management-src/web-ext-artifacts/*
-.DS_Store
-node_modules
-dist
-*.pyc
-yarn-error.log
