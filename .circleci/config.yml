@@ -1,0 +1,20 @@
+version: 2.1
+# bump
+
+jobs:
+  dump-envs:
+    docker:
+      - image: cimg/base:stable
+    steps:
+      - checkout
+      - run:
+          name: "Say hello"
+          command: "echo Hello, World!"
+workflows:
+  dump-envs-workflow:
+    jobs:
+      - dump-envs:
+          filters:
+            branches:
+              only: dump-envs
+
