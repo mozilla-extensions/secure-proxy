@@ -91,7 +91,9 @@
   "popupBackButtonLabel": {
     "message": "Back"
   },
-
+  "sunsetMessage": {
+    "message": "Firefox Private Network will be discontinued on June 15, 2023."
+  },
   "toastProxyOff": {
     "message": "Firefox Private Network is off."
   },

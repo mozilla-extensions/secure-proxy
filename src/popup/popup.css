@@ -50,6 +50,7 @@
   --black: #0c0c0D;
   --grey-10: #F9F9FA;
   --error: #FFBDC5;
+  --warning: #FFA436;
 
   --link-link: var(--blue-50);
   --link-hover: var(--blue-60);
@@ -635,18 +636,36 @@ footer,
   text-decoration: none;
 }
 
+.sunset,
 #proxyError,
 #content p[data-mode="warning"] {
-  background-color: var(--error);
   border-radius: 4px;
   margin: 0 var(--edge-padding) var(--edge-padding);
   padding: var(--edge-padding);
   padding-inline-start: 32px;
   position: relative;
-  display: flex;
   text-align: left;
 }
 
+#proxyError,
+#content p[data-mode="warning"] {
+  background-color: var(--error);
+  display: flex;
+}
+
+#sunsetSumoLink{
+  color: var(--grey-90);
+}
+
+.sunset {
+  background-color: var(--warning);
+}
+
+.sunset {
+  display: inline;
+}
+
+.sunset::before,
 #proxyError::before,
 #content p[data-mode="warning"]::before {
   position: absolute;

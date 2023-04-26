@@ -19,6 +19,17 @@ async function init() {
     View.sendMessage("telemetryEvent", { category: "general", event: "loadingError"});
   }, loadingTimeout);
 
+  // Set 'FPN is being sunset' strings.
+  const sunsetMessage = document.getElementById("sunsetMessage");
+  sunsetMessage.textContent = browser.i18n.getMessage("sunsetMessage");
+  // Reusing 'Learn more' string
+  const sunsetSumoLink = document.getElementById("sunsetSumoLink");
+  sunsetSumoLink.textContent = browser.i18n.getMessage("viewDeviceLimitLink");
+  sunsetSumoLink.addEventListener("click", () => {
+    View.sendMessage("openSumoLink");
+    View.close();
+  });
+
   let lastMessage;
 
   let settingsButton = document.getElementById("settingsButton");

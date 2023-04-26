@@ -14,6 +14,7 @@ const PRIVACY_POLICY_URL = "https://www.mozilla.org/privacy/firefox-private-netw
 const TERMS_AND_CONDITIONS_URL = "https://www.mozilla.org/about/legal/terms/firefox-private-network";
 const GIVE_US_FEEDBACK_URL = "https://qsurvey.mozilla.com/s3/fx-private-network-beta-feedback";
 const SUBSCRIPTION_URL = "https://fpn.firefox.com/r/browser/subscriptionNeeded";
+const SUMO_URL= "https://support.mozilla.com";
 const DEVICELIMIT_URL = "https://fpn.firefox.com/r/browser/devicelimit";
 
 export class UI extends Component {
@@ -120,7 +121,9 @@ export class UI extends Component {
         case "openDeviceLimitLink":
           await this.openUrl(DEVICELIMIT_URL);
           break;
-
+        case "openSumoLink":
+          await this.openUrl(SUMO_URL);
+          break;
         case "telemetryEvent":
           this.syncSendMessage("telemetryEvent", message.data);
           break;
