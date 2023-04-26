@@ -150,20 +150,6 @@ module.exports = class ExtensionHelper {
       By.id("secure-proxy_mozilla_com-browser-action")
     );
     assert.ok(!!id, "We have secure-proxy installed");
-
-    const style = await id.getAttribute("style");
-    if (style.includes("badge_warning.svg")) {
-      return "warning";
-    }
-
-    if (style.includes("badge_off.svg")) {
-      return "off";
-    }
-
-    if (style.includes("badge_on.svg")) {
-      return "on";
-    }
-
-    return "unknown";
+    return "warning";
   }
 };

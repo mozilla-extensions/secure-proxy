@@ -207,39 +207,7 @@ export class UI extends Component {
     }
 
     await Promise.all([
-      this.updateIcon(),
       this.sendDataToCurrentPort(),
-    ]);
-  }
-
-  async updateIcon() {
-    if (constants.isAndroid) {
-      return;
-    }
-
-    let icon;
-    let text;
-    if (this.cachedProxyState === PROXY_STATE_INACTIVE ||
-        this.cachedProxyState === PROXY_STATE_CONNECTING ||
-        this.cachedProxyState === PROXY_STATE_OFFLINE ||
-        this.cachedProxyState === PROXY_STATE_CAPTIVE) {
-      icon = "/img/badge_off.svg";
-      text = "badgeOffText";
-    } else if (this.cachedProxyState === PROXY_STATE_ACTIVE) {
-      icon = "/img/badge_on.svg";
-      text = "badgeOnText";
-    } else {
-      icon = "/img/badge_warning.svg";
-      text = "badgeWarningText";
-    }
-
-    await Promise.all([
-      browser.browserAction.setIcon({
-        path: icon,
-      }),
-      browser.browserAction.setTitle({
-        title: this.getTranslation(text),
-      }),
     ]);
   }
 
