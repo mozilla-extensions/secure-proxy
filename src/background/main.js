@@ -12,7 +12,6 @@ import {PrivacySettings} from "./privacySettings.js";
 import {ProxyDownChecker} from "./proxyDownChecker.js";
 import {ProxyStateObserver} from "./proxyStateObserver.js";
 import {StorageUtils} from "./storageUtils.js";
-import {Survey} from "./survey.js";
 import {Telemetry} from "./telemetry.js";
 import {UI} from "./ui.js";
 
@@ -47,7 +46,6 @@ class Main {
     this.offlineManager = new OfflineManager(this);
     this.proxyDownChecker = new ProxyDownChecker(this);
     this.proxyStateObserver = new ProxyStateObserver(this);
-    this.survey = new Survey(this);
     this.telemetry = new Telemetry(this);
     this.ui = new UI(this);
     this.ipinfo = new IPInfo(this);
