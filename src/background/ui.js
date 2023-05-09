@@ -206,9 +206,7 @@ export class UI extends Component {
       await this.showStatusPrompt();
     }
 
-    await Promise.all([
-      this.sendDataToCurrentPort(),
-    ]);
+    await this.sendDataToCurrentPort();
   }
 
   async sendDataToCurrentPort(logs = null) {
