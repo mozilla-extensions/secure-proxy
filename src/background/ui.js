@@ -14,6 +14,7 @@ const PRIVACY_POLICY_URL = "https://www.mozilla.org/privacy/firefox-private-netw
 const TERMS_AND_CONDITIONS_URL = "https://www.mozilla.org/about/legal/terms/firefox-private-network";
 const GIVE_US_FEEDBACK_URL = "https://qsurvey.mozilla.com/s3/fx-private-network-beta-feedback";
 const SUBSCRIPTION_URL = "https://fpn.firefox.com/r/browser/subscriptionNeeded";
+const SUMO_URL= "https://support.mozilla.org/kb/firefox-private-network-no-longer-available?utm_source=inproduct&utm_medium=support";
 const DEVICELIMIT_URL = "https://fpn.firefox.com/r/browser/devicelimit";
 
 export class UI extends Component {
@@ -120,7 +121,9 @@ export class UI extends Component {
         case "openDeviceLimitLink":
           await this.openUrl(DEVICELIMIT_URL);
           break;
-
+        case "openSumoLink":
+          await this.openUrl(SUMO_URL);
+          break;
         case "telemetryEvent":
           this.syncSendMessage("telemetryEvent", message.data);
           break;
@@ -203,41 +206,7 @@ export class UI extends Component {
       await this.showStatusPrompt();
     }
 
-    await Promise.all([
-      this.updateIcon(),
-      this.sendDataToCurrentPort(),
-    ]);
-  }
-
-  async updateIcon() {
-    if (constants.isAndroid) {
-      return;
-    }
-
-    let icon;
-    let text;
-    if (this.cachedProxyState === PROXY_STATE_INACTIVE ||
-        this.cachedProxyState === PROXY_STATE_CONNECTING ||
-        this.cachedProxyState === PROXY_STATE_OFFLINE ||
-        this.cachedProxyState === PROXY_STATE_CAPTIVE) {
-      icon = "/img/badge_off.svg";
-      text = "badgeOffText";
-    } else if (this.cachedProxyState === PROXY_STATE_ACTIVE) {
-      icon = "/img/badge_on.svg";
-      text = "badgeOnText";
-    } else {
-      icon = "/img/badge_warning.svg";
-      text = "badgeWarningText";
-    }
-
-    await Promise.all([
-      browser.browserAction.setIcon({
-        path: icon,
-      }),
-      browser.browserAction.setTitle({
-        title: this.getTranslation(text),
-      }),
-    ]);
+    await this.sendDataToCurrentPort();
   }
 
   async sendDataToCurrentPort(logs = null) {

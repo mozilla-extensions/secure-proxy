@@ -169,7 +169,7 @@ describe("Secure-Proxy", function() {
     buttonElm = await eh.driver.findElement(By.id("onboardingDoneButton"));
     await buttonElm.click();
 
-    assert.equal(await eh.icon(), "off");
+    assert.equal(await eh.icon(), "warning");
   });
 
   it("Settings", async () => {
@@ -177,7 +177,7 @@ describe("Secure-Proxy", function() {
 
     assert.equal(await eh.settingsButtonStatus(), true);
     assert.equal(await eh.backButtonStatus(), false);
-    assert.equal(await eh.icon(), "off");
+    assert.equal(await eh.icon(), "warning");
 
     await eh.driver.setContext("content");
 
@@ -212,7 +212,7 @@ describe("Secure-Proxy", function() {
 
     assert.equal(await eh.settingsButtonStatus(), true);
     assert.equal(await eh.backButtonStatus(), false);
-    assert.equal(await eh.icon(), "off");
+    assert.equal(await eh.icon(), "warning");
 
     await eh.driver.setContext("content");
 
