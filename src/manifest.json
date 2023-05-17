@@ -2,7 +2,7 @@
   "manifest_version": 2,
   "name": "__MSG_extensionName__",
   "default_locale": "en_US",
-  "version": "25",
+  "version": "25.0.0",
   "author": "Firefox",
   "applications": {
     "gecko": {
