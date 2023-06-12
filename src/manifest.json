@@ -35,6 +35,7 @@
       "captivePortal",
       "identity",
       "idle",
+      "management",
       "privacy",
       "proxy",
       "storage",
@@ -59,12 +60,5 @@
 
   "background": {
     "page": "background/page.html"
-  },
-
-  "content_scripts": [
-    {
-      "matches": ["https://fpn.firefox.com/*"],
-      "js": ["content/fetch-fxa-flow-params.js"]
-    }
-  ]
+  }
 }
