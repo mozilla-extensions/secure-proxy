@@ -1,6 +1,6 @@
 {
   "name": "secure-proxy",
-  "version": "25.0.0",
+  "version": "26.0.0",
   "description": "An extension to enable a proxy within Firefox.",
   "main": ".",
   "directories": {
