@@ -4,12 +4,13 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-/* globals ExtensionAPI, ExtensionCommon, Services, ExtensionPreferencesManager, ExtensionError, Preferences */
+/* globals ExtensionAPI, ExtensionCommon, ExtensionPreferencesManager, ExtensionError, Preferences */
 
 "use strict";
 
-ChromeUtils.defineModuleGetter(this, "Services",
-                               "resource://gre/modules/Services.jsm");
+const Services =
+  globalThis.Services ||
+  ChromeUtils.import("resource://gre/modules/Services.jsm").Services;
 ChromeUtils.defineModuleGetter(this, "Preferences",
                                "resource://gre/modules/Preferences.jsm");
 ChromeUtils.defineModuleGetter(this, "UIState",
